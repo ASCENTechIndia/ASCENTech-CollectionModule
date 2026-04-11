@@ -3,7 +3,11 @@ const {
   updateUser,
   updateUserStatus,
   updateRole,
-  search,
+  search, branchList,
+  agentList,
+  getFormOptions,
+  getRegions,
+  getBranches,
 } = require('./users.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -152,10 +156,72 @@ async function searchHandler(req, res, next) {
   }
 }
 
+async function getUserFormOptionsHandler(req, res, next) {
+  try {
+    console.log("res :", req)
+    const rows = await getFormOptions(req.query);
+    logApiSuccess(req, 200, { count: rows?.length || 0 }, `User form options loaded`);
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'User form options error');
+    return next(error);
+  }
+}
+
+async function getRegionsHandler(req, res, next) {
+  try {
+    const rows = await getRegions(req.query.zoneId);
+    logApiSuccess(req, 200, { count: rows?.length || 0, zoneId: req.query.zoneId }, `Regions loaded`);
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Region lookup error');
+    return next(error);
+  }
+}
+
+async function getBranchesHandler(req, res, next) {
+  try {
+    const rows = await getBranches(req.query.regionId);
+    logApiSuccess(req, 200, { count: rows?.length || 0, regionId: req.query.regionId }, `Branches loaded`);
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Branch lookup error');
+    return next(error);
+  }
+}
+
+async function branchListHandler(req, res, next) {
+  try {
+    const filters = req.query;
+    const rows = await branchList(filters);
+    logApiSuccess(req, 200, { count: rows?.length || 0 }, `Branch list retrieved`);
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Branch list error');
+    return next(error);
+  }
+}
+
+async function agentListHandler(req, res, next) {
+  try {
+    const { brid } = req.query;  
+    const rows = await agentList(brid);
+    logApiSuccess(req, 200, { count: rows?.length || 0 }, `Agent list retrieved`);
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Agent list error');
+    return next(error);
+  }
+}
 module.exports = {
   createUserHandler,
   updateUserHandler,
   updateUserStatusHandler,
   updateRoleHandler,
   searchHandler,
+  getUserFormOptionsHandler,
+  getRegionsHandler,
+  getBranchesHandler,
+  branchListHandler,
+  agentListHandler
 };

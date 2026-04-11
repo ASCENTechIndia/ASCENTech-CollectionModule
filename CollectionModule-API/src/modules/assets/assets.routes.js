@@ -1,5 +1,6 @@
 const express = require('express');
 const validate = require('../../middleware/validate.middleware');
+const { authRequired } = require('../../middleware/auth');
 const {
   assetRegisterSchema,
   assetAssignSchema,
@@ -15,9 +16,9 @@ const {
 
 const router = express.Router();
 
-router.post('/register', validate(assetRegisterSchema), registerHandler);
-router.post('/assign', validate(assetAssignSchema), assignHandler);
-router.post('/transfer', validate(assetTransferSchema), transferHandler);
-router.post('/status', validate(assetStatusSchema), updateStatusHandler);
+router.post('/register', authRequired, validate(assetRegisterSchema), registerHandler);
+router.post('/assign', authRequired, validate(assetAssignSchema), assignHandler);
+router.post('/transfer', authRequired, validate(assetTransferSchema), transferHandler);
+router.post('/status', authRequired, validate(assetStatusSchema), updateStatusHandler);
 
 module.exports = router;

@@ -228,6 +228,227 @@ async function searchUsers(filters) {
   return result.rows || [];
 }
 
+async function getUserDetails(userId) {
+  const normalizedUserId = userId.startsWith('E') ? userId : `E${userId}`;
+
+  const detailSql = `
+    select num_usermst_brid in_brid,
+           var_usermst_userid in_userid,
+           var_usermst_userfullname in_username,
+           num_usermst_mobileno in_mobno,
+           num_usermst_email in_email,
+           num_usermst_usertype in_usertypeid,
+           to_char(date_usermst_dob, 'YYYY-MM-DD"T"HH24:MI:SS') in_DOB,
+           num_usermst_idproofno in_proofno,
+           num_usermst_desgid in_desgid,
+           num_usermst_compcode in_compcode,
+           num_usermst_workingid in_workid,
+           num_usermst_empid in_empid,
+           num_usermst_collectionid in_collectionid,
+           num_usermst_categorisation in_categoryid,
+           var_usermst_status in_status,
+           var_usermst_empcode in_Empcode,
+           var_usermst_userfirstname in_firstname,
+           var_usermst_userlastname in_lastname,
+           num_usermst_userprooftype in_prooftype,
+           num_usermst_compid in_compid
+      from aoup_usermst_def
+     where var_usermst_userid = :userId
+  `;
+
+  const result = await executeQuery(detailSql, { userId: normalizedUserId });
+  return result.rows?.[0] || null;
+}
+
+function normalizeLookupRows(rows) {
+  return (rows || []).map((row) => ({
+    id: Number(row.ID ?? row.id),
+    name: row.NAME ?? row.name,
+  }));
+}
+
+async function getUserFormOptions(filters = {}) {
+  const workingForSql = `
+    select num_working_id id,
+           var_working_name name
+      from aoup_working_mas
+     order by var_working_name
+  `;
+
+  const designationSql = `
+    select num_designation_id id,
+           var_designation_designation name
+      from aoup_designation_def
+     order by var_designation_designation
+  `;
+
+  const collectionTeamSql = `
+    select num_collectionteam_id id,
+           var_collectionteam_name name
+      from aoup_collectionteam_mas
+     order by num_collectionteam_id
+  `;
+
+  const productCategorySql = `
+    select num_productcategory_id id,
+           var_productcategory_name name
+      from aoup_productcategory_mas
+     order by num_productcategory_id
+  `;
+
+  const companyCodeSql = `
+    select num_companycode_id id,
+           var_companycode_code name
+      from aoup_companycode_mas
+     order by var_companycode_code
+  `;
+
+  const userRoleSql = `
+    select num_userrole_id id,
+           var_userrole_name name
+      from aoup_userrole_mas
+     order by num_userrole_id
+  `;
+
+  const userDeviceSql = `
+    select num_userdevice_id id,
+           var_userdevice_name name
+      from aoup_userdevice_mas
+     order by num_userdevice_id
+  `;
+
+  const userIdProofSql = `
+    select num_idproof_id id,
+           var_idproof_name name
+      from aoup_idproof_mas
+     order by num_idproof_id
+  `;
+
+  const assetOwnerSql = `
+    select num_assetowner_id id,
+           var_assetowner_name name
+      from aoup_assetowner_mas
+     order by var_assetowner_name
+  `;
+
+  const zoneSql = `
+    select num_companymst_compid id,
+           var_companymst_branchname name
+      from aoup_companymst_def
+     where num_companymst_parentid = 10002
+       and num_companymst_brcategory = 3
+     order by var_companymst_branchname
+  `;
+
+  const regionSql = `
+    select num_companymst_compid id,
+           var_companymst_branchname name
+      from aoup_companymst_def
+     where num_companymst_parentid = :zoneId
+       and num_companymst_brcategory = 4
+     order by var_companymst_branchname
+  `;
+
+  const branchSql = `
+    select num_companymst_compid id,
+           var_companymst_branchname name
+      from aoup_companymst_def
+     where num_companymst_parentid = :regionId
+       and num_companymst_brcategory = 5
+     order by var_companymst_branchname
+  `;
+
+  const employerSql = `
+    select e.num_employer_id id,
+           e.var_employer_name name,
+           e.var_employer_code code,
+           e.var_employer_workingid working_for_id,
+           eb.num_empbranch_branchid branch_id
+      from aoup_employer_mas e
+      inner join AOUP_EMPLOYER_BRANCHCONFIG eb on eb.num_empbranch_empid = e.num_employer_id
+     where 1 = 1
+  `;
+
+  const employerBinds = {};
+  let employerWhere = '';
+
+  if (filters.workingForId) {
+    employerWhere += ' and e.var_employer_workingid = :workingForId';
+    employerBinds.workingForId = Number(filters.workingForId);
+  }
+
+  if (filters.branchId) {
+    employerWhere += ' and eb.num_empbranch_branchid = :branchId';
+    employerBinds.branchId = Number(filters.branchId);
+  }
+
+  const [workingFor, designations, collectionTeams, productCategories, companyCodes, userRoles, userDevices, idProofs, assetOwners, zones, regions, branches, employers] = await Promise.all([
+    executeQuery(workingForSql),
+    executeQuery(designationSql),
+    executeQuery(collectionTeamSql),
+    executeQuery(productCategorySql),
+    executeQuery(companyCodeSql),
+    executeQuery(userRoleSql),
+    executeQuery(userDeviceSql),
+    executeQuery(userIdProofSql),
+    executeQuery(assetOwnerSql),
+    executeQuery(zoneSql),
+    filters.zoneId ? executeQuery(regionSql, { zoneId: Number(filters.zoneId) }) : Promise.resolve({ rows: [] }),
+    filters.regionId ? executeQuery(branchSql, { regionId: Number(filters.regionId) }) : Promise.resolve({ rows: [] }),
+    executeQuery(`${employerSql}${employerWhere} order by e.var_employer_name`, employerBinds),
+  ]);
+
+  const options = {
+    workingFor: normalizeLookupRows(workingFor.rows),
+    designations: normalizeLookupRows(designations.rows),
+    collectionTeams: normalizeLookupRows(collectionTeams.rows),
+    productCategories: normalizeLookupRows(productCategories.rows),
+    companyCodes: normalizeLookupRows(companyCodes.rows),
+    userRoles: normalizeLookupRows(userRoles.rows),
+    userDevices: normalizeLookupRows(userDevices.rows),
+    idProofs: normalizeLookupRows(idProofs.rows),
+    assetOwners: normalizeLookupRows(assetOwners.rows),
+    zones: normalizeLookupRows(zones.rows),
+    regions: normalizeLookupRows(regions.rows),
+    branches: normalizeLookupRows(branches.rows),
+    employers: normalizeLookupRows(employers.rows),
+  };
+
+  if (!filters.type) {
+    return options;
+  }
+
+  const type = String(filters.type).toLowerCase();
+  const typeMap = {
+    workingfor: 'workingFor',
+    working_for: 'workingFor',
+    working: 'workingFor',
+    designation: 'designations',
+    designations: 'designations',
+    collectionteam: 'collectionTeams',
+    collection_team: 'collectionTeams',
+    productcategory: 'productCategories',
+    product_category: 'productCategories',
+    companycode: 'companyCodes',
+    company_code: 'companyCodes',
+    userrole: 'userRoles',
+    user_role: 'userRoles',
+    userdevice: 'userDevices',
+    user_device: 'userDevices',
+    idproof: 'idProofs',
+    id_proof: 'idProofs',
+    assetowner: 'assetOwners',
+    asset_owner: 'assetOwners',
+    zone: 'zones',
+    region: 'regions',
+    branch: 'branches',
+    employer: 'employers',
+  };
+
+  const mappedType = typeMap[type];
+  return mappedType ? options[mappedType] : [];
+}
+
 async function updateUserRole(payload) {
   const normalizedUserId = payload.userId.startsWith('E') ? payload.userId : `E${payload.userId}`;
 
@@ -295,10 +516,63 @@ async function updateUserRole(payload) {
   };
 }
 
+async function branchListbyCategory(filters) {
+  let sql = `select * from etech.branchlist`;
+  const binds = {};
+
+  let conditions = [];
+
+  let column = "";
+  if (filters.brcategory == 5) {
+    column = "brid";
+  } else {
+    column = "compid";
+  }
+
+  if (filters.userLevel === "Zone") {
+    conditions.push(`${column} = :val`);
+    binds.val = 10001;
+  } 
+  else if (filters.userLevel === "Branch") {
+    conditions.push(`${column} = :val`);
+    binds.val = 10002;
+  } 
+  else if (filters.userLevel === "Region") {
+    conditions.push(`(${column} = :val OR brcategory = 4)`);
+    binds.val = 10017;
+  }
+
+  // ✅ condition नसेल तर error throw कर
+  if (conditions.length === 0) {
+    throw new Error("Invalid or missing userLevel");
+  }
+
+  sql += " WHERE " + conditions.join(" AND ");
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function agentDetailsbyBrid(brid) {
+  let sql = `
+  select replace(var_usermst_userid,'E','') username,var_usermst_userid userid,var_usermst_userfullname empname,var_usermst_empcode empcode,
+   num_usermst_mobileno mobno,num_usermst_email email,var_designation_designation desg,var_userrole_name  from etech.aoup_usermst_def a 
+             left outer join etech.aoup_designation_def on num_designation_id = num_usermst_desgid 
+             left outer join etech.aoup_userrole_mas on num_userrole_id = num_usermst_roleid 
+            where num_usermst_brid = :brid order by var_usermst_userid 
+  `;
+
+  const binds = { brid: Number(brid) };
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
 module.exports = {
   callUserInsNew,
   callUserIns,
   callUserStatusUpdate,
   searchUsers,
-  updateUserRole,
+  getUserDetails,
+  getUserFormOptions,
+  updateUserRole, branchListbyCategory, agentDetailsbyBrid
 };

@@ -27,8 +27,9 @@ import ButtonDemoPage from './pages/components/ButtonDemoPage'
 import TabsDemoPage from './pages/components/TabsDemoPage'
 import ChartsDemoPage from './pages/components/ChartsDemoPage'
 import NotFoundPage from './pages/NotFoundPage'
-import FrmUserCreation from './pages/User/FrmUserCreation'
-import FrmUserCreationWeb from './pages/User/FrmUserCreationWeb'
+import FrmUserCreation from './pages/user/FrmUserCreation'
+import FrmUserCreationWeb from './pages/user/FrmUserCreationWeb'
+import FrmUserList from './pages/user/FrmUserList'
 
 const queryClient = new QueryClient()
 
@@ -72,6 +73,9 @@ function App() {
                 
                 {/* User Management */}
                 {/* <Route path="/users" element={<UserListPage />} /> */}
+                <Route path="/User/FrmUserList" element={<FrmUserList />} />
+                <Route path='/User/FrmUserCreation' element={<FrmUserCreation />} />
+                <Route path='/User/FrmUserCreationWeb' element={<FrmUserCreationWeb />} />
                 
                 {/* Branch Management */}
                 {/* <Route path="/branches" element={<BranchListPage />} /> */}
@@ -95,8 +99,7 @@ function App() {
                 <Route path="/components/tabs" element={<TabsDemoPage />} />
                 <Route path="/components/charts" element={<ChartsDemoPage />} /> */}
 
-                <Route path='/User/UserCreation' element={<FrmUserCreation />} />
-                <Route path='/User/FrmUserCreationWeb' element={<FrmUserCreationWeb />} />
+                
 
               </Route>
 
