@@ -5,14 +5,16 @@ const {
   updateUserSchema,
   userStatusSchema,
   userRoleSchema,
-  userSearchSchema,
+  userSearchSchema, branchSchema,
+  agentSchema
 } = require('./users.validation');
 const {
   createUserHandler,
   updateUserHandler,
   updateUserStatusHandler,
   updateRoleHandler,
-  searchHandler,
+  searchHandler, branchListHandler,
+  agentListHandler
 } = require('./users.controller');
 
 const router = express.Router();
@@ -22,5 +24,7 @@ router.put('/', validate(updateUserSchema), updateUserHandler);
 router.patch('/status', validate(userStatusSchema), updateUserStatusHandler);
 router.patch('/role', validate(userRoleSchema), updateRoleHandler);
 router.get('/search', validate(userSearchSchema, { source: 'query' }), searchHandler);
+router.get('/getBranches', validate(branchSchema, { source: 'query' }), branchListHandler);
+router.get('/getAgents', validate(agentSchema, {source: 'query'}), agentListHandler)
 
 module.exports = router;

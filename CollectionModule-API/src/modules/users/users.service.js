@@ -3,7 +3,7 @@ const {
   callUserIns,
   callUserStatusUpdate,
   searchUsers,
-  updateUserRole,
+  updateUserRole, branchListbyCategory, agentDetailsbyBrid
 } = require('./users.repo');
 
 async function createUser(payload) {
@@ -26,10 +26,20 @@ async function search(payload) {
   return searchUsers(payload);
 }
 
+async function branchList(payload) {
+  return branchListbyCategory(payload);
+}
+
+async function agentList(payload) {
+  return agentDetailsbyBrid(payload);
+}
+
 module.exports = {
   createUser,
   updateUser,
   updateUserStatus,
   updateRole,
   search,
+  branchList,
+  agentList
 };

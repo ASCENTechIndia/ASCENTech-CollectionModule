@@ -58,10 +58,21 @@ const userSearchSchema = z.object({
   roleId: z.string().trim().optional(),
 });
 
+const branchSchema = z.object({
+  brcategory:z.string().trim().min(1),
+  userLevel : z.string().trim().min(1)
+})
+
+const agentSchema = z.object({
+  brid:z.string().trim().min(1)
+})
+
 module.exports = {
   createUserSchema,
   updateUserSchema,
   userStatusSchema,
   userRoleSchema,
   userSearchSchema,
+  branchSchema,
+  agentSchema
 };
