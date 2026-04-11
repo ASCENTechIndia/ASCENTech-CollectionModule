@@ -207,7 +207,7 @@ const FrmUserList = () => {
                     setSelectedBranch(e.target.value)
                   }}
                 >
-                  <option value="">--Select Branch--</option>
+                  <option value="">--Select Option--</option>
                   {branchOptions.map((item) => (
                     <option value={item.value}>{item.label}</option>
                   ))}
