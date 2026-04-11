@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Input, Select, Textarea, Button } from '../../components/ui'
-
+import { useNavigate } from 'react-router-dom';
 
 const FrmUserCreation = () => {
     const {
@@ -25,7 +25,7 @@ const FrmUserCreation = () => {
             userDevice: ""
         }
     });
-
+    const navigate = useNavigate();
     const onSubmit = async (values) => {
         console.log(values)
     }
@@ -77,7 +77,7 @@ const FrmUserCreation = () => {
                                 <label className="block text-sm font-medium text-gray-900 mb-2">
                                     User Name<span className="text-danger-600">*</span>
                                 </label>
-                                <div className="flex justify-start gap-3">
+                                <div className="flex flex-col md:flex-row justify-start gap-3">
                                     <div>
                                         <input
                                             type="text"
@@ -85,7 +85,7 @@ const FrmUserCreation = () => {
                                                 required: 'First Name is required',
                                             })}
                                             placeholder="FIRST NAME"
-                                            className={`w-[300px] px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.pinCode
+                                            className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.pinCode
                                                 ? 'border-danger-500'
                                                 : 'border-gray-300'
                                                 }`}
@@ -104,7 +104,7 @@ const FrmUserCreation = () => {
                                                 required: 'Last Name is required',
                                             })}
                                             placeholder="LAST NAME"
-                                            className={`w-[300px] px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.pinCode
+                                            className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.pinCode
                                                 ? 'border-danger-500'
                                                 : 'border-gray-300'
                                                 }`}
@@ -253,6 +253,9 @@ const FrmUserCreation = () => {
                             <button
                                 type="button"
                                 className="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                                onClick={() => {
+                                    navigate("/dashboard");
+                                }}
                             >
                                 Close
                             </button>

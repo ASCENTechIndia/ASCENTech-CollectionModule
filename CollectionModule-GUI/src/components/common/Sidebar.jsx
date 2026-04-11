@@ -31,8 +31,7 @@ const MENU_ITEMS = [
     label: 'User Management',
     icon: Users,
        submenu: [
-      { label: 'Add Web User', href: '/User/UserCreation' },
-       { label: 'Add Mobile User', href: '/User/FrmUserCreationWeb' },
+      { label: 'User Creation', href: '/User/FrmUserList' },
     ],
   },
   // {

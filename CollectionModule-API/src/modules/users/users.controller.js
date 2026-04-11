@@ -4,7 +4,10 @@ const {
   updateUserStatus,
   updateRole,
   search, branchList,
-  agentList
+  agentList,
+  getFormOptions,
+  getRegions,
+  getBranches,
 } = require('./users.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -153,6 +156,39 @@ async function searchHandler(req, res, next) {
   }
 }
 
+async function getUserFormOptionsHandler(req, res, next) {
+  try {
+    const rows = await getFormOptions(req.query);
+    logApiSuccess(req, 200, { count: rows?.length || 0 }, `User form options loaded`);
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'User form options error');
+    return next(error);
+  }
+}
+
+async function getRegionsHandler(req, res, next) {
+  try {
+    const rows = await getRegions(req.query.zoneId);
+    logApiSuccess(req, 200, { count: rows?.length || 0, zoneId: req.query.zoneId }, `Regions loaded`);
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Region lookup error');
+    return next(error);
+  }
+}
+
+async function getBranchesHandler(req, res, next) {
+  try {
+    const rows = await getBranches(req.query.regionId);
+    logApiSuccess(req, 200, { count: rows?.length || 0, regionId: req.query.regionId }, `Branches loaded`);
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Branch lookup error');
+    return next(error);
+  }
+}
+
 async function branchListHandler(req, res, next) {
   try {
     const filters = req.query;
@@ -182,6 +218,9 @@ module.exports = {
   updateUserStatusHandler,
   updateRoleHandler,
   searchHandler,
+  getUserFormOptionsHandler,
+  getRegionsHandler,
+  getBranchesHandler,
   branchListHandler,
   agentListHandler
 };

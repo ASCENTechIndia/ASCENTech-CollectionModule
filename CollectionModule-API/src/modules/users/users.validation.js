@@ -33,6 +33,8 @@ const createUserSchema = userBaseSchema.extend({
   in_pincode: z.number().int().optional().nullable(),
 });
 
+const createWebUserSchema = createUserSchema;
+
 const updateUserSchema = userBaseSchema.extend({
   in_Requeststatus: nullableString,
 });
@@ -58,6 +60,26 @@ const userSearchSchema = z.object({
   roleId: z.string().trim().optional(),
 });
 
+const userDetailSchema = z.object({
+  userId: z.string().trim().min(1),
+});
+
+const userFormOptionsSchema = z.object({
+  type: z.string().trim().optional(),
+  workingForId: z.string().trim().optional(),
+  branchId: z.string().trim().optional(),
+  zoneId: z.string().trim().optional(),
+  regionId: z.string().trim().optional(),
+});
+
+const userRegionLookupSchema = z.object({
+  zoneId: z.string().trim().min(1),
+});
+
+const userBranchLookupSchema = z.object({
+  regionId: z.string().trim().min(1),
+});
+
 const branchSchema = z.object({
   brcategory:z.string().trim().min(1),
   userLevel : z.string().trim().min(1)
@@ -69,10 +91,15 @@ const agentSchema = z.object({
 
 module.exports = {
   createUserSchema,
+  createWebUserSchema,
   updateUserSchema,
   userStatusSchema,
   userRoleSchema,
   userSearchSchema,
+  userDetailSchema,
+  userFormOptionsSchema,
+  userRegionLookupSchema,
+  userBranchLookupSchema,
   branchSchema,
   agentSchema
 };
