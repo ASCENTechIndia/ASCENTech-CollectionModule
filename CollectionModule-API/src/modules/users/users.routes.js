@@ -47,3 +47,4 @@ router.get('/getUserDevices', userDeviceHandler);
 router.post('/createWebUser', authRequired, validate(userWebSchema), createWebUserHandler)
 
 module.exports = router;
+
