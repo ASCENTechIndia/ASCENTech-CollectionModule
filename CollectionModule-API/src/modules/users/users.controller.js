@@ -8,6 +8,9 @@ const {
   getFormOptions,
   getRegions,
   getBranches,
+  branchListforInsert,
+  Roles,
+  UserDevice,
 } = require('./users.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -212,6 +215,41 @@ async function agentListHandler(req, res, next) {
     return next(error);
   }
 }
+
+async function branchListforInsertHandler(req, res, next) {
+  try {
+    const filters = req.query;
+    const rows = await branchListforInsert(filters);
+    logApiSuccess(req, 200, { count: rows?.length || 0 }, `Branch list for insert retrieved`);
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Branch list for insert error');
+    return next(error);
+  }
+}
+
+async function rolesHandler(req, res, next) {
+  try {
+    const rows = await Roles();
+    logApiSuccess(req, 200, { count: rows?.length || 0 }, `Roles list retrieved`);
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Roles list error');
+    return next(error);
+  }
+}
+
+async function userDeviceHandler(req, res, next) {
+  try {
+    const rows = await UserDevice();
+    logApiSuccess(req, 200, { count: rows?.length || 0 }, `User devices list retrieved`);
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'User devices list error');
+    return next(error);
+  }
+}
+
 module.exports = {
   createUserHandler,
   updateUserHandler,
@@ -222,5 +260,7 @@ module.exports = {
   getRegionsHandler,
   getBranchesHandler,
   branchListHandler,
-  agentListHandler
+  agentListHandler, 
+  branchListforInsertHandler,
+  rolesHandler, userDeviceHandler
 };

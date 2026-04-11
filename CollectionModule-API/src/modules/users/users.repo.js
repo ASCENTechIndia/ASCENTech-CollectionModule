@@ -517,7 +517,7 @@ async function updateUserRole(payload) {
 }
 
 async function branchListbyCategory(filters) {
-   let sql = `select brid, branchname from etech.branchlist`;
+  let sql = `select brid, branchname from etech.branchlist`;
   const binds = {};
 
   let conditions = [];
@@ -567,6 +567,78 @@ async function agentDetailsbyBrid(brid) {
   return result.rows || [];
 }
 
+async function getBranchusercreation(filters) {
+  let sql = "";
+  const binds = {};
+
+  const isRestricted = (filters.brcategory == 5 || filters.brcategory == 6);
+
+  // 🔹 Restricted Users (Branch / 6)
+  if (isRestricted) {
+    sql = `
+      SELECT branchname, brid
+      FROM etech.branchlist
+      WHERE brid = :brid
+      ORDER BY branchname
+    `;
+    binds.brid = Number(filters.grdLevel);
+  } 
+  else {
+    // 🔹 Non-restricted users (Zone / Region / Branch)
+    if (filters.userLevel === "Zone") {
+      sql = `
+        SELECT branchname, brid
+        FROM etech.view_zone
+        ORDER BY branchname
+      `;
+    } 
+    else if (filters.userLevel === "Region") {
+      sql = `
+        SELECT branchname, brid
+        FROM etech.view_region
+        ORDER BY branchname
+      `;
+    } 
+    else if (filters.userLevel === "Branch") {
+      sql = `
+        SELECT branchname, brid
+        FROM etech.view_branch
+        ORDER BY branchname
+      `;
+    } 
+    else {
+      throw new Error("Invalid or missing userLevel");
+    }
+  }
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function getRoles() {
+  let sql = `
+  SELECT var_userrole_name, num_userrole_id
+FROM etech.aoup_userrole_mas
+WHERE num_userrole_id IN (1,5)
+ORDER BY num_userrole_id
+  `;
+
+  const binds = {};
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function getUserDevice() {
+  let sql = `
+  select var_userdevice_name, num_userdevice_id from 
+  etech.aoup_userdevice_mas where num_userdevice_id in(3) order by num_userdevice_id
+  `;
+
+  const binds = {};
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
 module.exports = {
   callUserInsNew,
   callUserIns,
@@ -574,5 +646,6 @@ module.exports = {
   searchUsers,
   getUserDetails,
   getUserFormOptions,
-  updateUserRole, branchListbyCategory, agentDetailsbyBrid
+  updateUserRole, branchListbyCategory, agentDetailsbyBrid, getBranchusercreation, getRoles,
+  getUserDevice
 };

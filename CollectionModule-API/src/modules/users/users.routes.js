@@ -22,6 +22,9 @@ const {
   getUserFormOptionsHandler,
   getRegionsHandler,
   getBranchesHandler,
+  branchListforInsertHandler,
+  rolesHandler,
+  userDeviceHandler,
 } = require('./users.controller');
 
 const router = express.Router();
@@ -36,6 +39,9 @@ router.get('/regions', validate(userRegionLookupSchema, { source: 'query' }), ge
 router.get('/branches', validate(userBranchLookupSchema, { source: 'query' }), getBranchesHandler);
 router.get('/getBranches', validate(branchSchema, { source: 'query' }), branchListHandler);
 router.get('/getAgents', validate(agentSchema, {source: 'query'}), agentListHandler)
+router.get('/getUsercreationbranches', validate(branchSchema, { source: 'query' }), branchListforInsertHandler);
+router.get('/getRoles', rolesHandler);
+router.get('/getUserDevices', userDeviceHandler);
 
 module.exports = router;
 

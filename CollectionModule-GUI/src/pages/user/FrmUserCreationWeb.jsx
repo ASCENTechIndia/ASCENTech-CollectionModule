@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { Input, Select, Textarea, Button } from '../../components/ui';
 import { useNavigate } from 'react-router-dom';
+import apiClient from '../../services/apiService';
+import { useAuth } from '../../context/AuthContext';
 
 const FrmUserCreationWeb = () => {
     const {
@@ -22,199 +24,282 @@ const FrmUserCreationWeb = () => {
     });
 
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const brCategory = user?.brCategory;
+    const [selectedUserLevel, setSelectedUserLevel] = useState("");
+    const [branchOptions, setBranchOptions] = useState([]);
+    const [roleOptions, setRoleOptions] = useState([]);
+    const [deviceOptions, setDeviceOptions] = useState([])
+;
+    const fetchBranches = async () => {
+        try {
+            const response = await apiClient.get(`/users/getUsercreationbranches/?brcategory=${brCategory}&userLevel=${selectedUserLevel}`, {});
+            
+            if (response.data.success && Array.isArray(response.data.data)) {
+                const formattedOptions = response.data.data.map((item) => ({
+                    label: item.BRANCHNAME,
+                    value: item.BRID
+                }));
+                
+                setBranchOptions(formattedOptions);
+            } 
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
-    const onSubmit = async (values) => {
-        console.log(values)
+    const fetchRoles = async () => {
+        try {
+            const response = await apiClient.get(`/users/getRoles`, {});
+
+
+            if (response.data.success && Array.isArray(response.data.data)) {
+                const formattedOptions = response.data.data.map((item) => ({
+                    label: item.VAR_USERROLE_NAME,
+                    value: item.NUM_USERROLE_ID
+                }));
+                setRoleOptions(formattedOptions);
+            } 
+        } catch (error) {
+            console.error(error);
+        }
     }
 
-    return (
-        <div className="min-h-screen bg-gray-50">
-            <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
-                <div className="mb-6">
-                    <h1 className="text-2xl font-semibold text-gray-900">Manage Supervisor</h1>
-                </div>
-                <div className="bg-white rounded-lg border border-gray-200 p-8">
-                    <form onSubmit={handleSubmit(onSubmit)}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
-                                    User Level<span className="text-danger-600">*</span>
-                                </label>
-                                <select
-                                    {...register('userLevel')}
-                                    defaultValue=""
-                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
-                                >
-                                    <option value="">Select User Level</option>
+    const fetchUserDevices = async () => {
+        try {
+            const response = await apiClient.get(`/users/getUserDevices`, {});
 
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
-                                    Zone/Region/Branch<span className="text-danger-600">*</span>
-                                </label>
-                                <select
-                                    {...register('zoneRegionBranch')}
-                                    defaultValue=""
-                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
-                                >
-                                    <option value="">Select Zone/Branch/Region</option>
+            console.log(response);
 
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
-                                    User Role<span className="text-danger-600">*</span>
-                                </label>
-                                <select
-                                    {...register('userRole')}
-                                    defaultValue=""
-                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
-                                >
-                                    <option value="">Select User Role</option>
+            if (response.data.success && Array.isArray(response.data.data)) {
+                const formattedOptions = response.data.data.map((item) => ({
+                    label: item.VAR_USERDEVICE_NAME,
+                    value: item.NUM_USERDEVICE_ID
+                }));
+                setDeviceOptions(formattedOptions)
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
-                                    User Device<span className="text-danger-600">*</span>
-                                </label>
-                                <select
-                                    {...register('userDevice')}
-                                    defaultValue=""
-                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
-                                >
-                                    <option value="">Select User Device</option>
+    const onSubmit = async (values) => {
+            console.log(values)
+        }
 
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
-                                    Employee Code<span className="text-danger-600">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    {...register('employeeCode', {
-                                        required: 'Employee Code is required',
-                                    })}
-                                    placeholder="Enter Employee Code"
-                                    className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.pinCode
-                                        ? 'border-danger-500'
-                                        : 'border-gray-300'
-                                        }`}
-                                />
-                                {errors.employeeCode && (
-                                    <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
-                                        <AlertCircle className="w-4 h-4" />
-                                        {errors.employeeCode.message}
-                                    </p>
-                                )}
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
-                                    User For<span className="text-danger-600">*</span>
-                                </label>
-                                <select
-                                    {...register('userFor')}
-                                    defaultValue=""
-                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
-                                >
-                                    <option value="">Select User</option>
+        useEffect(() => {
+            if (!selectedUserLevel || !brCategory) return;
 
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
-                                    User Name<span className="text-danger-600">*</span>
-                                </label>
-                                 <div className="flex flex-col md:flex-row justify-start gap-3">
-                                    <div>
-                                        <input
-                                            type="text"
-                                            {...register('firstName', {
-                                                required: 'First Name is required',
-                                            })}
-                                            placeholder="FIRST NAME"
-                                            className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.pinCode
-                                                ? 'border-danger-500'
-                                                : 'border-gray-300'
-                                                }`}
-                                        />
-                                        {errors.firstName && (
-                                            <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
-                                                <AlertCircle className="w-4 h-4" />
-                                                {errors.firstName.message}
-                                            </p>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <input
-                                            type="text"
-                                            {...register('lastName', {
-                                                required: 'Last Name is required',
-                                            })}
-                                            placeholder="LAST NAME"
-                                            className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.pinCode
-                                                ? 'border-danger-500'
-                                                : 'border-gray-300'
-                                                }`}
-                                        />
-                                        {errors.lastName && (
-                                            <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
-                                                <AlertCircle className="w-4 h-4" />
-                                                {errors.lastName.message}
-                                            </p>
-                                        )}
+            fetchBranches();
+        }, [selectedUserLevel, brCategory]);
+
+        useEffect(() => {
+            fetchRoles();
+            fetchUserDevices();
+        }, [])
+
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
+                    <div className="mb-6">
+                        <h1 className="text-2xl font-semibold text-gray-900">Manage Supervisor</h1>
+                    </div>
+                    <div className="bg-white rounded-lg border border-gray-200 p-8">
+                        <form onSubmit={handleSubmit(onSubmit)}>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                                        User Level<span className="text-danger-600">*</span>
+                                    </label>
+                                    <select
+                                        {...register('userLevel')}
+                                        defaultValue=""
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
+                                        onChange={(e) => {
+                                            setSelectedUserLevel(e.target.value);
+                                        }}
+                                    >
+                                        <option value="">-- Select Option --</option>
+                                        <option value="Zone">Zone</option>
+                                        <option value="Branch">Branch</option>
+                                        <option value="Region">Region</option>
+
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                                        Zone/Region/Branch<span className="text-danger-600">*</span>
+                                    </label>
+                                    <select
+                                        {...register('zoneRegionBranch')}
+                                        defaultValue=""
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
+                                    >
+                                        <option value="">--Select Option--</option>
+                                        {branchOptions.map((item) => (
+                                            <option key={item.value} value={item.value}>{item.label}</option>
+                                        ))}
+
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                                        User Role<span className="text-danger-600">*</span>
+                                    </label>
+                                    <select
+                                        {...register('userRole')}
+                                        defaultValue=""
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
+                                    >
+                                        <option value="">Select User Role</option>
+                                        {roleOptions.map((item) => (
+                                            <option value={item.value} key={item.value}>{item.label}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                                        User Device<span className="text-danger-600">*</span>
+                                    </label>
+                                    <select
+                                        {...register('userDevice')}
+                                        defaultValue=""
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
+                                    >
+                                        <option value="">Select User Device</option>
+                                        {deviceOptions.map((item) => (
+                                            <option key={item.value} value={item.value}>{item.label}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                                        Employee Code<span className="text-danger-600">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        {...register('employeeCode', {
+                                            required: 'Employee Code is required',
+                                        })}
+                                        placeholder="Enter Employee Code"
+                                        className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.pinCode
+                                            ? 'border-danger-500'
+                                            : 'border-gray-300'
+                                            }`}
+                                    />
+                                    {errors.employeeCode && (
+                                        <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
+                                            <AlertCircle className="w-4 h-4" />
+                                            {errors.employeeCode.message}
+                                        </p>
+                                    )}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                                        User For<span className="text-danger-600">*</span>
+                                    </label>
+                                    <select
+                                        {...register('userFor')}
+                                        defaultValue=""
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
+                                    >
+                                        <option value="">-- Select Option -- </option>
+                                        <option value="1">Conneqt</option>
+                                        <option value="2">Central Bank</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                                        User Name<span className="text-danger-600">*</span>
+                                    </label>
+                                    <div className="flex flex-col md:flex-row justify-start gap-3">
+                                        <div>
+                                            <input
+                                                type="text"
+                                                {...register('firstName', {
+                                                    required: 'First Name is required',
+                                                })}
+                                                placeholder="FIRST NAME"
+                                                className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.pinCode
+                                                    ? 'border-danger-500'
+                                                    : 'border-gray-300'
+                                                    }`}
+                                            />
+                                            {errors.firstName && (
+                                                <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
+                                                    <AlertCircle className="w-4 h-4" />
+                                                    {errors.firstName.message}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <input
+                                                type="text"
+                                                {...register('lastName', {
+                                                    required: 'Last Name is required',
+                                                })}
+                                                placeholder="LAST NAME"
+                                                className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.pinCode
+                                                    ? 'border-danger-500'
+                                                    : 'border-gray-300'
+                                                    }`}
+                                            />
+                                            {errors.lastName && (
+                                                <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
+                                                    <AlertCircle className="w-4 h-4" />
+                                                    {errors.lastName.message}
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
-                                    Mobile Number<span className="text-danger-600">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    {...register('mobileNumber', {
-                                        required: 'Mobile Number is required',
-                                    })}
-                                    placeholder="Enter Mobile Number"
-                                    className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.pinCode
-                                        ? 'border-danger-500'
-                                        : 'border-gray-300'
-                                        }`}
-                                />
-                                {errors.mobileNumber && (
-                                    <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
-                                        <AlertCircle className="w-4 h-4" />
-                                        {errors.mobileNumber.message}
-                                    </p>
-                                )}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                                        Mobile Number<span className="text-danger-600">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        {...register('mobileNumber', {
+                                            required: 'Mobile Number is required',
+                                        })}
+                                        placeholder="Enter Mobile Number"
+                                        className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.pinCode
+                                            ? 'border-danger-500'
+                                            : 'border-gray-300'
+                                            }`}
+                                    />
+                                    {errors.mobileNumber && (
+                                        <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
+                                            <AlertCircle className="w-4 h-4" />
+                                            {errors.mobileNumber.message}
+                                        </p>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                        <div className="mt-7 flex justify-center gap-5">
-                            <button
-                                type="submit"
-                                className="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-                            >
-                                Submit
-                            </button>
-                            <button
-                                type="button"
-                                className="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-                                onClick={() => {
-                                    navigate("/dashboard");
-                                }}
-                            >
-                                Close
-                            </button>
-                        </div>
-                    </form>
+                            <div className="mt-7 flex justify-center gap-5">
+                                <button
+                                    type="submit"
+                                    className="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                                >
+                                    Submit
+                                </button>
+                                <button
+                                    type="button"
+                                    className="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                                    onClick={() => {
+                                        navigate("/dashboard");
+                                    }}
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
-    )
-};
+        )
+    }
 
-export default FrmUserCreationWeb;
+    export default FrmUserCreationWeb;

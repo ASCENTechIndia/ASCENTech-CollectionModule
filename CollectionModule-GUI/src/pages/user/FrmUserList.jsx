@@ -25,32 +25,32 @@ import { useAuth } from "../../context/AuthContext";
 //   )
 // }
 
-const columns = [
-  {
-    key: "agentid",
-    label: "Agent ID"
-  },
-  {
-    key: "agentname",
-    label: "Agent Name"
-  },
-  {
-    key: "mobileno",
-    label: "Mobile Number"
-  },
-  {
-    key: "email",
-    label: "Email"
-  },
-  {
-    key: "role",
-    label: "Role"
-  }
-];
+// const columns = [
+//   {
+//     key: "agentid",
+//     label: "Agent ID"
+//   },
+//   {
+//     key: "agentname",
+//     label: "Agent Name"
+//   },
+//   {
+//     key: "mobileno",
+//     label: "Mobile Number"
+//   },
+//   {
+//     key: "email",
+//     label: "Email"
+//   },
+//   {
+//     key: "role",
+//     label: "Role"
+//   }
+// ];
 
-const data = [
-  { agentid: "E100011", agentname: "Hinduja Admin", mobileno: "9845120145", email: "admin@upass.com", role: "FOS" }
-]
+// const data = [
+//   { agentid: "E100011", agentname: "Hinduja Admin", mobileno: "9845120145", email: "admin@upass.com", role: "FOS" }
+// ]
 
 const FrmUserList = () => {
   const {

@@ -6,6 +6,9 @@ const {
   updateUserRole, branchListbyCategory, agentDetailsbyBrid,
   getUserDetails,
   getUserFormOptions,
+  getBranchusercreation,
+  getRoles,
+  getUserDevice,
 } = require('./users.repo');
 
 async function createUser(payload) {
@@ -56,6 +59,18 @@ async function agentList(payload) {
   return agentDetailsbyBrid(payload);
 }
 
+async function branchListforInsert(payload) {
+  return getBranchusercreation(payload);
+}
+
+async function Roles() {
+  return getRoles();
+}
+
+async function UserDevice() {
+  return getUserDevice();
+}
+
 module.exports = {
   createUser,
   createWebUser,
@@ -68,5 +83,7 @@ module.exports = {
   getRegions,
   getBranches,
   branchList,
-  agentList
+  agentList, 
+  branchListforInsert, Roles,
+  UserDevice
 };
