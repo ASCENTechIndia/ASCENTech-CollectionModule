@@ -7,6 +7,8 @@ const {
   getUserDetails,
   getUserFormOptions,
   getBranchusercreation,
+  getRoles,
+  getUserDevice,
 } = require('./users.repo');
 
 async function createUser(payload) {
@@ -61,6 +63,14 @@ async function branchListforInsert(payload) {
   return getBranchusercreation(payload);
 }
 
+async function Roles() {
+  return getRoles();
+}
+
+async function UserDevice() {
+  return getUserDevice();
+}
+
 module.exports = {
   createUser,
   createWebUser,
@@ -74,5 +84,6 @@ module.exports = {
   getBranches,
   branchList,
   agentList, 
-  branchListforInsert
+  branchListforInsert, Roles,
+  UserDevice
 };

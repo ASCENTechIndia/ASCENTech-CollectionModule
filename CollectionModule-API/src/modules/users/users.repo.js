@@ -620,7 +620,18 @@ async function getRoles() {
   SELECT var_userrole_name, num_userrole_id
 FROM etech.aoup_userrole_mas
 WHERE num_userrole_id IN (1,5)
-ORDER BY num_userrole_i
+ORDER BY num_userrole_id
+  `;
+
+  const binds = {};
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function getUserDevice() {
+  let sql = `
+  select var_userdevice_name, num_userdevice_id from 
+  etech.aoup_userdevice_mas where num_userdevice_id in(3) order by num_userdevice_id
   `;
 
   const binds = {};
@@ -635,5 +646,6 @@ module.exports = {
   searchUsers,
   getUserDetails,
   getUserFormOptions,
-  updateUserRole, branchListbyCategory, agentDetailsbyBrid, getBranchusercreation, getRoles
+  updateUserRole, branchListbyCategory, agentDetailsbyBrid, getBranchusercreation, getRoles,
+  getUserDevice
 };

@@ -9,6 +9,8 @@ const {
   getRegions,
   getBranches,
   branchListforInsert,
+  Roles,
+  UserDevice,
 } = require('./users.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -226,6 +228,28 @@ async function branchListforInsertHandler(req, res, next) {
   }
 }
 
+async function rolesHandler(req, res, next) {
+  try {
+    const rows = await Roles();
+    logApiSuccess(req, 200, { count: rows?.length || 0 }, `Roles list retrieved`);
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Roles list error');
+    return next(error);
+  }
+}
+
+async function userDeviceHandler(req, res, next) {
+  try {
+    const rows = await UserDevice();
+    logApiSuccess(req, 200, { count: rows?.length || 0 }, `User devices list retrieved`);
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'User devices list error');
+    return next(error);
+  }
+}
+
 module.exports = {
   createUserHandler,
   updateUserHandler,
@@ -237,5 +261,6 @@ module.exports = {
   getBranchesHandler,
   branchListHandler,
   agentListHandler, 
-  branchListforInsertHandler
+  branchListforInsertHandler,
+  rolesHandler, userDeviceHandler
 };
