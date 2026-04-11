@@ -8,6 +8,7 @@ const {
   getFormOptions,
   getRegions,
   getBranches,
+  submitMobileUser,
 } = require('./users.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -212,6 +213,37 @@ async function agentListHandler(req, res, next) {
     return next(error);
   }
 }
+
+async function mobileUserSubmitHandler(req, res, next) {
+  try {
+    const payload = req.body;
+    const actor = req.user?.userId || payload.insBy || 'system';
+    const out = await submitMobileUser(payload, actor);
+
+    const isSuccess = ['-100', '9999'].includes(String(out.Out_errorCode));
+    if (isSuccess) {
+      logApiSuccess(req, 200, { userId: out.Out_User }, 'Mobile user submitted successfully');
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, 'Mobile user submit failed');
+    }
+
+    auditLog({
+      action: 'USER_MOBILE_SUBMIT',
+      actor,
+      module: 'users',
+      entityId: out.Out_User,
+      status: isSuccess ? 'SUCCESS' : 'FAILED',
+      details: { outErrorCode: out.Out_errorCode, outErrorMsg: out.Out_ErrorMsg },
+      requestMeta: requestMeta(req),
+    });
+
+    return res.ok(out);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Mobile user submit error');
+    return next(error);
+  }
+}
+
 module.exports = {
   createUserHandler,
   updateUserHandler,
@@ -222,5 +254,6 @@ module.exports = {
   getRegionsHandler,
   getBranchesHandler,
   branchListHandler,
-  agentListHandler
+  agentListHandler,
+  mobileUserSubmitHandler,
 };
