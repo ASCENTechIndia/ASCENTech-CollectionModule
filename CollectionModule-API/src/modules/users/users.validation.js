@@ -89,6 +89,7 @@ const agentSchema = z.object({
   brid:z.string().trim().min(1)
 })
 
+
 module.exports = {
   createUserSchema,
   createWebUserSchema,
