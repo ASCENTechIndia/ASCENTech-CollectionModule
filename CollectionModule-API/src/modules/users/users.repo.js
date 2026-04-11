@@ -639,6 +639,76 @@ async function getUserDevice() {
   return result.rows || [];
 }
 
+async function callUserWebIns(payload) {
+  const statement = `
+    BEGIN
+      etech.aoup_userweb_ins(
+        :in_brid,
+        :in_userid,
+        :in_username,
+        :in_userpwd,
+        :in_mobno,
+        :in_email,
+        :in_usertypeid,
+        :in_DOB,
+        :in_proofno,
+        :in_desgid,
+        :in_roleid,
+        :in_compcode,
+        :in_workid,
+        :in_empid,
+        :in_collectionid,
+        :in_categoryid,
+        :in_mode,
+        :in_status,
+        :in_Empcode,
+        :in_firstname,
+        :in_lastname,
+        :in_prooftype,
+        :in_compid,
+        :in_insby,
+        :Out_errorCode,
+        :Out_ErrorMsg,
+        :Out_User
+      );
+    END;
+  `;
+
+  const binds = {
+    in_brid: Number(payload.in_brid),
+    in_userid: payload.in_userid ?? null,
+    in_username: payload.in_username,
+    in_userpwd: payload.in_userpwd ?? null,
+    in_mobno: Number(payload.in_mobno),
+    in_email: payload.in_email,
+    in_usertypeid: Number(payload.in_usertypeid),
+    in_DOB: payload.in_DOB ? new Date(payload.in_DOB) : null,
+    in_proofno: payload.in_proofno ?? null,
+    in_desgid: Number(payload.in_desgid),
+    in_roleid: Number(payload.in_roleid),
+    in_compcode: Number(payload.in_compcode),
+    in_workid: Number(payload.in_workid),
+    in_empid: payload.in_empid ? Number(payload.in_empid) : null,
+    in_collectionid: Number(payload.in_collectionid),
+    in_categoryid: Number(payload.in_categoryid),
+    in_mode: Number(payload.in_mode),
+    in_status: payload.in_status,
+    in_Empcode: payload.in_Empcode,
+    in_firstname: payload.in_firstname ?? null,
+    in_lastname: payload.in_lastname ?? null,
+    in_prooftype: Number(payload.in_prooftype),
+    in_compid: Number(payload.in_compid),
+    in_insby: payload.in_insby,
+
+    Out_errorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 10000 },
+    Out_User: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 100 }
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
 module.exports = {
   callUserInsNew,
   callUserIns,
@@ -647,5 +717,5 @@ module.exports = {
   getUserDetails,
   getUserFormOptions,
   updateUserRole, branchListbyCategory, agentDetailsbyBrid, getBranchusercreation, getRoles,
-  getUserDevice
+  getUserDevice, callUserWebIns
 };
