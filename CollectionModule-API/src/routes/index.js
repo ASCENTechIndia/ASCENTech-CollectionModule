@@ -5,7 +5,6 @@ const masterRoutes = require('../modules/master/master.routes');
 const legacyRoutes = require('../modules/legacy/legacy.routes');
 const usersRoutes = require('../modules/users/users.routes');
 const assetsRoutes = require('../modules/assets/assets.routes');
-const { authRequired } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -18,10 +17,10 @@ router.get('/ready', (req, res) => {
 });
 
 router.use('/auth', authRoutes);
-router.use('/master', authRequired, menuRoutes);
-router.use('/master', authRequired, masterRoutes);
-router.use('/users', authRequired, usersRoutes);
-router.use('/assets', authRequired, assetsRoutes);
-router.use('/legacy', authRequired, legacyRoutes);
+router.use('/master', menuRoutes);
+router.use('/master', masterRoutes);
+router.use('/users', usersRoutes);
+router.use('/assets', assetsRoutes);
+router.use('/legacy', legacyRoutes);
 
 module.exports = router;
