@@ -517,7 +517,7 @@ async function updateUserRole(payload) {
 }
 
 async function branchListbyCategory(filters) {
-  let sql = `select * from etech.branchlist`;
+   let sql = `select brid, branchname from etech.branchlist`;
   const binds = {};
 
   let conditions = [];
