@@ -516,6 +516,57 @@ async function updateUserRole(payload) {
   };
 }
 
+async function branchListbyCategory(filters) {
+  let sql = `select * from etech.branchlist`;
+  const binds = {};
+
+  let conditions = [];
+
+  let column = "";
+  if (filters.brcategory == 5) {
+    column = "brid";
+  } else {
+    column = "compid";
+  }
+
+  if (filters.userLevel === "Zone") {
+    conditions.push(`${column} = :val`);
+    binds.val = 10001;
+  } 
+  else if (filters.userLevel === "Branch") {
+    conditions.push(`${column} = :val`);
+    binds.val = 10002;
+  } 
+  else if (filters.userLevel === "Region") {
+    conditions.push(`(${column} = :val OR brcategory = 4)`);
+    binds.val = 10017;
+  }
+
+  // ✅ condition नसेल तर error throw कर
+  if (conditions.length === 0) {
+    throw new Error("Invalid or missing userLevel");
+  }
+
+  sql += " WHERE " + conditions.join(" AND ");
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function agentDetailsbyBrid(brid) {
+  let sql = `
+  select replace(var_usermst_userid,'E','') username,var_usermst_userid userid,var_usermst_userfullname empname,var_usermst_empcode empcode,
+   num_usermst_mobileno mobno,num_usermst_email email,var_designation_designation desg,var_userrole_name  from etech.aoup_usermst_def a 
+             left outer join etech.aoup_designation_def on num_designation_id = num_usermst_desgid 
+             left outer join etech.aoup_userrole_mas on num_userrole_id = num_usermst_roleid 
+            where num_usermst_brid = :brid order by var_usermst_userid 
+  `;
+
+  const binds = { brid: Number(brid) };
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
 module.exports = {
   callUserInsNew,
   callUserIns,
@@ -523,5 +574,5 @@ module.exports = {
   searchUsers,
   getUserDetails,
   getUserFormOptions,
-  updateUserRole,
+  updateUserRole, branchListbyCategory, agentDetailsbyBrid
 };

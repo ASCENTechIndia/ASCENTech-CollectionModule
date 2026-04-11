@@ -3,7 +3,8 @@ const {
   updateUser,
   updateUserStatus,
   updateRole,
-  search,
+  search, branchList,
+  agentList,
   getFormOptions,
   getRegions,
   getBranches,
@@ -188,6 +189,29 @@ async function getBranchesHandler(req, res, next) {
   }
 }
 
+async function branchListHandler(req, res, next) {
+  try {
+    const filters = req.query;
+    const rows = await branchList(filters);
+    logApiSuccess(req, 200, { count: rows?.length || 0 }, `Branch list retrieved`);
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Branch list error');
+    return next(error);
+  }
+}
+
+async function agentListHandler(req, res, next) {
+  try {
+    const { brid } = req.query;  
+    const rows = await agentList(brid);
+    logApiSuccess(req, 200, { count: rows?.length || 0 }, `Agent list retrieved`);
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Agent list error');
+    return next(error);
+  }
+}
 module.exports = {
   createUserHandler,
   updateUserHandler,
@@ -197,4 +221,6 @@ module.exports = {
   getUserFormOptionsHandler,
   getRegionsHandler,
   getBranchesHandler,
+  branchListHandler,
+  agentListHandler
 };

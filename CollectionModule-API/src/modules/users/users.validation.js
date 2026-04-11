@@ -80,6 +80,15 @@ const userBranchLookupSchema = z.object({
   regionId: z.string().trim().min(1),
 });
 
+const branchSchema = z.object({
+  brcategory:z.string().trim().min(1),
+  userLevel : z.string().trim().min(1)
+})
+
+const agentSchema = z.object({
+  brid:z.string().trim().min(1)
+})
+
 module.exports = {
   createUserSchema,
   createWebUserSchema,
@@ -91,4 +100,6 @@ module.exports = {
   userFormOptionsSchema,
   userRegionLookupSchema,
   userBranchLookupSchema,
+  branchSchema,
+  agentSchema
 };

@@ -6,7 +6,8 @@ const {
   updateUserSchema,
   userStatusSchema,
   userRoleSchema,
-  userSearchSchema,
+  userSearchSchema, branchSchema,
+  agentSchema,
   userFormOptionsSchema,
   userRegionLookupSchema,
   userBranchLookupSchema,
@@ -16,7 +17,8 @@ const {
   updateUserHandler,
   updateUserStatusHandler,
   updateRoleHandler,
-  searchHandler,
+  searchHandler, branchListHandler,
+  agentListHandler,
   getUserFormOptionsHandler,
   getRegionsHandler,
   getBranchesHandler,
@@ -32,5 +34,7 @@ router.get('/search', authRequired, validate(userSearchSchema, { source: 'query'
 router.get('/mobile-form-options', validate(userFormOptionsSchema, { source: 'query' }), getUserFormOptionsHandler);
 router.get('/regions', validate(userRegionLookupSchema, { source: 'query' }), getRegionsHandler);
 router.get('/branches', validate(userBranchLookupSchema, { source: 'query' }), getBranchesHandler);
+router.get('/getBranches', validate(branchSchema, { source: 'query' }), branchListHandler);
+router.get('/getAgents', validate(agentSchema, {source: 'query'}), agentListHandler)
 
 module.exports = router;
