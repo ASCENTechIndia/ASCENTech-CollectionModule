@@ -8,7 +8,8 @@ const {
   getFormOptions,
   getRegions,
   getBranches,
-  branchListforInsert,
+  submitMobileUser,
+   branchListforInsert,
   Roles,
   UserDevice,
   createWebUser,
@@ -217,6 +218,36 @@ async function agentListHandler(req, res, next) {
   }
 }
 
+async function mobileUserSubmitHandler(req, res, next) {
+  try {
+    const payload = req.body;
+    const actor = req.user?.userId || payload.insBy || 'system';
+    const out = await submitMobileUser(payload, actor);
+
+    const isSuccess = ['-100', '9999'].includes(String(out.Out_errorCode));
+    if (isSuccess) {
+      logApiSuccess(req, 200, { userId: out.Out_User }, 'Mobile user submitted successfully');
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, 'Mobile user submit failed');
+    }
+
+    auditLog({
+      action: 'USER_MOBILE_SUBMIT',
+      actor,
+      module: 'users',
+      entityId: out.Out_User,
+      status: isSuccess ? 'SUCCESS' : 'FAILED',
+      details: { outErrorCode: out.Out_errorCode, outErrorMsg: out.Out_ErrorMsg },
+      requestMeta: requestMeta(req),
+    });
+
+    return res.ok(out);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Mobile user submit error');
+    return next(error);
+  }
+}
+
 async function branchListforInsertHandler(req, res, next) {
   try {
     const filters = req.query;
@@ -266,7 +297,7 @@ async function createWebUserHandler(req, res, next) {
     auditLog({
       action: 'USER_CREATE',
       actor: req.user?.userId || 'system',
-      module: 'users',
+ module: 'users',
       entityId: out.Out_User,
       status: isSuccess ? 'SUCCESS' : 'FAILED',
       details: { outErrorCode: out.Out_errorCode, outErrorMsg: out.Out_ErrorMsg },
@@ -275,8 +306,8 @@ async function createWebUserHandler(req, res, next) {
 
     return res.ok(out);
   } catch (error) {
-    logApiError(req, 500, error.message, 'User create error');
-    return next(error);
+logApiError(req, 500, error.message, 'User create error');
+ return next(error);
   }
 }
 
@@ -290,7 +321,8 @@ module.exports = {
   getRegionsHandler,
   getBranchesHandler,
   branchListHandler,
-  agentListHandler, 
-  branchListforInsertHandler,
+  agentListHandler,
+  mobileUserSubmitHandler,
+   branchListforInsertHandler,
   rolesHandler, userDeviceHandler, createWebUserHandler
 };
