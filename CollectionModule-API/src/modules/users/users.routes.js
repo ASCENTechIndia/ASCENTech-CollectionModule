@@ -13,6 +13,8 @@ const {
   userBranchLookupSchema,
   userWebSchema,
   mobileUserSubmitSchema,
+  userModifyStatusSubmitSchema,
+  userIdLookupSchema
 } = require('./users.validation');
 const {
   createUserHandler,
@@ -30,7 +32,7 @@ const {
   createWebUserHandler,
   mobileUserSubmitHandler,
   submitUserModifyStatusHandler,
-  
+  searchByUserIdHandler
 } = require('./users.controller');
 
 const router = express.Router();
@@ -51,8 +53,7 @@ router.get('/getUserDevices', userDeviceHandler);
 router.post('/createWebUser', authRequired, validate(userWebSchema), createWebUserHandler)
 router.get('/getAgents', validate(agentSchema, {source: 'query'}), agentListHandler);
 router.post('/add-mobile-user', authRequired, validate(mobileUserSubmitSchema), mobileUserSubmitHandler);
-router.patch('/status', authRequired, validate(userStatusSchema), updateUserStatusHandler);
-router.post('/modify-status-submit', validate(userModifyStatusSubmitSchema), submitUserModifyStatusHandler);
+router.get('/search-by-userid', validate(userIdLookupSchema, { source: 'query' }), searchByUserIdHandler);
 router.post('/modify-status-submit', validate(userModifyStatusSubmitSchema), submitUserModifyStatusHandler);
 
 
