@@ -6,7 +6,6 @@ import { AlertCircle, CheckCircle, AlertTriangle, Info, X } from "lucide-react";
 import axios from "axios";
 import apiClient from "../../services/apiService";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const FrmUserCreation = () => {
   const navigate = useNavigate();
 
