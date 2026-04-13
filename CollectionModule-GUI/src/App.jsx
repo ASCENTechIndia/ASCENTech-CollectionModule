@@ -79,8 +79,7 @@ function App() {
                 <Route path='/User/FrmUserCreationWeb' element={<FrmUserCreationWeb />} />
                 <Route path="/User/FrmUserModification" element={<FrmUserModification />} />
                 
-                {/* Branch Management */}
-                {/* <Route path="/branches" element={<BranchListPage />} /> */}
+                
                 
                 {/* Reports */}
                 <Route path="/reports" element={<ReportsPage />} />
@@ -88,19 +87,7 @@ function App() {
                 <Route path="/reports/demo-grid-tailwind" element={<DemoTailwindReportPage />} />
                 <Route path="/reports/transactions" element={<TransactionReportPage />} />
                 
-                {/* Tables & Data Grid */}
-                {/* <Route path="/tables" element={<DataGridPage />} /> */}
-                
-                {/* Form Examples */}
-                {/* <Route path="/forms/two-column" element={<TwoColumnFormPage />} />
-                <Route path="/forms/three-column" element={<ThreeColumnFormPage />} /> */}
-                
-                {/* Components Demo */}
-                {/* <Route path="/components/alerts-modals" element={<AlertModalDemoPage />} />
-                <Route path="/components/buttons" element={<ButtonDemoPage />} />
-                <Route path="/components/tabs" element={<TabsDemoPage />} />
-                <Route path="/components/charts" element={<ChartsDemoPage />} /> */}
-
+              
                 
 
               </Route>
