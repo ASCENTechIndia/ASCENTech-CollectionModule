@@ -305,8 +305,15 @@ const FrmUserCreationWeb = () => {
                                             type="text"
                                             {...register('firstName', {
                                                 required: 'First Name is required',
+                                                pattern: {
+                                                    value: /^[A-Za-z]+$/,
+                                                    message: 'Only alphabets are allowed'
+                                                }
                                             })}
                                             placeholder="FIRST NAME"
+                                            onInput={(e) => {
+                                                e.target.value = e.target.value.replace(/[^A-Za-z]/g, '');
+                                            }}
                                             className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.firstName
                                                 ? 'border-danger-500'
                                                 : 'border-gray-300'
@@ -324,8 +331,15 @@ const FrmUserCreationWeb = () => {
                                             type="text"
                                             {...register('lastName', {
                                                 required: 'Last Name is required',
+                                                pattern: {
+                                                    value: /^[A-Za-z]+$/,
+                                                    message: 'Only alphabets are allowed'
+                                                }
                                             })}
                                             placeholder="LAST NAME"
+                                            onInput={(e) => {
+                                                e.target.value = e.target.value.replace(/[^A-Za-z]/g, '');
+                                            }}
                                             className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.lastName
                                                 ? 'border-danger-500'
                                                 : 'border-gray-300'
@@ -350,8 +364,16 @@ const FrmUserCreationWeb = () => {
                                     type="text"
                                     {...register('mobileNumber', {
                                         required: 'Mobile Number is required',
+                                        pattern: {
+                                            value: /^[0-9]{10}$/,
+                                            message: 'Mobile number must be exactly 10 digits'
+                                        }
                                     })}
                                     placeholder="Enter Mobile Number"
+                                    onInput={(e) => {
+                                        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                                    }}
+                                    maxLength={10}
                                     className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.mobileNumber
                                         ? 'border-danger-500'
                                         : 'border-gray-300'

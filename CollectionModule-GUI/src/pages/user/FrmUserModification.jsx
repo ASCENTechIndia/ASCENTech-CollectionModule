@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Input, Select, Textarea, Button } from '../../components/ui';
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Search } from 'lucide-react';
 const FrmUserModification = () => {
     const {
         register,
@@ -25,31 +25,43 @@ const FrmUserModification = () => {
             </div>
             <div className="bg-white rounded-lg border border-gray-200 p-8">
                 <form>
-                    <div className='grid grid-cols-1 md:grid-cols-3 gap-5'>
-
-
+                    <div className='grid grid-cols-1 gap-5'>
                         <div>
                             <label className="block text-sm font-medium text-gray-900 mb-2">
                                 User Id<span className="text-danger-600">*</span>
                             </label>
-                            <input
-                                type="text"
-                                {...register('userId', {
-                                    required: 'User ID is required',
-                                })}
-                                placeholder="Enter User ID"
-                                className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.userId
-                                    ? 'border-danger-500'
-                                    : 'border-gray-300'
-                                    }`}
-                            />
-                            {errors.userId && (
-                                <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
-                                    <AlertCircle className="w-4 h-4" />
-                                    {errors.userId.message}
-                                </p>
-                            )}
+                            <div className='flex flex-col justify-start md:flex-row gap-5'>
+                                <div>
+                                    <input
+                                        type="text"
+                                        {...register('userId', {
+                                            required: 'User ID is required',
+                                        })}
+                                        placeholder="Enter User ID"
+                                        className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.userId
+                                            ? 'border-danger-500'
+                                            : 'border-gray-300'
+                                            }`}
+                                    />
+                                    {errors.userId && (
+                                        <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
+                                            <AlertCircle className="w-4 h-4" />
+                                            {errors.userId.message}
+                                        </p>
+                                    )}
+                                </div>
+                                <div>
+                                    <button
+                                        type='button'
+                                        className="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                                    >
+                                        <Search className="w-6 h-6 text-white" />
+                                    </button>
+                                </div>
+                            </div>
                         </div>
+                    </div>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-5 mt-7'>
                         <div>
                             <label className="block text-sm font-medium text-gray-900 mb-2">
                                 User Name<span className="text-danger-600">*</span>
@@ -60,6 +72,7 @@ const FrmUserModification = () => {
                                     required: 'User Name is required',
                                 })}
                                 placeholder="Enter Username"
+                                disabled={true}
                                 className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.userId
                                     ? 'border-danger-500'
                                     : 'border-gray-300'
@@ -82,6 +95,7 @@ const FrmUserModification = () => {
                                     required: 'User Current Status is required',
                                 })}
                                 placeholder="Enter User Current Status"
+                                disabled={true}
                                 className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.userCurrentStatus
                                     ? 'border-danger-500'
                                     : 'border-gray-300'
@@ -95,6 +109,7 @@ const FrmUserModification = () => {
                             )}
                         </div>
                     </div>
+
                     <div className="flex justify-center flex-col md:flex-row gap-5 mt-7">
                         <button
                             type='button'
