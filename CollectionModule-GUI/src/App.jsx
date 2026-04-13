@@ -31,6 +31,7 @@ import FrmUserCreation from './pages/user/FrmUserCreation'
 import FrmUserCreationWeb from './pages/user/FrmUserCreationWeb'
 import FrmUserList from './pages/user/FrmUserList'
 import FrmUserModification from "./pages/user/FrmUserModification";
+import FrmPincodeMstrInserion from './pages/Admin/FrmPincodeMstrInserion'
 
 const queryClient = new QueryClient()
 
@@ -100,6 +101,9 @@ function App() {
                 <Route path="/components/buttons" element={<ButtonDemoPage />} />
                 <Route path="/components/tabs" element={<TabsDemoPage />} />
                 <Route path="/components/charts" element={<ChartsDemoPage />} /> */}
+
+                {/* Admin */}
+                <Route path="/Admin/FrmPincodeMstrInserion" element={<FrmPincodeMstrInserion />} />
 
                 
 

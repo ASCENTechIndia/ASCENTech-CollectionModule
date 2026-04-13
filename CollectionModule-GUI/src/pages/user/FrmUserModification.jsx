@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Input, Select, Textarea, Button } from '../../components/ui';
 import { useNavigate } from 'react-router-dom';
-
+import { AlertCircle } from 'lucide-react';
 const FrmUserModification = () => {
     const {
         register,
@@ -38,7 +38,7 @@ const FrmUserModification = () => {
                                     required: 'User ID is required',
                                 })}
                                 placeholder="Enter User ID"
-                                className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.pinCode
+                                className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.userId
                                     ? 'border-danger-500'
                                     : 'border-gray-300'
                                     }`}
@@ -60,7 +60,7 @@ const FrmUserModification = () => {
                                     required: 'User Name is required',
                                 })}
                                 placeholder="Enter Username"
-                                className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.pinCode
+                                className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.userId
                                     ? 'border-danger-500'
                                     : 'border-gray-300'
                                     }`}
@@ -82,7 +82,7 @@ const FrmUserModification = () => {
                                     required: 'User Current Status is required',
                                 })}
                                 placeholder="Enter User Current Status"
-                                className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.pinCode
+                                className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.userCurrentStatus
                                     ? 'border-danger-500'
                                     : 'border-gray-300'
                                     }`}
