@@ -89,6 +89,64 @@ const agentSchema = z.object({
   brid:z.string().trim().min(1)
 })
 
+const numericString = z.string().trim().regex(/^\d+$/, 'Only numeric value allowed');
+
+const mobileUserSubmitSchema = z.object({
+  // UI visible required fields
+  workingForId: z.coerce.number().int().positive(),
+  pincode: numericString,
+  firstName: z.string().trim().min(1),
+  lastName: z.string().trim().min(1),
+  mobileNo: z.string().trim().regex(/^[1-9][0-9]{9}$/, 'Enter valid mobile no'),
+  mdmId: z.string().trim().min(1),
+  designationId: z.coerce.number().int().positive(),
+  zoneId: z.coerce.number().int().optional(),
+  regionId: z.coerce.number().int().optional(),
+  branchId: z.coerce.number().int().positive(),
+  roleId: z.union([z.coerce.number().int().positive(), z.string().trim().min(1)]).default(1),
+  userDeviceId: z.union([z.coerce.number().int().positive(), z.string().trim().min(1)]).default(1),
+
+  // non-UI / legacy optional fields
+  dob: nullableString,
+  employerId: z.coerce.number().int().nonnegative().default(0),
+  collectionTeamId: z.coerce.number().int().nonnegative().default(0),
+  categoryId: z.coerce.number().int().nonnegative().default(0),
+  companyCodeId: z.coerce.number().int().nonnegative().default(0),
+  idProofType: z.coerce.number().int().nonnegative().default(0),
+  idProofNo: nullableString,
+  mode: z.coerce.number().int().default(1),
+  compId: z.coerce.number().int().default(10001),
+  requestStatus: z.string().trim().default('A'),
+});
+
+
+const userWebSchema = z.object({
+  in_brid: z.number().int(),
+  in_userid: z.string().trim().min(1),
+  in_username: z.string().trim().min(1),
+  in_userpwd: nullableString, 
+  in_mobno: z.number().int(),
+  in_email: z.string().trim().email(),
+  in_usertypeid: z.number().int(),
+  in_DOB: nullableString,
+  in_proofno: nullableString,
+  in_desgid: z.number().int(),
+  in_roleid: z.number().int(),
+  in_compcode: z.number().int(),
+  in_workid: z.number().int(),
+  in_empid: z.number().int().optional().nullable(),
+  in_collectionid: z.number().int(),
+  in_categoryid: z.number().int(),
+  in_mode: z.number().int(),
+  in_status: z.string().trim().min(1),
+  in_Empcode: z.string().trim().min(1),
+  in_firstname: z.string().trim().min(1),
+  in_lastname:z.string().trim().min(1),
+  in_prooftype: z.number().int(),
+  in_compid: z.number().int(),
+  in_insby: z.string().trim().min(1),
+});
+
 module.exports = {
   createUserSchema,
   createWebUserSchema,
@@ -101,5 +159,7 @@ module.exports = {
   userRegionLookupSchema,
   userBranchLookupSchema,
   branchSchema,
-  agentSchema
+  agentSchema,
+  mobileUserSubmitSchema,
+  userWebSchema
 };

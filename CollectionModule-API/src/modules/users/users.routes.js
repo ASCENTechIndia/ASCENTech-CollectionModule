@@ -11,6 +11,8 @@ const {
   userFormOptionsSchema,
   userRegionLookupSchema,
   userBranchLookupSchema,
+  userWebSchema,
+  mobileUserSubmitSchema,
 } = require('./users.validation');
 const {
   createUserHandler,
@@ -22,6 +24,11 @@ const {
   getUserFormOptionsHandler,
   getRegionsHandler,
   getBranchesHandler,
+  branchListforInsertHandler,
+  rolesHandler,
+  userDeviceHandler,
+  createWebUserHandler,
+  mobileUserSubmitHandler,
 } = require('./users.controller');
 
 const router = express.Router();
@@ -36,6 +43,12 @@ router.get('/regions', validate(userRegionLookupSchema, { source: 'query' }), ge
 router.get('/branches', validate(userBranchLookupSchema, { source: 'query' }), getBranchesHandler);
 router.get('/getBranches', validate(branchSchema, { source: 'query' }), branchListHandler);
 router.get('/getAgents', validate(agentSchema, {source: 'query'}), agentListHandler)
+router.get('/getUsercreationbranches', validate(branchSchema, { source: 'query' }), branchListforInsertHandler);
+router.get('/getRoles', rolesHandler);
+router.get('/getUserDevices', userDeviceHandler);
+router.post('/createWebUser', authRequired, validate(userWebSchema), createWebUserHandler)
+router.get('/getAgents', validate(agentSchema, {source: 'query'}), agentListHandler);
+router.post('/add-mobile-user', authRequired, validate(mobileUserSubmitSchema), mobileUserSubmitHandler);
 
 module.exports = router;
 

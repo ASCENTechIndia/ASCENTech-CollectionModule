@@ -517,7 +517,7 @@ async function updateUserRole(payload) {
 }
 
 async function branchListbyCategory(filters) {
-   let sql = `select brid, branchname from etech.branchlist`;
+  let sql = `select brid, branchname from etech.branchlist`;
   const binds = {};
 
   let conditions = [];
@@ -567,6 +567,148 @@ async function agentDetailsbyBrid(brid) {
   return result.rows || [];
 }
 
+async function getBranchusercreation(filters) {
+  let sql = "";
+  const binds = {};
+
+  const isRestricted = (filters.brcategory == 5 || filters.brcategory == 6);
+
+  // 🔹 Restricted Users (Branch / 6)
+  if (isRestricted) {
+    sql = `
+      SELECT branchname, brid
+      FROM etech.branchlist
+      WHERE brid = :brid
+      ORDER BY branchname
+    `;
+    binds.brid = Number(filters.grdLevel);
+  } 
+  else {
+    // 🔹 Non-restricted users (Zone / Region / Branch)
+    if (filters.userLevel === "Zone") {
+      sql = `
+        SELECT branchname, brid
+        FROM etech.view_zone
+        ORDER BY branchname
+      `;
+    } 
+    else if (filters.userLevel === "Region") {
+      sql = `
+        SELECT branchname, brid
+        FROM etech.view_region
+        ORDER BY branchname
+      `;
+    } 
+    else if (filters.userLevel === "Branch") {
+      sql = `
+        SELECT branchname, brid
+        FROM etech.view_branch
+        ORDER BY branchname
+      `;
+    } 
+    else {
+      throw new Error("Invalid or missing userLevel");
+    }
+  }
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function getRoles() {
+  let sql = `
+  SELECT var_userrole_name, num_userrole_id
+FROM etech.aoup_userrole_mas
+WHERE num_userrole_id IN (1,5)
+ORDER BY num_userrole_id
+  `;
+
+  const binds = {};
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function getUserDevice() {
+  let sql = `
+  select var_userdevice_name, num_userdevice_id from 
+  etech.aoup_userdevice_mas where num_userdevice_id in(3) order by num_userdevice_id
+  `;
+
+  const binds = {};
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function callUserWebIns(payload) {
+  const statement = `
+    BEGIN
+      etech.aoup_userweb_ins(
+        :in_brid,
+        :in_userid,
+        :in_username,
+        :in_userpwd,
+        :in_mobno,
+        :in_email,
+        :in_usertypeid,
+        :in_DOB,
+        :in_proofno,
+        :in_desgid,
+        :in_roleid,
+        :in_compcode,
+        :in_workid,
+        :in_empid,
+        :in_collectionid,
+        :in_categoryid,
+        :in_mode,
+        :in_status,
+        :in_Empcode,
+        :in_firstname,
+        :in_lastname,
+        :in_prooftype,
+        :in_compid,
+        :in_insby,
+        :Out_errorCode,
+        :Out_ErrorMsg,
+        :Out_User
+      );
+    END;
+  `;
+
+  const binds = {
+    in_brid: Number(payload.in_brid),
+    in_userid: payload.in_userid ?? null,
+    in_username: payload.in_username,
+    in_userpwd: payload.in_userpwd ?? null,
+    in_mobno: Number(payload.in_mobno),
+    in_email: payload.in_email,
+    in_usertypeid: Number(payload.in_usertypeid),
+    in_DOB: payload.in_DOB ? new Date(payload.in_DOB) : null,
+    in_proofno: payload.in_proofno ?? null,
+    in_desgid: Number(payload.in_desgid),
+    in_roleid: Number(payload.in_roleid),
+    in_compcode: Number(payload.in_compcode),
+    in_workid: Number(payload.in_workid),
+    in_empid: payload.in_empid ? Number(payload.in_empid) : null,
+    in_collectionid: Number(payload.in_collectionid),
+    in_categoryid: Number(payload.in_categoryid),
+    in_mode: Number(payload.in_mode),
+    in_status: payload.in_status,
+    in_Empcode: payload.in_Empcode,
+    in_firstname: payload.in_firstname ?? null,
+    in_lastname: payload.in_lastname ?? null,
+    in_prooftype: Number(payload.in_prooftype),
+    in_compid: Number(payload.in_compid),
+    in_insby: payload.in_insby,
+
+    Out_errorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 10000 },
+    Out_User: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 100 }
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
 module.exports = {
   callUserInsNew,
   callUserIns,
@@ -574,5 +716,6 @@ module.exports = {
   searchUsers,
   getUserDetails,
   getUserFormOptions,
-  updateUserRole, branchListbyCategory, agentDetailsbyBrid
+  updateUserRole, branchListbyCategory, agentDetailsbyBrid, getBranchusercreation, getRoles,
+  getUserDevice, callUserWebIns
 };
