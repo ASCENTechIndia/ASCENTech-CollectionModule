@@ -60,22 +60,6 @@ async function agentList(payload) {
   return agentDetailsbyBrid(payload);
 }
 
-<<<<<<< HEAD
-async function branchListforInsert(payload) {
-  return getBranchusercreation(payload);
-}
-
-async function Roles() {
-  return getRoles();
-}
-
-async function UserDevice() {
-  return getUserDevice();
-}
-
-async function createWebUser(payload) {
-  return callUserWebIns(payload);
-=======
 function computeStatus(roleId, userDeviceId) {
   if (Number(roleId) === 1) {
     return 'U';
@@ -149,8 +133,24 @@ async function submitMobileUser(payload, actor) {
   };
 
   return callUserInsNew(inPayload);
->>>>>>> 06afc5175f8ab49d7715b0d98dd7241862b5b25a
 }
+
+async function branchListforInsert(payload) {
+  return getBranchusercreation(payload);
+}
+
+async function Roles() {
+  return getRoles();
+}
+
+async function UserDevice() {
+  return getUserDevice();
+}
+
+async function createWebUser(payload) {
+  return callUserWebIns(payload);
+}
+
 
 module.exports = {
   createUser,
@@ -164,12 +164,8 @@ module.exports = {
   getRegions,
   getBranches,
   branchList,
-<<<<<<< HEAD
-  agentList, 
-  branchListforInsert, Roles,
-  UserDevice
-=======
   agentList,
   submitMobileUser,
->>>>>>> 06afc5175f8ab49d7715b0d98dd7241862b5b25a
+  branchListforInsert, Roles,
+  UserDevice
 };
