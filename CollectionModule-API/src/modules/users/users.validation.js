@@ -95,7 +95,7 @@ const userWebSchema = z.object({
   in_username: z.string().trim().min(1),
   in_userpwd: nullableString, 
   in_mobno: z.number().int(),
-  in_email: z.string().trim().email(),
+  in_empid: z.number().int().optional().nullable(),
   in_usertypeid: z.number().int(),
   in_DOB: nullableString,
   in_proofno: nullableString,

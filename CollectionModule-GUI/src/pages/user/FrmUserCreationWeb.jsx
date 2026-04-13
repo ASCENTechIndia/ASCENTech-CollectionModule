@@ -26,6 +26,7 @@ const FrmUserCreationWeb = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
     const brCategory = user?.brCategory;
+    const userName = user?.userName;
     const [selectedUserLevel, setSelectedUserLevel] = useState("");
     const [branchOptions, setBranchOptions] = useState([]);
     const [roleOptions, setRoleOptions] = useState([]);
@@ -80,7 +81,57 @@ const FrmUserCreationWeb = () => {
     }
 
     const onSubmit = async (values) => {
-        console.log(values)
+        try {
+            const payload = {
+                "in_brid": Number(values.zoneRegionBranch),
+                "in_userid": "0",
+                "in_username": `${values.firstName.trim()} ${values.lastName.trim()}`,
+                "in_userpwd": "",
+                "in_mobno": Number(values.mobileNumber),
+                "in_email": "",
+                "in_usertypeid": Number(values.userDevice),
+                "in_DOB": null,
+                "in_proofno": null,
+                "in_desgid": 0,
+                "in_roleid": Number(values.userRole),
+                "in_compcode": 0,
+                "in_workid": 0,
+                "in_empid": 0,
+                "in_collectionid": 0,
+                "in_categoryid": 0,
+                "in_mode": 1,
+                "in_status": "A",
+                "in_Empcode": values.employeeCode,
+                "in_firstname": values.firstName.trim(),
+                "in_lastname": values.lastName.trim(),
+                "in_prooftype": values.userFor === "1" ? 1 : 2,
+                "in_compid": 0,
+                "in_insby": userName
+            }
+
+            const response = await apiClient.post("/users/createWebUser", payload);
+
+            if (response.data.success && response.data.data.Out_errorCode === 9999) {
+                alert(response.data.data.Out_ErrorMsg);
+
+                reset({
+                    userLevel: "",
+                    ZoneRegionBranch: "",
+                    userRole: "",
+                    userDevice: "",
+                    employeeCode: "",
+                    userFor: "",
+                    firstName: "",
+                    lastName: "",
+                    mobileNumber: ""
+                });
+
+                setSelectedUserLevel("");
+                setBranchOptions([]);
+            }
+        } catch (error) {
+            console.error(error?.response?.data);
+        }
     }
 
     useEffect(() => {
@@ -108,7 +159,9 @@ const FrmUserCreationWeb = () => {
                                     User Level<span className="text-danger-600">*</span>
                                 </label>
                                 <select
-                                    {...register('userLevel')}
+                                    {...register('userLevel', {
+                                        required: 'User Level is required',
+                                    })}
                                     defaultValue=""
                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
                                     onChange={(e) => {
@@ -121,13 +174,21 @@ const FrmUserCreationWeb = () => {
                                     <option value="Region">Region</option>
 
                                 </select>
+                                {errors.userLevel && (
+                                    <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
+                                        <AlertCircle className="w-4 h-4" />
+                                        {errors.userLevel.message}
+                                    </p>
+                                )}
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-900 mb-2">
                                     Zone/Region/Branch<span className="text-danger-600">*</span>
                                 </label>
                                 <select
-                                    {...register('zoneRegionBranch')}
+                                    {...register('zoneRegionBranch', {
+                                        required: 'Zone/Region/Branch is required',
+                                    })}
                                     defaultValue=""
                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
                                 >
@@ -137,13 +198,21 @@ const FrmUserCreationWeb = () => {
                                     ))}
 
                                 </select>
+                                {errors.zoneRegionBranch && (
+                                    <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
+                                        <AlertCircle className="w-4 h-4" />
+                                        {errors.zoneRegionBranch.message}
+                                    </p>
+                                )}
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-900 mb-2">
                                     User Role<span className="text-danger-600">*</span>
                                 </label>
                                 <select
-                                    {...register('userRole')}
+                                    {...register('userRole', {
+                                        required: 'User Role is required',
+                                    })}
                                     defaultValue=""
                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
                                 >
@@ -152,13 +221,21 @@ const FrmUserCreationWeb = () => {
                                         <option value={item.value} key={item.value}>{item.label}</option>
                                     ))}
                                 </select>
+                                {errors.userRole && (
+                                    <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
+                                        <AlertCircle className="w-4 h-4" />
+                                        {errors.userRole.message}
+                                    </p>
+                                )}
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-900 mb-2">
                                     User Device<span className="text-danger-600">*</span>
                                 </label>
                                 <select
-                                    {...register('userDevice')}
+                                    {...register('userDevice', {
+                                        required: 'User Device is required',
+                                    })}
                                     defaultValue=""
                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
                                 >
@@ -167,6 +244,12 @@ const FrmUserCreationWeb = () => {
                                         <option key={item.value} value={item.value}>{item.label}</option>
                                     ))}
                                 </select>
+                                {errors.userDevice && (
+                                    <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
+                                        <AlertCircle className="w-4 h-4" />
+                                        {errors.userDevice.message}
+                                    </p>
+                                )}
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-900 mb-2">
@@ -195,7 +278,9 @@ const FrmUserCreationWeb = () => {
                                     User For<span className="text-danger-600">*</span>
                                 </label>
                                 <select
-                                    {...register('userFor')}
+                                    {...register('userFor', {
+                                        required: 'User For is required',
+                                    })}
                                     defaultValue=""
                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
                                 >
@@ -203,6 +288,12 @@ const FrmUserCreationWeb = () => {
                                     <option value="1">Conneqt</option>
                                     <option value="2">Central Bank</option>
                                 </select>
+                                {errors.userFor && (
+                                    <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
+                                        <AlertCircle className="w-4 h-4" />
+                                        {errors.userFor.message}
+                                    </p>
+                                )}
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-900 mb-2">
