@@ -115,7 +115,6 @@ const FrmUserList = () => {
     try {
       const response = await apiClient.get(`/users/getAgents/?brid=${selectedBranch}`, {});
 
-      console.log(response);
       if (response.data.success && Array.isArray(response.data.data) && response.data.data.length > 0) {
         const formattedTableData = response.data.data.map((item) => ({
           ...item,
