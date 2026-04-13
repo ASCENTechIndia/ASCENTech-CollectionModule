@@ -38,3 +38,4 @@ router.get('/getBranches', validate(branchSchema, { source: 'query' }), branchLi
 router.get('/getAgents', validate(agentSchema, {source: 'query'}), agentListHandler)
 
 module.exports = router;
+

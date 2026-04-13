@@ -30,6 +30,7 @@ import NotFoundPage from './pages/NotFoundPage'
 import FrmUserCreation from './pages/user/FrmUserCreation'
 import FrmUserCreationWeb from './pages/user/FrmUserCreationWeb'
 import FrmUserList from './pages/user/FrmUserList'
+import FrmUserModification from "./pages/user/FrmUserModification";
 
 const queryClient = new QueryClient()
 
@@ -76,6 +77,7 @@ function App() {
                 <Route path="/User/FrmUserList" element={<FrmUserList />} />
                 <Route path='/User/FrmUserCreation' element={<FrmUserCreation />} />
                 <Route path='/User/FrmUserCreationWeb' element={<FrmUserCreationWeb />} />
+                <Route path="/User/FrmUserModification" element={<FrmUserModification />} />
                 
                 {/* Branch Management */}
                 {/* <Route path="/branches" element={<BranchListPage />} /> */}

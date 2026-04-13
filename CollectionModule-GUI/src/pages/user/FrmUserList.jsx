@@ -1,10 +1,12 @@
 import { Card } from '../../components/ui'
 import { Users } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { Input, Select, Textarea, Button } from '../../components/ui'
 import { DataTable } from '../../components/tables/DataTable'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
+import apiClient from '../../services/apiService';
+import { useAuth } from "../../context/AuthContext";
 // export default function FrmUserList() {
 //   return (
 //     <div className="min-h-screen bg-gray-50">
@@ -47,7 +49,7 @@ const columns = [
 ];
 
 const data = [
-  { agentid: "E100011", agentname: "Hinduja Admin", mobileno: "9845120145", email: "admin@upass.com", role: "FOS"}
+  { agentid: "E100011", agentname: "Hinduja Admin", mobileno: "9845120145", email: "admin@upass.com", role: "FOS" }
 ]
 
 const FrmUserList = () => {
@@ -63,6 +65,86 @@ const FrmUserList = () => {
 
   const navigate = useNavigate();
 
+  const { user } = useAuth();
+  // console.log(user);
+  const brCategory = user?.brCategory;
+  const [selectedUserLevel, setSelectedUserLevel] = useState("");
+  const [selectedBranch, setSelectedBranch] = useState("");
+  const [branchOptions, setBranchOptions] = useState([]);
+  const [tableHeader, setTableHeader] = useState([
+    {
+      key: "agentid",
+      label: "Agent ID"
+    },
+    {
+      key: "agentname",
+      label: "Agent Name"
+    },
+    {
+      key: "mobileno",
+      label: "Mobile Number"
+    },
+    {
+      key: "email",
+      label: "Email"
+    },
+    {
+      key: "role",
+      label: "Role"
+    }
+  ])
+  const [tableData, setTableData] = useState([]);
+
+  const fetchBranches = async () => {
+    try {
+      const response = await apiClient.get(`/users/getBranches/?brcategory=${brCategory}&userLevel=${selectedUserLevel}`, {});
+
+      if (response.data.success && Array.isArray(response.data.data)) {
+        const formattedOptions = response.data.data.map((item) => ({
+          label: item.BRANCHNAME,
+          value: item.BRID
+        }))
+        setBranchOptions(formattedOptions);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const fetchAgents = async () => {
+    try {
+      const response = await apiClient.get(`/users/getAgents/?brid=${selectedBranch}`, {});
+
+      console.log(response);
+      if (response.data.success && Array.isArray(response.data.data) && response.data.data.length > 0) {
+        const formattedTableData = response.data.data.map((item) => ({
+          ...item,
+          agentid: item.USERID,
+          agentname: item.EMPNAME,
+          mobileno: item.MOBNO,
+          email: item.EMAIL,
+          role: item.VAR_USERROLE_NAME
+        }));
+        setTableData(formattedTableData);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  useEffect(() => {
+    console.log(selectedUserLevel, brCategory);
+    if (!selectedUserLevel || !brCategory) return;
+
+    fetchBranches();
+  }, [selectedUserLevel, brCategory]);
+
+  useEffect(() => {
+    if (!selectedBranch) return;
+
+    fetchAgents();
+  }, [selectedBranch]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
@@ -76,7 +158,7 @@ const FrmUserList = () => {
               className="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
               onClick={() => {
                 navigate("/User/FrmUserCreation")
-              }} 
+              }}
             >
               New Mobile User
             </button>
@@ -85,7 +167,7 @@ const FrmUserList = () => {
               className="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
               onClick={() => {
                 navigate("/User/FrmUserCreationWeb")
-              }} 
+              }}
             >
               New Web User
             </button>
@@ -100,6 +182,11 @@ const FrmUserList = () => {
                 <select
                   {...register('userLevel')}
                   defaultValue=""
+                  onChange={(e) => {
+                    setSelectedUserLevel(e.target.value)
+                    setTableData([]);
+                    setSelectedBranch("");
+                  }}
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
                 >
                   <option value="">-- Select Option --</option>
@@ -116,17 +203,25 @@ const FrmUserList = () => {
                   {...register('zoneRegionBranch')}
                   defaultValue=""
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
+                  onChange={(e) => {
+                    setSelectedBranch(e.target.value)
+                  }}
                 >
-                  <option value="">-- Select Option --</option>
+                  <option value="">--Select Branch--</option>
+                  {branchOptions.map((item) => (
+                    <option value={item.value}>{item.label}</option>
+                  ))}
                 </select>
               </div>
             </div>
-            <div className="mt-7">
-              <DataTable 
-                columns={columns}
-                data={data}
-              />
-            </div>
+            {tableData.length > 0 &&
+              <div className="mt-7">
+                <DataTable
+                  columns={tableHeader}
+                  data={tableData}
+                />
+              </div>
+            }
           </form>
         </div>
       </div>

@@ -32,6 +32,7 @@ const MENU_ITEMS = [
     icon: Users,
        submenu: [
       { label: 'User Creation', href: '/User/FrmUserList' },
+      { label: 'User Modification', href: '/User/FrmUserModification' }
     ],
   },
   // {
