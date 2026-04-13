@@ -65,7 +65,7 @@ function App() {
                 }
               >
                 <Route path="/" element={<Dashboard />} />
-                {/* <Route path="/dashboard" element={<Dashboard />} /> */}
+                <Route path="/dashboard" element={<Dashboard />} />
                 
                 {/* Asset Management */}
                 {/* <Route path="/assets" element={<AssetListPage />} />
