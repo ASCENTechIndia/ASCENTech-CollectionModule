@@ -103,7 +103,7 @@ const userWebSchema = z.object({
   in_roleid: z.number().int(),
   in_compcode: z.number().int(),
   in_workid: z.number().int(),
-  in_empid: z.number().trim().min(1),
+  in_empid: z.number().int().min(1),
   in_collectionid: z.number().int(),
   in_categoryid: z.number().int(),
   in_mode: z.number().int(),
