@@ -10,7 +10,9 @@ const {
   getRoles,
   getUserDevice,
   callUserWebIns,
-  findUserByUserId
+  findUserByUserId,
+  getPageAccessByUserId,
+  updatePageAccessByUserId,
 } = require('./users.repo');
 
 async function createUser(payload) {
@@ -167,6 +169,14 @@ async function submitUserStatusChange(payload) {
   return callUserStatusUpdate(inPayload);
 }
 
+async function getPageAccess(userId) {
+  return getPageAccessByUserId(userId);
+}
+
+async function updatePageAccess(payload) {
+  return updatePageAccessByUserId(payload);
+}
+
 module.exports = {
   createUser,
   createWebUser,
@@ -184,5 +194,7 @@ module.exports = {
   branchListforInsert, Roles,
   UserDevice,
   searchByUserId,
-  submitUserStatusChange
+  submitUserStatusChange,
+  getPageAccess,
+  updatePageAccess,
 };

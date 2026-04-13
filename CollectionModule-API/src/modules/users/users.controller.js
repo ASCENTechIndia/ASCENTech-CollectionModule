@@ -14,7 +14,9 @@ const {
   UserDevice,
   createWebUser,
   searchByUserId,
-  submitUserStatusChange
+  submitUserStatusChange,
+  getPageAccess,
+  updatePageAccess,
 } = require('./users.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -379,6 +381,63 @@ async function submitUserModifyStatusHandler(req, res, next) {
   }
 }
 
+async function getPageAccessHandler(req, res, next) {
+  try {
+    const { userId } = req.query;
+    const out = await getPageAccess(userId);
+
+    if (!out) {
+      logApiError(req, 404, 'User not found', 'Page access lookup failed');
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+        data: null,
+      });
+    }
+
+    logApiSuccess(req, 200, { userId: out.userId, count: out.pages?.length || 0 }, 'Page access loaded successfully');
+    return res.ok(out);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Page access lookup error');
+    return next(error);
+  }
+}
+
+async function updatePageAccessHandler(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await updatePageAccess(payload);
+
+    const errorCode = String(out.out_ErrorCode ?? '');
+    const isSuccess = errorCode === '9999';
+
+    if (isSuccess) {
+      logApiSuccess(req, 200, { userId: payload.userId, mappedCount: payload.menuIds?.length || 0 }, 'Page access updated successfully');
+    } else {
+      logApiError(req, 400, out.out_ErrorMsg || 'Page access update failed', 'Page access update failed');
+    }
+
+    auditLog({
+      action: 'USER_PAGE_ACCESS_UPDATE',
+      actor: req.user?.userId || 'system',
+      module: 'users',
+      entityId: payload.userId,
+      status: isSuccess ? 'SUCCESS' : 'FAILED',
+      details: {
+        outErrorCode: out.out_ErrorCode,
+        outErrorMsg: out.out_ErrorMsg,
+        menuCount: payload.menuIds?.length || 0,
+      },
+      requestMeta: requestMeta(req),
+    });
+
+    return res.ok(out);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Page access update error');
+    return next(error);
+  }
+}
+
 module.exports = {
   createUserHandler,
   updateUserHandler,
@@ -391,6 +450,12 @@ module.exports = {
   branchListHandler,
   agentListHandler,
   mobileUserSubmitHandler,
-   branchListforInsertHandler,
-  rolesHandler, userDeviceHandler, createWebUserHandler, searchByUserIdHandler , submitUserModifyStatusHandler
+  branchListforInsertHandler,
+  rolesHandler,
+  userDeviceHandler,
+  createWebUserHandler,
+  searchByUserIdHandler,
+  submitUserModifyStatusHandler,
+  getPageAccessHandler,
+  updatePageAccessHandler,
 };
