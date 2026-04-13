@@ -11,6 +11,7 @@ const {
   userFormOptionsSchema,
   userRegionLookupSchema,
   userBranchLookupSchema,
+  userWebSchema,
 } = require('./users.validation');
 const {
   createUserHandler,
@@ -25,6 +26,7 @@ const {
   branchListforInsertHandler,
   rolesHandler,
   userDeviceHandler,
+  createWebUserHandler,
 } = require('./users.controller');
 
 const router = express.Router();
@@ -42,6 +44,7 @@ router.get('/getAgents', validate(agentSchema, {source: 'query'}), agentListHand
 router.get('/getUsercreationbranches', validate(branchSchema, { source: 'query' }), branchListforInsertHandler);
 router.get('/getRoles', rolesHandler);
 router.get('/getUserDevices', userDeviceHandler);
+router.post('/createWebUser', authRequired, validate(userWebSchema), createWebUserHandler)
 
 module.exports = router;
 

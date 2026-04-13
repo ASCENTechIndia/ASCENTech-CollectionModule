@@ -9,6 +9,7 @@ const {
   getBranchusercreation,
   getRoles,
   getUserDevice,
+  callUserWebIns,
 } = require('./users.repo');
 
 async function createUser(payload) {
@@ -69,6 +70,10 @@ async function Roles() {
 
 async function UserDevice() {
   return getUserDevice();
+}
+
+async function createWebUser(payload) {
+  return callUserWebIns(payload);
 }
 
 module.exports = {

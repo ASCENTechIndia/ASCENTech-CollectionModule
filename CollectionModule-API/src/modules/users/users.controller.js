@@ -11,6 +11,7 @@ const {
   branchListforInsert,
   Roles,
   UserDevice,
+  createWebUser,
 } = require('./users.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -250,6 +251,35 @@ async function userDeviceHandler(req, res, next) {
   }
 }
 
+async function createWebUserHandler(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await createWebUser(payload);
+
+    const isSuccess = String(out.Out_errorCode) === '9999';
+    if (isSuccess) {
+      logApiSuccess(req, 200, { userId: out.Out_User }, `Web User created successfully: ${out.Out_User}`);
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, `WebUser creation failed`);
+    }
+
+    auditLog({
+      action: 'USER_CREATE',
+      actor: req.user?.userId || 'system',
+      module: 'users',
+      entityId: out.Out_User,
+      status: isSuccess ? 'SUCCESS' : 'FAILED',
+      details: { outErrorCode: out.Out_errorCode, outErrorMsg: out.Out_ErrorMsg },
+      requestMeta: requestMeta(req),
+    });
+
+    return res.ok(out);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'User create error');
+    return next(error);
+  }
+}
+
 module.exports = {
   createUserHandler,
   updateUserHandler,
@@ -262,5 +292,5 @@ module.exports = {
   branchListHandler,
   agentListHandler, 
   branchListforInsertHandler,
-  rolesHandler, userDeviceHandler
+  rolesHandler, userDeviceHandler, createWebUserHandler
 };
