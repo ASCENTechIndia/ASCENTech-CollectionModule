@@ -8,10 +8,13 @@ const {
   getFormOptions,
   getRegions,
   getBranches,
-  branchListforInsert,
+  submitMobileUser,
+   branchListforInsert,
   Roles,
   UserDevice,
   createWebUser,
+  searchByUserId,
+  submitUserStatusChange
 } = require('./users.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -217,6 +220,36 @@ async function agentListHandler(req, res, next) {
   }
 }
 
+async function mobileUserSubmitHandler(req, res, next) {
+  try {
+    const payload = req.body;
+    const actor = req.user?.userId || payload.insBy || 'system';
+    const out = await submitMobileUser(payload, actor);
+
+    const isSuccess = ['-100', '9999'].includes(String(out.Out_errorCode));
+    if (isSuccess) {
+      logApiSuccess(req, 200, { userId: out.Out_User }, 'Mobile user submitted successfully');
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, 'Mobile user submit failed');
+    }
+
+    auditLog({
+      action: 'USER_MOBILE_SUBMIT',
+      actor,
+      module: 'users',
+      entityId: out.Out_User,
+      status: isSuccess ? 'SUCCESS' : 'FAILED',
+      details: { outErrorCode: out.Out_errorCode, outErrorMsg: out.Out_ErrorMsg },
+      requestMeta: requestMeta(req),
+    });
+
+    return res.ok(out);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Mobile user submit error');
+    return next(error);
+  }
+}
+
 async function branchListforInsertHandler(req, res, next) {
   try {
     const filters = req.query;
@@ -266,7 +299,7 @@ async function createWebUserHandler(req, res, next) {
     auditLog({
       action: 'USER_CREATE',
       actor: req.user?.userId || 'system',
-      module: 'users',
+ module: 'users',
       entityId: out.Out_User,
       status: isSuccess ? 'SUCCESS' : 'FAILED',
       details: { outErrorCode: out.Out_errorCode, outErrorMsg: out.Out_ErrorMsg },
@@ -275,7 +308,73 @@ async function createWebUserHandler(req, res, next) {
 
     return res.ok(out);
   } catch (error) {
-    logApiError(req, 500, error.message, 'User create error');
+logApiError(req, 500, error.message, 'User create error');
+ return next(error);
+  }
+}
+
+async function searchByUserIdHandler(req, res, next) {
+  try {
+    const row = await searchByUserId(req.query.userId);
+
+    if (!row) {
+      logApiError(req, 404, 'User not found', 'User lookup failed');
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+        data: null,
+      });
+    }
+
+    const response = {
+      userId: row.USERID || row.userid,
+      userName: row.USERNAME || row.username,
+      currentStatus: row.CURRENTSTATUS || row.currentstatus,
+    };
+
+    logApiSuccess(req, 200, { userId: response.userId }, 'User lookup completed');
+    return res.ok(response);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'User lookup error');
+    return next(error);
+  }
+}
+
+async function submitUserModifyStatusHandler(req, res, next) {
+  try {
+    const payload = req.body;
+    const actor = req.user?.userId || 'system';
+    const out = await submitUserStatusChange(payload, actor);
+
+    const normalizedUserId = payload.userId.startsWith('E') ? payload.userId : `E${payload.userId}`;
+    const isSuccess = String(out.out_ErrorCode) === '-100';
+
+    if (isSuccess) {
+      logApiSuccess(req, 200, { userId: normalizedUserId, status: payload.newStatus }, 'User modify status submitted successfully');
+    } else {
+      logApiError(req, 400, out.out_ErrorMsg, 'User modify status submit failed');
+    }
+
+    auditLog({
+      action: 'USER_MODIFY_STATUS_SUBMIT',
+      actor,
+      module: 'users',
+      entityId: normalizedUserId,
+      status: isSuccess ? 'SUCCESS' : 'FAILED',
+      details: {
+        outErrorCode: out.out_ErrorCode,
+        outErrorMsg: out.out_ErrorMsg,
+        nextStatus: payload.newStatus,
+        reason: payload.reason || null,
+      },
+      requestMeta: requestMeta(req),
+    });
+
+    return res.ok({
+      ...out
+    });
+  } catch (error) {
+    logApiError(req, 500, error.message, 'User modify status submit error');
     return next(error);
   }
 }
@@ -290,7 +389,8 @@ module.exports = {
   getRegionsHandler,
   getBranchesHandler,
   branchListHandler,
-  agentListHandler, 
-  branchListforInsertHandler,
-  rolesHandler, userDeviceHandler, createWebUserHandler
+  agentListHandler,
+  mobileUserSubmitHandler,
+   branchListforInsertHandler,
+  rolesHandler, userDeviceHandler, createWebUserHandler, searchByUserIdHandler , submitUserModifyStatusHandler
 };

@@ -89,6 +89,37 @@ const agentSchema = z.object({
   brid:z.string().trim().min(1)
 })
 
+const numericString = z.string().trim().regex(/^\d+$/, 'Only numeric value allowed');
+
+const mobileUserSubmitSchema = z.object({
+  // UI visible required fields
+  workingForId: z.coerce.number().int().positive(),
+  pincode: numericString,
+  firstName: z.string().trim().min(1),
+  lastName: z.string().trim().min(1),
+  mobileNo: z.string().trim().regex(/^[1-9][0-9]{9}$/, 'Enter valid mobile no'),
+  mdmId: z.string().trim().min(1),
+  designationId: z.coerce.number().int().optional(),
+  zoneId: z.coerce.number().int().optional(),
+  regionId: z.coerce.number().int().optional(),
+  branchId: z.coerce.number().int().positive(),
+  roleId: z.union([z.coerce.number().int().optional(), z.string().trim().min(1)]).default(1),
+  userDeviceId: z.union([z.coerce.number().int().optional(), z.string().trim().min(1)]).default(1),
+
+  // non-UI / legacy optional fields
+  dob: nullableString,
+  employerId: z.coerce.number().int().nonnegative().default(0),
+  collectionTeamId: z.coerce.number().int().nonnegative().default(0),
+  categoryId: z.coerce.number().int().nonnegative().default(0),
+  companyCodeId: z.coerce.number().int().nonnegative().default(0),
+  idProofType: z.coerce.number().int().nonnegative().default(0),
+  idProofNo: nullableString,
+  mode: z.coerce.number().int().default(1),
+  compId: z.coerce.number().int().default(10001),
+  requestStatus: z.string().trim().default('A'),
+});
+
+
 const userWebSchema = z.object({
   in_brid: z.number().int(),
   in_userid: z.string().trim().min(1),
@@ -116,6 +147,17 @@ const userWebSchema = z.object({
   in_insby: z.string().trim().min(1),
 });
 
+const userIdLookupSchema = z.object({
+  userId: z.string().trim().min(1),
+});
+
+const userModifyStatusSubmitSchema = z.object({
+  userId: z.string().trim().min(1),
+  newStatus: z.string().trim().min(1),
+  reason: nullableString,
+  insby: z.string().trim().min(1).optional(),
+});
+
 module.exports = {
   createUserSchema,
   createWebUserSchema,
@@ -128,5 +170,9 @@ module.exports = {
   userRegionLookupSchema,
   userBranchLookupSchema,
   branchSchema,
-  agentSchema, userWebSchema
+  agentSchema,
+  mobileUserSubmitSchema,
+  userWebSchema,
+  userIdLookupSchema,
+  userModifyStatusSubmitSchema
 };

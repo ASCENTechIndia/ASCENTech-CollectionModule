@@ -709,6 +709,22 @@ async function callUserWebIns(payload) {
   return result.outBinds;
 }
 
+async function findUserByUserId(userId) {
+  const normalizedUserId = userId.startsWith('E') ? userId : `E${userId}`;
+
+  const sql = `
+    select replace(a.var_usermst_userid, 'E', '') as userid,
+           a.var_usermst_userfullname as username,
+           b.var_userlevelmst_status as currentstatus
+      from aoup_usermst_def a
+      left outer join aoup_userlevelmst_def b on b.var_userlevelmst_id = a.var_usermst_status
+     where a.var_usermst_userid = :userId
+  `;
+
+  const result = await executeQuery(sql, { userId: normalizedUserId });
+  return result.rows?.[0] || null;
+}
+
 module.exports = {
   callUserInsNew,
   callUserIns,
@@ -717,5 +733,5 @@ module.exports = {
   getUserDetails,
   getUserFormOptions,
   updateUserRole, branchListbyCategory, agentDetailsbyBrid, getBranchusercreation, getRoles,
-  getUserDevice, callUserWebIns
+  getUserDevice, callUserWebIns , findUserByUserId,
 };
