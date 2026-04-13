@@ -3,18 +3,43 @@ import { useForm } from 'react-hook-form'
 import { Input, Select, Textarea, Button } from '../../components/ui';
 import { useNavigate } from 'react-router-dom';
 import { AlertCircle, Search } from 'lucide-react';
+import apiClient from '../../services/apiService';
 const FrmUserModification = () => {
     const {
         register,
         handleSubmit,
         formState: { errors },
-        reset
+        reset,
+        setValue
     } = useForm({
         userId: "",
         userName: "",
         userCurrentStatus: ""
     });
     const navigate = useNavigate();
+
+    const [searchUserId, setSearchUserId] = useState("");
+    const [userDetails, setUserDetails] = useState({});
+    const [openModifyStatusModal, setOpenModifyStatusModal] = useState(false);
+
+
+    const handleSearch = async (userID) => {
+        try {
+            const response = await apiClient.get(`/users/search-by-userid?userId=${userID}`);
+
+            if (response.data.success) {
+                setUserDetails(response.data.data);
+                setValue("userName", response.data?.data?.userName);
+                setValue("userCurrentStatus", response.data?.data?.currentStatus)
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const handleModifyStatus = async () => {
+
+    }
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -38,6 +63,12 @@ const FrmUserModification = () => {
                                             required: 'User ID is required',
                                         })}
                                         placeholder="Enter User ID"
+                                        onChange={(e) => {
+                                            setSearchUserId(e.target.value);
+                                        }}
+                                        onInput={(e) => {
+                                            e.target.value = e.target.value.replace(/\D/g, '');
+                                        }}
                                         className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.userId
                                             ? 'border-danger-500'
                                             : 'border-gray-300'
@@ -54,6 +85,7 @@ const FrmUserModification = () => {
                                     <button
                                         type='button'
                                         className="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                                        onClick={() => handleSearch(searchUserId)}
                                     >
                                         <Search className="w-6 h-6 text-white" />
                                     </button>
@@ -114,6 +146,9 @@ const FrmUserModification = () => {
                         <button
                             type='button'
                             className="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                            onClick={() => {
+                                setOpenModifyStatusModal(true);
+                            }}
                         >
                             Modify Status
                         </button>
@@ -122,6 +157,51 @@ const FrmUserModification = () => {
                             className="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                         >Page Access</button>
                     </div>
+
+                    {openModifyStatusModal && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                            <div className="bg-white rounded-lg shadow-lg w-full max-w-xl p-6 m-4">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h2 className="text-lg font-semibold">Modify Status</h2>
+                                    <button
+                                        onClick={() => setOpenModifyStatusModal(false)}
+                                        className="text-gray-500 hover:text-gray-700"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                                <div className="grid grid-cols-2 justify-around gap-4 mb-7">
+                                    <p><span className='text-sm font-medium'>User Id:</span> {userDetails?.userId}</p>
+                                    <p><span className="text-sm font-medium">Current Status:</span> {userDetails?.newStatus === "A" ? "Active" : "Inactive"}</p>
+                                </div>
+                                <div className="space-y-4">
+                                    <label className="block text-sm font-medium">
+                                        New Status<span className="text-danger-600">*</span>
+                                    </label>
+                                    <select className="w-full px-4 py-2 border rounded-lg">
+                                        <option value="">-- Select Status --</option>
+                                        <option value="A" disabled={userDetails?.newStatus === "A"}>Active</option>
+                                        <option value="I" disabled={userDetails?.newStatus === "I"}>Inactive</option>
+                                    </select>
+                                </div>
+
+                                <div className="flex justify-center gap-3 mt-6">
+                                    <button
+                                        className="px-4 py-2 bg-primary-600 text-white rounded-lg"
+                                        onClick={handleModifyStatus}
+                                    >
+                                        Save
+                                    </button>
+                                    <button
+                                        className="px-4 py-2 bg-gray-300 rounded-lg"
+                                        onClick={() => setOpenModifyStatusModal(false)}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </form>
             </div>
         </div>
