@@ -4,6 +4,8 @@ import { Input, Select, Textarea, Button } from '../../components/ui';
 import { useNavigate } from 'react-router-dom';
 import { AlertCircle, Search } from 'lucide-react';
 import apiClient from '../../services/apiService';
+import { useAuth } from '../../context/AuthContext';
+
 const FrmUserModification = () => {
     const {
         register,
@@ -17,13 +19,19 @@ const FrmUserModification = () => {
         userCurrentStatus: ""
     });
     const navigate = useNavigate();
-
+    const { user } = useAuth();
+    const webUserId = user?.userId;
     const [searchUserId, setSearchUserId] = useState("");
     const [userDetails, setUserDetails] = useState({});
     const [openModifyStatusModal, setOpenModifyStatusModal] = useState(false);
+    const [newStatus, setNewStatus] = useState("");
 
 
     const handleSearch = async (userID) => {
+        if (!userID) {
+            alert("Enter User ID");
+            return;
+        }
         try {
             const response = await apiClient.get(`/users/search-by-userid?userId=${userID}`);
 
@@ -38,7 +46,28 @@ const FrmUserModification = () => {
     }
 
     const handleModifyStatus = async () => {
+        try {
+            if (!newStatus.length) {
+                alert("Please select the status");
+                return;
+            }
+            const payload = {
+                "userId": userDetails?.userId,
+                "newStatus": newStatus,
+                "insBy": webUserId
+            };
 
+            const response = await apiClient.post("/users/modify-status-submit", payload);
+
+            if (response.data.success && response.data.data.out_ErrorCode === -100) {
+                alert(response.data.data.out_ErrorMsg);
+                setOpenModifyStatusModal(false);
+                setNewStatus("");
+                handleSearch(userDetails?.userId);
+            }
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     return (
@@ -172,27 +201,34 @@ const FrmUserModification = () => {
                                 </div>
                                 <div className="grid grid-cols-2 justify-around gap-4 mb-7">
                                     <p><span className='text-sm font-medium'>User Id:</span> {userDetails?.userId}</p>
-                                    <p><span className="text-sm font-medium">Current Status:</span> {userDetails?.newStatus === "A" ? "Active" : "Inactive"}</p>
+                                    <p><span className="text-sm font-medium">Current Status:</span> {userDetails?.currentStatus}</p>
                                 </div>
                                 <div className="space-y-4">
                                     <label className="block text-sm font-medium">
                                         New Status<span className="text-danger-600">*</span>
                                     </label>
-                                    <select className="w-full px-4 py-2 border rounded-lg">
+                                    <select
+                                        value={newStatus}
+                                        onChange={(e) => setNewStatus(e.target.value)}
+                                        className="w-full px-4 py-2 border rounded-lg">
                                         <option value="">-- Select Status --</option>
-                                        <option value="A" disabled={userDetails?.newStatus === "A"}>Active</option>
-                                        <option value="I" disabled={userDetails?.newStatus === "I"}>Inactive</option>
+                                        <option value="A" disabled={userDetails?.currentStatus === "Active"}>Active</option>
+                                        <option value="I" disabled={userDetails?.currentStatus === "Inactive"}>Inactive</option>
                                     </select>
                                 </div>
 
                                 <div className="flex justify-center gap-3 mt-6">
                                     <button
+                                        type='button'
                                         className="px-4 py-2 bg-primary-600 text-white rounded-lg"
-                                        onClick={handleModifyStatus}
+                                        onClick={() => {
+                                            handleModifyStatus();
+                                        }}
                                     >
                                         Save
                                     </button>
                                     <button
+                                        type='button'
                                         className="px-4 py-2 bg-gray-300 rounded-lg"
                                         onClick={() => setOpenModifyStatusModal(false)}
                                     >
