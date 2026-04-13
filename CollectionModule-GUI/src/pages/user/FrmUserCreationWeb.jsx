@@ -182,7 +182,7 @@ const FrmUserCreationWeb = () => {
                                             required: 'Employee Code is required',
                                         })}
                                         placeholder="Enter Employee Code"
-                                        className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.pinCode
+                                        className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.employeeCode
                                             ? 'border-danger-500'
                                             : 'border-gray-300'
                                             }`}
@@ -220,7 +220,7 @@ const FrmUserCreationWeb = () => {
                                                     required: 'First Name is required',
                                                 })}
                                                 placeholder="FIRST NAME"
-                                                className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.pinCode
+                                                className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.firstName
                                                     ? 'border-danger-500'
                                                     : 'border-gray-300'
                                                     }`}
@@ -239,7 +239,7 @@ const FrmUserCreationWeb = () => {
                                                     required: 'Last Name is required',
                                                 })}
                                                 placeholder="LAST NAME"
-                                                className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.pinCode
+                                                className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.lastName
                                                     ? 'border-danger-500'
                                                     : 'border-gray-300'
                                                     }`}
@@ -265,7 +265,7 @@ const FrmUserCreationWeb = () => {
                                             required: 'Mobile Number is required',
                                         })}
                                         placeholder="Enter Mobile Number"
-                                        className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.pinCode
+                                        className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.mobileNumber
                                             ? 'border-danger-500'
                                             : 'border-gray-300'
                                             }`}
