@@ -122,7 +122,7 @@ async function submitMobileUser(payload, actor) {
     in_categoryid: Number(payload.categoryId || 0),
     in_mode: Number(payload.mode || 1),
     in_status: computeStatus(normalizedRoleId, normalizedDeviceId),
-    in_Empcode: payload.pincode,
+    in_Empcode: payload.empcode,
     in_firstname: payload.firstName.toUpperCase(),
     in_lastname: payload.lastName.toUpperCase(),
     in_prooftype: Number(payload.idProofType || 0),
