@@ -147,6 +147,17 @@ const userWebSchema = z.object({
   in_insby: z.string().trim().min(1),
 });
 
+const userIdLookupSchema = z.object({
+  userId: z.string().trim().min(1),
+});
+
+const userModifyStatusSubmitSchema = z.object({
+  userId: z.string().trim().min(1),
+  newStatus: z.string().trim().min(1),
+  reason: nullableString,
+  insby: z.string().trim().min(1).optional(),
+});
+
 module.exports = {
   createUserSchema,
   createWebUserSchema,
@@ -161,5 +172,7 @@ module.exports = {
   branchSchema,
   agentSchema,
   mobileUserSubmitSchema,
-  userWebSchema
+  userWebSchema,
+  userIdLookupSchema,
+  userModifyStatusSubmitSchema
 };
