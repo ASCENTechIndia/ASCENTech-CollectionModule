@@ -31,6 +31,8 @@ import FrmUserCreation from './pages/user/FrmUserCreation'
 import FrmUserCreationWeb from './pages/user/FrmUserCreationWeb'
 import FrmUserList from './pages/user/FrmUserList'
 import FrmUserModification from "./pages/user/FrmUserModification";
+import FrmPincodeMstrInserion from './pages/Admin/FrmPincodeMstrInserion'
+import FrmAccessofPages from './pages/user/FrmAccessofPages'
 
 const queryClient = new QueryClient()
 
@@ -78,6 +80,7 @@ function App() {
                 <Route path='/User/FrmUserCreation' element={<FrmUserCreation />} />
                 <Route path='/User/FrmUserCreationWeb' element={<FrmUserCreationWeb />} />
                 <Route path="/User/FrmUserModification" element={<FrmUserModification />} />
+                <Route path='/FrmAccessofPages' element={<FrmAccessofPages />} />
                 
                 {/* Branch Management */}
                 {/* <Route path="/branches" element={<BranchListPage />} /> */}
@@ -92,14 +95,17 @@ function App() {
                 {/* <Route path="/tables" element={<DataGridPage />} /> */}
                 
                 {/* Form Examples */}
-                {/* <Route path="/forms/two-column" element={<TwoColumnFormPage />} />
-                <Route path="/forms/three-column" element={<ThreeColumnFormPage />} /> */}
+                {/* <Route path="/forms/two-column" element={<TwoColumnFormPage />} /> */}
+                <Route path="/forms/three-column" element={<ThreeColumnFormPage />} />
                 
                 {/* Components Demo */}
-                {/* <Route path="/components/alerts-modals" element={<AlertModalDemoPage />} />
-                <Route path="/components/buttons" element={<ButtonDemoPage />} />
+                <Route path="/components/alerts-modals" element={<AlertModalDemoPage />} />
+                {/* <Route path="/components/buttons" element={<ButtonDemoPage />} />
                 <Route path="/components/tabs" element={<TabsDemoPage />} />
                 <Route path="/components/charts" element={<ChartsDemoPage />} /> */}
+
+                {/* Admin */}
+                <Route path="/Admin/FrmPincodeMstrInserion" element={<FrmPincodeMstrInserion />} />
 
                 
 
