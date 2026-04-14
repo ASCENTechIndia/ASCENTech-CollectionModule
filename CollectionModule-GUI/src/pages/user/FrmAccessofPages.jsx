@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { Input, Select, Textarea, Button } from '../../components/ui';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import apiClient from '../../services/apiService';
 import { useAuth } from '../../context/AuthContext';
 import { AlertCircle } from 'lucide-react';
@@ -14,23 +14,80 @@ function FrmAccessofPages() {
         reset,
         setValue
     } = useForm({
-        userOf: "1",
+        userOf: "",
         userId: "",
         userName: "",
         accessPages: []
     });
     const { user } = useAuth();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { userID } = location.state || null;
     const userOfOptions = [
         { label: "Conneqt", value: "1" },
         { label: "Central Bank", value: "2" }
     ]
+
+    const [userPageAccessDetails, setUserPageAccessDetails] = useState({});
+    const [pageAccessList, setPageAccessList] = useState([]);
     const fetchUserOfId = (name) => {
-        const userOfObj = "";
+        const userOfObj = userOfOptions.find((item) =>
+            item.label === name
+        );
+        return userOfObj ? userOfObj?.value : "";
+    }
+
+    const fetchPageAccessDetails = async () => {
+        try {
+            const response = await apiClient.get(`/users/get-page-access?userId=${userID}`, {});
+
+            if (response.data.success) {
+                setUserPageAccessDetails(response.data.data);
+                setValue("userId", response.data.data.userId);
+
+                const userOfValue = fetchUserOfId(response.data.data.userOf);
+                setValue("userOf", userOfValue);
+
+                setPageAccessList(response.data.data.pages);
+
+                const selectedPages = response.data.data.pages
+                    .filter(page => page.selected)
+                    .map(page => page.menuId);
+
+                setValue("accessPages", selectedPages);
+            }
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     const onSubmit = async (values) => {
-        console.log(values);
+        try {
+            const payload = {
+                "userId": values.userId,
+                "menuIds": values.accessPages.map(id => Number(id))
+            }
+
+            const response = await apiClient.post(`/users/update-page-access`, payload);
+
+            if (response.data.success && response.data.data.out_ErrorCode === "9999") {
+                alert("Page Access Updated Successfully");
+                reset({
+                    userOf: "",
+                    userId: "",
+                    userName: "",
+                    accessPages: []
+                });
+                navigate("/User/FrmUserModification");
+            }
+        } catch (error) {
+            console.error(error);
+        }
     }
+
+    useEffect(() => {
+        fetchPageAccessDetails();
+    }, []);
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
@@ -86,12 +143,12 @@ function FrmAccessofPages() {
                                 </p>
                             )}
                         </div>
-                        <div className='flex flex-col md:flex-row'>
-                            <label className="block text-sm font-medium text-gray-900 mb-2">
+                        <div className='flex flex-col md:flex-row md:items-center gap-2'>
+                            <label className="block text-sm font-medium text-gray-900">
                                 User Name:
                             </label>
                             <p>
-                                { }
+                                {userPageAccessDetails?.userName}
                             </p>
                         </div>
                         <div>
@@ -99,21 +156,16 @@ function FrmAccessofPages() {
                                 Access Pages:
                             </label>
                             <div className="space-y-2 mt-3">
-                                {[
-                                    { label: "Dashboard", value: "dashboard" },
-                                    { label: "Users", value: "users" },
-                                    { label: "Reports", value: "reports" },
-                                    { label: "Settings", value: "settings" }
-                                ].map((item) => (
-                                    <label key={item.value} className="flex items-center gap-2">
+                                {pageAccessList.map((item) => (
+                                    <label key={item.menuId} className="flex items-center gap-2">
                                         <input
                                             type="checkbox"
-                                            value={item.value}
+                                            value={item.menuId}
                                             {...register("accessPages", {
                                                 required: "Select at least one page"
                                             })}
                                         />
-                                        {item.label}
+                                        {item.menuName}
                                     </label>
                                 ))}
                             </div>
