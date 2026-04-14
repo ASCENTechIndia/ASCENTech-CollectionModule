@@ -6,6 +6,9 @@ const userTracLocationSchema = z.object({
   cDate: z.string().min(1, "Date is required"),
 });
 
+const lastLoginSchema = z.object({
+  userId: z.string().min(1, "UserId is required"),
+});
 
 module.exports = {
-  userTracLocationSchema }
+  userTracLocationSchema, lastLoginSchema }
