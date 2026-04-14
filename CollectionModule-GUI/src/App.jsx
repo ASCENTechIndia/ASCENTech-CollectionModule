@@ -32,6 +32,7 @@ import FrmUserCreationWeb from './pages/user/FrmUserCreationWeb'
 import FrmUserList from './pages/user/FrmUserList'
 import FrmUserModification from "./pages/user/FrmUserModification";
 import FrmPincodeMstrInserion from './pages/Admin/FrmPincodeMstrInserion'
+import FrmAccessofPages from './pages/user/FrmAccessofPages'
 
 const queryClient = new QueryClient()
 
@@ -79,6 +80,7 @@ function App() {
                 <Route path='/User/FrmUserCreation' element={<FrmUserCreation />} />
                 <Route path='/User/FrmUserCreationWeb' element={<FrmUserCreationWeb />} />
                 <Route path="/User/FrmUserModification" element={<FrmUserModification />} />
+                <Route path='/FrmAccessofPages' element={<FrmAccessofPages />} />
                 
                 {/* Branch Management */}
                 {/* <Route path="/branches" element={<BranchListPage />} /> */}
