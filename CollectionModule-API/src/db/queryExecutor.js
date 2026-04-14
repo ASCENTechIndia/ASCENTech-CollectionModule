@@ -19,7 +19,7 @@ async function executeQuery(sql, params = {}, options = {}) {
 
     const result = await connection.execute(sql, params, {
       outFormat: oracledb.OUT_FORMAT_OBJECT, // rows as objects
-      autoCommit: false,
+      autoCommit: true,
       ...safeOptions,
     });
 
