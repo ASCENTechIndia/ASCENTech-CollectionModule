@@ -33,7 +33,8 @@ const MENU_ITEMS = [
        submenu: [
       { label: 'User Creation', href: '/User/FrmUserList' },
       { label: 'User Modification', href: '/User/FrmUserModification' },
-      { label: 'Pincode Master', href: '/User/FrmPincodeMstrInserion' }
+      { label: 'Pincode Master', href: '/User/FrmPincodeMstrInserion' },
+      { label: 'Inactive User Cases', href: '/User/FrmInactiveUserAcs'}
     ],
   },
   // {
