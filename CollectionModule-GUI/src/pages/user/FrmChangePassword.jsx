@@ -4,15 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { AlertCircle, Loader2 } from "lucide-react";
 import apiClient from "../../services/apiService";
 import Swal from "sweetalert2";
-import { useAuth } from "../../context/AuthContext"; // adjust path if needed
+import { useAuth } from "../../context/AuthContext";
 
 const FrmChangePassword = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const userId = user?.userId;
-  console.log("user id ;", userId)
 
-  // ── Username field control ──────────────────────────────────
   const [usernameDisabled, setUsernameDisabled] = useState(true);
   const [userInfoLoading, setUserInfoLoading] = useState(false);
 
@@ -34,7 +32,6 @@ const FrmChangePassword = () => {
 
   const newPasswordValue = watch("newPassword");
 
-  // ── 1. On mount: fetch desgId & userType to control username field ──
   useEffect(() => {
     if (!userId) return;
 
@@ -45,7 +42,6 @@ const FrmChangePassword = () => {
           `/password/desgidandusertype?userId=${userId}`,
         );
 
-        console.log("res :", res)
         if (res?.data?.success && res.data.data.length > 0) {
           const { NUM_USERMST_DESGID, NUM_USERMST_USERTYPE } = res.data.data[0];
 
@@ -61,6 +57,7 @@ const FrmChangePassword = () => {
         }
       } catch (err) {
         console.error("Failed to fetch user info:", err);
+        alert(err.message);
       } finally {
         setUserInfoLoading(false);
       }
@@ -69,7 +66,6 @@ const FrmChangePassword = () => {
     fetchUserInfo();
   }, [userId]);
 
-  // ── 2. Submit: call changePassword API ─────────────────────
   const onSubmit = async (values) => {
     try {
       Swal.fire({
@@ -83,12 +79,10 @@ const FrmChangePassword = () => {
         oldPassword: values.oldPassword,
         newPassword: values.newPassword,
       };
-      console.log("Payload :", payload)
 
       const res = await apiClient.post("/password/changePassword", payload);
 
       Swal.close();
-      console.log("submit api ", res)
 
       if (res?.data?.success && res?.data?.data?.out_ErrorCode === 9999) {
         Swal.fire({
@@ -101,7 +95,6 @@ const FrmChangePassword = () => {
           timerProgressBar: true,
         }).then(() => {
           reset();
-          navigate("/dashboard");
         });
       } else {
         Swal.fire({

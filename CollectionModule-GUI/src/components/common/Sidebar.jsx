@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   Package,
@@ -10,32 +10,39 @@ import {
   FileInput,
   Bell,
   ChevronDown,
-  List
-} from 'lucide-react'
-import { useState } from 'react'
-import { clsx } from 'clsx'
+  List,
+} from "lucide-react";
+import { useState } from "react";
+import { clsx } from "clsx";
 
 const MENU_ITEMS = [
   {
-    label: 'Dashboard',
-    href: '/dashboard',
+    label: "Dashboard",
+    href: "/dashboard",
     icon: LayoutDashboard,
   },
-    {
-    label: 'Demo Reports',
-    href: '/reports/demo-grid-tailwind',
+  {
+    label: "Demo Reports",
+    href: "/reports/demo-grid-tailwind",
     icon: List,
   },
 
-   {
-    label: 'User Management',
+  {
+    label: "User Management",
     icon: Users,
-       submenu: [
-      { label: 'User Creation', href: '/User/FrmUserList' },
-      { label: 'User Modification', href: '/User/FrmUserModification' },
-      { label: 'Assigned Pincode FOS', href: '/User/FrmUserPinAllocation' },
-      { label: 'Reset Password', href: '/User/FrmResetPassword' },
-      { label: 'Change Password', href: '/User/FrmChangePassword' },
+    submenu: [
+      { label: "User Creation", href: "/User/FrmUserList" },
+      { label: "User Modification", href: "/User/FrmUserModification" },
+      { label: "Assigned Pincode FOS", href: "/User/FrmUserPinAllocation" },
+      { label: "Reset Password", href: "/User/FrmResetPassword" },
+      { label: "Change Password", href: "/User/FrmChangePassword" },
+    ],
+  },
+  {
+    label: "Admin",
+    icon: Users,
+    submenu: [
+      { label: "User Location Tracking", href: "/User/FrmUserLocationTracking" },
     ],
   },
   // {
@@ -87,26 +94,26 @@ const MENU_ITEMS = [
   //     { label: 'Charts', href: '/components/charts' },
   //   ],
   // },
-]
+];
 
 export function Sidebar({ isOpen }) {
-  const location = useLocation()
-  const [expandedMenu, setExpandedMenu] = useState(null)
+  const location = useLocation();
+  const [expandedMenu, setExpandedMenu] = useState(null);
 
   const isMenuActive = (href) => {
-    if (!href) return false
-    return location.pathname.startsWith(href)
-  }
+    if (!href) return false;
+    return location.pathname.startsWith(href);
+  };
 
   const isSubmenuActive = (submenu = []) => {
-    return submenu.some((item) => location.pathname.startsWith(item.href))
-  }
+    return submenu.some((item) => location.pathname.startsWith(item.href));
+  };
 
   return (
     <aside
       className={clsx(
-        'fixed inset-y-0 left-0 z-40 w-64 bg-white transform transition-transform lg:translate-x-0 lg:static lg:z-auto shadow-xl border-r border-gray-100',
-        isOpen ? 'translate-x-0' : '-translate-x-full'
+        "fixed inset-y-0 left-0 z-40 w-64 bg-white transform transition-transform lg:translate-x-0 lg:static lg:z-auto shadow-xl border-r border-gray-100",
+        isOpen ? "translate-x-0" : "-translate-x-full",
       )}
     >
       <div className="h-full flex flex-col overflow-y-auto">
@@ -119,14 +126,14 @@ export function Sidebar({ isOpen }) {
                   <button
                     onClick={() =>
                       setExpandedMenu(
-                        expandedMenu === item.label ? null : item.label
+                        expandedMenu === item.label ? null : item.label,
                       )
                     }
                     className={clsx(
-                      'w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200',
+                      "w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200",
                       isSubmenuActive(item.submenu)
-                        ? 'bg-primary-100 text-primary-700 shadow-md'
-                        : 'text-gray-700 hover:bg-gray-100 hover:text-primary-600'
+                        ? "bg-primary-100 text-primary-700 shadow-md"
+                        : "text-gray-700 hover:bg-gray-100 hover:text-primary-600",
                     )}
                   >
                     <div className="flex items-center gap-3">
@@ -136,8 +143,8 @@ export function Sidebar({ isOpen }) {
                     <ChevronDown
                       size={18}
                       className={clsx(
-                        'transform transition-transform flex-shrink-0',
-                        expandedMenu === item.label && 'rotate-180'
+                        "transform transition-transform flex-shrink-0",
+                        expandedMenu === item.label && "rotate-180",
                       )}
                     />
                   </button>
@@ -148,10 +155,10 @@ export function Sidebar({ isOpen }) {
                           key={subitem.href}
                           to={subitem.href}
                           className={clsx(
-                            'block px-4 py-2.5 text-sm rounded-lg transition-all duration-150 border-l-2 pl-4',
+                            "block px-4 py-2.5 text-sm rounded-lg transition-all duration-150 border-l-2 pl-4",
                             isMenuActive(subitem.href)
-                              ? 'bg-primary-50 text-primary-700 font-medium border-l-primary-500'
-                              : 'text-gray-600 hover:text-primary-600 hover:bg-gray-50 border-l-transparent'
+                              ? "bg-primary-50 text-primary-700 font-medium border-l-primary-500"
+                              : "text-gray-600 hover:text-primary-600 hover:bg-gray-50 border-l-transparent",
                           )}
                         >
                           {subitem.label}
@@ -164,14 +171,17 @@ export function Sidebar({ isOpen }) {
                 <Link
                   to={item.href}
                   className={clsx(
-                    'flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 group relative overflow-hidden',
+                    "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 group relative overflow-hidden",
                     isMenuActive(item.href)
-                      ? 'bg-primary-100 text-primary-700 shadow-md'
-                      : 'text-gray-700 hover:bg-gray-100 hover:text-primary-600'
+                      ? "bg-primary-100 text-primary-700 shadow-md"
+                      : "text-gray-700 hover:bg-gray-100 hover:text-primary-600",
                   )}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-10 transition-opacity duration-200 -skew-x-12 translate-x-full group-hover:translate-x-0" />
-                  <item.icon size={20} className="flex-shrink-0 relative z-10" />
+                  <item.icon
+                    size={20}
+                    className="flex-shrink-0 relative z-10"
+                  />
                   <span className="relative z-10">{item.label}</span>
                 </Link>
               )}
@@ -180,5 +190,5 @@ export function Sidebar({ isOpen }) {
         </nav>
       </div>
     </aside>
-  )
+  );
 }
