@@ -158,6 +158,15 @@ const userModifyStatusSubmitSchema = z.object({
   insby: z.string().trim().min(1).optional(),
 });
 
+const pageAccessQuerySchema = z.object({
+  userId: z.string().trim().min(1),
+});
+
+const pageAccessUpdateSchema = z.object({
+  userId: z.string().trim().min(1),
+  menuIds: z.array(z.union([z.coerce.number().int(), z.string().trim().min(1)])).default([]),
+});
+
 module.exports = {
   createUserSchema,
   createWebUserSchema,
@@ -174,5 +183,7 @@ module.exports = {
   mobileUserSubmitSchema,
   userWebSchema,
   userIdLookupSchema,
-  userModifyStatusSubmitSchema
+  userModifyStatusSubmitSchema,
+  pageAccessQuerySchema,
+  pageAccessUpdateSchema,
 };
