@@ -1,10 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
+import apiClient from "../../services/apiService";
+import Swal from "sweetalert2";
+import MapComponent from "../../components/ui/MapComponent";
 
 const FrmUserLocationTracking = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [coordinates, setCoordinates] = useState(null); // { lat, lng }
 
   const {
     register,
@@ -17,15 +22,64 @@ const FrmUserLocationTracking = () => {
     },
   });
 
-  const onSubmit = (values) => {
-    console.log("Form values:", values);
-    // Future API call will be placed here
+  const onSubmit = async (values) => {
+    if (!values.trackingDate || !values.userId) return;
+
+    setLoading(true);
+    Swal.fire({
+      title: "Fetching location...",
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
+    });
+
+    try {
+      console.log("vdate :", values.trackingDate);
+      const response = await apiClient.get(
+        `/userTracking/getLocationTracking?userId=${encodeURIComponent(
+          values.userId,
+        )}&cDate=${encodeURIComponent(values.trackingDate)}`,
+      );
+
+      Swal.close();
+
+    //   console.log("res ::", response)
+      if (response?.data?.success && response.data.data?.length > 0) {
+        
+        const locationStr = response.data.data[0].LOCATION; // e.g. "19.44742951,72.81012215"
+        const [lat, lng] = locationStr.split(",").map(Number);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          setCoordinates({ lat, lng });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Invalid coordinates",
+            text: "The received location data is invalid.",
+          });
+        }
+      } else {
+        Swal.fire({
+          icon: "warning",
+          title: "No data",
+          text: "No location found for the given user and date.",
+        });
+        setCoordinates(null);
+      }
+    } catch (error) {
+      Swal.close();
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error?.response?.data?.message || "Failed to fetch location.",
+      });
+      setCoordinates(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
-        {/* ── Page Title ── */}
         <div className="mb-6">
           <h1 className="text-2xl font-semibold text-gray-900">
             User Location Tracking
@@ -89,8 +143,10 @@ const FrmUserLocationTracking = () => {
             <div className="mt-7 flex justify-center gap-5">
               <button
                 type="submit"
-                className="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                disabled={loading}
+                className="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 flex items-center gap-2"
               >
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                 Search
               </button>
               <button
@@ -102,6 +158,14 @@ const FrmUserLocationTracking = () => {
               </button>
             </div>
           </form>
+
+          {/* Display Map if coordinates exist */}
+          {coordinates && (
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold mb-2">User Location</h3>
+              <MapComponent lat={coordinates.lat} lng={coordinates.lng} />
+            </div>
+          )}
         </div>
       </div>
     </div>
