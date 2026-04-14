@@ -47,5 +47,35 @@ async function getusertypeanddesig(userId) {
   return result.rows || [];
 }
 
+async function changepwdIns(payload) {
+  const statement = `
+    BEGIN
+      etech.aoup_changepassword_ins(
+        :in_UserId,
+        :in_OldPassword,
+        :in_NewPassword, 
+        :out_ErrorCode,
+        :out_ErrorMsg
+      );
+    END;
+  `;
+
+   const cleanUserId = String(payload.userId).trim();
+  const fullUserId = cleanUserId.startsWith("E")
+    ? cleanUserId
+    : "E" + cleanUserId;
+
+  const binds = {
+    in_UserId: fullUserId,
+    in_OldPassword: payload.oldPassword,
+    in_NewPassword: payload.newPassword,
+    out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    out_ErrorMsg: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 10000 },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
 module.exports = {
-  resetPwd, getusertypeanddesig } 
+  resetPwd, getusertypeanddesig, changepwdIns } 

@@ -1,5 +1,5 @@
 const {
-  resetPassword, desigandUsertype
+  resetPassword, desigandUsertype, changepwd
 } = require('./Password.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -55,5 +55,35 @@ async function designationandusertypeHandler(req, res, next) {
   }
 }
 
+async function changePwdHandler(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await changepwd(payload);
+
+    const isSuccess = String(out.Out_errorCode) === '9999';
+    if (isSuccess) {
+      logApiSuccess(req, 200, `Password changed successfully`);
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, `Password change failed`);
+    }
+
+    auditLog({
+      action: 'PASSWORD_CHANGE',
+      actor: req.user?.userId || 'system',
+ module: 'users',
+      entityId: out.Out_User,
+      status: isSuccess ? 'SUCCESS' : 'FAILED',
+      details: { outErrorCode: out.Out_errorCode, outErrorMsg: out.Out_ErrorMsg },
+      requestMeta: requestMeta(req),
+    });
+
+    return res.ok(out);
+  } catch (error) {
+logApiError(req, 500, error.message, 'Password change error');
+ return next(error);
+  }
+}
+
+
 module.exports = {
-  resetPwdHandler, designationandusertypeHandler}
+  resetPwdHandler, designationandusertypeHandler, changePwdHandler}
