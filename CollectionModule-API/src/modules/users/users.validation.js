@@ -126,7 +126,7 @@ const userWebSchema = z.object({
   in_username: z.string().trim().min(1),
   in_userpwd: nullableString, 
   in_mobno: z.number().int(),
-  in_email: z.string().trim().email(),
+  in_empid: z.number().int().optional().nullable(),
   in_usertypeid: z.number().int(),
   in_DOB: nullableString,
   in_proofno: nullableString,
@@ -147,6 +147,26 @@ const userWebSchema = z.object({
   in_insby: z.string().trim().min(1),
 });
 
+const userIdLookupSchema = z.object({
+  userId: z.string().trim().min(1),
+});
+
+const userModifyStatusSubmitSchema = z.object({
+  userId: z.string().trim().min(1),
+  newStatus: z.string().trim().min(1),
+  reason: nullableString,
+  insby: z.string().trim().min(1).optional(),
+});
+
+const pageAccessQuerySchema = z.object({
+  userId: z.string().trim().min(1),
+});
+
+const pageAccessUpdateSchema = z.object({
+  userId: z.string().trim().min(1),
+  menuIds: z.array(z.union([z.coerce.number().int(), z.string().trim().min(1)])).default([]),
+});
+
 module.exports = {
   createUserSchema,
   createWebUserSchema,
@@ -161,5 +181,9 @@ module.exports = {
   branchSchema,
   agentSchema,
   mobileUserSubmitSchema,
-  userWebSchema
+  userWebSchema,
+  userIdLookupSchema,
+  userModifyStatusSubmitSchema,
+  pageAccessQuerySchema,
+  pageAccessUpdateSchema,
 };

@@ -7,6 +7,7 @@ const usersRoutes = require('../modules/users/users.routes');
 const assetsRoutes = require('../modules/assets/assets.routes');
 const assignPincode = require('../modules/AssignPincode/assignPincode.routes');
 const passwordRoutes = require('../modules/Password/Password.routes')
+const inactiveUserAccountsRoutes = require('../modules/InactiveUserAccounts/inactiveUserAccounts.routes');
 
 const router = express.Router();
 
@@ -32,5 +33,7 @@ router.use('/password', passwordRoutes);
 
 
 router.use('/assignPincode', assignPincode);
+router.use('/password', passwordRoutes);
+router.use('/inactive-user-accounts', inactiveUserAccountsRoutes);
 
 module.exports = router;

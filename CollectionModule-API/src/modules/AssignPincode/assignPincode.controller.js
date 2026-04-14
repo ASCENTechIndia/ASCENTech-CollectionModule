@@ -1,5 +1,5 @@
 const {
-  pincodes, fetchUsername, fetchUserPincodes, assignPincode
+  pincodes, fetchUsername, fetchUserPincodes, assignPincode, insertPincodeMaster
 } = require('./assignPincode.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -78,5 +78,41 @@ logApiError(req, 500, error.message, 'Pincode assign error');
   }
 }
 
+async function pincodeMasterInsertHandler(req, res, next) {
+  try {
+    const payload = req.body;
+    const result = await insertPincodeMaster(payload);
+
+    if (result.isSuccess) {
+      logApiSuccess(req, 200, { pincode: payload.pincode }, 'Pincode inserted successfully');
+    } else {
+      logApiError(req, 400, result.message, 'Pincode insertion failed');
+    }
+
+    auditLog({
+      action: 'PINCODE_MASTER_INSERT',
+      actor: req.user?.userId || 'system',
+      module: 'users',
+      entityId: payload.pincode,
+      status: result.isSuccess ? 'SUCCESS' : 'FAILED',
+      details: {
+        outErrorCode: result.out.out_ErrorCode,
+        outErrorMsg: result.out.out_ErrorMsg,
+      },
+      requestMeta: requestMeta(req),
+    });
+
+    return res.ok(result, result.message);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Pincode insertion error');
+    return next(error);
+  }
+}
+
 module.exports = {
-  pincodeListHandler, usernameHandler, userPincodeHandler, pincodeAssignHandler}
+  pincodeListHandler,
+  usernameHandler,
+  userPincodeHandler,
+  pincodeAssignHandler,
+  pincodeMasterInsertHandler,
+}

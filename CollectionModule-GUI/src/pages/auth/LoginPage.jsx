@@ -149,7 +149,7 @@ export default function LoginPage() {
                 <Lock className="w-6 h-6 text-primary-600" />
               </div>
               <h1 className="text-2xl font-bold text-gray-900 mb-0.5">
-                Central Bank Of India
+                Collection Module
               </h1>
               {/* <p className="text-gray-500 text-xs">
                 CenterBank Asset Management

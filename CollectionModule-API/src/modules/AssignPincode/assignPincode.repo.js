@@ -70,5 +70,31 @@ async function assignPincodeIns(payload) {
   return result.outBinds;
 }
 
+async function insertPincodeMasterIns(pincode) {
+  const statement = `
+    BEGIN
+      atbss.AOUP_Pincode_Master_Insertion(
+        :in_pincode,
+        :out_ErrorCode,
+        :out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_pincode: Number(pincode),
+    out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    out_ErrorMsg: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 1000 },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
 module.exports = {
-  getPincodes, getUsernamebyId, getPincodebyId, assignPincodeIns } 
+  getPincodes,
+  getUsernamebyId,
+  getPincodebyId,
+  assignPincodeIns,
+  insertPincodeMasterIns,
+} 
