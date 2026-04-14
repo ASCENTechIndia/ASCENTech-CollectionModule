@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { Form, useForm } from 'react-hook-form'
 import { Input, Select, Textarea, Button } from '../../components/ui';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../services/apiService';
 import { useAuth } from '../../context/AuthContext';
 import { AlertCircle } from 'lucide-react';
+import { DataTable, Pagination } from '../../components/tables/DataTable'
+import { useMemo } from 'react';
 
 const FrmInactiveUserAcs = () => {
     const { user } = useAuth();
@@ -23,8 +25,90 @@ const FrmInactiveUserAcs = () => {
     });
     const navigate = useNavigate();
 
-    const onSearch = async () => {
+    const [tableHeader, setTableHeader] = useState([
+        {
+            key: "date",
+            label: "Unallocated Date"
+        },
+        {
+            key: "collectionID",
+            label: "Collection Associate ID"
+        },
+        {
+            key: "accountNumber",
+            label: "Account Number"
+        }
+    ])
 
+    const [tableData, setTableData] = useState([]);
+    const [showTable, setShowTable] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1)
+    const rowsPerPage = 10;
+    const totalPages = Math.ceil(tableData.length / rowsPerPage)
+
+    const paginatedData = useMemo(() => {
+        const start = (currentPage - 1) * rowsPerPage
+        return tableData.slice(start, start + rowsPerPage)
+    }, [tableData, currentPage])
+
+    const handlePageChange = (page) => {
+        if (page < 1 || page > totalPages) return
+        setCurrentPage(page)
+    }
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+
+        const day = String(date.getDate()).padStart(2, '0');
+
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        const month = months[date.getMonth()];
+        const year = date.getFullYear();
+
+        return `${day}-${month}-${year}`;
+    }
+
+    function formatDateToDDMMYYYY(dateString) {
+        const date = new Date(dateString);
+
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // months are 0-based
+        const year = date.getFullYear();
+
+        return `${day}-${month}-${year}`;
+    }
+
+    const onSearch = async (values) => {
+        try {
+            // console.log(values);
+            const payload = {
+                startDate: formatDate(values.startDate),
+                endDate: formatDate(values.endDate),
+                userType: values.userDropdownId
+            };
+            const url = `/inactive-user-accounts/search?startDate=${payload?.startDate}&endDate=${payload?.endDate}&userType=${payload?.userType}${values.userId.trim().length > 0 ? `&userId=${values.userId}` : ''}`;
+
+            const response = await apiClient.get(url);
+
+            if (response.data.success && Array.isArray(response.data.data) && response.data.data.length > 0) {
+                const formattedTableData = response.data.data.map(item => ({
+                    date: formatDateToDDMMYYYY(item.UNALLOCATE_DATE),
+                    collectionID: item.VAR_BANKDATA_USERID,
+                    accountNumber: item.VAR_BANKDATA_CONTRACTNUM
+                }))
+                setTableData(formattedTableData);
+                setCurrentPage(1);
+                setShowTable(true);
+            } if (response.data.success && response.data.data.length === 0) {
+                alert("No records found");
+                setShowTable(false);
+                setTableData([]);
+            }
+        } catch (error) {
+            console.error(error);
+        }
     }
     return (
         <div className="min-h-screen bg-gray-50">
@@ -133,6 +217,19 @@ const FrmInactiveUserAcs = () => {
                                 Close
                             </button>
                         </div>
+                        {showTable &&
+                            <div className="mt-7">
+                                <DataTable
+                                    columns={tableHeader}
+                                    data={paginatedData}
+                                />
+                                <Pagination
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    onPageChange={handlePageChange}
+                                />
+                            </div>
+                        }
                     </form>
                 </div>
             </div>
