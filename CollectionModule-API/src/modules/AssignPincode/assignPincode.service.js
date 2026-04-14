@@ -1,5 +1,5 @@
 const {
-  getPincodes, getUsernamebyId, getPincodebyId, assignPincodeIns
+  getPincodes, getUsernamebyId, getPincodebyId, assignPincodeIns, insertPincodeMasterIns
 } = require('./assignPincode.repo');
 
 
@@ -19,5 +19,23 @@ async function assignPincode(payload) {
   return assignPincodeIns(payload);
 }
 
+async function insertPincodeMaster(payload) {
+  const out = await insertPincodeMasterIns(payload.pincode);
+  const errorCode = String(out.out_ErrorCode ?? out.OUT_ERRORCODE ?? out.out_errorcode ?? '');
+  const errorMessage = String(out.out_ErrorMsg ?? out.OUT_ERRORMSG ?? out.out_errormsg ?? '');
+  const isSuccess = errorCode === '9999';
+
+  return {
+    isSuccess,
+    message: isSuccess ? 'Pincode Inserted Successfully' : errorMessage,
+    out,
+  };
+}
+
 module.exports = {
-  pincodes, fetchUsername, fetchUserPincodes, assignPincode}
+  pincodes,
+  fetchUsername,
+  fetchUserPincodes,
+  assignPincode,
+  insertPincodeMaster,
+}
