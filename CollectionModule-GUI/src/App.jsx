@@ -14,7 +14,6 @@ import AuthLayout from "./layouts/AuthLayout";
 
 // Pages
 import LoginPage from "./pages/auth/LoginPage";
-// import DashboardPage from './pages/dashboard/DashboardPage'
 import Dashboard from "./pages/dashboard/Dashboard";
 import AssetListPage from "./pages/asset/AssetListPage";
 import AssetCreatePage from "./pages/asset/AssetCreatePage";
@@ -37,29 +36,10 @@ import FrmUserCreationWeb from "./pages/user/FrmUserCreationWeb";
 import FrmUserList from "./pages/user/FrmUserList";
 import FrmUserPinAllocation from "./pages/user/FrmUserPinAllocation";
 import FrmResetPassword from "./pages/user/FrmResetPassword";
-import Dashboard from './pages/dashboard/Dashboard'
-import AssetListPage from './pages/asset/AssetListPage'
-import AssetCreatePage from './pages/asset/AssetCreatePage'
-import UserListPage from './pages/user/UserListPage'
-import BranchListPage from './pages/branch/BranchListPage'
-import ReportsPage from './pages/reports/ReportsPage'
-import DemoReportPage from './pages/reports/DemoReportPage'
-import DemoTailwindReportPage from './pages/reports/DemoTailwindReportPage'
-import TransactionReportPage from './pages/reports/TransactionReportPage'
-import DataGridPage from './pages/tables/DataGridPage'
-import TwoColumnFormPage from './pages/forms/TwoColumnFormPage'
-import ThreeColumnFormPage from './pages/forms/ThreeColumnFormPage'
-import AlertModalDemoPage from './pages/components/AlertModalDemoPage'
-import ButtonDemoPage from './pages/components/ButtonDemoPage'
-import TabsDemoPage from './pages/components/TabsDemoPage'
-import ChartsDemoPage from './pages/components/ChartsDemoPage'
-import NotFoundPage from './pages/NotFoundPage'
-import FrmUserCreation from './pages/user/FrmUserCreation'
-import FrmUserCreationWeb from './pages/user/FrmUserCreationWeb'
-import FrmUserList from './pages/user/FrmUserList'
+import FrmChangePassword from "./pages/user/FrmChangePassword";
 import FrmUserModification from "./pages/user/FrmUserModification";
-import FrmPincodeMstrInserion from './pages/Admin/FrmPincodeMstrInserion'
-import FrmAccessofPages from './pages/user/FrmAccessofPages'
+import FrmAccessofPages from "./pages/user/FrmAccessofPages";
+import FrmPincodeMstrInserion from "./pages/Admin/FrmPincodeMstrInserion";
 
 const queryClient = new QueryClient();
 
@@ -96,13 +76,7 @@ function App() {
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/dashboard" element={<Dashboard />} />
 
-                {/* Asset Management */}
-                {/* <Route path="/assets" element={<AssetListPage />} />
-                <Route path="/assets/create" element={<AssetCreatePage />} />
-                <Route path="/assets/:id/edit" element={<AssetCreatePage />} /> */}
-
                 {/* User Management */}
-                {/* <Route path="/users" element={<UserListPage />} /> */}
                 <Route path="/User/FrmUserList" element={<FrmUserList />} />
                 <Route
                   path="/User/FrmUserCreation"
@@ -120,14 +94,15 @@ function App() {
                   path="/User/FrmResetPassword"
                   element={<FrmResetPassword />}
                 />
-
-                <Route path='/User/FrmUserCreation' element={<FrmUserCreation />} />
-                <Route path='/User/FrmUserCreationWeb' element={<FrmUserCreationWeb />} />
-                <Route path="/User/FrmUserModification" element={<FrmUserModification />} />
-                <Route path='/FrmAccessofPages' element={<FrmAccessofPages />} />
-                
-                {/* Branch Management */}
-                {/* <Route path="/branches" element={<BranchListPage />} /> */}
+                <Route
+                  path="/User/FrmChangePassword"
+                  element={<FrmChangePassword />}
+                />
+                <Route
+                  path="/User/FrmUserModification"
+                  element={<FrmUserModification />}
+                />
+                <Route path="/FrmAccessofPages" element={<FrmAccessofPages />} />
 
                 {/* Reports */}
                 <Route path="/reports" element={<ReportsPage />} />
@@ -141,27 +116,20 @@ function App() {
                   element={<TransactionReportPage />}
                 />
 
-                {/* Tables & Data Grid */}
-                {/* <Route path="/tables" element={<DataGridPage />} /> */}
-
                 {/* Form Examples */}
-                {/* <Route path="/forms/two-column" element={<TwoColumnFormPage />} />
-                <Route path="/forms/three-column" element={<ThreeColumnFormPage />} /> */}
-
-                {/* <Route path="/forms/two-column" element={<TwoColumnFormPage />} /> */}
                 <Route path="/forms/three-column" element={<ThreeColumnFormPage />} />
-                
+
                 {/* Components Demo */}
-                <Route path="/components/alerts-modals" element={<AlertModalDemoPage />} />
-                {/* <Route path="/components/buttons" element={<ButtonDemoPage />} />
-                <Route path="/components/tabs" element={<TabsDemoPage />} />
-                <Route path="/components/charts" element={<ChartsDemoPage />} /> */}
+                <Route
+                  path="/components/alerts-modals"
+                  element={<AlertModalDemoPage />}
+                />
 
                 {/* Admin */}
-                <Route path="/Admin/FrmPincodeMstrInserion" element={<FrmPincodeMstrInserion />} />
-
-                
-
+                <Route
+                  path="/Admin/FrmPincodeMstrInserion"
+                  element={<FrmPincodeMstrInserion />}
+                />
               </Route>
 
               {/* 404 Page */}

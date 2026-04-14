@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { AlertCircle, Loader2 } from "lucide-react";
 import apiClient from "../../services/apiService";
 import Swal from "sweetalert2";
+import { useAuth } from "../../context/AuthContext";
 
 const FrmResetPassword = () => {
   const navigate = useNavigate();
@@ -41,7 +42,6 @@ const FrmResetPassword = () => {
       const payload = { userId: values.userId };
       const response = await apiClient.post("/password/resetPassword", payload);
       Swal.close();
-      console.log("res :", response);
 
       if (response?.data?.success && response?.data?.data?.success) {
         const newPwd = response?.data?.data?.Password || "";

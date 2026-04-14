@@ -35,6 +35,7 @@ const MENU_ITEMS = [
       { label: 'User Modification', href: '/User/FrmUserModification' },
       { label: 'Assigned Pincode FOS', href: '/User/FrmUserPinAllocation' },
       { label: 'Reset Password', href: '/User/FrmResetPassword' },
+      { label: 'Change Password', href: '/User/FrmChangePassword' },
     ],
   },
   // {
