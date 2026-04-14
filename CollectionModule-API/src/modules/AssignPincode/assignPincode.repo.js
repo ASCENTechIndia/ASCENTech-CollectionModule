@@ -41,7 +41,7 @@ async function getPincodebyId(userId) {
   select var_user_pincode from atbss.aoup_user_pincode_map where var_user_userid= :userId 
   `;
 
-  const binds = { userId: Number(userId) };
+  const binds = { userId: userId };
   const result = await executeQuery(sql, binds);
   return result.rows || [];
 }
