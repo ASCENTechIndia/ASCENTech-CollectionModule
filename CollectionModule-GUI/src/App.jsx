@@ -81,6 +81,7 @@ function App() {
                 <Route path='/User/FrmUserCreationWeb' element={<FrmUserCreationWeb />} />
                 <Route path="/User/FrmUserModification" element={<FrmUserModification />} />
                 <Route path='/FrmAccessofPages' element={<FrmAccessofPages />} />
+                <Route path="/User/FrmPincodeMstrInserion" element={<FrmPincodeMstrInserion />} />
                 
                 {/* Branch Management */}
                 {/* <Route path="/branches" element={<BranchListPage />} /> */}
@@ -103,9 +104,6 @@ function App() {
                 {/* <Route path="/components/buttons" element={<ButtonDemoPage />} />
                 <Route path="/components/tabs" element={<TabsDemoPage />} />
                 <Route path="/components/charts" element={<ChartsDemoPage />} /> */}
-
-                {/* Admin */}
-                <Route path="/Admin/FrmPincodeMstrInserion" element={<FrmPincodeMstrInserion />} />
 
                 
 

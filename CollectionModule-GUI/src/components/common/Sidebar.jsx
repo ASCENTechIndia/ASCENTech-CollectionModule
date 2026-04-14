@@ -32,7 +32,8 @@ const MENU_ITEMS = [
     icon: Users,
        submenu: [
       { label: 'User Creation', href: '/User/FrmUserList' },
-      { label: 'User Modification', href: '/User/FrmUserModification' }
+      { label: 'User Modification', href: '/User/FrmUserModification' },
+      { label: 'Pincode Master', href: '/User/FrmPincodeMstrInserion' }
     ],
   },
   // {

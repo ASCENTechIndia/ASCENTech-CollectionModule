@@ -16,6 +16,14 @@ const FrmPincodeMstrInserion = () => {
         pinCode: ""
     });
 
+    const onSubmit = async (values) => {
+        try {
+            console.log(values);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
@@ -24,7 +32,7 @@ const FrmPincodeMstrInserion = () => {
                 </div>
             </div>
             <div className="bg-white rounded-lg border border-gray-200 p-8">
-                <form>
+                <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-900 mb-2">
@@ -35,6 +43,10 @@ const FrmPincodeMstrInserion = () => {
                                 {...register('pinCode', {
                                     required: 'Pincode is required',
                                 })}
+                                maxLength={6}
+                                onInput={(e) => {
+                                    e.target.value = e.target.value.replace(/\D/g, '')
+                                }}
                                 placeholder="Enter Pincode"
                                 className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.pinCode
                                     ? 'border-danger-500'
