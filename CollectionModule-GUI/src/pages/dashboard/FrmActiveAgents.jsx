@@ -5,6 +5,9 @@ import { useNavigate } from 'react-router-dom';
 import { AlertCircle, Search } from 'lucide-react';
 import apiClient from '../../services/apiService';
 import { useAuth } from '../../context/AuthContext';
+import LineChart from '../../components/charts/LineChart';
+import { Card } from '../../components/ui';
+import { DataTable } from '../../components/tables/DataTable';
 
 function FrmActiveAgents() {
     const { user } = useAuth();
@@ -19,14 +22,104 @@ function FrmActiveAgents() {
         monthYear: ""
     });
 
+    const [summaryDetails, setSummaryDetails] = useState({});
+    const [chartData, setChartData] = useState({
+        labels: [],
+        datasets: []
+    });
+    const [tableHeader, setTableHeader] = useState([
+        {
+            key: "zone",
+            label: "Zone Name"
+        },
+        {
+            key: "regionName",
+            label: "Region Name",
+        },
+        {
+            key: "branchName",
+            label: "Branch Name"
+        },
+        {
+            key: "collassociateId",
+            label: "Collection Associate ID"
+        },
+        {
+            key: "collassociate",
+            label: "Collection Associate"
+        },
+        {
+            key: "loginDate",
+            label: "Login Date"
+        },
+        {
+            key: "firstLogin",
+            label: "First Login of the Day"
+        },
+        {
+            key: "lastLogout",
+            label: "Last Logout of the Day"
+        },
+        {
+            key: "mdmId",
+            label: "MDM ID"
+        },
+    ])
+    const [tableData, setTableData] = useState([]);
+    const [showDetails, setShowDetails] = useState(false);
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+
+        const day = String(date.getDate()).padStart(2, '0');
+
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        const month = months[date.getMonth()];
+        const year = date.getFullYear();
+
+        return `${day}-${month}-${year}`;
+    }
+
     const onSubmit = async (values) => {
         try {
             const [month, year] = values.monthYear.split("-");
             const userNo = userId.split("E")[1];
 
-            const response = await apiClient.get(`/active-agents/dashboard?userId=${userNo}&month=${month}&year=${year}`);
+            const response = await apiClient.get(`/active-agents/dashboard?userId=${userNo}&month=${month}&year=${year}`, {});
 
-            console.log(response);
+            if (response.data.success) {
+                setSummaryDetails(response.data.data.summary);
+                const formattedChartData = {
+                    labels: response.data.data.chart.labels,
+                    datasets: [
+                        {
+                            label: "Unique Collection Associate using the app on a day",
+                            data: response.data.data.chart.data,
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                        }
+                    ]
+                }
+                setChartData(formattedChartData);
+
+                const formattedGridData = response.data.data.grid.map(item => ({
+                    zone: item.GRANDPARENT_BRANCH_NAME,
+                    regionName: item.PARENT_BRANCH_NAME,
+                    branchName: item.CURRENT_BRANCH_NAME,
+                    collassociateId: item.USERID,
+                    collassociate: item.VAR_USERMST_USERFULLNAME,
+                    loginDate: item?.LOGIN_DATE ? formatDate(item.LOGIN_DATE) : "",
+                    firstLogin: item?.MIN_LOGIN ? formatDate(item.MIN_LOGIN) : "",
+                    lastLogout: item?.MAX_LOGOUT ? formatDate(item.MAX_LOGOUT) : "",
+                    mdmId: item.MDM_ID
+                }))
+                setTableData(formattedGridData);
+                setShowDetails(true);
+            }
         } catch (error) {
             console.error(error);
         }
@@ -49,19 +142,19 @@ function FrmActiveAgents() {
                                 defaultValue=""
                                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
                             >
-                                <option value="4-25">April 2025</option>
-                                <option value="5-25">May 2025</option>
-                                <option value="6-25">June 2025</option>
-                                <option value="7-25">July 2025</option>
-                                <option value="8-25">August 2025</option>
-                                <option value="9-25">September 2025</option>
-                                <option value="10-25">October 2025</option>
-                                <option value="11-25">November 2025</option>
-                                <option value="12-25">December 2025</option>
-                                <option value="1-26">January 2026</option>
-                                <option value="2-26">February 2026</option>
-                                <option value="3-26">March 2026</option>
-                                <option value="4-26">April 2026</option>
+                                <option value="4-2025">April 2025</option>
+                                <option value="5-2025">May 2025</option>
+                                <option value="6-2025">June 2025</option>
+                                <option value="7-2025">July 2025</option>
+                                <option value="8-2025">August 2025</option>
+                                <option value="9-2025">September 2025</option>
+                                <option value="10-2025">October 2025</option>
+                                <option value="11-2025">November 2025</option>
+                                <option value="12-2025">December 2025</option>
+                                <option value="1-2026">January 2026</option>
+                                <option value="2-2026">February 2026</option>
+                                <option value="3-2026">March 2026</option>
+                                <option value="4-2026">April 2026</option>
                             </select>
                         </div>
                         <div>
@@ -74,10 +167,40 @@ function FrmActiveAgents() {
                         </div>
                     </div>
                 </form>
+                {showDetails &&
+                    <>
+                        <div className="mt-7">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div className="flex gap-4 p-4 rounded-md border border-gray-200">
+                                    <p className='font-semibold'>No. of Onboarded and Active Collection Associate: {summaryDetails?.onboardedActiveAssociates}</p>
+                                </div>
+                                <div className="flex gap-4 p-4 rounded-md border border-gray-200">
+                                    <p className='font-semibold'>Collection Associate having Accounts Assigned: {summaryDetails?.accountsAssigned}</p>
+                                </div>
+                                <div className="flex gap-4 p-4 rounded-md border border-gray-200">
+                                    <p className='font-semibold'>Total No. of Unique Logins: {summaryDetails?.uniqueLogins}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="mt-7">
+                            <Card>
+                                <div className="p-4">
+                                    <div style={{ height: '400px', position: 'relative' }}>
+                                        <LineChart data={chartData} />
+                                    </div>
+                                </div>
+                            </Card>
+                        </div>
+                        <div className="mt-7">
+                            <DataTable
+                                columns={tableHeader}
+                                data={tableData}
+                            />
+                        </div>
+                    </>
+                }
             </div>
-            <div className="p-5 mt-7">
 
-            </div>
         </div>
     )
 }

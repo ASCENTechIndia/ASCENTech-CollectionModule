@@ -106,7 +106,7 @@ function App() {
                 {/* Components Demo */}
                 {/* <Route path="/components/alerts-modals" element={<AlertModalDemoPage />} /> */}
                 {/* <Route path="/components/buttons" element={<ButtonDemoPage />} /> */}
-                {/* <Route path="/components/tabs" element={<TabsDemoPage />} /> */}
+                <Route path="/components/tabs" element={<TabsDemoPage />} />
                 <Route path="/components/charts" element={<ChartsDemoPage />} />
 
                 
