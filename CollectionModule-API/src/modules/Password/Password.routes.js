@@ -6,7 +6,7 @@ const {resetPwdHandler, designationandusertypeHandler, changePwdHandler} = requi
 
 const router = express.Router();
 
-router.post('/resetPassword', authRequired, validate(resetPasswordSchema), resetPwdHandler);
+router.post('/resetPassword', validate(resetPasswordSchema), resetPwdHandler);
 router.get('/desgidandusertype',  validate(resetPasswordSchema, { source: 'query' }), designationandusertypeHandler);
 router.post('/changePassword', validate(changePasswordSchema), changePwdHandler);
 
