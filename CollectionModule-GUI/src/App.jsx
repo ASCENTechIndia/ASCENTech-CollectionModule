@@ -31,7 +31,7 @@ import FrmUserCreation from './pages/user/FrmUserCreation'
 import FrmUserCreationWeb from './pages/user/FrmUserCreationWeb'
 import FrmUserList from './pages/user/FrmUserList'
 import FrmUserModification from "./pages/user/FrmUserModification";
-import FrmPincodeMstrInserion from './pages/Admin/FrmPincodeMstrInserion'
+import FrmPincodeMstrInserion from './pages/user/FrmPincodeMstrInserion'
 import FrmAccessofPages from './pages/user/FrmAccessofPages'
 
 const queryClient = new QueryClient()
