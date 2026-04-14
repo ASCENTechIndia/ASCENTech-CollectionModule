@@ -25,32 +25,32 @@ import { useAuth } from "../../context/AuthContext";
 //   )
 // }
 
-const columns = [
-  {
-    key: "agentid",
-    label: "Agent ID"
-  },
-  {
-    key: "agentname",
-    label: "Agent Name"
-  },
-  {
-    key: "mobileno",
-    label: "Mobile Number"
-  },
-  {
-    key: "email",
-    label: "Email"
-  },
-  {
-    key: "role",
-    label: "Role"
-  }
-];
+// const columns = [
+//   {
+//     key: "agentid",
+//     label: "Agent ID"
+//   },
+//   {
+//     key: "agentname",
+//     label: "Agent Name"
+//   },
+//   {
+//     key: "mobileno",
+//     label: "Mobile Number"
+//   },
+//   {
+//     key: "email",
+//     label: "Email"
+//   },
+//   {
+//     key: "role",
+//     label: "Role"
+//   }
+// ];
 
-const data = [
-  { agentid: "E100011", agentname: "Hinduja Admin", mobileno: "9845120145", email: "admin@upass.com", role: "FOS" }
-]
+// const data = [
+//   { agentid: "E100011", agentname: "Hinduja Admin", mobileno: "9845120145", email: "admin@upass.com", role: "FOS" }
+// ]
 
 const FrmUserList = () => {
   const {
@@ -115,7 +115,6 @@ const FrmUserList = () => {
     try {
       const response = await apiClient.get(`/users/getAgents/?brid=${selectedBranch}`, {});
 
-      console.log(response);
       if (response.data.success && Array.isArray(response.data.data) && response.data.data.length > 0) {
         const formattedTableData = response.data.data.map((item) => ({
           ...item,
@@ -207,7 +206,7 @@ const FrmUserList = () => {
                     setSelectedBranch(e.target.value)
                   }}
                 >
-                  <option value="">--Select Branch--</option>
+                  <option value="">--Select Option--</option>
                   {branchOptions.map((item) => (
                     <option value={item.value}>{item.label}</option>
                   ))}

@@ -11,6 +11,12 @@ const {
   userFormOptionsSchema,
   userRegionLookupSchema,
   userBranchLookupSchema,
+  userWebSchema,
+  mobileUserSubmitSchema,
+  userModifyStatusSubmitSchema,
+  userIdLookupSchema,
+  pageAccessQuerySchema,
+  pageAccessUpdateSchema,
 } = require('./users.validation');
 const {
   createUserHandler,
@@ -22,6 +28,15 @@ const {
   getUserFormOptionsHandler,
   getRegionsHandler,
   getBranchesHandler,
+  branchListforInsertHandler,
+  rolesHandler,
+  userDeviceHandler,
+  createWebUserHandler,
+  mobileUserSubmitHandler,
+  submitUserModifyStatusHandler,
+  searchByUserIdHandler,
+  getPageAccessHandler,
+  updatePageAccessHandler,
 } = require('./users.controller');
 
 const router = express.Router();
@@ -36,6 +51,17 @@ router.get('/regions', validate(userRegionLookupSchema, { source: 'query' }), ge
 router.get('/branches', validate(userBranchLookupSchema, { source: 'query' }), getBranchesHandler);
 router.get('/getBranches', validate(branchSchema, { source: 'query' }), branchListHandler);
 router.get('/getAgents', validate(agentSchema, {source: 'query'}), agentListHandler)
+router.get('/getUsercreationbranches', validate(branchSchema, { source: 'query' }), branchListforInsertHandler);
+router.get('/getRoles', rolesHandler);
+router.get('/getUserDevices', userDeviceHandler);
+router.post('/createWebUser', authRequired, validate(userWebSchema), createWebUserHandler)
+router.get('/getAgents', validate(agentSchema, {source: 'query'}), agentListHandler);
+router.post('/add-mobile-user', authRequired, validate(mobileUserSubmitSchema), mobileUserSubmitHandler);
+router.get('/search-by-userid', validate(userIdLookupSchema, { source: 'query' }), searchByUserIdHandler);
+router.post('/modify-status-submit', validate(userModifyStatusSubmitSchema), submitUserModifyStatusHandler);
+router.get('/get-page-access', validate(pageAccessQuerySchema, { source: 'query' }), getPageAccessHandler);
+router.post('/update-page-access', validate(pageAccessUpdateSchema), updatePageAccessHandler);
+
 
 module.exports = router;
 
