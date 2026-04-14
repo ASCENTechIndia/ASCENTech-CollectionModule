@@ -32,7 +32,9 @@ const MENU_ITEMS = [
     icon: Users,
        submenu: [
       { label: 'User Creation', href: '/User/FrmUserList' },
-      { label: 'User Modification', href: '/User/FrmUserModification' }
+      { label: 'User Modification', href: '/User/FrmUserModification' },
+      { label: 'Assigned Pincode FOS', href: '/User/FrmUserPinAllocation' },
+      { label: 'Reset Password', href: '/User/FrmResetPassword' },
     ],
   },
   // {
