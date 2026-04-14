@@ -6,6 +6,7 @@ const legacyRoutes = require('../modules/legacy/legacy.routes');
 const usersRoutes = require('../modules/users/users.routes');
 const assetsRoutes = require('../modules/assets/assets.routes');
 const assignPincode = require('../modules/AssignPincode/assignPincode.routes');
+const passwordRoutes = require('../modules/Password/Password.routes')
 
 const router = express.Router();
 
@@ -29,5 +30,6 @@ router.use('/legacy', legacyRoutes);
 
 
 router.use('/assignPincode', assignPincode);
+router.use('/password', passwordRoutes);
 
 module.exports = router;
