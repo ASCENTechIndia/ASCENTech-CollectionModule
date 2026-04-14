@@ -99,12 +99,12 @@ const mobileUserSubmitSchema = z.object({
   lastName: z.string().trim().min(1),
   mobileNo: z.string().trim().regex(/^[1-9][0-9]{9}$/, 'Enter valid mobile no'),
   mdmId: z.string().trim().min(1),
-  designationId: z.coerce.number().int().positive(),
+  designationId: z.coerce.number().int().optional(),
   zoneId: z.coerce.number().int().optional(),
   regionId: z.coerce.number().int().optional(),
   branchId: z.coerce.number().int().positive(),
-  roleId: z.union([z.coerce.number().int().positive(), z.string().trim().min(1)]).default(1),
-  userDeviceId: z.union([z.coerce.number().int().positive(), z.string().trim().min(1)]).default(1),
+  roleId: z.union([z.coerce.number().int().optional(), z.string().trim().min(1)]).default(1),
+  userDeviceId: z.union([z.coerce.number().int().optional(), z.string().trim().min(1)]).default(1),
 
   // non-UI / legacy optional fields
   dob: nullableString,
