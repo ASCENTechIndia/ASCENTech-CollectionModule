@@ -17,26 +17,34 @@ import { clsx } from 'clsx'
 
 const MENU_ITEMS = [
   {
-    label: 'Dashboard',
+    label: 'Home',
     href: '/dashboard',
     icon: LayoutDashboard,
   },
-    {
+  {
     label: 'Demo Reports',
     href: '/reports/demo-grid-tailwind',
     icon: List,
   },
 
-   {
+  {
     label: 'User Management',
     icon: Users,
-       submenu: [
+    submenu: [
       { label: 'User Creation', href: '/User/FrmUserList' },
       { label: 'User Modification', href: '/User/FrmUserModification' },
       { label: 'Pincode Master', href: '/User/FrmPincodeMstrInserion' },
-      { label: 'Inactive User Cases', href: '/User/FrmInactiveUserAcs'}
+      { label: 'Inactive User Cases', href: '/User/FrmInactiveUserAcs' }
     ],
   },
+
+  {
+    label: "Dashboards",
+    icon: LayoutDashboard,
+    submenu: [
+      { label: 'Active Agent Dashboard', href: '/Dashboard/FrmActiveAgents' }
+    ]
+  }
   // {
   //   label: 'Asset Management',
   //   icon: Package,
