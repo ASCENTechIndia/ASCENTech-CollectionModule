@@ -7,50 +7,6 @@ import { DataTable } from '../../components/tables/DataTable'
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../services/apiService';
 import { useAuth } from "../../context/AuthContext";
-// export default function FrmUserList() {
-//   return (
-//     <div className="min-h-screen bg-gray-50">
-//       <div className="max-w-6xl mx-auto px-4 py-6">
-//         <div className="mb-6">
-//           <h1 className="text-2xl font-semibold text-gray-900">User Management</h1>
-//         </div>
-
-//         <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-//           <Users size={48} className="mx-auto text-gray-400 mb-4" />
-//           <h2 className="text-2xl font-semibold text-gray-900 mb-2">Coming Soon</h2>
-//           <p className="text-gray-600">User management page template. Implement with DataTable component.</p>
-//         </div>
-//       </div>
-//     </div>
-//   )
-// }
-
-// const columns = [
-//   {
-//     key: "agentid",
-//     label: "Agent ID"
-//   },
-//   {
-//     key: "agentname",
-//     label: "Agent Name"
-//   },
-//   {
-//     key: "mobileno",
-//     label: "Mobile Number"
-//   },
-//   {
-//     key: "email",
-//     label: "Email"
-//   },
-//   {
-//     key: "role",
-//     label: "Role"
-//   }
-// ];
-
-// const data = [
-//   { agentid: "E100011", agentname: "Hinduja Admin", mobileno: "9845120145", email: "admin@upass.com", role: "FOS" }
-// ]
 
 const FrmUserList = () => {
   const {
