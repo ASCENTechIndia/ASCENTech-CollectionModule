@@ -1,8 +1,8 @@
 const express = require('express');
 const validate = require('../../middleware/validate.middleware');
 const { authRequired } = require('../../middleware/auth');
-const {userTracLocationSchema, lastLoginSchema} = require('./UserTracking.validation');
-const {locationTrackingHandler, lastLoginHandler} = require('./UserTracking.controller');
+const {userTracLocationSchema, lastLoginSchema} = require('./Admin.validation');
+const {locationTrackingHandler, lastLoginHandler} = require('./Admin.controller');
 
 const router = express.Router();
 
