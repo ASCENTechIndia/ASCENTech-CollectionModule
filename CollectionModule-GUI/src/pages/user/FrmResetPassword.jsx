@@ -3,11 +3,12 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { AlertCircle, Loader2 } from "lucide-react";
 import apiClient from "../../services/apiService";
-import Swal from "sweetalert2";
 import { useAuth } from "../../context/AuthContext";
+import { useNotification } from "../../context/NotificationContext";
 
 const FrmResetPassword = () => {
   const navigate = useNavigate();
+  const { showSuccess, showError, showWarning } = useNotification();
   const [loading, setLoading] = useState(false);
   const [newPassword, setNewPassword] = useState("");
 
@@ -22,58 +23,31 @@ const FrmResetPassword = () => {
 
   const onSubmit = async (values) => {
     if (!values.userId || values.userId.trim() === "") {
-      Swal.fire({
-        icon: "warning",
-        title: "Empty User ID",
-        text: "Please enter a User ID.",
-      });
+      showWarning("Please enter a User ID.");
       return;
     }
 
     setLoading(true);
-    Swal.fire({
-      title: "Processing...",
-      text: "Resetting password...",
-      allowOutsideClick: false,
-      didOpen: () => Swal.showLoading(),
-    });
 
     try {
       const payload = { userId: values.userId };
       const response = await apiClient.post("/password/resetPassword", payload);
-      Swal.close();
 
       if (response?.data?.success && response?.data?.data?.success) {
         const newPwd = response?.data?.data?.Password || "";
         setNewPassword(newPwd);
 
-        Swal.fire({
-          icon: "success",
-          title: "Success!",
-          text: response.data.data.message || "Password reset successfully",
-          timer: 2000,
-          showConfirmButton: false,
-        }).then(() => {
-          //clear the User ID field
-          reset();
-        });
+        showSuccess(response.data.data.message || "Password reset successfully");
+        reset();
       } else {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text:
-            response?.data?.data?.message ||
+        showError(
+          response?.data?.data?.message ||
             response?.data?.message ||
             "Reset failed",
-        });
+        );
       }
     } catch (error) {
-      Swal.close();
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: error?.response?.data?.message || "Network error",
-      });
+      showError(error?.response?.data?.message || "Network error");
     } finally {
       setLoading(false);
     }

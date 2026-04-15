@@ -3,11 +3,12 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { AlertCircle, Loader2 } from "lucide-react";
 import apiClient from "../../services/apiService";
-import Swal from "sweetalert2";
 import MapComponent from "../../components/ui/MapComponent";
+import { useNotification } from "../../context/NotificationContext";
 
 const FrmUserLocationTracking = () => {
   const navigate = useNavigate();
+  const { showWarning, showError } = useNotification();
   const [loading, setLoading] = useState(false);
   const [coordinates, setCoordinates] = useState(null); // { lat, lng }
 
@@ -26,11 +27,6 @@ const FrmUserLocationTracking = () => {
     if (!values.trackingDate || !values.userId) return;
 
     setLoading(true);
-    Swal.fire({
-      title: "Fetching location...",
-      allowOutsideClick: false,
-      didOpen: () => Swal.showLoading(),
-    });
 
     try {
       console.log("vdate :", values.trackingDate);
@@ -40,8 +36,6 @@ const FrmUserLocationTracking = () => {
         )}&cDate=${encodeURIComponent(values.trackingDate)}`,
       );
 
-      Swal.close();
-
     //   console.log("res ::", response)
       if (response?.data?.success && response.data.data?.length > 0) {
         
@@ -50,27 +44,14 @@ const FrmUserLocationTracking = () => {
         if (!isNaN(lat) && !isNaN(lng)) {
           setCoordinates({ lat, lng });
         } else {
-          Swal.fire({
-            icon: "error",
-            title: "Invalid coordinates",
-            text: "The received location data is invalid.",
-          });
+          showError("The received location data is invalid.");
         }
       } else {
-        Swal.fire({
-          icon: "warning",
-          title: "No data",
-          text: "No location found for the given user and date.",
-        });
+        showWarning("No location found for the given user and date.");
         setCoordinates(null);
       }
     } catch (error) {
-      Swal.close();
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: error?.response?.data?.message || "Failed to fetch location.",
-      });
+      showError(error?.response?.data?.message || "Failed to fetch location.");
       setCoordinates(null);
     } finally {
       setLoading(false);

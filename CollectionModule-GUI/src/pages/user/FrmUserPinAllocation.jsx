@@ -3,10 +3,11 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { AlertCircle, Search, Loader2 } from "lucide-react";
 import apiClient from "../../services/apiService";
-import Swal from "sweetalert2";
+import { useNotification } from "../../context/NotificationContext";
 
 const FrmUserPinAllocation = () => {
   const navigate = useNavigate();
+  const { showSuccess, showError, showWarning } = useNotification();
 
   // Pincode transfer state
   const [allPincodes, setAllPincodes] = useState([]);
@@ -43,11 +44,7 @@ const FrmUserPinAllocation = () => {
         }
       } catch (error) {
         console.error("Error fetching pincodes:", error);
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Failed to load pincode list",
-        });
+        showError("Failed to load pincode list");
         setAllPincodes([]);
       } finally {
         setLoadingPincodes(false);
@@ -60,11 +57,7 @@ const FrmUserPinAllocation = () => {
   const handleSearchUser = async () => {
     const userId = userIdValue;
     if (!userId || userId.trim() === "") {
-      Swal.fire({
-        icon: "warning",
-        title: "Empty User ID",
-        text: "Please enter a User ID first.",
-      });
+      showWarning("Please enter a User ID first.");
       return;
     }
 
@@ -89,19 +82,11 @@ const FrmUserPinAllocation = () => {
           setValue("userName", userName);
         } else {
           setValue("userName", "");
-          Swal.fire({
-            icon: "warning",
-            title: "User Not Found",
-            text: "No user found for this User ID",
-          });
+          showWarning("No user found for this User ID");
         }
       } else {
         setValue("userName", "");
-        Swal.fire({
-          icon: "error",
-          title: "Username Fetch Failed",
-          text: "Failed to fetch username. Please try again.",
-        });
+        showError("Failed to fetch username. Please try again.");
       }
 
       // Handle user pincodes API
@@ -116,29 +101,16 @@ const FrmUserPinAllocation = () => {
           setSelectedPins([]);
           // If API succeeded but no pincodes, just clear (no error)
           if (!response?.data?.success) {
-            Swal.fire({
-              icon: "warning",
-              title: "No Pincodes",
-              text:
-                response?.data?.message || "No pincodes found for this user.",
-            });
+            showWarning(response?.data?.message || "No pincodes found for this user.");
           }
         }
       } else {
         setSelectedPins([]);
-        Swal.fire({
-          icon: "error",
-          title: "Pincode Fetch Failed",
-          text: "Failed to fetch assigned pincodes. Please try again.",
-        });
+        showError("Failed to fetch assigned pincodes. Please try again.");
       }
     } catch (error) {
       console.error("Unexpected error in handleSearchUser:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "An unexpected error occurred. Please try again.",
-      });
+      showError("An unexpected error occurred. Please try again.");
     } finally {
       setLoadingUsername(false);
       setLoadingUserPincodes(false);
@@ -162,11 +134,7 @@ const FrmUserPinAllocation = () => {
 
   const onSubmit = async (values) => {
     if (selectedPins.length === 0) {
-      Swal.fire({
-        icon: "warning",
-        title: "No Pincode Selected",
-        text: "Please select at least one pincode to allocate.",
-      });
+      showWarning("Please select at least one pincode to allocate.");
       return;
     }
 
@@ -175,56 +143,29 @@ const FrmUserPinAllocation = () => {
       pincode_str: selectedPins.join("~"),
     };
 
-    Swal.fire({
-      title: "Processing...",
-      text: "Allocating pincodes...",
-      allowOutsideClick: false,
-      didOpen: () => Swal.showLoading(),
-    });
-
     try {
       const response = await apiClient.post(
         "/assignPincode/assignPinCode",
         payload,
       );
-      Swal.close();
 
       if (
         response?.data?.success &&
         response?.data?.data?.out_errcode === 9999
       ) {
-        Swal.fire({
-          icon: "success",
-          title: "Success!",
-          text:
-            response.data.data.out_data || "Pincodes allocated successfully",
-          timer: 2000,
-          showConfirmButton: false,
-        }).then(() => {
-          // Reset form fields (userId and userName) to empty
-          reset(); // resets to defaultValues ({ userId: "", userName: "" })
-          // Clear selected pins (right panel)
-          setSelectedPins([]);
-          // Optionally clear the search input
-          setSearch("");
-        });
+        showSuccess(response.data.data.out_data || "Pincodes allocated successfully");
+        reset();
+        setSelectedPins([]);
+        setSearch("");
       } else {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text:
-            response?.data?.data?.out_data ||
+        showError(
+          response?.data?.data?.out_data ||
             response?.data?.message ||
             "Allocation failed",
-        });
+        );
       }
     } catch (error) {
-      Swal.close();
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: error?.response?.data?.message || "Network error",
-      });
+      showError(error?.response?.data?.message || "Network error");
     }
   };
 

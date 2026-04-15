@@ -3,8 +3,10 @@ import { useForm } from "react-hook-form";
 import { AlertCircle, Search } from "lucide-react";
 import apiClient from "../../services/apiService";
 import { DataTable } from "../../components/tables/DataTable";
+import { useNotification } from "../../context/NotificationContext";
 
 const FrmLastLoginHistory = () => {
+  const { showWarning, showError } = useNotification();
   // ✅ FORM
   const {
     register,
@@ -26,7 +28,7 @@ const FrmLastLoginHistory = () => {
 
   const handleSearch = async () => {
     if (!searchUserId) {
-      alert("Enter User ID");
+      showWarning("Enter User ID");
       return;
     }
 
@@ -49,6 +51,7 @@ const FrmLastLoginHistory = () => {
       }
     } catch (error) {
       console.error("Error fetching login history:", error);
+      showError(error?.response?.data?.message || "Failed to fetch login history");
     }
   };
   return (

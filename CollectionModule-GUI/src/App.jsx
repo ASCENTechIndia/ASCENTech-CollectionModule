@@ -45,9 +45,6 @@ import FrmActiveAgents from './pages/dashboard/FrmActiveAgents'
 import FrmUserPinAllocation from "./pages/user/FrmUserPinAllocation";
 import FrmResetPassword from "./pages/user/FrmResetPassword";
 import FrmChangePassword from "./pages/user/FrmChangePassword";
-import FrmUserModification from "./pages/user/FrmUserModification";
-import FrmAccessofPages from "./pages/user/FrmAccessofPages";
-import FrmPincodeMstrInserion from "./pages/Admin/FrmPincodeMstrInserion";
 import FrmUserLocationTracking from "./pages/Admin/FrmUserLocationTracking";
 import FrmLastLoginHistory from "./pages/Admin/FrmLastLoginHistory";
 
@@ -87,7 +84,8 @@ function App() {
               >
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/dashboard" element={<Dashboard />} />
-                
+                 <Route path="/Dashboard/FrmActiveAgents" element={<FrmActiveAgents />} />
+
                 {/* Asset Management */}
                 {/* <Route path="/assets" element={<AssetListPage />} />
                 <Route path="/assets/create" element={<AssetCreatePage />} />
