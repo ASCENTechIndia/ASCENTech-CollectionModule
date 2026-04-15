@@ -176,6 +176,10 @@ const FrmUserModification = () => {
                             type='button'
                             className="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                             onClick={() => {
+                                if (!userDetails?.userName || !userDetails?.currentStatus) {
+                                    alert("Username and User Current Status cannot be blank");
+                                    return;
+                                }
                                 setOpenModifyStatusModal(true);
                             }}
                         >
@@ -184,6 +188,17 @@ const FrmUserModification = () => {
                         <button
                             type='button'
                             className="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                            onClick={() => {
+                                if (!userDetails?.userName || !userDetails?.currentStatus) {
+                                    alert("Username and User Current Status cannot be blank");
+                                    return;
+                                }
+                                navigate("/FrmAccessofPages", {
+                                    state: {
+                                        userID: userDetails?.userId
+                                    }
+                                })
+                            }}
                         >Page Access</button>
                     </div>
 

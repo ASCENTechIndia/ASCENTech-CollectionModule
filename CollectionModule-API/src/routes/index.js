@@ -5,8 +5,11 @@ const masterRoutes = require('../modules/master/master.routes');
 const legacyRoutes = require('../modules/legacy/legacy.routes');
 const usersRoutes = require('../modules/users/users.routes');
 const assetsRoutes = require('../modules/assets/assets.routes');
-const { getLoginHistory } = require('../modules/admin/user.loginhistory.js');
-//const { getLoginHistory } = require("../module/admin/user.loginhistory.js");
+const assignPincode = require('../modules/AssignPincode/assignPincode.routes');
+const passwordRoutes = require('../modules/Password/Password.routes')
+const inactiveUserAccountsRoutes = require('../modules/InactiveUserAccounts/inactiveUserAccounts.routes');
+const userTrackingRoutes = require('../modules/UserTracking/UserTracking.routes');
+
 const router = express.Router();
 
 router.get('/health', (req, res) => {
@@ -23,6 +26,16 @@ router.use('/master', masterRoutes);
 router.use('/users', usersRoutes);
 router.use('/assets', assetsRoutes);
 router.use('/legacy', legacyRoutes);
-router.post("/login-history", getLoginHistory);
+router.use('/password', passwordRoutes);
+
+
+
+router.use('/assignPincode', assignPincode);
+router.use('/password', passwordRoutes);
+router.use('/userTracking', userTrackingRoutes);
+
+
+
+router.use('/inactive-user-accounts', inactiveUserAccountsRoutes);
 
 module.exports = router;
