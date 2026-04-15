@@ -215,6 +215,40 @@ async function getDailyUploadedReport(filters) {
   return result.rows || [];
 }
 
+async function getpincodeHistoryReport(filters) {
+  let sql = `
+  select var_user_userid, var_user_pincode, TO_CHAR(inactive_date, 'DD-MM-YYYY') as inactive_date from atbss.aoup_user_pincode_map_history_maintain a 
+    WHERE TRUNC(a.INACTIVE_DATE) BETWEEN TO_DATE(:startDate, 'DD-Mon-YYYY') 
+         AND TO_DATE(:endDate, 'DD-Mon-YYYY')
+  `;
+
+  const binds = {
+    startDate: filters.startDate,
+    endDate: filters.endDate
+  };
+  let userId = String(filters.userId || '').trim();
+
+  if (userId === 'E') {
+    userId = '';
+  }
+  if (userId) {
+    sql += ` AND a.VAR_USER_USERID = :userId`;
+    binds.userId = userId;
+  }
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+
+async function getnonvisitdoneSummary() {
+  let sql = `
+    SELECT * FROM atbss.view_nonvisit_summary
+  `;
+  const binds = {};
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
 module.exports = {
-  accAllocationReport, getDailyUploadedReport
+  accAllocationReport, getDailyUploadedReport, getpincodeHistoryReport, getnonvisitdoneSummary
 };

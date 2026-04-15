@@ -21,4 +21,10 @@ const dailyUploadSchema = z.object({
   smaType: z.string().optional().or(z.literal('')).nullable()
 });
 
-module.exports = {accAllocationSchema, dailyUploadSchema};
+const pincodeHistorySchema = z.object({
+  startDate: dateText,
+  endDate: dateText,
+  userId: z.string().optional().or(z.literal('')).nullable()
+});
+
+module.exports = {accAllocationSchema, dailyUploadSchema, pincodeHistorySchema};
