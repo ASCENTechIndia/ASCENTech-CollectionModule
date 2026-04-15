@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { AlertCircle, Search } from "lucide-react";
 import apiClient from "../../services/apiService";
 import { DataTable } from "../../components/tables/DataTable";
+import GridTable from "../../components/reports/GridTable";
 
 const FrmLastLoginHistory = () => {
   // ✅ FORM
@@ -16,11 +17,16 @@ const FrmLastLoginHistory = () => {
   const [tableData, setTableData] = useState([]);
 
   // ✅ TABLE HEADER
-  const [tableHeader] = useState([
-    { key: "userid", label: "User ID" },
-    { key: "ipaddress", label: "IP Address" },
-    { key: "logdate", label: "Login Date" },
-  ]);
+  const tableHeader = [
+    { displayName: "User ID" },
+    { displayName: "IP Address" },
+    { displayName: "Login Date" },
+  ];
+  const tableKeyMapping = {
+    "User ID": "userid",
+    "IP Address": "ipaddress",
+    "Login Date": "logdate",
+  };
 
   // ✅ SEARCH FUNCTION
 
@@ -31,23 +37,31 @@ const FrmLastLoginHistory = () => {
     }
 
     try {
-      const response = await apiClient.post(`/login-history`, {
-        userid: searchUserId,
-      });
+      //   const response = await apiClient.post(`/admin/getLastLogin`, {
+      //     userid: searchUserId,
+      //   });
+      const res = await apiClient.get(
+        `/admin/getLastLogin?userId=${searchUserId}`,
+      );
 
       // ✅ FIXED HERE
-      if (response.data && Array.isArray(response.data.data)) {
-        const formattedData = response.data.data.map((item) => ({
+      console.log("response :", res);
+      if (res?.data?.success && res?.data?.data?.length > 0) {
+        const formattedData = res.data.data.map((item) => ({
           userid: item.USERID,
           ipaddress: item.IP_ADDRESS,
           logdate: item.LOG_DATE,
         }));
 
+        console.log("table data ;", formattedData);
+        // return
         setTableData(formattedData);
       } else {
+        alert("No data available");
         setTableData([]);
       }
     } catch (error) {
+      alert(error.message);
       console.error("Error fetching login history:", error);
     }
   };
@@ -108,17 +122,24 @@ const FrmLastLoginHistory = () => {
                 </div>
               </div>
             </div>
+            {/* TABLE */}
+            <div className="">
+            {tableData.length > 0 ? (
+                <>
+                <GridTable
+                    title="Last Login History"
+                    headers={tableHeader}
+                    rows={tableData}
+                    columnMapping={tableKeyMapping}
+                />
+                </>
+            ) : (
+                <p className="text-gray-500 text-center">No records found</p>
+            )}
+            </div>
           </div>
         </div>
 
-        {/* TABLE */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          {tableData.length > 0 ? (
-            <DataTable columns={tableHeader} data={tableData} />
-          ) : (
-            <p className="text-gray-500 text-center">No records found</p>
-          )}
-        </div>
       </div>
     </div>
   );

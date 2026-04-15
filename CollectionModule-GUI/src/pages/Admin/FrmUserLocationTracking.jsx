@@ -9,7 +9,7 @@ import MapComponent from "../../components/ui/MapComponent";
 const FrmUserLocationTracking = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [coordinates, setCoordinates] = useState(null); // { lat, lng }
+  const [coordinates, setCoordinates] = useState(null);
 
   const {
     register,
@@ -35,7 +35,7 @@ const FrmUserLocationTracking = () => {
     try {
       console.log("vdate :", values.trackingDate);
       const response = await apiClient.get(
-        `/userTracking/getLocationTracking?userId=${encodeURIComponent(
+        `/admin/getLocationTracking?userId=${encodeURIComponent(
           values.userId,
         )}&cDate=${encodeURIComponent(values.trackingDate)}`,
       );
