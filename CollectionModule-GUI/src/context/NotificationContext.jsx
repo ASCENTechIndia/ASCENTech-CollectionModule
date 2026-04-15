@@ -5,8 +5,12 @@ const NotificationContext = createContext(null)
 export function NotificationProvider({ children }) {
   const [notifications, setNotifications] = useState([])
 
+  const removeNotification = useCallback((id) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id))
+  }, [])
+
   const addNotification = useCallback((message, type = 'info', duration = 3000) => {
-    const id = Date.now()
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
     const notification = { id, message, type }
     
     setNotifications((prev) => [...prev, notification])
@@ -18,15 +22,15 @@ export function NotificationProvider({ children }) {
     }
     
     return id
-  }, [])
-
-  const removeNotification = useCallback((id) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id))
-  }, [])
+  }, [removeNotification])
 
   const value = {
     notifications,
     addNotification,
+    showSuccess: (message, duration) => addNotification(message, 'success', duration),
+    showError: (message, duration) => addNotification(message, 'error', duration),
+    showWarning: (message, duration) => addNotification(message, 'warning', duration),
+    showInfo: (message, duration) => addNotification(message, 'info', duration),
     removeNotification,
   }
 
