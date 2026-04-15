@@ -9,7 +9,7 @@ import GlobalLoader from './components/common/GlobalLoader'
 import MainLayout from "./layouts/MainLayout";
 import AuthLayout from "./layouts/AuthLayout";
 
-// Pages
+// Pages (each imported only once)
 import LoginPage from "./pages/auth/LoginPage";
 import Dashboard from "./pages/dashboard/Dashboard";
 import AssetListPage from "./pages/asset/AssetListPage";
@@ -38,33 +38,10 @@ import FrmUserModification from "./pages/user/FrmUserModification";
 import FrmAccessofPages from "./pages/user/FrmAccessofPages";
 import FrmPincodeMstrInserion from "./pages/Admin/FrmPincodeMstrInserion";
 import FrmUserLocationTracking from "./pages/Admin/FrmUserLocationTracking";
-import LoginPage from './pages/auth/LoginPage'
-// import DashboardPage from './pages/dashboard/DashboardPage'
-import Dashboard from './pages/dashboard/Dashboard'
-import AssetListPage from './pages/asset/AssetListPage'
-import AssetCreatePage from './pages/asset/AssetCreatePage'
-import UserListPage from './pages/user/UserListPage'
-import BranchListPage from './pages/branch/BranchListPage'
-import ReportsPage from './pages/reports/ReportsPage'
-import DemoReportPage from './pages/reports/DemoReportPage'
-import DemoTailwindReportPage from './pages/reports/DemoTailwindReportPage'
-import TransactionReportPage from './pages/reports/TransactionReportPage'
-import DataGridPage from './pages/tables/DataGridPage'
-import TwoColumnFormPage from './pages/forms/TwoColumnFormPage'
-import ThreeColumnFormPage from './pages/forms/ThreeColumnFormPage'
-import AlertModalDemoPage from './pages/components/AlertModalDemoPage'
-import ButtonDemoPage from './pages/components/ButtonDemoPage'
-import TabsDemoPage from './pages/components/TabsDemoPage'
-import ChartsDemoPage from './pages/components/ChartsDemoPage'
-import NotFoundPage from './pages/NotFoundPage'
-import FrmUserCreation from './pages/user/FrmUserCreation'
-import FrmUserCreationWeb from './pages/user/FrmUserCreationWeb'
-import FrmUserList from './pages/user/FrmUserList'
-import FrmUserModification from "./pages/user/FrmUserModification";
-import FrmPincodeMstrInserion from './pages/user/FrmPincodeMstrInserion'
-import FrmAccessofPages from './pages/user/FrmAccessofPages'
 import FrmInactiveUserAcs from './pages/user/FrmInactiveUserAcs'
 import FrmActiveAgents from './pages/dashboard/FrmActiveAgents'
+import FrmLastLoginHistory from './pages/admin/FrmLastLoginHistory'
+import RptDaywisedata from './pages/reports/RptDaywisedata'
 
 const queryClient = new QueryClient();
 
@@ -101,88 +78,49 @@ function App() {
               >
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/dashboard" element={<Dashboard />} />
+
                 <Route path="/Dashboard/FrmActiveAgents" element={<FrmActiveAgents />} />
                 
-                {/* Asset Management */}
+                {/* Asset Management (commented out) */}
                 {/* <Route path="/assets" element={<AssetListPage />} />
                 <Route path="/assets/create" element={<AssetCreatePage />} />
                 <Route path="/assets/:id/edit" element={<AssetCreatePage />} /> */}
                 
                 {/* User Management */}
                 <Route path="/User/FrmUserList" element={<FrmUserList />} />
-                <Route
-                  path="/User/FrmUserCreation"
-                  element={<FrmUserCreation />}
-                />
-                <Route
-                  path="/User/FrmUserCreationWeb"
-                  element={<FrmUserCreationWeb />}
-                />
-                <Route
-                  path="/User/FrmUserPinAllocation"
-                  element={<FrmUserPinAllocation />}
-                />
-                <Route
-                  path="/User/FrmResetPassword"
-                  element={<FrmResetPassword />}
-                />
-                <Route
-                  path="/User/FrmChangePassword"
-                  element={<FrmChangePassword />}
-                />
-                <Route
-                  path="/User/FrmUserLocationTracking"
-                  element={<FrmUserLocationTracking />}
-                />
-                <Route
-                  path="/User/FrmUserModification"
-                  element={<FrmUserModification />}
-                />
-                <Route path="/FrmAccessofPages" element={<FrmAccessofPages />} />
-
-                <Route path='/User/FrmUserCreation' element={<FrmUserCreation />} />
-                <Route path='/User/FrmUserCreationWeb' element={<FrmUserCreationWeb />} />
+                <Route path="/User/FrmUserCreation" element={<FrmUserCreation />} />
+                <Route path="/User/FrmUserCreationWeb" element={<FrmUserCreationWeb />} />
+                <Route path="/User/FrmUserPinAllocation" element={<FrmUserPinAllocation />} />
+                <Route path="/User/FrmResetPassword" element={<FrmResetPassword />} />
+                <Route path="/User/FrmChangePassword" element={<FrmChangePassword />} />
                 <Route path="/User/FrmUserModification" element={<FrmUserModification />} />
-                <Route path='/FrmAccessofPages' element={<FrmAccessofPages />} />
+                <Route path="/FrmAccessofPages" element={<FrmAccessofPages />} />
                 <Route path="/User/FrmPincodeMstrInserion" element={<FrmPincodeMstrInserion />} />
                 <Route path="/User/FrmInactiveUserAcs" element={<FrmInactiveUserAcs />} />
                 
-                {/* Branch Management */}
+                {/* Branch Management (commented out) */}
                 {/* <Route path="/branches" element={<BranchListPage />} /> */}
                 
                 {/* Reports */}
                 <Route path="/reports" element={<ReportsPage />} />
                 <Route path="/reports/demo-grid" element={<DemoReportPage />} />
-                <Route
-                  path="/reports/demo-grid-tailwind"
-                  element={<DemoTailwindReportPage />}
-                />
-                <Route
-                  path="/reports/transactions"
-                  element={<TransactionReportPage />}
-                />
+                <Route path="/reports/demo-grid-tailwind" element={<DemoTailwindReportPage />} />
+                <Route path="/reports/transactions" element={<TransactionReportPage />} />
 
+                   <Route path="/reports/RptDaywisedata" element={<RptDaywisedata />} />
                 {/* Form Examples */}
                 <Route path="/forms/three-column" element={<ThreeColumnFormPage />} />
 
                 {/* Components Demo */}
-                <Route
-                  path="/components/alerts-modals"
-                  element={<AlertModalDemoPage />}
-                />
-
-                {/* Admin */}
-                <Route
-                  path="/Admin/FrmPincodeMstrInserion"
-                  element={<FrmPincodeMstrInserion />}
-                />
-                {/* <Route path="/components/alerts-modals" element={<AlertModalDemoPage />} /> */}
-                {/* <Route path="/components/buttons" element={<ButtonDemoPage />} /> */}
+                <Route path="/components/alerts-modals" element={<AlertModalDemoPage />} />
                 <Route path="/components/tabs" element={<TabsDemoPage />} />
                 <Route path="/components/charts" element={<ChartsDemoPage />} />
 
-                 <Route path="/admin/FrmInactiveUserAcs" element={<FrmInactiveUserAcs />} />
-
+                {/* Admin */}
+                <Route path="/Admin/FrmPincodeMstrInserion" element={<FrmPincodeMstrInserion />} />
+                <Route path="/Admin/FrmUserLocationTracking" element={<FrmUserLocationTracking />} />
+                <Route path="/Admin/FrmLastLoginHistory" element={<FrmLastLoginHistory />} />
+                 <Route path="/user/FrmInactiveUserAcs" element={<FrmInactiveUserAcs />} />
               </Route>
 
               {/* 404 Page */}
