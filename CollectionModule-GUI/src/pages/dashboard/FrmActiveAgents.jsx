@@ -19,7 +19,9 @@ function FrmActiveAgents() {
         reset,
         setValue
     } = useForm({
-        monthYear: getCurrentMonthYear()
+        defaultValues: {
+            monthYear: getCurrentMonthYear()    
+        }
     });
 
     const [summaryDetails, setSummaryDetails] = useState({});
@@ -164,7 +166,7 @@ function FrmActiveAgents() {
                                 {...register('monthYear', {
                                     required: 'Month Year is required'
                                 })}
-                                defaultValue="4-2026"
+                                defaultValue=""
                                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
                             >
                                 <option value="4-2025">April 2025</option>

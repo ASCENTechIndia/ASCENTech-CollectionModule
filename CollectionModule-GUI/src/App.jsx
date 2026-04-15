@@ -35,6 +35,7 @@ import FrmPincodeMstrInserion from './pages/user/FrmPincodeMstrInserion'
 import FrmAccessofPages from './pages/user/FrmAccessofPages'
 import FrmInactiveUserAcs from './pages/user/FrmInactiveUserAcs'
 import FrmActiveAgents from './pages/dashboard/FrmActiveAgents'
+import FrmNewDashboard2 from './pages/dashboard/FrmNewDashboard2'
 
 const queryClient = new QueryClient()
 
@@ -71,6 +72,7 @@ function App() {
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/Dashboard/FrmActiveAgents" element={<FrmActiveAgents />} />
+                <Route path="/Dashboard/FrmNewDashboard2" element={<FrmNewDashboard2 />} />
                 
                 {/* Asset Management */}
                 {/* <Route path="/assets" element={<AssetListPage />} />
