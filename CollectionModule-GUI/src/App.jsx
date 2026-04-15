@@ -51,6 +51,9 @@ import FrmNewDashboard2 from './pages/dashboard/FrmNewDashboard2'
 import FrmBucketSetter from "./pages/Admin/FrmBucketSetter"
 import FrmAccountAllocationReport from "./pages/reports/FrmAccountAllocationReport"
 import FrmInactiveUserPincodeHistory from "./pages/reports/FrmInactiveUserPincodeHistory"
+import FrmOverallPerformanceSummaryReport from "./pages/reports/FrmOverallPerformanceSummaryReport";
+import FrmVisitDoneSummaryReport from "./pages/reports/FrmVisitDoneSummaryReport";
+import FrmNonVisitDoneSummaryReport from "./pages/reports/FrmNonVisitDoneSummaryReport";
 
 const queryClient = new QueryClient()
 
@@ -145,6 +148,9 @@ function App() {
                 {/* Report */}
                 <Route path="/Report/FrmAccountAllocationReport" element={<FrmAccountAllocationReport />} />
                 <Route path="/Report/FrmInactiveUserPincodeHistory" element={<FrmInactiveUserPincodeHistory />} />
+                <Route path="/Report/FrmOverallPerformanceSummaryReport" element={<FrmOverallPerformanceSummaryReport />} />
+                <Route path="/Report/FrmNonVisitDoneSummaryReport" element={<FrmNonVisitDoneSummaryReport />} />
+                <Route path="/Report/FrmVisitDoneSummaryReport" element={<FrmVisitDoneSummaryReport />} />
                 
                 {/* Reports */}
                 <Route path="/reports" element={<ReportsPage />} />

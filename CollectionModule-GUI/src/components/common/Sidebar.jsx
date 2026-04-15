@@ -66,6 +66,9 @@ const MENU_ITEMS = [
     submenu: [
       { label: "Account Allocation Report", href: "/Report/FrmAccountAllocationReport" },
       { label: "Inactive User Pincode History", href: "/Report/FrmInactiveUserPincodeHistory" },
+      { label: "Overall Performance Report", href: "/Report/FrmOverallPerformanceSummaryReport" },
+      { label: "Non Visit Done Summary Report", href: "/Report/FrmNonVisitDoneSummaryReport" },
+      { label: "Visit Done Summary Report", href: "/Report/FrmVisitDoneSummaryReport" },
     ],
   },
 

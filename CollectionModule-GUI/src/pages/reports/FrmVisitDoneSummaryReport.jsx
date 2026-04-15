@@ -3,17 +3,18 @@ import apiClient from "../../services/apiService";
 import TailwindGridTable from "../../components/reports/TailwindGridTable";
 import { useNotification } from "../../context/NotificationContext";
 
-const FrmOverallPerformanceSummaryReport = () => {
+const FrmVisitDoneSummaryReport = () => {
   const { showError } = useNotification();
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const headers = [
     {
       displayName: "In Count",
       children: [
         { displayName: "Zone", field: "zone" },
-        { displayName: "Allocation", field: "allocation" },
-        { displayName: "Weightage", field: "weightage" },
+        { displayName: "Visit Done", field: "visitDone" },
+        { displayName: "Visit Done(%)", field: "visitDonePercent" },
         { displayName: "Paid", field: "paid" },
         { displayName: "Paid (%)", field: "paidPercent" },
         { displayName: "Fully Paid", field: "fullyPaid" },
@@ -30,16 +31,16 @@ const FrmOverallPerformanceSummaryReport = () => {
       displayName: "In Value",
       children: [
         { displayName: "Allocation", field: "valueAllocation" },
-        { displayName: "Weightage", field: "valueWeightage" },
-        { displayName: "Paid", field: "valuePaid" },
+        { displayName: "Visit Done(%)", field: "valueVisitDonePercent" },
+        { displayName: "Paid Amount", field: "paidAmount" },
         { displayName: "Paid(%)", field: "valuePaidPercent" },
-        { displayName: "Fully Paid", field: "valueFullyPaid" },
+        { displayName: "Fully Paid Amount", field: "valueFullyPaidAmount" },
         { displayName: "Full Paid(%)", field: "valueFullyPaidPercent" },
-        { displayName: "Partial Paid", field: "valuePartialPaid" },
+        { displayName: "Partial Paid Amount", field: "valuePartialPaidAmount" },
         { displayName: "Partial Paid (%)", field: "valuePartialPaidPercent" },
-        { displayName: "Unpaid", field: "valueUnpaid" },
+        { displayName: "Unpaid Amount", field: "valueUnpaidAmount" },
         { displayName: "Unpaid(%)", field: "valueUnpaidPercent" },
-        { displayName: "NPA", field: "valueNpa" },
+        { displayName: "NPA Amount", field: "valueNpaAmount" },
         { displayName: "NPA(%)", field: "valueNpaPercent" },
       ],
     },
@@ -49,41 +50,38 @@ const FrmOverallPerformanceSummaryReport = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await apiClient.get(
-          "/reports/overallPerformanceSummary",
-        );
-        const { success, data, message } = response.data;
+        const response = await apiClient.get("/reports/visitDoneSummary");
+        const { success, data } = response.data;
 
         if (success && data && data.length > 0) {
-          // Transform each item to match the field names defined in headers
           const transformed = data.map((item) => ({
             // In Count group
-            zone: item.ZONE_NAME || "",
-            allocation: item.ALLOCATED_CASES_COUNT ?? 0,
-            weightage: item.PERCENTAGE ?? 0,
+            zone: item.VAR_COMPANYMST_BRANCHNAME || "",
+            visitDone: item.TOTAL_VISITS ?? 0,
+            visitDonePercent: item.TOTAL_VISITS_PERS ?? 0,
             paid: item.PAID_COUNT ?? 0,
-            paidPercent: item.PAID_PERCENT ?? 0,
+            paidPercent: item.PAID_COUNT_PERS ?? 0,
             fullyPaid: item.FULLY_PAID_COUNT ?? 0,
-            fullyPaidPercent: item.FULLY_PAID_PERCENT ?? 0,
+            fullyPaidPercent: item.FULLY_PAID_PERS ?? 0,
             partialPaid: item.PARTIAL_PAID_COUNT ?? 0,
-            partialPaidPercent: item.PARTIAL_PAID_PERCENT ?? 0,
-            unpaid: item.UNPAID_COUNT ?? 0,
-            unpaidPercent: item.UNPAID_PERCENT ?? 0,
+            partialPaidPercent: item.PARTIAL_PAID_PERS ?? 0,
+            unpaid: item.NOT_PAID_COUNT ?? 0,
+            unpaidPercent: item.NOT_PAID_PERS ?? 0,
             npa: item.NPA_COUNT ?? 0,
-            npaPercent: item.NPA_PERCENT ?? 0,
+            npaPercent: item.NPA_PERS ?? 0,
             // In Value group
-            valueAllocation: item.FINAL_RECORD_COUNT ?? 0,
-            valueWeightage: item.PERCENTAGE_OVERALL ?? 0,
-            valuePaid: item.FINAL_COUNT_ENGNNO_12 ?? 0,
-            valuePaidPercent: item.PERCENTAGE_ENGNNO_12 ?? 0,
-            valueFullyPaid: item.FINAL_COUNT_ENGNNO_1 ?? 0,
-            valueFullyPaidPercent: item.PERCENTAGE_ENGNNO_1 ?? 0,
-            valuePartialPaid: item.FINAL_COUNT_ENGNNO_2 ?? 0,
-            valuePartialPaidPercent: item.PERCENTAGE_ENGNNO_2 ?? 0,
-            valueUnpaid: item.FINAL_COUNT_ENGNNO_NULL ?? 0,
-            valueUnpaidPercent: item.PERCENTAGE_ENGNNO_NULL ?? 0,
-            valueNpa: item.FINAL_COUNT_ENGNNO_3 ?? 0,
-            valueNpaPercent: item.PERCENTAGE_ENGNNO_3 ?? 0,
+            valueAllocation: item.COLLECTABLE_AMT ?? 0,
+            valueVisitDonePercent: item.COLLECTABLE_PERCENT ?? 0,
+            paidAmount: item.PAIDAMT ?? 0,
+            valuePaidPercent: item.PAID_PERCENT ?? 0,
+            valueFullyPaidAmount: item.FULLYPAIDAMT ?? 0,
+            valueFullyPaidPercent: item.FULLYPAID_PERCENT ?? 0,
+            valuePartialPaidAmount: item.PARTIALPAIDAMT ?? 0,
+            valuePartialPaidPercent: item.PARTIALPAID_PERCENT ?? 0,
+            valueUnpaidAmount: item.UNPAID_AMT ?? 0,
+            valueUnpaidPercent: item.UNPAID_PERCENT ?? 0,
+            valueNpaAmount: item.NPA_AMT ?? 0,
+            valueNpaPercent: item.NPA_PERCENT ?? 0,
           }));
           setTableData(transformed);
         } else {
@@ -118,16 +116,16 @@ const FrmOverallPerformanceSummaryReport = () => {
       <div className="max-w-full mx-auto">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold text-gray-900">
-            Overall Performance Summary Report
+            Visit Done Summary Report
           </h1>
         </div>
 
         {tableData.length > 0 ? (
           <TailwindGridTable
-            title="Performance Summary"
+            title="Visit Done Summary"
             headers={headers}
             rows={tableData}
-            // No columnMapping needed because headers already have 'field' properties
+            // No columnMapping needed because headers already include 'field'
           />
         ) : (
           <div className="bg-white rounded-lg border border-gray-200 p-8 text-center text-gray-500">
@@ -139,4 +137,4 @@ const FrmOverallPerformanceSummaryReport = () => {
   );
 };
 
-export default FrmOverallPerformanceSummaryReport;
+export default FrmVisitDoneSummaryReport;
