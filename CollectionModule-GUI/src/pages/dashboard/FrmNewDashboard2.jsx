@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 import LineChart from '../../components/charts/LineChart';
 import { Card } from '../../components/ui';
 import { DataTable } from '../../components/tables/DataTable';
+import TailwindGridTable from '../../components/reports/TailwindGridTable';
 
 const FrmNewDashboard2 = () => {
     const { user } = useAuth();
@@ -28,56 +29,56 @@ const FrmNewDashboard2 = () => {
 
     const [tableHeader, setTableHeader] = useState([
         {
-            key: "dispositionDate",
-            label: "Disposition Date"
+            field: "dispositionDate",
+            displayName: "Disposition Date"
         },
         {
-            key: "mdmId",
-            label: "MDM ID"
+            field: "mdmId",
+            displayName: "MDM ID"
         },
         {
-            key: "branchName",
-            label: "Branch Name"
+            field: "branchName",
+            displayName: "Branch Name"
         },
         {
-            key: "accountNumber",
-            label: "Account Number"
+            field: "accountNumber",
+            displayName: "Account Number"
         },
         {
-            key: "customerName",
-            label: "Customer Name"
+            field: "customerName",
+            displayName: "Customer Name"
         },
         {
-            key: "customerAddress",
-            label: "Customer Address"
+            field: "customerAddress",
+            displayName: "Customer Address"
         },
         {
-            key: "productType",
-            label: "Product Type"
+            field: "productType",
+            displayName: "Product Type"
         },
         {
-            key: "dispositionCode",
-            label: "Disposition Code"
+            field: "dispositionCode",
+            displayName: "Disposition Code"
         },
         {
-            key: "subDispositionCode",
-            label: "Sub Disposition Code"
+            field: "subDispositionCode",
+            displayName: "Sub Disposition Code"
         },
         {
-            key: "collectionAllocationName",
-            label: "Collection Associate Name"
+            field: "collectionAllocationName",
+            displayName: "Collection Associate Name"
         },
         {
-            key: "employeeId",
-            label: "Employee ID"
+            field: "employeeId",
+            displayName: "Employee ID"
         },
         {
-            key: "latitude",
-            label: "Latitude"
+            field: "latitude",
+            displayName: "Latitude"
         },
         {
-            key: "longitude",
-            label: "Longitude"
+            field: "longitude",
+            displayName: "Longitude"
         }
     ]);
     const [tableData, setTableData] = useState([]);
@@ -213,26 +214,27 @@ const FrmNewDashboard2 = () => {
                     {showDetails &&
                         <>
 
-                            <div className="grid grid-cols-1 gap-4 mt-7">
-                                <Card>
-                                    <div className="p-4">
-                                        <div style={{ height: '400px', position: 'relative' }}>
-                                            <LineChart data={firstChartData} />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-7 w-full">
+                                <Card className="w-full">
+                                    <div className="p-4 w-full">
+                                        <div className="relative h-[400px] w-full">
+                                            <LineChart data={firstChartData} options={{ maintainAspectRatio: false }} />
                                         </div>
                                     </div>
                                 </Card>
-                                <Card>
-                                    <div className="p-4">
-                                        <div style={{ height: '400px', position: 'relative' }}>
-                                            <LineChart data={secondChartData} />
+                                <Card className="w-full">
+                                    <div className="p-4 w-full">
+                                        <div className="relative h-[400px] w-full">
+                                            <LineChart data={secondChartData} options={{ maintainAspectRatio: false }} />
                                         </div>
                                     </div>
                                 </Card>
                             </div>
                             <div className="mt-7">
-                                <DataTable
-                                    columns={tableHeader}
-                                    data={tableData}
+                                <TailwindGridTable
+                                    title='Disposition Table'
+                                    headers={tableHeader}
+                                    rows={tableData}
                                 />
                             </div>
                         </>
