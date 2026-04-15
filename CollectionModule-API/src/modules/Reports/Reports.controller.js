@@ -1,5 +1,5 @@
 const {
-  accAllocationService, dailyUploadedReport
+  accAllocationService, dailyUploadedReport, pincodeHistoryReport, nonVisitDoneService
 } = require('./Reports.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -34,7 +34,29 @@ async function dailyUploadedReportHandler(req, res, next) {
   }
 }
 
+async function pinCodeHistoryHandler(req, res, next) {
+  try {
+    const rows = await pincodeHistoryReport(req.query);
+    logApiSuccess( req, 200, { count: rows?.length || 0 }, 'Inactive User Pincode History Report completed' );
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Inactive User Pincode History Report search error');
+    return next(error);
+  }
+}
+
+
+async function nonVisitDoneHandler(req, res, next) {
+  try {
+    const rows = await nonVisitDoneService(req.query);
+    logApiSuccess( req, 200, { count: rows?.length || 0 }, 'Non Visit Done Summary Report completed' );
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Non Visit Done Summary Report search error');
+    return next(error);
+  }
+}
 
 module.exports = {
-  accAllocationHandler, dailyUploadedReportHandler
+  accAllocationHandler, dailyUploadedReportHandler, pinCodeHistoryHandler, nonVisitDoneHandler
 };
