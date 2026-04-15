@@ -45,6 +45,7 @@ const MENU_ITEMS = [
     submenu: [
       { label: "User Location Tracking", href: "/User/FrmUserLocationTracking" },
       { label: "Last Login History", href: "/User/FrmLastLoginHistory" },
+      { label: "Last Login History", href: "/Admin/FrmBucketSetter" },
     ],
   },
 

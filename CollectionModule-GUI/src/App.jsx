@@ -48,6 +48,7 @@ import FrmChangePassword from "./pages/user/FrmChangePassword";
 import FrmUserLocationTracking from "./pages/Admin/FrmUserLocationTracking";
 import FrmLastLoginHistory from "./pages/Admin/FrmLastLoginHistory";
 import FrmNewDashboard2 from './pages/dashboard/FrmNewDashboard2'
+import FrmBucketSetter from "./pages/Admin/FrmBucketSetter"
 
 const queryClient = new QueryClient()
 
@@ -127,6 +128,10 @@ function App() {
                 <Route
                   path="/User/FrmLastLoginHistory"
                   element={<FrmLastLoginHistory />}
+                />
+                <Route
+                  path="/Admin/FrmBucketSetter"
+                  element={<FrmBucketSetter />}
                 />
                 <Route
                   path="/User/FrmUserModification"

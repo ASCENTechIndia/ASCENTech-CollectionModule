@@ -2,14 +2,13 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { AlertCircle, Search } from "lucide-react";
 import apiClient from "../../services/apiService";
-import { DataTable } from "../../components/tables/DataTable";
-import { useNotification } from "../../context/NotificationContext";
+import GridTable from "../../components/reports/GridTable";
 
 const FrmLastLoginHistory = () => {
-  const { showWarning, showError } = useNotification();
-  // ✅ FORM
+  // ✅ REACT HOOK FORM
   const {
     register,
+    handleSubmit,
     formState: { errors },
   } = useForm();
 
@@ -29,33 +28,23 @@ const FrmLastLoginHistory = () => {
     "Login Date": "logdate",
   };
 
-  // ✅ SEARCH FUNCTION
-
-  const handleSearch = async () => {
-    if (!searchUserId) {
-      showWarning("Enter User ID");
+  // ✅ SEARCH FUNCTION (called by handleSubmit)
+  const onSubmit = async (data) => {
+    const userId = data.userId; // from react-hook-form
+    if (!userId) {
+      alert("Enter User ID");
       return;
     }
 
     try {
-      //   const response = await apiClient.post(`/admin/getLastLogin`, {
-      //     userid: searchUserId,
-      //   });
-      const res = await apiClient.get(
-        `/admin/getLastLogin?userId=${searchUserId}`,
-      );
+      const res = await apiClient.get(`/admin/getLastLogin?userId=${userId}`);
 
-      // ✅ FIXED HERE
-      console.log("response :", res);
       if (res?.data?.success && res?.data?.data?.length > 0) {
         const formattedData = res.data.data.map((item) => ({
           userid: item.USERID,
           ipaddress: item.IP_ADDRESS,
           logdate: item.LOG_DATE,
         }));
-
-        console.log("table data ;", formattedData);
-        // return
         setTableData(formattedData);
       } else {
         alert("No data available");
@@ -67,6 +56,15 @@ const FrmLastLoginHistory = () => {
       showError(error?.response?.data?.message || "Failed to fetch login history");
     }
   };
+
+  // ✅ Update local state when user types (to keep input controlled)
+  const handleInputChange = (e) => {
+    let value = e.target.value;
+    value = value.replace(/\D/g, ""); // numbers only
+    setSearchUserId(value);
+    e.target.value = value; // update the DOM element directly
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
@@ -77,9 +75,12 @@ const FrmLastLoginHistory = () => {
           </h1>
         </div>
 
-        {/* SEARCH BOX */}
+        {/* SEARCH BOX with FORM */}
         <div className="bg-white rounded-lg border border-gray-200 p-8">
-          <div className="grid grid-cols-1 gap-5">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="grid grid-cols-1 gap-5"
+          >
             <div>
               <label className="block text-sm font-medium text-gray-900 mb-2">
                 User Id<span className="text-danger-600">*</span>
@@ -87,7 +88,7 @@ const FrmLastLoginHistory = () => {
 
               <div className="flex flex-col md:flex-row gap-5">
                 {/* INPUT */}
-                <div>
+                <div className="flex-2">
                   <input
                     type="text"
                     {...register("userId", {
@@ -95,10 +96,7 @@ const FrmLastLoginHistory = () => {
                     })}
                     placeholder="Enter User ID"
                     value={searchUserId}
-                    onChange={(e) => setSearchUserId(e.target.value)}
-                    onInput={(e) => {
-                      e.target.value = e.target.value.replace(/\D/g, "");
-                    }}
+                    onChange={handleInputChange}
                     className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${
                       errors.userId ? "border-danger-500" : "border-gray-300"
                     }`}
@@ -112,36 +110,33 @@ const FrmLastLoginHistory = () => {
                   )}
                 </div>
 
-                {/* BUTTON */}
+                {/* SUBMIT BUTTON */}
                 <div>
                   <button
-                    type="button"
+                    type="submit"
                     className="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 flex items-center justify-center"
-                    onClick={handleSearch}
                   >
                     <Search className="w-5 h-5" />
                   </button>
                 </div>
               </div>
             </div>
-            {/* TABLE */}
-            <div className="">
-            {tableData.length > 0 ? (
-                <>
-                <GridTable
-                    title="Last Login History"
-                    headers={tableHeader}
-                    rows={tableData}
-                    columnMapping={tableKeyMapping}
-                />
-                </>
-            ) : (
-                <p className="text-gray-500 text-center">No records found</p>
-            )}
-            </div>
-          </div>
-        </div>
 
+            {/* TABLE */}
+            <div className="mt-4">
+              {tableData.length > 0 ? (
+                <GridTable
+                  title="Last Login History"
+                  headers={tableHeader}
+                  rows={tableData}
+                  columnMapping={tableKeyMapping}
+                />
+              ) : (
+                <p className="text-gray-500 text-center">No records found</p>
+              )}
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
