@@ -3,7 +3,8 @@ const validate = require('../../middleware/validate.middleware');
 const { authRequired } = require('../../middleware/auth');
 const { accAllocationSchema, dailyUploadSchema,pincodeHistorySchema
 } = require('./Reports.validation');
-const { accAllocationHandler, dailyUploadedReportHandler, pinCodeHistoryHandler, nonVisitDoneHandler
+const { accAllocationHandler, dailyUploadedReportHandler, pinCodeHistoryHandler, nonVisitDoneHandler,
+    overallPerformanceHandler, visitDoneHandler
 } = require('./Reports.controller');
 
 const router = express.Router();
@@ -12,5 +13,7 @@ router.get('/AccAllocationReport',validate(accAllocationSchema, { source: 'query
 router.get('/dailyUploadedReport',validate(dailyUploadSchema, { source: 'query' }),dailyUploadedReportHandler);
 router.get('/inactiveuserPincodeHistory',validate(pincodeHistorySchema, { source: 'query' }),pinCodeHistoryHandler);
 router.get('/nonVisitDoneSummary', nonVisitDoneHandler);
+router.get('/overallPerformanceSummary', overallPerformanceHandler);
+router.get('/visitDoneSummary', visitDoneHandler);
 
 module.exports = router;

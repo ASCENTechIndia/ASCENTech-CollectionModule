@@ -1,5 +1,6 @@
 const {
-  accAllocationReport, getDailyUploadedReport, getpincodeHistoryReport, getnonvisitdoneSummary
+  accAllocationReport, getDailyUploadedReport, getpincodeHistoryReport, getnonvisitdoneSummary,
+  overallPerformanceSummary, getvisitdoneSummary
 } = require('./Reports.repo');
 
 async function accAllocationService(filters) {
@@ -18,6 +19,15 @@ async function nonVisitDoneService() {
   return getnonvisitdoneSummary();
 }
 
+async function overallPerfService() {
+  return overallPerformanceSummary();
+}
+
+async function visitDoneService() {
+  return getvisitdoneSummary();
+}
+
 module.exports = {
- accAllocationService, dailyUploadedReport, pincodeHistoryReport, nonVisitDoneService
+ accAllocationService, dailyUploadedReport, pincodeHistoryReport, nonVisitDoneService, overallPerfService,
+ visitDoneService
 };
