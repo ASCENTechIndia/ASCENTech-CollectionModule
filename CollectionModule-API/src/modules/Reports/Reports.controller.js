@@ -1,5 +1,6 @@
 const {
-  accAllocationService, dailyUploadedReport, pincodeHistoryReport, nonVisitDoneService
+  accAllocationService, dailyUploadedReport, pincodeHistoryReport, nonVisitDoneService, overallPerfService,
+  visitDoneService
 } = require('./Reports.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -57,6 +58,29 @@ async function nonVisitDoneHandler(req, res, next) {
   }
 }
 
+async function overallPerformanceHandler(req, res, next) {
+  try {
+    const rows = await overallPerfService(req.query);
+    logApiSuccess( req, 200, { count: rows?.length || 0 }, 'Overall Performance Summary Report completed' );
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Overall Performance Summary Report search error');
+    return next(error);
+  }
+}
+
+async function visitDoneHandler(req, res, next) {
+  try {
+    const rows = await visitDoneService(req.query);
+    logApiSuccess( req, 200, { count: rows?.length || 0 }, 'Visit Done Summary Report completed' );
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Visit Done Summary Report search error');
+    return next(error);
+  }
+}
+
 module.exports = {
-  accAllocationHandler, dailyUploadedReportHandler, pinCodeHistoryHandler, nonVisitDoneHandler
+  accAllocationHandler, dailyUploadedReportHandler, pinCodeHistoryHandler, nonVisitDoneHandler, overallPerformanceHandler,
+  visitDoneHandler
 };

@@ -239,7 +239,6 @@ async function getpincodeHistoryReport(filters) {
   return result.rows || [];
 }
 
-
 async function getnonvisitdoneSummary() {
   let sql = `
     SELECT * FROM atbss.view_nonvisit_summary
@@ -249,6 +248,25 @@ async function getnonvisitdoneSummary() {
   return result.rows || [];
 }
 
+async function overallPerformanceSummary() {
+  let sql = `
+   select * from atbss.view_overall_performance
+  `;
+  const binds = {};
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function getvisitdoneSummary() {
+  let sql = `
+   select * from atbss.view_visitdone_summary2
+  `;
+  const binds = {};
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
 module.exports = {
-  accAllocationReport, getDailyUploadedReport, getpincodeHistoryReport, getnonvisitdoneSummary
+  accAllocationReport, getDailyUploadedReport, getpincodeHistoryReport, getnonvisitdoneSummary, overallPerformanceSummary,
+  getvisitdoneSummary
 };
