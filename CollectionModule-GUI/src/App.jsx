@@ -48,6 +48,7 @@ import FrmChangePassword from "./pages/user/FrmChangePassword";
 import FrmUserLocationTracking from "./pages/Admin/FrmUserLocationTracking";
 import FrmLastLoginHistory from "./pages/Admin/FrmLastLoginHistory";
 import FrmNewDashboard2 from './pages/dashboard/FrmNewDashboard2'
+import FrmDailyVisit from './pages/dashboard/FrmDailyVisit'
 
 const queryClient = new QueryClient()
 
@@ -86,6 +87,7 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/Dashboard/FrmActiveAgents" element={<FrmActiveAgents />} />
                 <Route path="/Dashboard/FrmNewDashboard2" element={<FrmNewDashboard2 />} />
+                <Route path='/Dashboard/FrmDailyVisit' element={<FrmDailyVisit />} />
                 
                 {/* Asset Management */}
                 {/* <Route path="/assets" element={<AssetListPage />} />
