@@ -98,6 +98,7 @@ export function Pagination({
   return (
     <div className={clsx('flex items-center justify-between mt-6', className)}>
       <button
+        type="button"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
         className="px-4 py-2 text-sm font-medium text-primary-600 hover:bg-primary-50 disabled:opacity-50 rounded-lg"
@@ -108,6 +109,7 @@ export function Pagination({
         Page {currentPage} of {totalPages}
       </span>
       <button
+        type="button"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
         className="px-4 py-2 text-sm font-medium text-primary-600 hover:bg-primary-50 disabled:opacity-50 rounded-lg"

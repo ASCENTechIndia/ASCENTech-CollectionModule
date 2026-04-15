@@ -1,6 +1,7 @@
 import { clsx } from 'clsx'
 import { useState } from 'react'
 import { X } from 'lucide-react'
+import { useNotification } from '../../context/NotificationContext'
 
 /**
  * TagInput Component - Add tags with keyboard and blur handling
@@ -256,6 +257,7 @@ export function MultiFileUpload({
   className,
   id,
 }) {
+  const { showWarning } = useNotification()
   const [files, setFiles] = useState([])
   const [dragActive, setDragActive] = useState(false)
 
@@ -270,7 +272,7 @@ export function MultiFileUpload({
   const handleFiles = (newFiles) => {
     const totalFiles = files.length + newFiles.length
     if (totalFiles > maxFiles) {
-      alert(`Maximum ${maxFiles} files allowed`)
+      showWarning(`Maximum ${maxFiles} files allowed`)
       return
     }
 
@@ -279,7 +281,7 @@ export function MultiFileUpload({
       if (file.size <= maxSize) {
         validFiles.push(file)
       } else {
-        alert(`${file.name} exceeds size limit (${formatFileSize(maxSize)})`)
+        showWarning(`${file.name} exceeds size limit (${formatFileSize(maxSize)})`)
       }
     }
 

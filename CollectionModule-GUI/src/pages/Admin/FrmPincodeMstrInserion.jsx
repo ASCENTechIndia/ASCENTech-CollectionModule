@@ -3,10 +3,12 @@ import { useForm } from 'react-hook-form'
 import { Input, Button } from '../../components/ui'
 import apiClient from '../../services/apiService'
 import { useAuth } from '../../context/AuthContext';
+import { useNotification } from '../../context/NotificationContext';
 import { AlertCircle } from 'lucide-react';
 
 const FrmPincodeMstrInserion = () => {
     const { user } = useAuth();
+    const { showSuccess, showError } = useNotification();
     const {
         register,
         handleSubmit,
@@ -25,15 +27,16 @@ const FrmPincodeMstrInserion = () => {
             const response = await apiClient.post("/assignPincode/insertPincodeMaster", payload);
 
             if (response.data.success && response.data.data.isSuccess) {
-                alert(response.data.data.message);
+                showSuccess(response.data.data.message || 'Pincode inserted successfully');
                 reset({
                     "pinCode": ""
                 });
             } else if (response.data.success && !response.data.data.isSuccess) {
-                alert(response.data.data.message);
+                showError(response.data.data.message || 'Failed to insert pincode');
             }
         } catch (error) {
             console.log(error);
+            showError(error?.response?.data?.message || error?.message || 'Failed to insert pincode');
         }
     }
 

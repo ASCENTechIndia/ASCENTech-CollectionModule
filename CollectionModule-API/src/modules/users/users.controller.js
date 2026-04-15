@@ -167,6 +167,7 @@ async function searchHandler(req, res, next) {
 
 async function getUserFormOptionsHandler(req, res, next) {
   try {
+    console.log("res :", req)
     const rows = await getFormOptions(req.query);
     logApiSuccess(req, 200, { count: rows?.length || 0 }, `User form options loaded`);
     return res.ok(rows);
