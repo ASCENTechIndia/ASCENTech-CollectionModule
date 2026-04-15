@@ -10,6 +10,34 @@ import MainLayout from "./layouts/MainLayout";
 import AuthLayout from "./layouts/AuthLayout";
 
 // Pages
+import LoginPage from "./pages/auth/LoginPage";
+import Dashboard from "./pages/dashboard/Dashboard";
+import AssetListPage from "./pages/asset/AssetListPage";
+import AssetCreatePage from "./pages/asset/AssetCreatePage";
+import UserListPage from "./pages/user/UserListPage";
+import BranchListPage from "./pages/branch/BranchListPage";
+import ReportsPage from "./pages/reports/ReportsPage";
+import DemoReportPage from "./pages/reports/DemoReportPage";
+import DemoTailwindReportPage from "./pages/reports/DemoTailwindReportPage";
+import TransactionReportPage from "./pages/reports/TransactionReportPage";
+import DataGridPage from "./pages/tables/DataGridPage";
+import TwoColumnFormPage from "./pages/forms/TwoColumnFormPage";
+import ThreeColumnFormPage from "./pages/forms/ThreeColumnFormPage";
+import AlertModalDemoPage from "./pages/components/AlertModalDemoPage";
+import ButtonDemoPage from "./pages/components/ButtonDemoPage";
+import TabsDemoPage from "./pages/components/TabsDemoPage";
+import ChartsDemoPage from "./pages/components/ChartsDemoPage";
+import NotFoundPage from "./pages/NotFoundPage";
+import FrmUserCreation from "./pages/user/FrmUserCreation";
+import FrmUserCreationWeb from "./pages/user/FrmUserCreationWeb";
+import FrmUserList from "./pages/user/FrmUserList";
+import FrmUserPinAllocation from "./pages/user/FrmUserPinAllocation";
+import FrmResetPassword from "./pages/user/FrmResetPassword";
+import FrmChangePassword from "./pages/user/FrmChangePassword";
+import FrmUserModification from "./pages/user/FrmUserModification";
+import FrmAccessofPages from "./pages/user/FrmAccessofPages";
+import FrmPincodeMstrInserion from "./pages/Admin/FrmPincodeMstrInserion";
+import FrmUserLocationTracking from "./pages/Admin/FrmUserLocationTracking";
 import LoginPage from './pages/auth/LoginPage'
 // import DashboardPage from './pages/dashboard/DashboardPage'
 import Dashboard from './pages/dashboard/Dashboard'
@@ -82,6 +110,36 @@ function App() {
                 
                 {/* User Management */}
                 <Route path="/User/FrmUserList" element={<FrmUserList />} />
+                <Route
+                  path="/User/FrmUserCreation"
+                  element={<FrmUserCreation />}
+                />
+                <Route
+                  path="/User/FrmUserCreationWeb"
+                  element={<FrmUserCreationWeb />}
+                />
+                <Route
+                  path="/User/FrmUserPinAllocation"
+                  element={<FrmUserPinAllocation />}
+                />
+                <Route
+                  path="/User/FrmResetPassword"
+                  element={<FrmResetPassword />}
+                />
+                <Route
+                  path="/User/FrmChangePassword"
+                  element={<FrmChangePassword />}
+                />
+                <Route
+                  path="/User/FrmUserLocationTracking"
+                  element={<FrmUserLocationTracking />}
+                />
+                <Route
+                  path="/User/FrmUserModification"
+                  element={<FrmUserModification />}
+                />
+                <Route path="/FrmAccessofPages" element={<FrmAccessofPages />} />
+
                 <Route path='/User/FrmUserCreation' element={<FrmUserCreation />} />
                 <Route path='/User/FrmUserCreationWeb' element={<FrmUserCreationWeb />} />
                 <Route path="/User/FrmUserModification" element={<FrmUserModification />} />
@@ -108,6 +166,16 @@ function App() {
                 <Route path="/forms/three-column" element={<ThreeColumnFormPage />} />
 
                 {/* Components Demo */}
+                <Route
+                  path="/components/alerts-modals"
+                  element={<AlertModalDemoPage />}
+                />
+
+                {/* Admin */}
+                <Route
+                  path="/Admin/FrmPincodeMstrInserion"
+                  element={<FrmPincodeMstrInserion />}
+                />
                 {/* <Route path="/components/alerts-modals" element={<AlertModalDemoPage />} /> */}
                 {/* <Route path="/components/buttons" element={<ButtonDemoPage />} /> */}
                 <Route path="/components/tabs" element={<TabsDemoPage />} />
