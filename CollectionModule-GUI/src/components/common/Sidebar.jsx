@@ -43,6 +43,7 @@ const MENU_ITEMS = [
     icon: Users,
     submenu: [
       { label: "User Location Tracking", href: "/User/FrmUserLocationTracking" },
+      { label: "Last Login History", href: "/User/FrmLastLoginHistory" },
     ],
   },
   // {

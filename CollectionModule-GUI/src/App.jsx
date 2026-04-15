@@ -41,6 +41,7 @@ import FrmUserModification from "./pages/user/FrmUserModification";
 import FrmAccessofPages from "./pages/user/FrmAccessofPages";
 import FrmPincodeMstrInserion from "./pages/Admin/FrmPincodeMstrInserion";
 import FrmUserLocationTracking from "./pages/Admin/FrmUserLocationTracking";
+import FrmLastLoginHistory from "./pages/Admin/FrmLastLoginHistory";
 
 const queryClient = new QueryClient();
 
@@ -102,6 +103,10 @@ function App() {
                 <Route
                   path="/User/FrmUserLocationTracking"
                   element={<FrmUserLocationTracking />}
+                />
+                <Route
+                  path="/User/FrmLastLoginHistory"
+                  element={<FrmLastLoginHistory />}
                 />
                 <Route
                   path="/User/FrmUserModification"
