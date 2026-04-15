@@ -150,7 +150,7 @@ function FrmDailyVisit() {
                             <p className="text-xs text-gray-600">Daily Avg. Collection Amt. (Collected Amt. / No. of Days)</p>
                             <p className="text-2xl font-bold text-blue-600 mt-2">₹45,230</p>
                         </div>
-                        
+
                         <div className="p-4 bg-blue-50 rounded border border-blue-100">
                             <p className="text-xs text-gray-600">Collection %</p>
                             <p className="text-2xl font-bold text-blue-600 mt-2">₹45,230</p>
