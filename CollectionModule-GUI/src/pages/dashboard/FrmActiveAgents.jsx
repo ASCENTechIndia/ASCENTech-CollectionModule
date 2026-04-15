@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Input, Select, Textarea, Button } from '../../components/ui';
 import { useNavigate } from 'react-router-dom';
@@ -19,7 +19,7 @@ function FrmActiveAgents() {
         reset,
         setValue
     } = useForm({
-        monthYear: ""
+        monthYear: getCurrentMonthYear()
     });
 
     const [summaryDetails, setSummaryDetails] = useState({});
@@ -68,6 +68,19 @@ function FrmActiveAgents() {
     const [tableData, setTableData] = useState([]);
     const [showDetails, setShowDetails] = useState(false);
 
+    function getCurrentMonthYear(padded = false) {
+    const now = new Date();
+
+    let month = now.getMonth() + 1; // 0-based → 1-based
+    const year = now.getFullYear();
+
+    if (padded) {
+        month = String(month).padStart(2, '0');
+    }
+
+    return `${month}-${year}`;
+}
+
     function formatDate(dateString) {
         const date = new Date(dateString);
 
@@ -81,10 +94,10 @@ function FrmActiveAgents() {
 
         return `${day}-${month}-${year}`;
     }
-
-    const onSubmit = async (values) => {
+    
+    const fetchData = async (monthYear) => {
         try {
-            const [month, year] = values.monthYear.split("-");
+            const [month, year] = monthYear.split("-");
             const userNo = userId.split("E")[1];
 
             const response = await apiClient.get(`/active-agents/dashboard?userId=${userNo}&month=${month}&year=${year}`, {});
@@ -124,6 +137,18 @@ function FrmActiveAgents() {
             console.error(error);
         }
     }
+
+    const onSubmit = async (values) => {
+        fetchData(values.monthYear);
+    }
+
+    useEffect(() => {
+        if (userId) {
+            const monthYearStr = getCurrentMonthYear();
+            fetchData(monthYearStr);
+        }
+    }, [userId]);
+
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
@@ -139,7 +164,7 @@ function FrmActiveAgents() {
                                 {...register('monthYear', {
                                     required: 'Month Year is required'
                                 })}
-                                defaultValue=""
+                                defaultValue="4-2026"
                                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
                             >
                                 <option value="4-2025">April 2025</option>
