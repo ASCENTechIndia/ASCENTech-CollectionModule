@@ -4,6 +4,7 @@ import { Input, Select, Textarea, Button } from '../../components/ui';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../services/apiService';
 import { useAuth } from '../../context/AuthContext';
+import { useNotification } from '../../context/NotificationContext';
 import { AlertCircle } from 'lucide-react';
 const FrmUserCreationWeb = () => {
     const {
@@ -25,6 +26,7 @@ const FrmUserCreationWeb = () => {
 
     const navigate = useNavigate();
     const { user } = useAuth();
+    const { showSuccess, showError } = useNotification();
     const brCategory = user?.brCategory;
     const userName = user?.userName;
     const [selectedUserLevel, setSelectedUserLevel] = useState("");
@@ -112,7 +114,7 @@ const FrmUserCreationWeb = () => {
             const response = await apiClient.post("/users/createWebUser", payload);
 
             if (response.data.success && response.data.data.Out_errorCode === 9999) {
-                alert(response.data.data.Out_ErrorMsg);
+                showSuccess(response.data.data.Out_ErrorMsg || 'User created successfully');
 
                 reset({
                     userLevel: "",
@@ -131,6 +133,7 @@ const FrmUserCreationWeb = () => {
             }
         } catch (error) {
             console.error(error?.response?.data);
+            showError(error?.response?.data?.message || error?.message || 'Failed to create user');
         }
     }
 
