@@ -34,6 +34,7 @@ import FrmUserModification from "./pages/user/FrmUserModification";
 import FrmPincodeMstrInserion from './pages/user/FrmPincodeMstrInserion'
 import FrmAccessofPages from './pages/user/FrmAccessofPages'
 import FrmInactiveUserAcs from './pages/user/FrmInactiveUserAcs'
+import FrmActiveAgents from './pages/dashboard/FrmActiveAgents'
 
 const queryClient = new QueryClient()
 
@@ -69,6 +70,7 @@ function App() {
               >
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/Dashboard/FrmActiveAgents" element={<FrmActiveAgents />} />
                 
                 {/* Asset Management */}
                 {/* <Route path="/assets" element={<AssetListPage />} />
@@ -102,10 +104,10 @@ function App() {
                 <Route path="/forms/three-column" element={<ThreeColumnFormPage />} />
                 
                 {/* Components Demo */}
-                <Route path="/components/alerts-modals" element={<AlertModalDemoPage />} />
-                {/* <Route path="/components/buttons" element={<ButtonDemoPage />} />
+                {/* <Route path="/components/alerts-modals" element={<AlertModalDemoPage />} /> */}
+                {/* <Route path="/components/buttons" element={<ButtonDemoPage />} /> */}
                 <Route path="/components/tabs" element={<TabsDemoPage />} />
-                <Route path="/components/charts" element={<ChartsDemoPage />} /> */}
+                <Route path="/components/charts" element={<ChartsDemoPage />} />
 
                 
 

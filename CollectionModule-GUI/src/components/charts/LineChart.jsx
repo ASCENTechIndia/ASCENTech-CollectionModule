@@ -13,7 +13,7 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
-export const LineChart = ({ title = 'Line Chart', data = null, options = {} }) => {
+export const LineChart = ({ title = '', data = null, options = {} }) => {
   const defaultData = {
     labels: ['January', 'February', 'March', 'April', 'May', 'June'],
     datasets: [
