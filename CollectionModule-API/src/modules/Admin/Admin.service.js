@@ -1,6 +1,6 @@
 const {
   getUserLocationTracking, getUserLastLogin
-} = require('./UserTracking.repo');
+} = require('./Admin.repo');
 
 async function locationTrackingService(userId, cDate) {
   return getUserLocationTracking(userId, cDate);
