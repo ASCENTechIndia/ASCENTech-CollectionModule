@@ -2,14 +2,13 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Input, Select, Textarea, Button } from "../../components/ui";
 import { useNavigate } from "react-router-dom";
-import { AlertCircle, CheckCircle, AlertTriangle, Info, X } from "lucide-react";
-import axios from "axios";
+import { AlertCircle } from "lucide-react";
 import apiClient from "../../services/apiService";
 import { useNotification } from "../../context/NotificationContext";
 
 const FrmUserCreation = () => {
   const navigate = useNavigate();
-  const { showError } = useNotification();
+  const { showSuccess, showError } = useNotification();
 
   const {
     register,
@@ -52,7 +51,54 @@ const FrmUserCreation = () => {
 
   const onSubmit = async (values) => {
     console.log(values);
+
+    try {
+      const payload = {
+        branchId: Number(values.branch),
+        in_userid: "",
+        in_username: `${values.firstName} ${values.lastName}`,
+        firstName: values.firstName,
+        lastName: values.lastName,
+        mobileNo: values.mobileNumber,
+        mdmId: values.mdmId,
+        userDeviceId: Number(values.userDevice),
+        dob: "",
+        idProofNo: "",
+        designationId: Number(values.userDesignation),
+        roleId: Number(values.userRole),
+        companyCodeId: 0,
+        workingForId: Number(values.workingFor),
+        employerId: 0,
+        empcode: "",
+        collectionTeamId: 0,
+        categoryId: 0,
+        mode: 1,
+        pincode: values.pinCode,
+        idProofType: 0,
+        compId: 0,
+        requestStatus: "A",
+      };
+
+      const res = await apiClient.post("/users/add-mobile-user", payload);
+
+      if (res?.data?.success && res?.data?.data?.Out_errorCode === 9999) {
+        showSuccess(res.data.data.Out_ErrorMsg || "User created successfully");
+        reset();
+        navigate("/User/FrmUserList");
+      } else {
+        showError(res?.data?.data?.Out_ErrorMsg || "Something went wrong");
+      }
+    } catch (error) {
+      console.error(error);
+      showError(error?.response?.data?.message || error.message || "Failed to create user. Please try again.");
+    }
   };
+
+  // Validation patterns
+  const namePattern = /^[A-Za-z]+$/; // Only English letters
+  const mobilePattern = /^[0-9]{10}$/; // 10 digits
+  const pincodePattern = /^[0-9]{6}$/; // 6 digits
+  const mdmIdPattern = /^[A-Za-z0-9]+$/; // Alphanumeric
 
   // Fetch regions based on selected zone
   const fetchRegionsByZone = async (zoneId) => {
@@ -236,14 +282,19 @@ const FrmUserCreation = () => {
         <div className="bg-white rounded-lg border border-gray-200 p-8">
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Working For */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Working For<span className="text-danger-600">*</span>
+                  Working For<span className="text-red-600">*</span>
                 </label>
                 <select
-                  {...register("workingFor")}
+                  {...register("workingFor", {
+                    required: "Working For is required",
+                  })}
                   defaultValue=""
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
+                  className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${
+                    errors.workingFor ? "border-red-500" : "border-gray-300"
+                  }`}
                 >
                   <option value="">Select Department</option>
                   {workingDropdown.map((item) => (
@@ -252,64 +303,96 @@ const FrmUserCreation = () => {
                     </option>
                   ))}
                 </select>
+                {errors.workingFor && (
+                  <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.workingFor.message}
+                  </p>
+                )}
               </div>
+
+              {/* Pincode */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Pincode<span className="text-danger-600">*</span>
+                  Pincode<span className="text-red-600">*</span>
                 </label>
                 <input
                   type="text"
                   {...register("pinCode", {
-                    required: "Pin Code is required",
+                    required: "Pincode is required",
+                    pattern: {
+                      value: pincodePattern,
+                      message: "Pincode must be exactly 6 digits",
+                    },
+                    maxLength: {
+                      value: 6,
+                      message: "Pincode must be exactly 6 digits",
+                    },
+                    minLength: {
+                      value: 6,
+                      message: "Pincode must be exactly 6 digits",
+                    },
                   })}
                   placeholder="Enter Pincode"
                   className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${
-                    errors.pinCode ? "border-danger-500" : "border-gray-300"
+                    errors.pinCode ? "border-red-500" : "border-gray-300"
                   }`}
                 />
                 {errors.pinCode && (
-                  <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
+                  <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
                     <AlertCircle className="w-4 h-4" />
                     {errors.pinCode.message}
                   </p>
                 )}
               </div>
+
+              {/* User Name */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
-                  User Name<span className="text-danger-600">*</span>
+                  User Name<span className="text-red-600">*</span>
                 </label>
                 <div className="flex flex-col md:flex-row justify-start gap-3">
-                  <div>
+                  <div className="flex-1">
                     <input
                       type="text"
                       {...register("firstName", {
                         required: "First Name is required",
+                        pattern: {
+                          value: namePattern,
+                          message:
+                            "First Name must contain only English letters",
+                        },
                       })}
                       placeholder="FIRST NAME"
                       className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${
-                        errors.pinCode ? "border-danger-500" : "border-gray-300"
+                        errors.firstName ? "border-red-500" : "border-gray-300"
                       }`}
                     />
                     {errors.firstName && (
-                      <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
+                      <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
                         <AlertCircle className="w-4 h-4" />
                         {errors.firstName.message}
                       </p>
                     )}
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <input
                       type="text"
                       {...register("lastName", {
                         required: "Last Name is required",
+                        pattern: {
+                          value: namePattern,
+                          message:
+                            "Last Name must contain only English letters",
+                        },
                       })}
                       placeholder="LAST NAME"
                       className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${
-                        errors.pinCode ? "border-danger-500" : "border-gray-300"
+                        errors.lastName ? "border-red-500" : "border-gray-300"
                       }`}
                     />
                     {errors.lastName && (
-                      <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
+                      <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
                         <AlertCircle className="w-4 h-4" />
                         {errors.lastName.message}
                       </p>
@@ -318,57 +401,85 @@ const FrmUserCreation = () => {
                 </div>
               </div>
             </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-7">
+              {/* Mobile Number */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Mobile Number<span className="text-danger-600">*</span>
+                  Mobile Number<span className="text-red-600">*</span>
                 </label>
                 <input
-                  type="text"
+                  type="tel"
                   {...register("mobileNumber", {
                     required: "Mobile Number is required",
+                    pattern: {
+                      value: mobilePattern,
+                      message: "Mobile Number must be exactly 10 digits",
+                    },
+                    maxLength: {
+                      value: 10,
+                      message: "Mobile Number must be exactly 10 digits",
+                    },
+                    minLength: {
+                      value: 10,
+                      message: "Mobile Number must be exactly 10 digits",
+                    },
                   })}
                   placeholder="Enter Mobile Number"
                   className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${
-                    errors.pinCode ? "border-danger-500" : "border-gray-300"
+                    errors.mobileNumber ? "border-red-500" : "border-gray-300"
                   }`}
                 />
                 {errors.mobileNumber && (
-                  <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
+                  <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
                     <AlertCircle className="w-4 h-4" />
                     {errors.mobileNumber.message}
                   </p>
                 )}
               </div>
+
+              {/* MDM ID */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
-                  MDM ID<span className="text-danger-600">*</span>
+                  MDM ID<span className="text-red-600">*</span>
                 </label>
                 <input
                   type="text"
                   {...register("mdmId", {
                     required: "MDM ID is required",
+                    pattern: {
+                      value: mdmIdPattern,
+                      message: "MDM ID must contain only letters and numbers",
+                    },
                   })}
                   placeholder="Enter MDM ID"
                   className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${
-                    errors.pinCode ? "border-danger-500" : "border-gray-300"
+                    errors.mdmId ? "border-red-500" : "border-gray-300"
                   }`}
                 />
                 {errors.mdmId && (
-                  <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
+                  <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
                     <AlertCircle className="w-4 h-4" />
                     {errors.mdmId.message}
                   </p>
                 )}
               </div>
+
+              {/* User Designation */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
-                  User Designation<span className="text-danger-600">*</span>
+                  User Designation<span className="text-red-600">*</span>
                 </label>
                 <select
-                  {...register("userDesignation")}
+                  {...register("userDesignation", {
+                    required: "User Designation is required",
+                  })}
                   defaultValue=""
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
+                  className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${
+                    errors.userDesignation
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
                 >
                   <option value="">Select Designation</option>
                   {designationDropdown?.length > 0 &&
@@ -378,15 +489,27 @@ const FrmUserCreation = () => {
                       </option>
                     ))}
                 </select>
+                {errors.userDesignation && (
+                  <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.userDesignation.message}
+                  </p>
+                )}
               </div>
+
+              {/* Zone */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Zone<span className="text-danger-600">*</span>
+                  Zone<span className="text-red-600">*</span>
                 </label>
                 <select
-                  {...register("zone")}
+                  {...register("zone", {
+                    required: "Zone is required",
+                  })}
                   defaultValue=""
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
+                  className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${
+                    errors.zone ? "border-red-500" : "border-gray-300"
+                  }`}
                 >
                   <option value="">Select Zone</option>
                   {zoneDropdown?.length > 0 &&
@@ -396,15 +519,27 @@ const FrmUserCreation = () => {
                       </option>
                     ))}
                 </select>
+                {errors.zone && (
+                  <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.zone.message}
+                  </p>
+                )}
               </div>
+
+              {/* Region */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Region<span className="text-danger-600">*</span>
+                  Region<span className="text-red-600">*</span>
                 </label>
                 <select
-                  {...register("region")}
+                  {...register("region", {
+                    required: "Region is required",
+                  })}
                   defaultValue=""
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
+                  className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${
+                    errors.region ? "border-red-500" : "border-gray-300"
+                  }`}
                   disabled={loadingRegions || !selectedZone}
                 >
                   <option value="">
@@ -417,15 +552,27 @@ const FrmUserCreation = () => {
                       </option>
                     ))}
                 </select>
+                {errors.region && (
+                  <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.region.message}
+                  </p>
+                )}
               </div>
+
+              {/* Branch */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Branch<span className="text-danger-600">*</span>
+                  Branch<span className="text-red-600">*</span>
                 </label>
                 <select
-                  {...register("branch")}
+                  {...register("branch", {
+                    required: "Branch is required",
+                  })}
                   defaultValue=""
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
+                  className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${
+                    errors.branch ? "border-red-500" : "border-gray-300"
+                  }`}
                   disabled={loadingBranches || !selectedRegion}
                 >
                   <option value="">
@@ -438,15 +585,27 @@ const FrmUserCreation = () => {
                       </option>
                     ))}
                 </select>
+                {errors.branch && (
+                  <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.branch.message}
+                  </p>
+                )}
               </div>
+
+              {/* User Role */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
-                  User Role<span className="text-danger-600">*</span>
+                  User Role<span className="text-red-600">*</span>
                 </label>
                 <select
-                  {...register("userRole")}
+                  {...register("userRole", {
+                    required: "User Role is required",
+                  })}
                   defaultValue=""
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
+                  className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${
+                    errors.userRole ? "border-red-500" : "border-gray-300"
+                  }`}
                 >
                   <option value="">Select User Role</option>
                   {userRoleDropdown?.length > 0 &&
@@ -456,15 +615,27 @@ const FrmUserCreation = () => {
                       </option>
                     ))}
                 </select>
+                {errors.userRole && (
+                  <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.userRole.message}
+                  </p>
+                )}
               </div>
+
+              {/* User Device */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
-                  User Device<span className="text-danger-600">*</span>
+                  User Device<span className="text-red-600">*</span>
                 </label>
                 <select
-                  {...register("userDevice")}
+                  {...register("userDevice", {
+                    required: "User Device is required",
+                  })}
                   defaultValue=""
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
+                  className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${
+                    errors.userDevice ? "border-red-500" : "border-gray-300"
+                  }`}
                 >
                   <option value="">Select User Device</option>
                   {userDeviceDropdown?.length > 0 &&
@@ -474,8 +645,15 @@ const FrmUserCreation = () => {
                       </option>
                     ))}
                 </select>
+                {errors.userDevice && (
+                  <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.userDevice.message}
+                  </p>
+                )}
               </div>
             </div>
+
             <div className="mt-7 flex justify-center gap-5">
               <button
                 type="submit"

@@ -38,7 +38,9 @@ async function usernameHandler(req, res, next) {
 async function userPincodeHandler(req, res, next) {
   try {
     const { userId } = req.query;  
+    console.log("user Id :", userId)
     const rows = await fetchUserPincodes(userId);
+    console.log("rows :", rows)
     logApiSuccess(req, 200, { count: rows?.length || 0 }, `User Pincode retrieved`);
     return res.ok(rows);
   } catch (error) {

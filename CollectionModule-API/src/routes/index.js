@@ -28,6 +28,8 @@ router.use('/master', masterRoutes);
 router.use('/users', usersRoutes);
 router.use('/assets', assetsRoutes);
 router.use('/legacy', legacyRoutes);
+router.use('/password', passwordRoutes);
+
 
 
 router.use('/assignPincode', assignPincode);

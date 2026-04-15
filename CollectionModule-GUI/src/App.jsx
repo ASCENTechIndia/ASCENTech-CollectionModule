@@ -1,13 +1,18 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
-import { AuthProvider, useAuth } from './context/AuthContext'
-import { NotificationProvider } from './context/NotificationContext'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import { NotificationProvider } from "./context/NotificationContext";
 import ToastNotifications from './components/common/ToastNotifications'
 import GlobalLoader from './components/common/GlobalLoader'
 
 // Layouts
-import MainLayout from './layouts/MainLayout'
-import AuthLayout from './layouts/AuthLayout'
+import MainLayout from "./layouts/MainLayout";
+import AuthLayout from "./layouts/AuthLayout";
 
 // Pages
 import LoginPage from './pages/auth/LoginPage'
@@ -37,19 +42,24 @@ import FrmPincodeMstrInserion from './pages/user/FrmPincodeMstrInserion'
 import FrmAccessofPages from './pages/user/FrmAccessofPages'
 import FrmInactiveUserAcs from './pages/user/FrmInactiveUserAcs'
 import FrmActiveAgents from './pages/dashboard/FrmActiveAgents'
+import FrmUserPinAllocation from "./pages/user/FrmUserPinAllocation";
+import FrmResetPassword from "./pages/user/FrmResetPassword";
+import FrmChangePassword from "./pages/user/FrmChangePassword";
+import FrmUserLocationTracking from "./pages/Admin/FrmUserLocationTracking";
+import FrmLastLoginHistory from "./pages/Admin/FrmLastLoginHistory";
 import FrmNewDashboard2 from './pages/dashboard/FrmNewDashboard2'
 import FrmDailyVisit from './pages/dashboard/FrmDailyVisit'
 
 const queryClient = new QueryClient()
 
 function ProtectedRoute({ children }) {
-  const { isAuthenticated } = useAuth()
-  
+  const { isAuthenticated } = useAuth();
+
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/login" replace />;
   }
-  
-  return children
+
+  return children;
 }
 
 function App() {
@@ -85,7 +95,6 @@ function App() {
                 <Route path="/assets/:id/edit" element={<AssetCreatePage />} /> */}
                 
                 {/* User Management */}
-                {/* <Route path="/users" element={<UserListPage />} /> */}
                 <Route path="/User/FrmUserList" element={<FrmUserList />} />
                 <Route path='/User/FrmUserCreation' element={<FrmUserCreation />} />
                 <Route path='/User/FrmUserCreationWeb' element={<FrmUserCreationWeb />} />
@@ -93,6 +102,40 @@ function App() {
                 <Route path='/FrmAccessofPages' element={<FrmAccessofPages />} />
                 <Route path="/User/FrmPincodeMstrInserion" element={<FrmPincodeMstrInserion />} />
                 <Route path="/User/FrmInactiveUserAcs" element={<FrmInactiveUserAcs />} />
+                <Route
+                  path="/User/FrmUserCreation"
+                  element={<FrmUserCreation />}
+                />
+                <Route
+                  path="/User/FrmUserCreationWeb"
+                  element={<FrmUserCreationWeb />}
+                />
+                <Route
+                  path="/User/FrmUserPinAllocation"
+                  element={<FrmUserPinAllocation />}
+                />
+                <Route
+                  path="/User/FrmResetPassword"
+                  element={<FrmResetPassword />}
+                />
+                <Route
+                  path="/User/FrmChangePassword"
+                  element={<FrmChangePassword />}
+                />
+                <Route
+                  path="/User/FrmUserLocationTracking"
+                  element={<FrmUserLocationTracking />}
+                />
+                <Route
+                  path="/User/FrmLastLoginHistory"
+                  element={<FrmLastLoginHistory />}
+                />
+                <Route
+                  path="/User/FrmUserModification"
+                  element={<FrmUserModification />}
+                />
+                <Route path="/FrmAccessofPages" element={<FrmAccessofPages />} />
+
                 
                 {/* Branch Management */}
                 {/* <Route path="/branches" element={<BranchListPage />} /> */}
@@ -100,16 +143,18 @@ function App() {
                 {/* Reports */}
                 <Route path="/reports" element={<ReportsPage />} />
                 <Route path="/reports/demo-grid" element={<DemoReportPage />} />
-                <Route path="/reports/demo-grid-tailwind" element={<DemoTailwindReportPage />} />
-                <Route path="/reports/transactions" element={<TransactionReportPage />} />
-                
-                {/* Tables & Data Grid */}
-                {/* <Route path="/tables" element={<DataGridPage />} /> */}
-                
+                <Route
+                  path="/reports/demo-grid-tailwind"
+                  element={<DemoTailwindReportPage />}
+                />
+                <Route
+                  path="/reports/transactions"
+                  element={<TransactionReportPage />}
+                />
+
                 {/* Form Examples */}
-                {/* <Route path="/forms/two-column" element={<TwoColumnFormPage />} /> */}
                 <Route path="/forms/three-column" element={<ThreeColumnFormPage />} />
-                
+
                 {/* Components Demo */}
                 {/* <Route path="/components/alerts-modals" element={<AlertModalDemoPage />} /> */}
                 {/* <Route path="/components/buttons" element={<ButtonDemoPage />} /> */}
@@ -128,7 +173,7 @@ function App() {
         </AuthProvider>
       </Router>
     </QueryClientProvider>
-  )
+  );
 }
 
-export default App
+export default App;
