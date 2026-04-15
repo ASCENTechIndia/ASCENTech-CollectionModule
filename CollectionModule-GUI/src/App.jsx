@@ -9,7 +9,7 @@ import GlobalLoader from './components/common/GlobalLoader'
 import MainLayout from "./layouts/MainLayout";
 import AuthLayout from "./layouts/AuthLayout";
 
-// Pages
+// Pages (each imported only once)
 import LoginPage from "./pages/auth/LoginPage";
 import Dashboard from "./pages/dashboard/Dashboard";
 import AssetListPage from "./pages/asset/AssetListPage";
@@ -39,6 +39,9 @@ import FrmAccessofPages from "./pages/user/FrmAccessofPages";
 import FrmPincodeMstrInserion from "./pages/Admin/FrmPincodeMstrInserion";
 import FrmUserLocationTracking from "./pages/Admin/FrmUserLocationTracking";
 import FrmLastLoginHistory from "./pages/Admin/FrmLastLoginHistory";
+import FrmInactiveUserAcs from './pages/user/FrmInactiveUserAcs'
+import FrmActiveAgents from './pages/dashboard/FrmActiveAgents'
+import FrmBucketSetter from "./pages/Admin/FrmBucketSetter"
 
 const queryClient = new QueryClient();
 
@@ -78,90 +81,45 @@ function App() {
 
                 <Route path="/Dashboard/FrmActiveAgents" element={<FrmActiveAgents />} />
                 
-                {/* Asset Management */}
+                {/* Asset Management (commented out) */}
                 {/* <Route path="/assets" element={<AssetListPage />} />
                 <Route path="/assets/create" element={<AssetCreatePage />} />
                 <Route path="/assets/:id/edit" element={<AssetCreatePage />} /> */}
                 
                 {/* User Management */}
                 <Route path="/User/FrmUserList" element={<FrmUserList />} />
-                <Route
-                  path="/User/FrmUserCreation"
-                  element={<FrmUserCreation />}
-                />
-                <Route
-                  path="/User/FrmUserCreationWeb"
-                  element={<FrmUserCreationWeb />}
-                />
-                <Route
-                  path="/User/FrmUserPinAllocation"
-                  element={<FrmUserPinAllocation />}
-                />
-                <Route
-                  path="/User/FrmResetPassword"
-                  element={<FrmResetPassword />}
-                />
-                <Route
-                  path="/User/FrmChangePassword"
-                  element={<FrmChangePassword />}
-                />
-                <Route
-                  path="/User/FrmUserLocationTracking"
-                  element={<FrmUserLocationTracking />}
-                />
-                <Route
-                  path="/User/FrmLastLoginHistory"
-                  element={<FrmLastLoginHistory />}
-                />
-                <Route
-                  path="/User/FrmUserModification"
-                  element={<FrmUserModification />}
-                />
-                <Route path="/FrmAccessofPages" element={<FrmAccessofPages />} />
-
-                <Route path='/User/FrmUserCreation' element={<FrmUserCreation />} />
-                <Route path='/User/FrmUserCreationWeb' element={<FrmUserCreationWeb />} />
+                <Route path="/User/FrmUserCreation" element={<FrmUserCreation />} />
+                <Route path="/User/FrmUserCreationWeb" element={<FrmUserCreationWeb />} />
+                <Route path="/User/FrmUserPinAllocation" element={<FrmUserPinAllocation />} />
+                <Route path="/User/FrmResetPassword" element={<FrmResetPassword />} />
+                <Route path="/User/FrmChangePassword" element={<FrmChangePassword />} />
                 <Route path="/User/FrmUserModification" element={<FrmUserModification />} />
-                <Route path='/FrmAccessofPages' element={<FrmAccessofPages />} />
+                <Route path="/FrmAccessofPages" element={<FrmAccessofPages />} />
                 <Route path="/User/FrmPincodeMstrInserion" element={<FrmPincodeMstrInserion />} />
                 <Route path="/User/FrmInactiveUserAcs" element={<FrmInactiveUserAcs />} />
                 
-                {/* Branch Management */}
+                {/* Branch Management (commented out) */}
                 {/* <Route path="/branches" element={<BranchListPage />} /> */}
                 
                 {/* Reports */}
                 <Route path="/reports" element={<ReportsPage />} />
                 <Route path="/reports/demo-grid" element={<DemoReportPage />} />
-                <Route
-                  path="/reports/demo-grid-tailwind"
-                  element={<DemoTailwindReportPage />}
-                />
-                <Route
-                  path="/reports/transactions"
-                  element={<TransactionReportPage />}
-                />
+                <Route path="/reports/demo-grid-tailwind" element={<DemoTailwindReportPage />} />
+                <Route path="/reports/transactions" element={<TransactionReportPage />} />
 
                 {/* Form Examples */}
                 <Route path="/forms/three-column" element={<ThreeColumnFormPage />} />
 
                 {/* Components Demo */}
-                <Route
-                  path="/components/alerts-modals"
-                  element={<AlertModalDemoPage />}
-                />
-
-                {/* Admin */}
-                <Route
-                  path="/Admin/FrmPincodeMstrInserion"
-                  element={<FrmPincodeMstrInserion />}
-                />
-                {/* <Route path="/components/alerts-modals" element={<AlertModalDemoPage />} /> */}
-                {/* <Route path="/components/buttons" element={<ButtonDemoPage />} /> */}
+                <Route path="/components/alerts-modals" element={<AlertModalDemoPage />} />
                 <Route path="/components/tabs" element={<TabsDemoPage />} />
                 <Route path="/components/charts" element={<ChartsDemoPage />} />
 
-                
-
+                {/* Admin */}
+                <Route path="/Admin/FrmPincodeMstrInserion" element={<FrmPincodeMstrInserion />} />
+                <Route path="/Admin/FrmUserLocationTracking" element={<FrmUserLocationTracking />} />
+                <Route path="/Admin/FrmLastLoginHistory" element={<FrmLastLoginHistory />} />
+                <Route path="/Admin/FrmBucketSetter" element={<FrmBucketSetter />} />
               </Route>
 
               {/* 404 Page */}
