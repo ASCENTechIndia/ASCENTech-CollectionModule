@@ -50,6 +50,7 @@ import FrmLastLoginHistory from "./pages/Admin/FrmLastLoginHistory";
 import FrmNewDashboard2 from './pages/dashboard/FrmNewDashboard2'
 import FrmBucketSetter from "./pages/Admin/FrmBucketSetter"
 import FrmAccountAllocationReport from "./pages/reports/FrmAccountAllocationReport"
+import FrmInactiveUserPincodeHistory from "./pages/reports/FrmInactiveUserPincodeHistory"
 
 const queryClient = new QueryClient()
 
@@ -143,6 +144,7 @@ function App() {
                 
                 {/* Report */}
                 <Route path="/Report/FrmAccountAllocationReport" element={<FrmAccountAllocationReport />} />
+                <Route path="/Report/FrmInactiveUserPincodeHistory" element={<FrmInactiveUserPincodeHistory />} />
                 
                 {/* Reports */}
                 <Route path="/reports" element={<ReportsPage />} />

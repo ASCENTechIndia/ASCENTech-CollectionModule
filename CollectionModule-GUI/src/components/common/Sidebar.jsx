@@ -65,6 +65,7 @@ const MENU_ITEMS = [
     icon: List,
     submenu: [
       { label: "Account Allocation Report", href: "/Report/FrmAccountAllocationReport" },
+      { label: "Inactive User Pincode History", href: "/Report/FrmInactiveUserPincodeHistory" },
     ],
   },
 
