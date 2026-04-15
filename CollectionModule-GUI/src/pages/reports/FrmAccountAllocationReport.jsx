@@ -48,7 +48,9 @@ const FrmAccountAllocationReport = () => {
 
   const onSubmit = async (data) => {
     // Prepare parameters
-    const startDate = data.startDate ? formatDate(new Date(data.startDate)) : "";
+    const startDate = data.startDate
+      ? formatDate(new Date(data.startDate))
+      : "";
     const endDate = data.endDate ? formatDate(new Date(data.endDate)) : "";
     const userId = data.userId || "";
     const smaType = data.smaType || "";
@@ -69,30 +71,30 @@ const FrmAccountAllocationReport = () => {
         },
       });
 
-      console.log("respo :", response)
-      const { success, data: apiData, message } = response.data;
+      console.log("respo :", response);
+      const { success, data: apiData } = response.data;
 
       if (success && apiData && apiData.length > 0) {
         // Map API response to the keys expected by GridTable
         const formattedData = apiData.map((item) => ({
           collectionAssosId: item.ASSIGNEDFOS || "",
-          zone: item.VAR_BANKDATA_ZONE || "",
-          region: item.VAR_BANKDATA_REGION || "",
+          zone: "",
+          region: "",
           branch: item.VAR_BANKDATA_BRANCH || "",
           allocationDate: item.CONTRACTALLOCATIONDATE || "",
           contractNo: item.CONTRACTNUMBER || "",
           dispositionDate: item.TRANSDAT || "",
-          smaType: item.VAR_BANKDATA_SMATYPE || "",
+          smaType: "",
         }));
         setTableData(formattedData);
         showSuccess(`Found ${formattedData.length} records`);
       } else {
         setTableData([]);
-        showError(message || "No data found");
+        showError("No data found");
       }
     } catch (err) {
       console.error("API error:", err);
-      showError(err?.response?.data?.message || err.message || "Something went wrong");
+      showError(err.message || "Something went wrong");
       setTableData([]);
     } finally {
       setLoading(false);
