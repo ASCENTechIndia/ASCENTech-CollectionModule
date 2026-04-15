@@ -40,6 +40,40 @@ async function getUserLastLogin(userId) {
   return result.rows || [];
 }
 
+async function bucketSetter() {
+  const statement = `
+    BEGIN
+      atbss.Aoup_update_typesubcase(
+        :p_output,
+        :p_updated_count
+      );
+    END;
+  `;
+
+  const binds = {
+    p_output: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    p_updated_count: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+
+  const output = result.outBinds.p_output;
+  const count = result.outBinds.p_updated_count;
+
+  let message = "";
+  if (output === 9999) {
+    message = `Mobile Bucket set Successfully. ${count} Rows Updated Successfully`;
+  } else {
+    message = `Error: Something went wrong`;
+  }
+
+  return {
+    errorcode: output,
+    p_updated_count: count,
+    message: message
+  };
+}
+
 module.exports = {
-  getUserLocationTracking, getUserLastLogin
+  getUserLocationTracking, getUserLastLogin, bucketSetter
 } 

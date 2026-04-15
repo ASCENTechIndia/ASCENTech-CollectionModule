@@ -1,12 +1,9 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
-import { AuthProvider, useAuth } from "./context/AuthContext";
-import { NotificationProvider } from "./context/NotificationContext";
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
+import { AuthProvider, useAuth } from './context/AuthContext'
+import { NotificationProvider } from './context/NotificationContext'
+import ToastNotifications from './components/common/ToastNotifications'
+import GlobalLoader from './components/common/GlobalLoader'
 
 // Layouts
 import MainLayout from "./layouts/MainLayout";
@@ -61,6 +58,7 @@ function App() {
       <Router future={{ v7_startTransition: true }}>
         <AuthProvider>
           <NotificationProvider>
+            <GlobalLoader />
             <Routes>
               {/* Auth Routes */}
               <Route element={<AuthLayout />}>
@@ -78,6 +76,13 @@ function App() {
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/dashboard" element={<Dashboard />} />
 
+                <Route path="/Dashboard/FrmActiveAgents" element={<FrmActiveAgents />} />
+                
+                {/* Asset Management */}
+                {/* <Route path="/assets" element={<AssetListPage />} />
+                <Route path="/assets/create" element={<AssetCreatePage />} />
+                <Route path="/assets/:id/edit" element={<AssetCreatePage />} /> */}
+                
                 {/* User Management */}
                 <Route path="/User/FrmUserList" element={<FrmUserList />} />
                 <Route
@@ -114,6 +119,16 @@ function App() {
                 />
                 <Route path="/FrmAccessofPages" element={<FrmAccessofPages />} />
 
+                <Route path='/User/FrmUserCreation' element={<FrmUserCreation />} />
+                <Route path='/User/FrmUserCreationWeb' element={<FrmUserCreationWeb />} />
+                <Route path="/User/FrmUserModification" element={<FrmUserModification />} />
+                <Route path='/FrmAccessofPages' element={<FrmAccessofPages />} />
+                <Route path="/User/FrmPincodeMstrInserion" element={<FrmPincodeMstrInserion />} />
+                <Route path="/User/FrmInactiveUserAcs" element={<FrmInactiveUserAcs />} />
+                
+                {/* Branch Management */}
+                {/* <Route path="/branches" element={<BranchListPage />} /> */}
+                
                 {/* Reports */}
                 <Route path="/reports" element={<ReportsPage />} />
                 <Route path="/reports/demo-grid" element={<DemoReportPage />} />
@@ -140,11 +155,19 @@ function App() {
                   path="/Admin/FrmPincodeMstrInserion"
                   element={<FrmPincodeMstrInserion />}
                 />
+                {/* <Route path="/components/alerts-modals" element={<AlertModalDemoPage />} /> */}
+                {/* <Route path="/components/buttons" element={<ButtonDemoPage />} /> */}
+                <Route path="/components/tabs" element={<TabsDemoPage />} />
+                <Route path="/components/charts" element={<ChartsDemoPage />} />
+
+                
+
               </Route>
 
               {/* 404 Page */}
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
+            <ToastNotifications />
           </NotificationProvider>
         </AuthProvider>
       </Router>

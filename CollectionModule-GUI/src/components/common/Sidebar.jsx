@@ -17,30 +17,30 @@ import { clsx } from "clsx";
 
 const MENU_ITEMS = [
   {
-    label: "Dashboard",
-    href: "/dashboard",
+    label: 'Home',
+    href: '/dashboard',
     icon: LayoutDashboard,
   },
   {
-    label: "Demo Reports",
-    href: "/reports/demo-grid-tailwind",
+    label: 'Demo Reports',
+    href: '/reports/demo-grid-tailwind',
     icon: List,
   },
 
   {
-    label: "User Management",
+    label: 'User Management',
     icon: Users,
     submenu: [
-      { label: "User Creation", href: "/User/FrmUserList" },
-      { label: "User Modification", href: "/User/FrmUserModification" },
-      { label: "Assigned Pincode FOS", href: "/User/FrmUserPinAllocation" },
-      { label: "Reset Password", href: "/User/FrmResetPassword" },
-      { label: "Change Password", href: "/User/FrmChangePassword" },
+      { label: 'User Creation', href: '/User/FrmUserList' },
+      { label: 'User Modification', href: '/User/FrmUserModification' },
+      { label: 'Pincode Master', href: '/User/FrmPincodeMstrInserion' },
+      { label: 'Inactive User Cases', href: '/User/FrmInactiveUserAcs' }
     ],
   },
+
   {
-    label: "Admin",
-    icon: Users,
+    label: "Dashboards",
+    icon: LayoutDashboard,
     submenu: [
       { label: "User Location Tracking", href: "/User/FrmUserLocationTracking" },
       { label: "Last Login History", href: "/User/FrmLastLoginHistory" },

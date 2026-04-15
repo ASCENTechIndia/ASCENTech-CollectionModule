@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { AlertCircle, Search } from 'lucide-react';
 import apiClient from '../../services/apiService';
 import { useAuth } from '../../context/AuthContext';
+import { useNotification } from '../../context/NotificationContext';
 
 const FrmUserModification = () => {
     const {
@@ -20,8 +21,8 @@ const FrmUserModification = () => {
     });
     const navigate = useNavigate();
     const { user } = useAuth();
+    const { showWarning, showSuccess, showError } = useNotification();
     const webUserId = user?.userId;
-    const [searchUserId, setSearchUserId] = useState("");
     const [userDetails, setUserDetails] = useState({});
     const [openModifyStatusModal, setOpenModifyStatusModal] = useState(false);
     const [newStatus, setNewStatus] = useState("");
@@ -29,7 +30,7 @@ const FrmUserModification = () => {
 
     const handleSearch = async (userID) => {
         if (!userID) {
-            alert("Enter User ID");
+            showWarning('Enter User ID');
             return;
         }
         try {
@@ -42,13 +43,14 @@ const FrmUserModification = () => {
             }
         } catch (error) {
             console.error(error);
+            showError(error?.response?.data?.message || error?.message || 'Failed to fetch user details');
         }
     }
 
     const handleModifyStatus = async () => {
         try {
             if (!newStatus.length) {
-                alert("Please select the status");
+                showWarning('Please select the status');
                 return;
             }
             const payload = {
@@ -60,13 +62,14 @@ const FrmUserModification = () => {
             const response = await apiClient.post("/users/modify-status-submit", payload);
 
             if (response.data.success && response.data.data.out_ErrorCode === -100) {
-                alert(response.data.data.out_ErrorMsg);
+                showSuccess(response.data.data.out_ErrorMsg || 'User status updated successfully');
                 setOpenModifyStatusModal(false);
                 setNewStatus("");
                 handleSearch(userDetails?.userId);
             }
         } catch (error) {
             console.error(error);
+            showError(error?.response?.data?.message || error?.message || 'Failed to update user status');
         }
     }
 
@@ -90,11 +93,10 @@ const FrmUserModification = () => {
                                         type="text"
                                         {...register('userId', {
                                             required: 'User ID is required',
+                                            validate: (value) => /^\d+$/.test(value) || 'User ID must contain only numbers',
                                         })}
                                         placeholder="Enter User ID"
-                                        onChange={(e) => {
-                                            setSearchUserId(e.target.value);
-                                        }}
+                                        maxLength={20}
                                         onInput={(e) => {
                                             e.target.value = e.target.value.replace(/\D/g, '');
                                         }}
@@ -114,7 +116,7 @@ const FrmUserModification = () => {
                                     <button
                                         type='button'
                                         className="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-                                        onClick={() => handleSearch(searchUserId)}
+                                        onClick={handleSubmit((values) => handleSearch(values.userId))}
                                     >
                                         <Search className="w-6 h-6 text-white" />
                                     </button>
@@ -129,22 +131,14 @@ const FrmUserModification = () => {
                             </label>
                             <input
                                 type="text"
-                                {...register('userName', {
-                                    required: 'User Name is required',
-                                })}
+                                {...register('userName')}
                                 placeholder="Enter Username"
                                 disabled={true}
-                                className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.userId
+                                className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.userName
                                     ? 'border-danger-500'
                                     : 'border-gray-300'
                                     }`}
                             />
-                            {errors.userName && (
-                                <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
-                                    <AlertCircle className="w-4 h-4" />
-                                    {errors.userName.message}
-                                </p>
-                            )}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-900 mb-2">
@@ -152,9 +146,7 @@ const FrmUserModification = () => {
                             </label>
                             <input
                                 type="text"
-                                {...register('userCurrentStatus', {
-                                    required: 'User Current Status is required',
-                                })}
+                                {...register('userCurrentStatus')}
                                 placeholder="Enter User Current Status"
                                 disabled={true}
                                 className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.userCurrentStatus
@@ -162,12 +154,6 @@ const FrmUserModification = () => {
                                     : 'border-gray-300'
                                     }`}
                             />
-                            {errors.userCurrentStatus && (
-                                <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
-                                    <AlertCircle className="w-4 h-4" />
-                                    {errors.userCurrentStatus.message}
-                                </p>
-                            )}
                         </div>
                     </div>
 
@@ -177,7 +163,7 @@ const FrmUserModification = () => {
                             className="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                             onClick={() => {
                                 if (!userDetails?.userName || !userDetails?.currentStatus) {
-                                    alert("Username and User Current Status cannot be blank");
+                                    showWarning('Username and User Current Status cannot be blank');
                                     return;
                                 }
                                 setOpenModifyStatusModal(true);
@@ -190,7 +176,7 @@ const FrmUserModification = () => {
                             className="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                             onClick={() => {
                                 if (!userDetails?.userName || !userDetails?.currentStatus) {
-                                    alert("Username and User Current Status cannot be blank");
+                                    showWarning('Username and User Current Status cannot be blank');
                                     return;
                                 }
                                 navigate("/FrmAccessofPages", {

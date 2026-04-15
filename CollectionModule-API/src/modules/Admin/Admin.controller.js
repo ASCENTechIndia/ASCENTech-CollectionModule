@@ -1,5 +1,5 @@
 const {
-  locationTrackingService, lastLoginService
+  locationTrackingService, lastLoginService, bucketSetterService
 } = require('./Admin.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -36,6 +36,25 @@ async function lastLoginHandler(req, res, next) {
   }
 }
 
+async function bucketSetterHandler(req, res, next) {
+  try {
+    const result = await bucketSetterService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: result?.p_updated_count || 0 },
+      result.message || "Bucket Setter completed"
+    );
+
+    return res.ok(result);
+
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Bucket Setter error');
+    return next(error);
+  }
+}
+
 module.exports = {
-  locationTrackingHandler, lastLoginHandler
+  locationTrackingHandler, lastLoginHandler, bucketSetterHandler
 }
