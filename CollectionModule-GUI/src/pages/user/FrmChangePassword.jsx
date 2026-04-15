@@ -3,12 +3,13 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { AlertCircle, Loader2 } from "lucide-react";
 import apiClient from "../../services/apiService";
-import Swal from "sweetalert2";
 import { useAuth } from "../../context/AuthContext";
+import { useNotification } from "../../context/NotificationContext";
 
 const FrmChangePassword = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { showSuccess, showError } = useNotification();
   const userId = user?.userId;
 
   const [usernameDisabled, setUsernameDisabled] = useState(true);
@@ -57,7 +58,7 @@ const FrmChangePassword = () => {
         }
       } catch (err) {
         console.error("Failed to fetch user info:", err);
-        alert(err.message);
+        showError(err?.response?.data?.message || err.message || "Failed to fetch user info");
       } finally {
         setUserInfoLoading(false);
       }
@@ -68,12 +69,6 @@ const FrmChangePassword = () => {
 
   const onSubmit = async (values) => {
     try {
-      Swal.fire({
-        title: "Updating...",
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading(),
-      });
-
       const payload = {
         userId: values.username,
         oldPassword: values.oldPassword,
@@ -82,38 +77,14 @@ const FrmChangePassword = () => {
 
       const res = await apiClient.post("/password/changePassword", payload);
 
-      Swal.close();
-
       if (res?.data?.success && res?.data?.data?.out_ErrorCode === 9999) {
-        Swal.fire({
-          icon: "success",
-          title: "Success!",
-          text: res.data.data.out_ErrorMsg || "Password changed successfully",
-          confirmButtonText: "OK",
-          confirmButtonColor: "#3085d6",
-          timer: 3000,
-          timerProgressBar: true,
-        }).then(() => {
-          reset();
-        });
+        showSuccess(res.data.data.out_ErrorMsg || "Password changed successfully");
+        reset();
       } else {
-        Swal.fire({
-          icon: "error",
-          title: "Error!",
-          text: res.data.data.out_ErrorMsg || "Something went wrong",
-          confirmButtonText: "OK",
-          confirmButtonColor: "#d33",
-        });
+        showError(res?.data?.data?.out_ErrorMsg || "Something went wrong");
       }
     } catch (error) {
-      Swal.close();
-      Swal.fire({
-        icon: "error",
-        title: "Error!",
-        text: error.message || "Failed to change password. Please try again.",
-        confirmButtonText: "OK",
-        confirmButtonColor: "#d33",
-      });
+      showError(error?.response?.data?.message || error.message || "Failed to change password. Please try again.");
     }
   };
 
