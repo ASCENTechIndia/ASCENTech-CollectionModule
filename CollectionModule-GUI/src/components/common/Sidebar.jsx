@@ -43,7 +43,8 @@ const MENU_ITEMS = [
     icon: LayoutDashboard,
     submenu: [
       { label: 'Active Agent Dashboard', href: '/Dashboard/FrmActiveAgents' },
-      { label: 'Disposition Report', href: '/Dashboard/FrmNewDashboard2'}
+      { label: 'Disposition Report', href: '/Dashboard/FrmNewDashboard2' },
+      { label: 'Daily Visit Report', href: '/Dashboard/FrmDailyVisit' }
     ]
   }
   // {

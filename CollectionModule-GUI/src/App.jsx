@@ -38,6 +38,7 @@ import FrmAccessofPages from './pages/user/FrmAccessofPages'
 import FrmInactiveUserAcs from './pages/user/FrmInactiveUserAcs'
 import FrmActiveAgents from './pages/dashboard/FrmActiveAgents'
 import FrmNewDashboard2 from './pages/dashboard/FrmNewDashboard2'
+import FrmDailyVisit from './pages/dashboard/FrmDailyVisit'
 
 const queryClient = new QueryClient()
 
@@ -76,6 +77,7 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/Dashboard/FrmActiveAgents" element={<FrmActiveAgents />} />
                 <Route path="/Dashboard/FrmNewDashboard2" element={<FrmNewDashboard2 />} />
+                <Route path='/Dashboard/FrmDailyVisit' element={<FrmDailyVisit />} />
                 
                 {/* Asset Management */}
                 {/* <Route path="/assets" element={<AssetListPage />} />
