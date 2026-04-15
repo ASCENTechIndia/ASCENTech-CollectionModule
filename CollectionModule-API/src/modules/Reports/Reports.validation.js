@@ -14,5 +14,11 @@ const accAllocationSchema = z.object({
   brid: z.string().optional().or(z.literal('')).nullable()
 });
 
+const dailyUploadSchema = z.object({
+  startDate: dateText,
+  endDate: dateText,
+  userId: z.string().optional().or(z.literal('')).nullable(),
+  smaType: z.string().optional().or(z.literal('')).nullable()
+});
 
-module.exports = {accAllocationSchema};
+module.exports = {accAllocationSchema, dailyUploadSchema};

@@ -1,5 +1,5 @@
 const {
-  accAllocationService
+  accAllocationService, dailyUploadedReport
 } = require('./Reports.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -23,7 +23,18 @@ async function accAllocationHandler(req, res, next) {
   }
 }
 
+async function dailyUploadedReportHandler(req, res, next) {
+  try {
+    const rows = await dailyUploadedReport(req.query);
+    logApiSuccess( req, 200, { count: rows?.length || 0 }, 'Daily Uploaded Report completed' );
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Daily Uploaded Report search error');
+    return next(error);
+  }
+}
+
 
 module.exports = {
-  accAllocationHandler
+  accAllocationHandler, dailyUploadedReportHandler
 };

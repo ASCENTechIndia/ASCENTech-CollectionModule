@@ -29,7 +29,7 @@ async function accAllocationReport(filters) {
     )
 
     SELECT 
-      MIN(a.CONTRACTALLOCATIONDATE) AS CONTRACTALLOCATIONDATE,
+  TO_CHAR(MIN(a.CONTRACTALLOCATIONDATE), 'DD/MM/YYYY') AS CONTRACTALLOCATIONDATE,
       a.CONTRACTNUMBER,
       a.assignedfos,
       f.collectableAmount,
@@ -123,6 +123,98 @@ async function accAllocationReport(filters) {
   return result.rows || [];
 }
 
+async function getDailyUploadedReport(filters) {
+  let sql = `
+    WITH cte_amt AS (
+      SELECT contractnumber,
+             ACCOUNTTYPE,
+             DIFF_IN_INT_CREDIT,
+             CAP_UNPD_INT,
+             EMI,
+             VAR_BANKDATA_DPDBUCKET,
+             CASE
+               WHEN ACCOUNTTYPE = 'DLTL' THEN EMI
+               WHEN ACCOUNTTYPE = 'CCOD' AND diff_in_int_credit > cap_unpd_int THEN diff_in_int_credit
+               WHEN ACCOUNTTYPE = 'CCOD' AND diff_in_int_credit <= cap_unpd_int THEN cap_unpd_int
+               ELSE 0
+             END AS collectableAmount
+      FROM atbss.aoup_etech_contractUploadAllocationDetails a
+      INNER JOIN atbss.aoup_etech_bankdata bd  
+        ON a.contractnumber = bd.var_bankdata_contractnum WHERE 1=1
+    ),
+
+    cte_with_rownum AS (
+      SELECT 
+       TO_CHAR(a.contractuploaddate, 'DD/MM/YYYY') AS contractuploaddate,
+        a.CONTRACTNUMBER,
+        a.EMI,
+        a.diff_in_int_credit,
+        a.cap_unpd_int,
+        f.collectableAmount,
+        f.ACCOUNTTYPE,
+        f.VAR_BANKDATA_DPDBUCKET,
+        ROW_NUMBER() OVER (
+          PARTITION BY a.CONTRACTNUMBER 
+          ORDER BY a.contractuploaddate DESC
+        ) AS rn
+      FROM atbss.aoup_etech_contractUploadAllocationDetails a
+
+      LEFT JOIN cte_amt f
+        ON a.CONTRACTNUMBER = f.contractnumber
+
+      INNER JOIN atbss.aoup_etech_bankdata bd  
+        ON a.contractnumber = bd.var_bankdata_contractnum
+
+      WHERE TRUNC(a.CONTRACTUPLOADDATE) BETWEEN 
+            TO_DATE(:startDate, 'DD-Mon-YYYY') 
+        AND TO_DATE(:endDate, 'DD-Mon-YYYY')
+  `;
+
+  const binds = {
+    startDate: filters.startDate,
+    endDate: filters.endDate
+  };
+
+  // ---------------- CONTRACT NUMBER FILTER ----------------
+  let userId = String(filters.userId || '').trim();
+
+  if (userId === 'E') {
+    userId = '';
+  }
+
+  if (userId) {
+    sql += ` AND a.CONTRACTNUMBER = :contractNumber`;
+    binds.contractNumber = userId;
+  }
+
+  // ---------------- SMA TYPE FILTER ----------------
+  if (filters.smaType) {
+    sql += ` AND UPPER(bd.VAR_BANKDATA_DPDBUCKET) = UPPER(:smaType)`;
+    binds.smaType = filters.smaType;
+  }
+
+  
+  sql += `
+    )
+
+    SELECT 
+      contractuploaddate,
+      CONTRACTNUMBER,
+      EMI,
+      diff_in_int_credit,
+      cap_unpd_int,
+      collectableAmount,
+      ACCOUNTTYPE,
+      VAR_BANKDATA_DPDBUCKET
+    FROM cte_with_rownum
+    WHERE rn = 1
+    ORDER BY CONTRACTNUMBER
+  `;
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
 module.exports = {
-  accAllocationReport
+  accAllocationReport, getDailyUploadedReport
 };
