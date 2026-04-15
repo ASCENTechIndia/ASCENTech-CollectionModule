@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { AlertCircle, Search } from "lucide-react";
 import apiClient from "../../services/apiService";
-import GridTable from "../../components/reports/GridTable";
+import TailwindGridTable from "../../components/reports/TailwindGridTable";
 
 const FrmLastLoginHistory = () => {
   // ✅ REACT HOOK FORM
@@ -53,7 +53,9 @@ const FrmLastLoginHistory = () => {
     } catch (error) {
       alert(error.message);
       console.error("Error fetching login history:", error);
-      showError(error?.response?.data?.message || "Failed to fetch login history");
+      showError(
+        error?.response?.data?.message || "Failed to fetch login history",
+      );
     }
   };
 
@@ -125,7 +127,7 @@ const FrmLastLoginHistory = () => {
             {/* TABLE */}
             <div className="mt-4">
               {tableData.length > 0 ? (
-                <GridTable
+                <TailwindGridTable
                   title="Last Login History"
                   headers={tableHeader}
                   rows={tableData}

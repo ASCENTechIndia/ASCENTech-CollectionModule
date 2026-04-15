@@ -6,6 +6,7 @@ import apiClient from "../../services/apiService";
 import { useAuth } from "../../context/AuthContext";
 import { formatDate } from "../../utils/dateFormat";
 import GridTable from "../../components/reports/GridTable";
+import TailwindGridTable from "../../components/reports/TailwindGridTable";
 import { useNotification } from "../../context/NotificationContext";
 
 const FrmAccountAllocationReport = () => {
@@ -210,7 +211,7 @@ const FrmAccountAllocationReport = () => {
         {/* Table Section */}
         {tableData.length > 0 && (
           <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <GridTable
+            <TailwindGridTable
               title="Account Allocation Report"
               headers={tableHeader}
               rows={tableData}

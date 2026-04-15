@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
 import apiClient from "../../services/apiService";
 import { formatDate } from "../../utils/dateFormat";
-import GridTable from "../../components/reports/GridTable";
+import TailwindGridTable from "../../components/reports/TailwindGridTable";
 import { useNotification } from "../../context/NotificationContext";
 
 const FrmInactiveUserPincodeHistory = () => {
@@ -33,14 +33,12 @@ const FrmInactiveUserPincodeHistory = () => {
   };
 
   const onSubmit = async (data) => {
-    // Prepare parameters
     const startDate = data.startDate
       ? formatDate(new Date(data.startDate))
       : "";
     const endDate = data.endDate ? formatDate(new Date(data.endDate)) : "";
     const userId = data.userId || "";
 
-    // Validation: startDate and endDate are already required by react-hook-form
     if (!startDate || !endDate) return;
 
     setLoading(true);
@@ -48,18 +46,13 @@ const FrmInactiveUserPincodeHistory = () => {
       const response = await apiClient.get(
         "/reports/inactiveuserPincodeHistory",
         {
-          params: {
-            startDate,
-            endDate,
-            userId,
-          },
+          params: { startDate, endDate, userId },
         },
       );
 
-      const { success, data: apiData, message } = response.data;
+      const { success, data: apiData } = response.data;
 
       if (success && apiData && apiData.length > 0) {
-        // Map API response to the keys expected by GridTable
         const formattedData = apiData.map((item) => ({
           inactiveDate: item.INACTIVE_DATE || "",
           userId: item.VAR_USER_USERID || "",
@@ -69,7 +62,7 @@ const FrmInactiveUserPincodeHistory = () => {
         showSuccess(`Found ${formattedData.length} records`);
       } else {
         setTableData([]);
-        showError(message || "No data found");
+        showError("No data found");
       }
     } catch (err) {
       console.error("API error:", err);
@@ -124,9 +117,7 @@ const FrmInactiveUserPincodeHistory = () => {
                 </label>
                 <input
                   type="date"
-                  {...register("endDate", {
-                    required: "End Date is required",
-                  })}
+                  {...register("endDate", { required: "End Date is required" })}
                   className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${
                     errors.endDate ? "border-red-500" : "border-gray-300"
                   }`}
@@ -173,10 +164,10 @@ const FrmInactiveUserPincodeHistory = () => {
           </form>
         </div>
 
-        {/* Table Section */}
+        {/* Table Section – using TailwindGridTable */}
         {tableData.length > 0 && (
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <GridTable
+          <div className="mt-6">
+            <TailwindGridTable
               title="Inactive User Pincode History"
               headers={tableHeader}
               rows={tableData}
