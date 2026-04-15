@@ -54,6 +54,7 @@ import FrmInactiveUserPincodeHistory from "./pages/reports/FrmInactiveUserPincod
 import FrmOverallPerformanceSummaryReport from "./pages/reports/FrmOverallPerformanceSummaryReport";
 import FrmVisitDoneSummaryReport from "./pages/reports/FrmVisitDoneSummaryReport";
 import FrmNonVisitDoneSummaryReport from "./pages/reports/FrmNonVisitDoneSummaryReport";
+import SMASummaryReport from "./pages/reports/SMASummaryReport";
 
 const queryClient = new QueryClient()
 
@@ -151,6 +152,7 @@ function App() {
                 <Route path="/Report/FrmOverallPerformanceSummaryReport" element={<FrmOverallPerformanceSummaryReport />} />
                 <Route path="/Report/FrmNonVisitDoneSummaryReport" element={<FrmNonVisitDoneSummaryReport />} />
                 <Route path="/Report/FrmVisitDoneSummaryReport" element={<FrmVisitDoneSummaryReport />} />
+                <Route path="/Report/SMASummaryReport" element={<SMASummaryReport />} />
                 
                 {/* Reports */}
                 <Route path="/reports" element={<ReportsPage />} />

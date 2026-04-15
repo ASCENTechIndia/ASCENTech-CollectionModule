@@ -69,6 +69,7 @@ const MENU_ITEMS = [
       { label: "Overall Performance Report", href: "/Report/FrmOverallPerformanceSummaryReport" },
       { label: "Non Visit Done Summary Report", href: "/Report/FrmNonVisitDoneSummaryReport" },
       { label: "Visit Done Summary Report", href: "/Report/FrmVisitDoneSummaryReport" },
+      { label: "SMA Summary Report", href: "/Report/SMASummaryReport" },
     ],
   },
 
