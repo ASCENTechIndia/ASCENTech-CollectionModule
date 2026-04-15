@@ -49,6 +49,7 @@ import FrmUserLocationTracking from "./pages/Admin/FrmUserLocationTracking";
 import FrmLastLoginHistory from "./pages/Admin/FrmLastLoginHistory";
 import FrmNewDashboard2 from './pages/dashboard/FrmNewDashboard2'
 import FrmBucketSetter from "./pages/Admin/FrmBucketSetter"
+import FrmAccountAllocationReport from "./pages/reports/FrmAccountAllocationReport"
 
 const queryClient = new QueryClient()
 
@@ -140,8 +141,8 @@ function App() {
                 <Route path="/FrmAccessofPages" element={<FrmAccessofPages />} />
 
                 
-                {/* Branch Management (commented out) */}
-                {/* <Route path="/branches" element={<BranchListPage />} /> */}
+                {/* Report */}
+                <Route path="/Report/FrmAccountAllocationReport" element={<FrmAccountAllocationReport />} />
                 
                 {/* Reports */}
                 <Route path="/reports" element={<ReportsPage />} />
