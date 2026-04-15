@@ -2,6 +2,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { NotificationProvider } from './context/NotificationContext'
+import ToastNotifications from './components/common/ToastNotifications'
+import GlobalLoader from './components/common/GlobalLoader'
 
 // Layouts
 import MainLayout from './layouts/MainLayout'
@@ -54,6 +56,7 @@ function App() {
       <Router future={{ v7_startTransition: true }}>
         <AuthProvider>
           <NotificationProvider>
+            <GlobalLoader />
             <Routes>
               {/* Auth Routes */}
               <Route element={<AuthLayout />}>
@@ -116,6 +119,7 @@ function App() {
               {/* 404 Page */}
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
+            <ToastNotifications />
           </NotificationProvider>
         </AuthProvider>
       </Router>

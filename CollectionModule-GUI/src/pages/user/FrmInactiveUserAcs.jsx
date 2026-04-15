@@ -4,12 +4,14 @@ import { Input, Select, Textarea, Button } from '../../components/ui';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../services/apiService';
 import { useAuth } from '../../context/AuthContext';
+import { useNotification } from '../../context/NotificationContext';
 import { AlertCircle } from 'lucide-react';
-import { DataTable, Pagination } from '../../components/tables/DataTable'
-import { useMemo } from 'react';
+import TailwindGridTable from '../../components/reports/TailwindGridTable';
 
 const FrmInactiveUserAcs = () => {
     const { user } = useAuth();
+    const { showWarning, showError } = useNotification();
+    const today = new Date().toISOString().split('T')[0]
     const {
         register,
         handleSubmit,
@@ -17,44 +19,31 @@ const FrmInactiveUserAcs = () => {
         reset
     } = useForm({
         defaultValues: {
-            startDate: new Date().toISOString().split("T")[0],
-            endDate: new Date().toISOString().split("T")[0],
+            startDate: "",
+            endDate: "",
             userId: "",
-            userDropdownId: ""
+            userDropdownId: "Inactive"
         }
     });
     const navigate = useNavigate();
 
-    const [tableHeader, setTableHeader] = useState([
+    const tableHeader = [
         {
-            key: "date",
-            label: "Unallocated Date"
+            displayName: "Unallocated Date",
+            field: "date"
         },
         {
-            key: "collectionID",
-            label: "Collection Associate ID"
+            displayName: "Collection Associate ID",
+            field: "collectionID"
         },
         {
-            key: "accountNumber",
-            label: "Account Number"
+            displayName: "Account Number",
+            field: "accountNumber"
         }
-    ])
+    ]
 
     const [tableData, setTableData] = useState([]);
     const [showTable, setShowTable] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1)
-    const rowsPerPage = 10;
-    const totalPages = Math.ceil(tableData.length / rowsPerPage)
-
-    const paginatedData = useMemo(() => {
-        const start = (currentPage - 1) * rowsPerPage
-        return tableData.slice(start, start + rowsPerPage)
-    }, [tableData, currentPage])
-
-    const handlePageChange = (page) => {
-        if (page < 1 || page > totalPages) return
-        setCurrentPage(page)
-    }
 
     function formatDate(dateString) {
         const date = new Date(dateString);
@@ -84,8 +73,8 @@ const FrmInactiveUserAcs = () => {
         try {
             // console.log(values);
             const payload = {
-                startDate: formatDate(values.startDate),
-                endDate: formatDate(values.endDate),
+                startDate: values.startDate ? formatDate(values.startDate) : '',
+                endDate: values.endDate ? formatDate(values.endDate) : '',
                 userType: values.userDropdownId
             };
             const url = `/inactive-user-accounts/search?startDate=${payload?.startDate}&endDate=${payload?.endDate}&userType=${payload?.userType}${values.userId.trim().length > 0 ? `&userId=${values.userId}` : ''}`;
@@ -99,15 +88,15 @@ const FrmInactiveUserAcs = () => {
                     accountNumber: item.VAR_BANKDATA_CONTRACTNUM
                 }))
                 setTableData(formattedTableData);
-                setCurrentPage(1);
                 setShowTable(true);
             } if (response.data.success && response.data.data.length === 0) {
-                alert("No records found");
+                showWarning("No records found");
                 setShowTable(false);
                 setTableData([]);
             }
         } catch (error) {
             console.error(error);
+            showError(error?.response?.data?.message || error?.message || 'Failed to fetch inactive user accounts');
         }
     }
     return (
@@ -132,8 +121,10 @@ const FrmInactiveUserAcs = () => {
                                 <input
                                     type="date"
                                     {...register('startDate', {
-                                        required: 'Start Date is required'
+                                        required: 'Start Date is required',
+                                        validate: (value) => !value || value <= today || 'Future dates are not allowed'
                                     })}
+                                    max={today}
                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
                                 />
                                 {errors.startDate && (
@@ -151,8 +142,10 @@ const FrmInactiveUserAcs = () => {
                                 <input
                                     type="date"
                                     {...register('endDate', {
-                                        required: 'End Date is required'
+                                        required: 'End Date is required',
+                                        validate: (value) => !value || value <= today || 'Future dates are not allowed'
                                     })}
+                                    max={today}
                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
                                 />
                                 {errors.endDate && (
@@ -185,7 +178,6 @@ const FrmInactiveUserAcs = () => {
                                     {...register('userDropdownId', {
                                         required: 'User Type is required',
                                     })}
-                                    defaultValue=""
                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
                                 >
                                     <option value="">--Select Option --</option>
@@ -219,14 +211,10 @@ const FrmInactiveUserAcs = () => {
                         </div>
                         {showTable &&
                             <div className="mt-7">
-                                <DataTable
-                                    columns={tableHeader}
-                                    data={paginatedData}
-                                />
-                                <Pagination
-                                    currentPage={currentPage}
-                                    totalPages={totalPages}
-                                    onPageChange={handlePageChange}
+                                <TailwindGridTable
+                                    title="Users Unallocated Accounts"
+                                    headers={tableHeader}
+                                    rows={tableData}
                                 />
                             </div>
                         }

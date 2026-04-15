@@ -4,6 +4,7 @@ import { Input, Select, Textarea, Button } from '../../components/ui';
 import { useNavigate, useLocation } from 'react-router-dom';
 import apiClient from '../../services/apiService';
 import { useAuth } from '../../context/AuthContext';
+import { useNotification } from '../../context/NotificationContext';
 import { AlertCircle } from 'lucide-react';
 
 function FrmAccessofPages() {
@@ -20,6 +21,7 @@ function FrmAccessofPages() {
         accessPages: []
     });
     const { user } = useAuth();
+    const { showSuccess, showError } = useNotification();
     const navigate = useNavigate();
     const location = useLocation();
     const { userID } = location.state || null;
@@ -58,6 +60,7 @@ function FrmAccessofPages() {
             }
         } catch (error) {
             console.error(error);
+            showError(error?.response?.data?.message || error?.message || 'Failed to fetch page access details');
         }
     }
 
@@ -71,7 +74,7 @@ function FrmAccessofPages() {
             const response = await apiClient.post(`/users/update-page-access`, payload);
 
             if (response.data.success && response.data.data.out_ErrorCode === "9999") {
-                alert("Page Access Updated Successfully");
+                showSuccess("Page Access Updated Successfully");
                 reset({
                     userOf: "",
                     userId: "",
@@ -82,6 +85,7 @@ function FrmAccessofPages() {
             }
         } catch (error) {
             console.error(error);
+            showError(error?.response?.data?.message || error?.message || 'Failed to update page access');
         }
     }
 

@@ -5,9 +5,11 @@ import { useNavigate } from "react-router-dom";
 import { AlertCircle, CheckCircle, AlertTriangle, Info, X } from "lucide-react";
 import axios from "axios";
 import apiClient from "../../services/apiService";
+import { useNotification } from "../../context/NotificationContext";
 
 const FrmUserCreation = () => {
   const navigate = useNavigate();
+  const { showError } = useNotification();
 
   const {
     register,
@@ -75,7 +77,7 @@ const FrmUserCreation = () => {
     } catch (error) {
       console.error("Error fetching regions:", error);
       setRegionDropdown([]);
-      alert(error.message || "Failed to fetch regions");
+      showError(error.message || "Failed to fetch regions");
     } finally {
       setLoadingRegions(false);
     }
@@ -106,7 +108,7 @@ const FrmUserCreation = () => {
     } catch (error) {
       console.error("Error fetching branches:", error);
       setBranchDropdown([]);
-      alert(error.message || "Failed to fetch branches");
+      showError(error.message || "Failed to fetch branches");
     } finally {
       setLoadingBranches(false);
     }
@@ -190,7 +192,7 @@ const FrmUserCreation = () => {
       setUserRoleDropdown([]);
       setUserDeviceDropdown([]);
       console.error(error);
-      alert(error.message);
+      showError(error.message || "Failed to fetch form options");
     }
   };
 

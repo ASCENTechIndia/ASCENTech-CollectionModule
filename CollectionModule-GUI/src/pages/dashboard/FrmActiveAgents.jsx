@@ -7,7 +7,7 @@ import apiClient from '../../services/apiService';
 import { useAuth } from '../../context/AuthContext';
 import LineChart from '../../components/charts/LineChart';
 import { Card } from '../../components/ui';
-import { DataTable } from '../../components/tables/DataTable';
+import TailwindGridTable from '../../components/reports/TailwindGridTable';
 
 function FrmActiveAgents() {
     const { user } = useAuth();
@@ -27,44 +27,44 @@ function FrmActiveAgents() {
         labels: [],
         datasets: []
     });
-    const [tableHeader, setTableHeader] = useState([
+    const tableHeader = [
         {
-            key: "zone",
-            label: "Zone Name"
+            displayName: "Zone Name",
+            field: "zone"
         },
         {
-            key: "regionName",
-            label: "Region Name",
+            displayName: "Region Name",
+            field: "regionName",
         },
         {
-            key: "branchName",
-            label: "Branch Name"
+            displayName: "Branch Name",
+            field: "branchName"
         },
         {
-            key: "collassociateId",
-            label: "Collection Associate ID"
+            displayName: "Collection Associate ID",
+            field: "collassociateId"
         },
         {
-            key: "collassociate",
-            label: "Collection Associate"
+            displayName: "Collection Associate",
+            field: "collassociate"
         },
         {
-            key: "loginDate",
-            label: "Login Date"
+            displayName: "Login Date",
+            field: "loginDate"
         },
         {
-            key: "firstLogin",
-            label: "First Login of the Day"
+            displayName: "First Login of the Day",
+            field: "firstLogin"
         },
         {
-            key: "lastLogout",
-            label: "Last Logout of the Day"
+            displayName: "Last Logout of the Day",
+            field: "lastLogout"
         },
         {
-            key: "mdmId",
-            label: "MDM ID"
+            displayName: "MDM ID",
+            field: "mdmId"
         },
-    ])
+    ]
     const [tableData, setTableData] = useState([]);
     const [showDetails, setShowDetails] = useState(false);
 
@@ -151,10 +151,8 @@ function FrmActiveAgents() {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
-
-            </div>
-            <div className="bg-white rounded-lg border border-gray-200 p-8">
+            <div className="w-full px-4 py-6">
+            <div className="w-full bg-white rounded-lg border border-gray-200 p-8">
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="flex flex-col md:flex-row gap-8 my-3">
                         <p className='font-bold'>Collection Associate</p>
@@ -207,23 +205,25 @@ function FrmActiveAgents() {
                                 </div>
                             </div>
                         </div>
-                        <div className="mt-7">
-                            <Card>
-                                <div className="p-4">
-                                    <div style={{ height: '400px', position: 'relative' }}>
-                                        <LineChart data={chartData} />
+                        <div className="mt-7 w-full">
+                            <Card className="w-full">
+                                <div className="p-4 w-full">
+                                    <div className="relative h-[400px] w-full">
+                                        <LineChart data={chartData} options={{ maintainAspectRatio: false }} />
                                     </div>
                                 </div>
                             </Card>
                         </div>
                         <div className="mt-7">
-                            <DataTable
-                                columns={tableHeader}
-                                data={tableData}
+                            <TailwindGridTable
+                                title="Active Agents"
+                                headers={tableHeader}
+                                rows={tableData}
                             />
                         </div>
                     </>
                 }
+            </div>
             </div>
 
         </div>
