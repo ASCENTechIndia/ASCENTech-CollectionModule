@@ -125,7 +125,6 @@ const FrmNonVisitDoneSummaryReport = () => {
             title="Non-Visit Done Summary"
             headers={headers}
             rows={tableData}
-            // No columnMapping needed because headers include 'field'
           />
         ) : (
           <div className="bg-white rounded-lg border border-gray-200 p-8 text-center text-gray-500">
