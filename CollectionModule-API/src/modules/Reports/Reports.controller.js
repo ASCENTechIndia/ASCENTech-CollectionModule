@@ -1,6 +1,6 @@
 const {
   accAllocationService, dailyUploadedReport, pincodeHistoryReport, nonVisitDoneService, overallPerfService,
-  visitDoneService
+  visitDoneService, smaSummaryService, zoneDropdown
 } = require('./Reports.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -80,7 +80,35 @@ async function visitDoneHandler(req, res, next) {
   }
 }
 
+async function smaSummaryHandler(req, res, next) {
+  try {
+    const rows = await smaSummaryService(req.query);
+    logApiSuccess( req, 200, { count: rows?.length || 0 }, 'SMA Summary Report completed' );
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'SMA Summary Report search error');
+    return next(error);
+  }
+}
+
+async function zoneInReportHandler(req, res, next) {
+  try {
+    const { brid, brcategory } = req.query;
+
+    const data = await getZones({ brid, brcategory });
+
+    return res.ok({
+      success: true,
+      count: data.length,
+      data
+    });
+
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
   accAllocationHandler, dailyUploadedReportHandler, pinCodeHistoryHandler, nonVisitDoneHandler, overallPerformanceHandler,
-  visitDoneHandler
+  visitDoneHandler, smaSummaryHandler, zoneInReportHandler
 };
