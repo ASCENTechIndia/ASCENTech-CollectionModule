@@ -1,6 +1,6 @@
 const {
   accAllocationReport, getDailyUploadedReport, getpincodeHistoryReport, getnonvisitdoneSummary,
-  overallPerformanceSummary, getvisitdoneSummary, getSMASummary, getZones
+  overallPerformanceSummary, getvisitdoneSummary, getSMASummary, getZones, getRegions
 } = require('./Reports.repo');
 
 async function accAllocationService(filters) {
@@ -35,7 +35,11 @@ async function zoneDropdown(filters) {
   return getZones(filters);
 }
 
+async function regionService({ zoneId }) {
+  return getRegions(zoneId);
+}
+
 module.exports = {
  accAllocationService, dailyUploadedReport, pincodeHistoryReport, nonVisitDoneService, overallPerfService,
- visitDoneService, smaSummaryService, zoneDropdown
+ visitDoneService, smaSummaryService, zoneDropdown, regionService
 };
