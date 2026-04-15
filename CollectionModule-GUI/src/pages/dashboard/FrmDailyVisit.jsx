@@ -40,7 +40,9 @@ function FrmDailyVisit() {
                 <h1 className="text-2xl font-semibold text-gray-900">Daily Visit Report</h1>
             </div>
             <div className="bg-white rounded-lg border border-gray-200 p-8">
+                <form onSubmit={handleSubmit(onSubmit)}>
 
+                </form>
             </div>
         </div>
     )
