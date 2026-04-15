@@ -9,11 +9,11 @@ function normalizeNullable(value) {
   return value;
 }
 
-
-
 async function getUserLocationTracking(userId, cDate) {
   let sql = `
-    SELECT userid, location, TO_CHAR(cdate, 'DD/MM/YYYY') AS cdate FROM etech.aoup_userLocation WHERE userid = :userId AND TRUNC(cdate) = TO_DATE(:cDate, 'YYYY-MM-DD')
+    SELECT userid, location, TO_CHAR(cdate, 'DD/MM/YYYY') AS cdate FROM etech.aoup_userLocation WHERE 
+    userid = :userId AND TRUNC(cdate) = TO_DATE(:cDate, 'YYYY-MM-DD')
+    order by ROWID DESC FETCH FIRST 1 ROW ONLY
   `;
 
   const binds = { userId: userId, cDate: cDate };
@@ -21,8 +21,25 @@ async function getUserLocationTracking(userId, cDate) {
   return result.rows || [];
 }
 
+async function getUserLastLogin(userId) {
+  let sql = `
+  SELECT * FROM (
+        SELECT 
+            userid, 
+            ip_address, 
+            TO_CHAR(log_date, 'DD-MON-YYYY HH:MI:SS AM') AS log_date 
+        FROM atbss.Aoup_user_ip_log 
+        WHERE userid = :userId
+        ORDER BY log_date DESC
+    ) 
+    WHERE ROWNUM <= 10
+  `;
 
+  const binds = { userId: userId};
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
 
 module.exports = {
-  getUserLocationTracking
+  getUserLocationTracking, getUserLastLogin
 } 

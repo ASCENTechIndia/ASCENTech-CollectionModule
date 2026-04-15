@@ -1,5 +1,5 @@
 const {
-  locationTrackingService
+  locationTrackingService, lastLoginService
 } = require('./UserTracking.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -24,7 +24,18 @@ async function locationTrackingHandler(req, res, next) {
   }
 }
 
+async function lastLoginHandler(req, res, next) {
+  try {
+     const { userId } = req.query; 
+    const rows = await lastLoginService(userId);
+    logApiSuccess(req, 200, { count: rows?.length || 0 }, `Last login data retrieved`);
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Last login error');
+    return next(error);
+  }
+}
 
 module.exports = {
-  locationTrackingHandler
+  locationTrackingHandler, lastLoginHandler
 }
