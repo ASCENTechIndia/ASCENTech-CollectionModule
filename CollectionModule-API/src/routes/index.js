@@ -11,6 +11,7 @@ const inactiveUserAccountsRoutes = require('../modules/InactiveUserAccounts/inac
 const adminRoutes = require('../modules/Admin/Admin.routes');
 const activeAgentsRoutes = require('../modules/ActiveAgents/activeAgents.routes');
 const dispositionDashboardRoutes = require('../modules/DispositionDashboard/dispositionDashboard.routes');
+const reportRoutes = require('../modules/Reports/Reports.routes');
 
 const router = express.Router();
 
@@ -35,6 +36,7 @@ router.use('/password', passwordRoutes);
 router.use('/assignPincode', assignPincode);
 router.use('/password', passwordRoutes);
 router.use('/admin', adminRoutes);
+router.use('/reports', reportRoutes);
 
 
 
