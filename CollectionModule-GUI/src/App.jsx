@@ -113,7 +113,7 @@ function App() {
                 <Route path="/components/tabs" element={<TabsDemoPage />} />
                 <Route path="/components/charts" element={<ChartsDemoPage />} />
 
-                
+                 <Route path="/admin/FrmInactiveUserAcs" element={<FrmInactiveUserAcs />} />
 
               </Route>
 
