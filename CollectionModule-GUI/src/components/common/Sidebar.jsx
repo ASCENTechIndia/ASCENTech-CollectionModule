@@ -33,6 +33,8 @@ const MENU_ITEMS = [
        submenu: [
       { label: 'User Creation', href: '/User/FrmUserList' },
       { label: 'User Modification', href: '/User/FrmUserModification' },
+         { label: 'Pincode Master', href: '/User/FrmPincodeMstrInserion' },
+      { label: 'Inactive User Cases', href: '/User/FrmInactiveUserAcs' },
       { label: "Assigned Pincode FOS", href: "/User/FrmUserPinAllocation" },
       { label: "Reset Password", href: "/User/FrmResetPassword" },
       { label: "Change Password", href: "/User/FrmChangePassword" },
