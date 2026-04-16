@@ -56,9 +56,10 @@ const MENU_ITEMS = [
     label: "Dashboards",
     icon: LayoutDashboard,
     submenu: [
-      { label: "Active Agent Dashboard", href: "/Dashboard/FrmActiveAgents" },
-      { label: "Disposition Report", href: "/Dashboard/FrmNewDashboard2" },
-    ],
+      { label: 'Active Agent Dashboard', href: '/Dashboard/FrmActiveAgents' },
+      { label: 'Disposition Report', href: '/Dashboard/FrmNewDashboard2' },
+      { label: 'Daily Visit Report', href: '/Dashboard/FrmDailyVisit' }
+    ]
   },
   {
     label: "Report",

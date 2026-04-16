@@ -42,7 +42,24 @@ export const DoughnutChart = ({ title = 'Doughnut Chart', data = null, options =
     },
   }
 
-  return <Doughnut data={data || defaultData} options={{ ...defaultOptions, ...options }} />
+  const mergedOptions = {
+  ...defaultOptions,
+  ...options,
+  plugins: {
+    ...defaultOptions.plugins,
+    ...options?.plugins,
+    legend: {
+      ...defaultOptions.plugins.legend,
+      ...options?.plugins?.legend,
+    },
+    title: {
+      ...defaultOptions.plugins.title,
+      ...options?.plugins?.title,
+    },
+  },
+};
+
+  return <Doughnut data={data || defaultData} options={mergedOptions} />
 }
 
 export default DoughnutChart

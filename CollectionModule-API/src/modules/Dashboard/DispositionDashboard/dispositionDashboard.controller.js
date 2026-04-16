@@ -1,5 +1,5 @@
 const { fetchDashboard } = require('./dispositionDashboard.service');
-const { logApiSuccess, logApiError } = require('../../utils/log');
+const { logApiSuccess, logApiError } = require('../../../utils/log');
 
 async function dispositionDashboardHandler(req, res, next) {
   try {

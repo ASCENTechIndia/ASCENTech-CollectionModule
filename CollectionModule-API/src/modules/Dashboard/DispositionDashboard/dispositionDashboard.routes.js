@@ -1,6 +1,6 @@
 const express = require('express');
-const validate = require('../../middleware/validate.middleware');
-const { authRequired } = require('../../middleware/auth');
+const validate = require('../../../middleware/validate.middleware');
+const { authRequired } = require('../../../middleware/auth');
 const { dispositionDashboardQuerySchema } = require('./dispositionDashboard.validation');
 const { dispositionDashboardHandler } = require('./dispositionDashboard.controller');
 

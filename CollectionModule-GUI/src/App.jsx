@@ -48,6 +48,7 @@ import FrmChangePassword from "./pages/user/FrmChangePassword";
 import FrmUserLocationTracking from "./pages/Admin/FrmUserLocationTracking";
 import FrmLastLoginHistory from "./pages/Admin/FrmLastLoginHistory";
 import FrmNewDashboard2 from './pages/dashboard/FrmNewDashboard2'
+import FrmDailyVisit from './pages/dashboard/FrmDailyVisit'
 import FrmBucketSetter from "./pages/Admin/FrmBucketSetter"
 import FrmAccountAllocationReport from "./pages/reports/FrmAccountAllocationReport"
 import FrmInactiveUserPincodeHistory from "./pages/reports/FrmInactiveUserPincodeHistory"
@@ -95,6 +96,7 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/Dashboard/FrmActiveAgents" element={<FrmActiveAgents />} />
                 <Route path="/Dashboard/FrmNewDashboard2" element={<FrmNewDashboard2 />} />
+                <Route path='/Dashboard/FrmDailyVisit' element={<FrmDailyVisit />} />
                 
                 {/* Asset Management (commented out) */}
                 {/* <Route path="/assets" element={<AssetListPage />} />
