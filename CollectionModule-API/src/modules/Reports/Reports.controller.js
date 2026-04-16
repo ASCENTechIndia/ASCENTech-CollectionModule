@@ -2,7 +2,7 @@ const {
   accAllocationService, dailyUploadedReport, pincodeHistoryReport, nonVisitDoneService, overallPerfService,
   visitDoneService, smaSummaryService ,
   userRouteService,
-  userRouteExportService,
+  userRouteExportService, unallocatedCasesService
 } = require('./Reports.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -47,6 +47,7 @@ async function dailyUploadedReportHandler(req, res, next) {
     return next(error);
   }
 }
+
 async function userRouteHandler(req, res, next) {
   try {
     const payload = {
@@ -137,8 +138,21 @@ async function smaSummaryHandler(req, res, next) {
   }
 }
 
+
+async function unallocatedCasesHandler(req, res, next) {
+  try {
+      const { brid, branchName  } = req.query;
+    const rows = await unallocatedCasesService({ brid, branchName });
+    logApiSuccess( req, 200, { count: rows?.length || 0 }, 'Unallocated Cases Report completed' );
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Unallocated Cases Report search error');
+    return next(error);
+  }
+}
+
 module.exports = {
   accAllocationHandler, dailyUploadedReportHandler, pinCodeHistoryHandler, nonVisitDoneHandler, overallPerformanceHandler,
   visitDoneHandler, smaSummaryHandler,  userRouteHandler,
-  userRouteExportHandler,
+  userRouteExportHandler, unallocatedCasesHandler
 };

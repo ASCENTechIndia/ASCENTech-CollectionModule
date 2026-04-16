@@ -47,5 +47,9 @@ const userRouteSchema = z.object({
   userof: z.string().trim().optional().or(z.literal('')).nullable(),
 });
 
+const unallocatedCasesSchema = z.object({
+  branchName: z.string().optional().or(z.literal('')).nullable(),
+  brid: z.string().optional().or(z.literal('')).nullable()
+});
 
-module.exports = {accAllocationSchema, dailyUploadSchema, pincodeHistorySchema, accAllocationSchema, userRouteSchema};
+module.exports = {accAllocationSchema, dailyUploadSchema, pincodeHistorySchema, unallocatedCasesSchema, userRouteSchema};
