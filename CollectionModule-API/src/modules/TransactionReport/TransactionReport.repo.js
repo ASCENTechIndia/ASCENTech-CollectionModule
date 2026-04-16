@@ -159,8 +159,8 @@ async function getTransDetailsReport(filters) {
       REPLACE(var_banktransdet_userid, 'E', '') AS userid,
       var_usermst_userfullname AS username,
       '''' || var_banktransmast_contrctno AS contractnum,
-      var_visitstatus_type AS visitststs,
-      var_feedbacktype_mst_desc AS feedback,
+      v.var_visitstatus_type AS visitststs,
+      ft.var_feedbacktype_mst_desc AS feedback,
       bd.VAR_BANKDATA_BRANCH,
       bd.VAR_BANKDATA_PRODUCTCODE,
       bd.VAR_BANKDATA_PRODUCTNM,
@@ -170,19 +170,44 @@ async function getTransDetailsReport(filters) {
         WHEN 'R' THEN 'Online' 
         ELSE var_banktransdet_paymode 
       END AS paymode,
-      num_banktransdet_paidamt AS paidamt,
-      TO_CHAR(dat_banktransdet_transdat, 'DD/MM/YYYY') AS trans_date,
-      TO_CHAR(dat_banktransdet_transdat, 'HH24:MI:SS') AS trans_time,
-      bd.VAR_BANKDATA_DPDBUCKET
+      num_banktransdet_paidamt AS paidamt, num_banktransdet_chqno instrumentno,
+      TO_CHAR(dat_banktransdet_chqdt, 'DD/MM/YYYY') AS instrumentdt, var_banktransdet_bankname as bankname,
+      var_banktransdet_authcode authcode,var_banktransdet_billdeskmsg billdeskmsg, var_banktransdet_altrphno1 mobileno, 
+      var_banktransdet_altrphno2 altrphno2, var_banktransdet_email1 email1, 
+      var_banktransdet_altrnatadd address, TO_CHAR(dat_banktransmast_ptpdt, 'DD/MM/YYYY') AS ptpdate,  TO_CHAR(dat_banktransdet_reshudt, 'DD/MM/YYYY') AS reshudt,
+      var_banktransdet_visitremark visitremark, var_banktransdet_panform panform, var_banktransdet_pandetails pandetails, var_banktransdet_settleflag settleflag,
+      TO_CHAR(dat_banktransdet_transdat, 'DD/MM/YYYY') AS trans_date, TO_CHAR(dat_banktransdet_transdat, 'HH24:MI:SS') AS trans_time, 
+    TO_CHAR(dat_banktransdet_oflntransdate, 'DD/MM/YYYY') AS oflntransdate, var_banktransdet_golocation golocation,
+   '=HYPERLINK("https://www.google.com/maps/dir/' 
+    || REPLACE(var_bankdata_cobrowsraddress, ' ', '+') 
+    || '/' 
+    || REPLACE(var_banktransdet_golocation, ';', ',') 
+    || '","View Distance")' AS Distance_URL,
+    var_tmfl_uploadflag uploadflag, var_tmfl_response response, var_creditlimit_flag authorisationflag, var_rfdmst_name rf, var_rcstatus_name incomesource,
+    CASE WHEN var_banktransdet_rcstatus = 'Y' THEN 'Yes' ELSE 'No' END rcstatus, 
+    var_banktransdet_image1 imagecode, var_btm_tractorablity tractorablity, 
+    var_btm_thirdpersonname personname, var_btm_thirdpesonaddress pesonaddress, var_btm_tractoravafseizing tractoravafseizing, var_btm_vehicleregisterno vehicleregisterno, var_btm_tractormodel tractormodel,
+    var_btm_tractormanufactureyear tractormanufactureyear, var_btm_occupation occupation, nvl(NUM_BANKDATA_COLLECTAMOUNT, 0) COLLECTAMOUNT,num_bankdata_mobileno1 custno,var_bankdata_customernm custname, replace(replace(var_bankdata_cobrowsraddress, CHR(13), ''), CHR(10), '')  customeraddress, num_usermst_email as MDM_ID,bd.VAR_BANKDATA_DPDBUCKET,
+     CASE WHEN ROW_NUMBER() OVER (PARTITION BY var_banktransmast_contrctno, TRUNC(dat_banktransdet_transdat, 'MM') ORDER BY dat_banktransdet_transdat) = 1 THEN 'Unique Transaction' ELSE 'Duplicate Transaction' END AS transaction_status,dm.DIST_VAR_BANKDATA_MATRIX_DISTANCE,var_bankdata_registrno  
     FROM atbss.aoup_etech_banktransdetails a
     LEFT JOIN atbss.aoup_etech_bankingtransmast b
       ON b.num_banktransmast_transid = a.num_banktransdet_transid
     LEFT JOIN atbss.aoup_etech_bankdata bd
       ON b.var_banktransmast_contrctno = bd.VAR_BANKDATA_CONTRACTNUM
+    LEFT OUTER JOIN atbss.aoup_etech_visitstatus_mst v ON num_visitstatus_id = var_banktransdet_visitststs
+      LEFT OUTER JOIN atbss.aoup_etech_feedbacktype_mst ON var_feedbacktype_mst_id = var_banktransdet_custfeedbck 
     INNER JOIN etech.aoup_usermst_def u
       ON u.var_usermst_userid = a.var_banktransdet_userid
     LEFT JOIN etech.view_branchdetails brview
       ON brview.brid = u.num_usermst_brid
+      LEFT OUTER JOIN etech.aoup_companycode_mas
+      ON num_companycode_id = num_usermst_compcode
+      LEFT OUTER JOIN atbss.aoup_etech_rfdmaster 
+      ON num_rfdmst_id = num_banktransdet_rfdid
+      LEFT OUTER JOIN atbss.aoup_etech_rcstatusmst ON num_rcstatus_id = num_banktransdet_rcid
+      left join atbss.aoup_etech_matrix_distince_banktransdetails dm on var_banktransdet_transidnew = dm.DIST_VAR_BANKTRANSDET_TRANSIDNEW
+     LEFT JOIN atbss.aoup_etech_feedbacktype_mst ft
+  ON ft.var_feedbacktype_mst_id = a.var_banktransdet_custfeedbck
     WHERE TRUNC(a.dat_banktransdet_transdat) BETWEEN 
           TO_DATE(:fromDate, 'DD/MM/YYYY') 
       AND TO_DATE(:toDate, 'DD/MM/YYYY')
