@@ -100,7 +100,7 @@ const FrmOverallPerformanceSummaryReport = () => {
     };
 
     fetchData();
-  }, [showError]);
+  }, []);
 
   if (loading) {
     return (

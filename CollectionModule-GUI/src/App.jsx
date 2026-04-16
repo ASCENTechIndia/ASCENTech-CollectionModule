@@ -55,6 +55,7 @@ import FrmOverallPerformanceSummaryReport from "./pages/reports/FrmOverallPerfor
 import FrmVisitDoneSummaryReport from "./pages/reports/FrmVisitDoneSummaryReport";
 import FrmNonVisitDoneSummaryReport from "./pages/reports/FrmNonVisitDoneSummaryReport";
 import SMASummaryReport from "./pages/reports/SMASummaryReport";
+import TransactionReport from "./pages/reports/TransactionReport";
 
 const queryClient = new QueryClient()
 
@@ -153,6 +154,7 @@ function App() {
                 <Route path="/Report/FrmNonVisitDoneSummaryReport" element={<FrmNonVisitDoneSummaryReport />} />
                 <Route path="/Report/FrmVisitDoneSummaryReport" element={<FrmVisitDoneSummaryReport />} />
                 <Route path="/Report/SMASummaryReport" element={<SMASummaryReport />} />
+                <Route path="/Report/TransactionReport" element={<TransactionReport />} />
                 
                 {/* Reports */}
                 <Route path="/reports" element={<ReportsPage />} />

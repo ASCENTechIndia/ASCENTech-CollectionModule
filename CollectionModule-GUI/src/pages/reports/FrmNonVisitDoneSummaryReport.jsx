@@ -98,7 +98,7 @@ const FrmNonVisitDoneSummaryReport = () => {
     };
 
     fetchData();
-  }, [showError]);
+  }, []);
 
   if (loading) {
     return (
