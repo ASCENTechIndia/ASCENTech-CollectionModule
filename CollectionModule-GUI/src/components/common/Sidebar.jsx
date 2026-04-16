@@ -73,6 +73,7 @@ const MENU_ITEMS = [
       { label: "SMA Summary Report", href: "/Report/SMASummaryReport" },
       { label: "Transaction Report", href: "/Report/TransactionReport" },
       { label: "User Route Report", href: "/Report/FrmUserRouteReport" },
+      { label: "Unallocated Cases Report", href: "/Report/FrmUnallocatedCasesReport" },
     ],
   },
 
