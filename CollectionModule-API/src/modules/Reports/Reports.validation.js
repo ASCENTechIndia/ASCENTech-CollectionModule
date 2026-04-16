@@ -14,6 +14,19 @@ const accAllocationSchema = z.object({
   brid: z.string().optional().or(z.literal('')).nullable()
 });
 
+const dailyUploadSchema = z.object({
+  startDate: dateText,
+  endDate: dateText,
+  userId: z.string().optional().or(z.literal('')).nullable(),
+  smaType: z.string().optional().or(z.literal('')).nullable()
+});
+
+const pincodeHistorySchema = z.object({
+  startDate: dateText,
+  endDate: dateText,
+  userId: z.string().optional().or(z.literal('')).nullable()
+});
+
 const boolFromQuery = z.preprocess((value) => {
   if (typeof value === 'boolean') {
     return value;
@@ -35,4 +48,4 @@ const userRouteSchema = z.object({
 });
 
 
-module.exports = { accAllocationSchema, userRouteSchema };
+module.exports = {accAllocationSchema, dailyUploadSchema, pincodeHistorySchema, accAllocationSchema, userRouteSchema};
