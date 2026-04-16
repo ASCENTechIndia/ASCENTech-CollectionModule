@@ -6,6 +6,7 @@ import apiClient from "../../services/apiService";
 import { useAuth } from "../../context/AuthContext";
 import { useNotification } from "../../context/NotificationContext";
 import TailwindGridTable from "../../components/reports/TailwindGridTable";
+import ImageViewer from "../../components/ui/ImageViewer";
 
 const TransactionReport = () => {
   const { user } = useAuth();
@@ -50,83 +51,34 @@ const TransactionReport = () => {
   const [tableData, setTableData] = useState([]);
   const [searching, setSearching] = useState(false);
 
+  // Image popup state
+  const [selectedImageCode, setSelectedImageCode] = useState(null);
+  const [showImageViewer, setShowImageViewer] = useState(false);
+
   // Watch form values
   const watchZone = watch("zone");
   const watchRegion = watch("region");
   const watchBranch = watch("branch");
 
-  // Table headers and mapping
-  const tableHeaders = [
-    { displayName: "User Id" },
-    { displayName: "Collection Associate" },
-    { displayName: "Transaction Id" },
-    { displayName: "Account Number" },
-    { displayName: "Distance KM" },
-    { displayName: "Customer Name" },
-    { displayName: "Customer RMN" },
-    { displayName: "OverDue Amount" },
-    { displayName: "Feedback" },
-    { displayName: "Payment Mode" },
-    { displayName: "Amount" },
-    { displayName: "PTP Date" },
-    { displayName: "Transaction date" },
-    { displayName: "Transaction Time" },
-    { displayName: "View" },
-    { displayName: "Geolocation" },
-    { displayName: "MDM ID" },
-    { displayName: "SMA TYPE" },
-    { displayName: "Transaction Type" },
-  ];
-
-  const tableKeyMapping = {
-    "User Id": "userId",
-    "Collection Associate": "collectionAssociate",
-    "Transaction Id": "transactionId",
-    "Account Number": "accountNumber",
-    "Distance KM": "distanceKm",
-    "Customer Name": "customerName",
-    "Customer RMN": "customerRmn",
-    "OverDue Amount": "overdueAmount",
-    Feedback: "feedback",
-    "Payment Mode": "paymentMode",
-    Amount: "amount",
-    "PTP Date": "ptpDate",
-    "Transaction date": "transactionDate",
-    "Transaction Time": "transactionTime",
-    View: "view",
-    Geolocation: "geolocation",
-    "MDM ID": "mdmId",
-    "SMA TYPE": "smaType",
-    "Transaction Type": "transactionType",
-  };
-
+  // Options for Transaction Type and SMA Type
   const transactionTypeOptions = [
-    {
-      label: "Collection",
-      value: "1",
-    },
-    {
-      label: "Feedback",
-      value: "2",
-    },
+    { label: "Collection", value: "1" },
+    { label: "Feedback", value: "2" },
   ];
   const smaTypeOptions = [
     { value: "SMA1", label: "SMA1" },
     { value: "SMA2", label: "SMA2" },
   ];
 
-  // 1. Fetch Zones on mount
+  // ---------- 1. Fetch Zones ----------
   useEffect(() => {
     const fetchZones = async () => {
       if (!brid || !brCategory) return;
-
       setLoadingZones(true);
       try {
         const res = await apiClient.get("/transactionReports/getZones", {
           params: { brid, brcategory: brCategory },
         });
-
-        console.log("zone drop :", res);
         const dataArray = res?.data?.data?.data || [];
         if (res?.data?.success && dataArray.length > 0) {
           const zones = dataArray.map((item) => ({
@@ -145,12 +97,11 @@ const TransactionReport = () => {
       }
     };
     fetchZones();
-  }, [brid, brCategory]);
+  }, [brid, brCategory, showError]);
 
-  // 2. Fetch Regions when Zone changes
+  // ---------- 2. Fetch Regions when Zone changes ----------
   useEffect(() => {
     const fetchRegions = async () => {
-      console.log("watch zone :", watchZone);
       if (!watchZone || !brid || !brCategory) {
         setRegionOptions([]);
         setValue("region", "");
@@ -163,7 +114,6 @@ const TransactionReport = () => {
         const res = await apiClient.get("/transactionReports/getRegions", {
           params: { zoneId: watchZone, brid, brcategory: brCategory },
         });
-        console.log("region drop :", res);
         const dataArray = res?.data?.data || [];
         if (res?.data?.success && dataArray.length > 0) {
           const regions = dataArray.map((item) => ({
@@ -182,9 +132,9 @@ const TransactionReport = () => {
       }
     };
     fetchRegions();
-  }, [watchZone, brid, brCategory]);
+  }, [watchZone, brid, brCategory, setValue, showError]);
 
-  // 3. Fetch Branches when Region changes
+  // ---------- 3. Fetch Branches when Region changes ----------
   useEffect(() => {
     const fetchBranches = async () => {
       if (!watchRegion || !brid || !brCategory) {
@@ -198,7 +148,6 @@ const TransactionReport = () => {
         const res = await apiClient.get("/transactionReports/getBranches", {
           params: { regionId: watchRegion, brid, brcategory: brCategory },
         });
-        console.log("branch drop :", res);
         const dataArray = res?.data?.data || [];
         if (res?.data?.success && dataArray.length > 0) {
           const branches = dataArray.map((item) => ({
@@ -217,19 +166,16 @@ const TransactionReport = () => {
       }
     };
     fetchBranches();
-  }, [watchRegion, brid, brCategory]);
+  }, [watchRegion, brid, brCategory, setValue, showError]);
 
-  // 4. Fetch Collection Associates based on most specific selection
+  // ---------- 4. Fetch Collection Associates ----------
   useEffect(() => {
     const fetchCollectionAssociates = async () => {
       let bridParam = "";
-      if (watchBranch) {
-        bridParam = watchBranch;
-      } else if (watchRegion) {
-        bridParam = watchRegion;
-      } else if (watchZone) {
-        bridParam = watchZone;
-      } else {
+      if (watchBranch) bridParam = watchBranch;
+      else if (watchRegion) bridParam = watchRegion;
+      else if (watchZone) bridParam = watchZone;
+      else {
         setCollectionOptions([]);
         setValue("collectionAssociated", "");
         return;
@@ -243,7 +189,6 @@ const TransactionReport = () => {
             params: { brid: bridParam },
           },
         );
-        console.log("collection dro :", res);
         const dataArray = res?.data?.data || [];
         if (res?.data?.success && dataArray.length > 0) {
           const associates = dataArray.map((item) => ({
@@ -262,30 +207,169 @@ const TransactionReport = () => {
       }
     };
     fetchCollectionAssociates();
-  }, [watchZone, watchRegion, watchBranch]);
+  }, [watchZone, watchRegion, watchBranch, setValue, showError]);
 
-  // 5. Search (Submit)
+  // ---------- Helper: Format YYYY-MM-DD to DD/MM/YYYY ----------
+  const formatDateForAPI = (dateStr) => {
+    if (!dateStr) return "";
+    const [year, month, day] = dateStr.split("-");
+    return `${day}/${month}/${year}`;
+  };
+
+  // ---------- 5. Search (Submit) with Real API ----------
   const onSubmit = async (data) => {
-    console.log("Search payload:", data);
+    const fromDate = data.fromDate ? formatDateForAPI(data.fromDate) : "";
+    const toDate = data.toDate ? formatDateForAPI(data.toDate) : "";
+
+    if (!fromDate || !toDate) {
+      showError("From Date and To Date are required");
+      return;
+    }
+
+    // Get zone name and region name from selected values
+    const zoneName =
+      zoneOptions.find((opt) => opt.value == data.zone)?.label || "";
+    const regionName =
+      regionOptions.find((opt) => opt.value == data.region)?.label || "";
+    const userId = data.userId || "";
+    const associateId = data.collectionAssociated || "";
+    const transtype = data.transactionType || "";
+    const smaType = data.smaType || "";
+
+    const params = {
+      fromDate,
+      toDate,
+      zoneName,
+      regionName,
+      brid: data.branch,
+      userId,
+      associateId,
+      transtype,
+      smaType,
+      userOf: 1,
+    };
+
+    // Log the params
+    console.log("API Params:", params);
+
     setSearching(true);
+    setTableData([]);
+
     try {
-      // Replace with actual search API
-      const response = { data: { success: true, data: [] } };
-      if (response.data.success && response.data.data.length) {
-        setTableData(response.data.data);
-        showSuccess(`Found ${response.data.data.length} records`);
+      const response = await apiClient.get(
+        "/transactionReports/getTransDetails",
+        {
+          params,
+        },
+      );
+      console.log("submit response ::", response);
+
+      const { success, data: apiData, message } = response.data;
+      if (success && apiData && apiData.length > 0) {
+        const mappedData = apiData.map((item) => ({
+          userId: item.USERID || "",
+          collectionAssociate: item.USERNAME || "",
+          transactionId: item.TRANSID || "",
+          accountNumber: item.CONTRACTNUM || "",
+          distanceKm: item.DIST_VAR_BANKDATA_MATRIX_DISTANCE || "",
+          customerName: item.CUSTNAME || "",
+          customerRmn: item.MOBILENO || "",
+          overdueAmount: item.COLLECTAMOUNT,
+          feedback: item.FEEDBACK || "",
+          paymentMode: item.PAYMODE || "",
+          amount: item.PAIDAMT || "",
+          ptpDate: item.PTPDATE || "",
+          transactionDate: item.TRANS_DATE || "",
+          transactionTime: item.TRANS_TIME || "",
+          view: item.IMAGECODE || "",
+          geolocation: item.GOLOCATION || "",
+          mdmId: item.MDM_ID || "",
+          smaType: item.VAR_BANKDATA_DPDBUCKET || "",
+          transactionType: item.VISITSTSTS || "",
+        }));
+        setTableData(mappedData);
+        showSuccess(`Found ${mappedData.length} records`);
       } else {
         setTableData([]);
         showError("No records found");
       }
     } catch (err) {
       console.error(err);
-      showError("Search failed");
+      showError(err?.response?.data?.message || err.message || "Search failed");
       setTableData([]);
     } finally {
       setSearching(false);
     }
   };
+
+  // ---------- Custom Handlers for View & Geolocation ----------
+  const handleViewClick = (imageCode) => {
+    console.log("image code", imageCode);
+    if (!imageCode) {
+      showError("No image available");
+      return;
+    }
+    setSelectedImageCode(imageCode);
+    setShowImageViewer(true);
+  };
+
+  const handleLocationClick = (geoLocation) => {
+    if (!geoLocation) {
+      showError("No location data");
+      return;
+    }
+    const [lat, lng] = geoLocation.split(",");
+    if (!lat || !lng || isNaN(parseFloat(lat)) || isNaN(parseFloat(lng))) {
+      showError("Invalid coordinates");
+      return;
+    }
+    window.open(`/map-view?lat=${lat.trim()}&lng=${lng.trim()}`, "_blank");
+  };
+
+  // ---------- Table Headers with Custom Renderers ----------
+  const tableHeaders = [
+    { displayName: "User Id", field: "userId" },
+    { displayName: "Collection Associate", field: "collectionAssociate" },
+    { displayName: "Transaction Id", field: "transactionId" },
+    { displayName: "Account Number", field: "accountNumber" },
+    { displayName: "Distance KM", field: "distanceKm" },
+    { displayName: "Customer Name", field: "customerName" },
+    { displayName: "Customer RMN", field: "customerRmn" },
+    { displayName: "OverDue Amount", field: "overdueAmount" },
+    { displayName: "Feedback", field: "feedback" },
+    { displayName: "Payment Mode", field: "paymentMode" },
+    { displayName: "Amount", field: "amount" },
+    { displayName: "PTP Date", field: "ptpDate" },
+    { displayName: "Transaction date", field: "transactionDate" },
+    { displayName: "Transaction Time", field: "transactionTime" },
+    {
+      displayName: "View",
+      field: "view",
+      render: (value) => (
+        <button
+          onClick={() => handleViewClick(value)}
+          className="text-blue-600 hover:text-blue-800 underline"
+        >
+          View
+        </button>
+      ),
+    },
+    {
+      displayName: "Geolocation",
+      field: "geolocation",
+      render: (value) => (
+        <button
+          onClick={() => handleLocationClick(value)}
+          className="text-blue-600 hover:text-blue-800 underline"
+        >
+          View Location
+        </button>
+      ),
+    },
+    { displayName: "MDM ID", field: "mdmId" },
+    { displayName: "SMA TYPE", field: "smaType" },
+    { displayName: "Transaction Type", field: "transactionType" },
+  ];
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -512,11 +596,17 @@ const TransactionReport = () => {
               title="Transaction Report"
               headers={tableHeaders}
               rows={tableData}
-              columnMapping={tableKeyMapping}
             />
           </div>
         )}
       </div>
+
+      {showImageViewer && (
+        <ImageViewer
+          imageCode={selectedImageCode}
+          onClose={() => setShowImageViewer(false)}
+        />
+      )}
     </div>
   );
 };

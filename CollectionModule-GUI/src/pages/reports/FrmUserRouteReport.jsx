@@ -76,8 +76,7 @@ const FrmUserRouteReport = () => {
         },
       });
 
-      console.log("response :", response);
-      const { success, data: apiData, message } = response.data;
+      const { success, data: apiData } = response.data;
 
       if (success && apiData?.rows?.length > 0) {
         setTableData(apiData.rows);
