@@ -75,7 +75,6 @@ const SMASummaryReport = () => {
       setLoading(true);
       try {
         const response = await apiClient.get("/reports/smaSummary");
-        console.log("respo ::", response);
         const { success, data, message } = response.data;
 
         if (success && data && data.length > 0) {
