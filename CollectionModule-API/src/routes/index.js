@@ -12,6 +12,7 @@ const adminRoutes = require('../modules/Admin/Admin.routes');
 const activeAgentsRoutes = require('../modules/ActiveAgents/activeAgents.routes');
 const dispositionDashboardRoutes = require('../modules/DispositionDashboard/dispositionDashboard.routes');
 const reportRoutes = require('../modules/Reports/Reports.routes');
+const dailyVisitRoutes = require('../modules/DailyVisit/dailyVisit.routes');
 
 const router = express.Router();
 
@@ -43,5 +44,6 @@ router.use('/reports', reportRoutes);
 router.use('/inactive-user-accounts', inactiveUserAccountsRoutes);
 router.use('/active-agents', activeAgentsRoutes);
 router.use('/disposition-dashboard', dispositionDashboardRoutes);
+router.use('/daily-visit', dailyVisitRoutes);
 
 module.exports = router;
