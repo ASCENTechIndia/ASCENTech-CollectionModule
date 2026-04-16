@@ -2,14 +2,13 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Input, Select, Textarea, Button } from "../../components/ui";
 import { useNavigate } from "react-router-dom";
-import { AlertCircle, CheckCircle, AlertTriangle, Info, X } from "lucide-react";
-import axios from "axios";
+import { AlertCircle } from "lucide-react";
 import apiClient from "../../services/apiService";
 import { useNotification } from "../../context/NotificationContext";
 
 const FrmUserCreation = () => {
   const navigate = useNavigate();
-  const { showError } = useNotification();
+  const { showSuccess, showError } = useNotification();
 
   const {
     register,
@@ -53,17 +52,6 @@ const FrmUserCreation = () => {
   const onSubmit = async (values) => {
     console.log(values);
 
-    // Show loading alert
-    Swal.fire({
-      title: "Processing...",
-      text: "Please wait while we create the user.",
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
-
     try {
       const payload = {
         branchId: Number(values.branch),
@@ -93,46 +81,16 @@ const FrmUserCreation = () => {
 
       const res = await apiClient.post("/users/add-mobile-user", payload);
 
-      // Close loading
-      Swal.close();
-
       if (res?.data?.success && res?.data?.data?.Out_errorCode === 9999) {
-        // Success case
-        Swal.fire({
-          icon: "success",
-          title: "Success!",
-          text: res.data.data.Out_ErrorMsg || "User created successfully",
-          confirmButtonText: "OK",
-          confirmButtonColor: "#3085d6",
-          timer: 3000,
-          timerProgressBar: true,
-        }).then(() => {
-          reset(); // Reset form
-          navigate("/User/FrmUserList"); // Navigate to user list
-        });
+        showSuccess(res.data.data.Out_ErrorMsg || "User created successfully");
+        reset();
+        navigate("/User/FrmUserList");
       } else {
-        // Error case from API
-        Swal.fire({
-          icon: "error",
-          title: "Error!",
-          text: res.data.data.Out_ErrorMsg || "Something went wrong",
-          confirmButtonText: "OK",
-          confirmButtonColor: "#d33",
-        });
+        showError(res?.data?.data?.Out_ErrorMsg || "Something went wrong");
       }
     } catch (error) {
       console.error(error);
-      // Close loading if still open
-      Swal.close();
-
-      // Network or unexpected error
-      Swal.fire({
-        icon: "error",
-        title: "Error!",
-        text: error.message || "Failed to create user. Please try again.",
-        confirmButtonText: "OK",
-        confirmButtonColor: "#d33",
-      });
+      showError(error?.response?.data?.message || error.message || "Failed to create user. Please try again.");
     }
   };
 
@@ -699,13 +657,13 @@ const FrmUserCreation = () => {
             <div className="mt-7 flex justify-center gap-5">
               <button
                 type="submit"
-                className="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
               >
                 Submit
               </button>
               <button
                 type="button"
-                className="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                 onClick={() => {
                   navigate("/dashboard");
                 }}

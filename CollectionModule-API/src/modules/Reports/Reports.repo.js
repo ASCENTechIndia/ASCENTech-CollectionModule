@@ -2,6 +2,161 @@ const oracledb = require('oracledb');
 const { executeQuery } = require('../../db/queryExecutor');
 const { executeProcedure } = require('../../db/procedureExecutor');
 
+function createError(message, statusCode = 400) {
+  const error = new Error(message);
+  error.statusCode = statusCode;
+  return error;
+}
+
+function normalizeFosId(fosId) {
+  const value = String(fosId || '').trim();
+  if (!value) {
+    return '';
+  }
+
+  return value.startsWith('E') ? value : `E${value}`;
+}
+
+function parseDateInput(dateText) {
+  const input = String(dateText || '').trim();
+  if (!input) {
+    throw createError('date is required');
+  }
+
+  const iso = input.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (iso) {
+    return `${iso[3]}-${iso[2]}-${iso[1]}`;
+  }
+
+  const dmy = input.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+  if (dmy) {
+    return `${dmy[1]}-${dmy[2]}-${dmy[3]}`;
+  }
+
+  throw createError('date must be in YYYY-MM-DD or DD-MM-YYYY format');
+}
+
+function parseCoordinates(text) {
+  const value = String(text || '').trim();
+  if (!value || !value.includes(',')) {
+    return null;
+  }
+
+  const [latRaw, lngRaw] = value.split(',');
+  const lat = Number.parseFloat(String(latRaw || '').trim());
+  const lng = Number.parseFloat(String(lngRaw || '').trim());
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return null;
+  }
+
+  return { lat, lng };
+}
+
+async function fetchDistanceText(origin, destination, apiKey) {
+  if (!apiKey) {
+    return '0 km';
+  }
+
+  const params = new URLSearchParams({
+    origins: `${origin.lat},${origin.lng}`,
+    destinations: `${destination.lat},${destination.lng}`,
+    key: apiKey,
+  });
+
+  const url = `https://maps.googleapis.com/maps/api/distancematrix/json?${params.toString()}`;
+  const response = await fetch(url, { method: 'GET' });
+
+  if (!response.ok) {
+    return 'Invalid';
+  }
+
+  const payload = await response.json();
+  if (payload?.status !== 'OK') {
+    return `Error: ${payload?.status || 'UNKNOWN'}`;
+  }
+
+  const element = payload?.rows?.[0]?.elements?.[0];
+  if (!element || element.status !== 'OK') {
+    return 'Invalid';
+  }
+
+  return element?.distance?.text || 'Invalid';
+}
+
+async function appendDistances(rows, withDistance) {
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return rows;
+  }
+
+  rows[0].Distance = withDistance ? '0 km' : '0km';
+  if (!withDistance) {
+    for (let i = 1; i < rows.length; i += 1) {
+      rows[i].Distance = '0km';
+    }
+    return rows;
+  }
+
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY || process.env.GOOGLE_DISTANCE_API_KEY || '';
+  for (let i = 1; i < rows.length; i += 1) {
+    const origin = parseCoordinates(rows[i - 1].GO_Location);
+    const destination = parseCoordinates(rows[i].GO_Location);
+
+    if (!origin || !destination) {
+      rows[i].Distance = 'Invalid';
+      continue;
+    }
+
+    // Distance Matrix call per segment to mirror legacy per-row distance behavior.
+    rows[i].Distance = await fetchDistanceText(origin, destination, apiKey);
+  }
+
+  return rows;
+}
+
+function maskAccountNumber(value) {
+  const text = String(value || '');
+  if (text.length <= 4) {
+    return text;
+  }
+
+  const tail = text.slice(-4);
+  return `${'*'.repeat(text.length - 4)}${tail}`;
+}
+
+function maskRowsForRestrictedUser(rows, userof) {
+  if (String(userof || '') !== '1') {
+    return rows;
+  }
+
+  return rows.map((row) => ({
+    ...row,
+    'Account Number': maskAccountNumber(row['Account Number']),
+  }));
+}
+
+function toCsv(rows) {
+  if (!rows.length) {
+    return '';
+  }
+
+  const headers = Object.keys(rows[0]);
+  const escape = (value) => {
+    const text = String(value ?? '');
+    if (/[",\r\n]/.test(text)) {
+      return `"${text.replace(/"/g, '""')}"`;
+    }
+    return text;
+  };
+
+  const lines = [headers.join(',')];
+  for (const row of rows) {
+    lines.push(headers.map((header) => escape(row[header])).join(','));
+  }
+
+  return lines.join('\r\n');
+}
+
 
 async function accAllocationReport(filters) {
   let sql = `
@@ -197,8 +352,91 @@ async function getSMASummary() {
   return result.rows || [];
 }
 
+async function fetchUserRouteRows(filters) {
+  const fosId = normalizeFosId(filters.fosId);
+  const selectedDate = parseDateInput(filters.date);
+
+  if (!fosId) {
+    throw createError('fosId is required');
+  }
+
+  const sql = `
+    SELECT
+      ROWNUM AS "Sr No",
+      sub."Collection Associate",
+      sub."Account Number",
+      sub."Transaction Date",
+      sub."GO_Location",
+      sub."Disposition Type",
+      sub."Visit Remark"
+    FROM (
+      SELECT
+        SUBSTR(VAR_BANKTRANSDET_USERID, 2) AS "Collection Associate",
+        b.VAR_BANKDATA_CONTRACTNUM AS "Account Number",
+        DAT_BANKTRANSDET_OFLNTRANSDATE AS "Transaction Date",
+        VAR_BANKTRANSDET_GOLOCATION AS "GO_Location",
+        VAR_FEEDBACK_NAME AS "Disposition Type",
+        VAR_BANKTRANSDET_VISITREMARK AS "Visit Remark"
+      FROM atbss.aoup_etech_banktransdetails a
+      INNER JOIN atbss.aoup_etech_bankdata b
+        ON a.num_banktransdet_upassid = b.num_bankdata_upassid
+      INNER JOIN atbss.aoup_etech_feedback_mst c
+        ON c.NUM_FEEDBACK_ID = VAR_BANKTRANSDET_CUSTFEEDBCK
+      WHERE VAR_BANKTRANSDET_USERID = :fosId
+        AND TRUNC(TO_DATE(DAT_BANKTRANSDET_OFLNTRANSDATE, 'DD-MM-YYYY HH24:MI:SS')) = TO_DATE(:selectedDate, 'DD-MM-YYYY')
+      ORDER BY TO_DATE(DAT_BANKTRANSDET_OFLNTRANSDATE, 'DD-MM-YYYY HH24:MI:SS')
+    ) sub
+  `;
+
+  const result = await executeQuery(sql, { fosId, selectedDate });
+  return result.rows || [];
+}
+
+async function getUserRouteReport(filters) {
+  const withDistance = String(filters.withDistance || '').toLowerCase() === 'true' || filters.withDistance === true || filters.withDistance === '1';
+  const rows = await fetchUserRouteRows(filters);
+
+  if (!rows.length) {
+    return {
+      rows: [],
+      coordinates: [],
+      coordinatesText: '',
+    };
+  }
+
+  await appendDistances(rows, withDistance);
+  const securedRows = maskRowsForRestrictedUser(rows, filters.userof);
+
+  const coordinates = securedRows
+    .map((row) => String(row.GO_Location || '').trim())
+    .filter(Boolean);
+
+  return {
+    rows: securedRows,
+    coordinates,
+    coordinatesText: coordinates.join('|'),
+  };
+}
+
+async function getUserRouteExport(filters) {
+  const report = await getUserRouteReport(filters);
+  const exportRows = report.rows.map((row) => {
+    const cloned = { ...row };
+    delete cloned.GO_Location;
+    return cloned;
+  });
+
+  return {
+    fileName: `User_route_${String(filters.fosId || '').trim()}_${String(filters.date || '').trim()}.csv`,
+    csv: toCsv(exportRows),
+    rowCount: exportRows.length,
+  };
+}
+
 
 module.exports = {
   accAllocationReport, getDailyUploadedReport, getpincodeHistoryReport, getnonvisitdoneSummary, overallPerformanceSummary,
-  getvisitdoneSummary, getSMASummary
+  getvisitdoneSummary, getSMASummary ,
+  getUserRouteReport,
+  getUserRouteExport,
 };

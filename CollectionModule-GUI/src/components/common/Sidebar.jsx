@@ -30,11 +30,23 @@ const MENU_ITEMS = [
   {
     label: 'User Management',
     icon: Users,
-    submenu: [
+       submenu: [
       { label: 'User Creation', href: '/User/FrmUserList' },
       { label: 'User Modification', href: '/User/FrmUserModification' },
-      { label: 'Pincode Master', href: '/User/FrmPincodeMstrInserion' },
-      { label: 'Inactive User Cases', href: '/User/FrmInactiveUserAcs' }
+         { label: 'Pincode Master', href: '/User/FrmPincodeMstrInserion' },
+      { label: 'Inactive User Cases', href: '/User/FrmInactiveUserAcs' },
+      { label: "Assigned Pincode FOS", href: "/User/FrmUserPinAllocation" },
+      { label: "Reset Password", href: "/User/FrmResetPassword" },
+      { label: "Change Password", href: "/User/FrmChangePassword" },
+    
+    ],
+  },
+   {
+    label: "Admin",
+    icon: Users,
+    submenu: [
+      { label: "User Location Tracking", href: "/User/FrmUserLocationTracking" },
+      { label: "Last Login History", href: "/User/FrmLastLoginHistory" },
     ],
   },
 
@@ -42,7 +54,9 @@ const MENU_ITEMS = [
     label: "Dashboards",
     icon: LayoutDashboard,
     submenu: [
-      { label: 'Active Agent Dashboard', href: '/Dashboard/FrmActiveAgents' }
+      { label: 'Active Agent Dashboard', href: '/Dashboard/FrmActiveAgents' },
+      { label: 'Disposition Report', href: '/Dashboard/FrmNewDashboard2' },
+      { label: 'Daily Visit Report', href: '/Dashboard/FrmDailyVisit' }
     ]
   }
   // {
