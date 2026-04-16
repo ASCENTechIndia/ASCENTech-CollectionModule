@@ -1,5 +1,6 @@
 const {
-   zoneDropdown, regionService, branchService, collAssociateService, transDetailsService
+   zoneDropdown, regionService, branchService, collAssociateService, transDetailsService,
+   getImageService
 } = require('./TransactionReport.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -73,8 +74,8 @@ async function transDetailsHandler(req, res, next) {
       userId,
       associateId,
       transtype,
-      zoneId,
-      regionId
+      zoneName,
+      regionId, userOf
     } = req.query;
 
     const data = await transDetailsService({
@@ -85,8 +86,8 @@ async function transDetailsHandler(req, res, next) {
       userId,
       associateId,
       transtype,
-      zoneId,
-      regionId
+      zoneName,
+      regionId, userOf
     });
 
     logApiSuccess(
@@ -109,6 +110,19 @@ async function transDetailsHandler(req, res, next) {
   }
 }
 
+async function getImageHandler(req, res, next) {
+  try {
+    const { imageCode } = req.query;
+    const data = await getImageService({ imageCode });
+    logApiSuccess( req, 200, { count: data.length }, 'Image received' );
+    return res.ok(data);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Image search error');
+    return next(error);
+  }
+}
+
 module.exports = {
- zoneInReportHandler, regionsHandler, branchHandler, collAssociateHandler, transDetailsHandler
+ zoneInReportHandler, regionsHandler, branchHandler, collAssociateHandler, transDetailsHandler,
+ getImageHandler
 };

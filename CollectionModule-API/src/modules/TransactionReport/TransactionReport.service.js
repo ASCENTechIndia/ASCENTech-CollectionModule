@@ -1,6 +1,6 @@
 const {
   getZones, getRegions, getBranches,
-  getCollAssociate, getTransDetailsReport
+  getCollAssociate, getTransDetailsReport, getImage
 } = require('./TransactionReport.repo');
 
 async function zoneDropdown(filters) {
@@ -19,10 +19,15 @@ async function collAssociateService({ brid }){
   return getCollAssociate({ brid });
 }
 
-async function transDetailsService({ brid }){
-  return getTransDetailsReport({ brid });
+async function transDetailsService(filters){
+  return getTransDetailsReport(filters);
 }
 
+async function getImageService({ imageCode }){
+  return getImage({ imageCode });
+}
+
+
 module.exports = {
-zoneDropdown, regionService, branchService, collAssociateService, transDetailsService
+zoneDropdown, regionService, branchService, collAssociateService, transDetailsService, getImageService
 };
