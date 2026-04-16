@@ -44,7 +44,25 @@ export const PieChart = ({ title = 'Pie Chart', data = null, options = {} }) => 
     },
   }
 
-  return <Pie data={data || defaultData} options={{ ...defaultOptions, ...options }} />
+  const mergedOptions = {
+    ...defaultOptions,
+    ...options,
+    plugins: {
+      ...defaultOptions.plugins,
+      ...options?.plugins,
+      legend: {
+        ...defaultOptions.plugins.legend,
+        ...options?.plugins?.legend,
+      },
+      title: {
+        ...defaultOptions.plugins.title,
+        ...options?.plugins?.title,
+        text: title, // ensure title always comes from prop
+      },
+    },
+  };
+
+  return <Pie data={data || defaultData} options={mergedOptions} />
 }
 
 export default PieChart

@@ -12,11 +12,13 @@ function FrmDailyVisit() {
     const { user } = useAuth();
     const { showError } = useNotification();
     const userId = user?.userId;
+    const today = new Date().toISOString().split('T')[0]
     const apiUserId = String(userId || '').replace(/\D/g, '');
     const {
         register,
         handleSubmit,
         formState: { errors },
+        watch
     } = useForm({
         defaultValues: {
             fromDate: new Date().toISOString().split('T')[0],
@@ -25,7 +27,7 @@ function FrmDailyVisit() {
     });
 
     const [dashboardData, setDashboardData] = useState(null);
-
+    const fromDateValue = watch('fromDate')
     const fetchDailyVisitData = async (values) => {
         if (!apiUserId) {
             showError('User ID is not available');
@@ -69,56 +71,60 @@ function FrmDailyVisit() {
     }
 
     const allocationChartData = useMemo(() => ({
-        labels: ['Allocated', 'Unallocated', 'Visited', 'Non Visited'],
+        labels: ['Total'],
         datasets: [{
-            label: 'Accounts',
+            label: dashboardData?.allocation?.totalAccounts === 0 ? 'No Data' : "Accounts",
             data: [
-                dashboardData?.allocation?.allocatedAccounts || 0,
-                dashboardData?.allocation?.unallocatedAccounts || 0,
-                dashboardData?.allocation?.visitedAccounts || 0,
-                dashboardData?.allocation?.nonVisitedAccounts || 0,
+                dashboardData?.allocation?.totalAccounts || 0,
+                dashboardData?.allocation?.totalAccounts === 0 ? 1 : 0
+                //     dashboardData?.allocation?.visitedAccounts || 0,
+                //     dashboardData?.allocation?.nonVisitedAccounts || 0,
             ],
             backgroundColor: [
                 'rgba(59, 130, 246, 0.7)',
-                'rgba(239, 68, 68, 0.7)',
-                'rgba(34, 197, 94, 0.7)',
-                'rgba(249, 115, 22, 0.7)',
+                'rgba(206, 210, 207, 0.7)',
+                // 'rgba(239, 68, 68, 0.7)',
+                // 'rgba(34, 197, 94, 0.7)',
+                // 'rgba(249, 115, 22, 0.7)',
             ],
             borderColor: [
                 'rgba(59, 130, 246, 1)',
-                'rgba(239, 68, 68, 1)',
-                'rgba(34, 197, 94, 1)',
-                'rgba(249, 115, 22, 1)',
+                'rgba(206, 210, 207, 1)',
+                // 'rgba(239, 68, 68, 1)',
+                // 'rgba(34, 197, 94, 1)',
+                // 'rgba(249, 115, 22, 1)',
             ],
             borderWidth: 2,
         }],
     }), [dashboardData]);
 
     const visitChartData = useMemo(() => ({
-        labels: ['Total Visits', 'Unique Visits', 'Repeated Visits'],
+        labels: ['Total Visits'],
         datasets: [{
             label: 'Visits',
             data: [
-                dashboardData?.visitStats?.totalVisits || 0,
-                dashboardData?.visitStats?.uniqueVisits || 0,
-                Math.max(0, (dashboardData?.visitStats?.totalVisits || 0) - (dashboardData?.visitStats?.uniqueVisits || 0)),
+                dashboardData?.allocation?.allocatedAccounts || 0,
+                dashboardData?.allocation?.allocatedAccounts === 0 ? 1 : 0
+                // dashboardData?.visitStats?.uniqueVisits || 0,
+                // Math.max(0, (dashboardData?.visitStats?.totalVisits || 0) - (dashboardData?.visitStats?.uniqueVisits || 0)),
             ],
             backgroundColor: [
                 'rgba(59, 130, 246, 0.7)',
-                'rgba(34, 197, 94, 0.7)',
-                'rgba(168, 85, 247, 0.7)',
+                'rgba(206, 210, 207, 0.7)',
+                // 'rgba(168, 85, 247, 0.7)',
             ],
             borderColor: [
                 'rgba(59, 130, 246, 1)',
-                'rgba(34, 197, 94, 1)',
-                'rgba(168, 85, 247, 1)',
+                'rgba(206, 210, 207, 0.7)',
+                // 'rgba(34, 197, 94, 1)',
+                // 'rgba(168, 85, 247, 1)',
             ],
             borderWidth: 2,
         }],
     }), [dashboardData]);
 
     const ptpChartData = useMemo(() => ({
-        labels: ['Assigned %', 'Remaining %'],
+        labels: ['Allocated Account %', 'Unallocated Account %'],
         datasets: [{
             label: 'FOS Assigned %',
             data: [
@@ -135,6 +141,25 @@ function FrmDailyVisit() {
             ],
             borderWidth: 2,
         }],
+    }), [dashboardData]);
+
+    const ptpConversionChartData = useMemo(() => ({
+        labels: ["PTP Conversion Percent", "Non-PTP Conversion Percent"],
+        datasets: [{
+            data: [
+                dashboardData?.ptp?.ptpConversionPercent || 0,
+                Math.max(0, 100 - (dashboardData?.allocation?.ptpConversionPercent || 0)),
+            ],
+            backgroundColor: [
+                'rgba(59, 130, 246, 0.7)',
+                'rgba(229, 231, 235, 0.9)',
+            ],
+            borderColor: [
+                'rgba(59, 130, 246, 1)',
+                'rgba(209, 213, 219, 1)',
+            ],
+            borderWidth: 2,
+        }]
     }), [dashboardData]);
 
     const formatNumber = (value) => {
@@ -163,15 +188,15 @@ function FrmDailyVisit() {
         },
         {
             label: 'Total Collectable Amount',
-            value: formatNumber(dashboardData?.collection?.totalCollectableAmount),
+            value: `₹ ${formatNumber(dashboardData?.collection?.totalCollectableAmount)}`,
         },
         {
             label: 'Total Collected Amount',
-            value: formatNumber(dashboardData?.collection?.totalCollectedAmount),
+            value: `₹ ${formatNumber(dashboardData?.collection?.totalCollectedAmount)}`,
         },
         {
             label: 'Daily Avg. Collection Amt. (Collected Amt. / No. of Days)',
-            value: formatNumber(dashboardData?.collection?.dailyAvgCollectionAmount),
+            value: `₹ ${formatNumber(dashboardData?.collection?.dailyAvgCollectionAmount)}`,
         },
         {
             label: 'Collection %',
@@ -205,7 +230,7 @@ function FrmDailyVisit() {
         },
         {
             label: 'Total Full Paid Amount',
-            value: formatNumber(dashboardData?.fullPayment?.totalFullPaidAmount),
+            value: `₹ ${formatNumber(dashboardData?.fullPayment?.totalFullPaidAmount)}`,
         },
         {
             label: 'Total Full Paid Account',
@@ -230,8 +255,9 @@ function FrmDailyVisit() {
                                 type="date"
                                 {...register('fromDate', {
                                     required: 'From Date is required',
-                                    // validate: (value) => !value || value <= today || 'Future dates are not allowed'
+                                    validate: (value) => !value || value <= today || 'Future dates are not allowed'
                                 })}
+                                max={today}
                                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
                             />
                             {errors.fromDate && (
@@ -249,8 +275,35 @@ function FrmDailyVisit() {
                                 type="date"
                                 {...register('toDate', {
                                     required: 'To Date is required',
-                                    // validate: (value) => !value || value <= today || 'Future dates are not allowed'
+                                    validate: (value) => {
+                                        if (!value) return true;
+
+                                        // future date check
+                                        if (value > today) {
+                                            return 'Future dates are not allowed';
+                                        }
+
+                                        if (!fromDateValue) return true;
+
+                                        const from = new Date(fromDateValue);
+                                        const to = new Date(value);
+
+                                        const diffTime = to - from;
+                                        const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+                                        if (diffDays < 0) {
+                                            return 'To Date cannot be before From Date';
+                                        }
+
+                                        if (diffDays > 30) {
+                                            return 'To Date cannot be more than 30 days after From Date';
+                                        }
+
+                                        return true;
+                                    },
+
                                 })}
+                                max={today}
                                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
                             />
                             {errors.toDate && (
@@ -273,16 +326,28 @@ function FrmDailyVisit() {
                         <div className='w-full'>
                             <Card className="w-full">
                                 <div className="p-4 w-full">
-                                    <div className="relative w-full">
+                                    <div className="relative w-full flex items-center justify-center">
+
                                         <DoughnutChart
                                             title='Total Accounts'
                                             data={allocationChartData}
                                             options={{
                                                 plugins: {
-                                                    legend: { position: 'right' },
+                                                    legend: { position: 'bottom' },
                                                 },
                                             }}
                                         />
+
+                                        {/* 🔥 Center Text Overlay */}
+                                        <div className="absolute flex flex-col items-center justify-center pointer-events-none">
+                                            <span className="text-xs text-gray-500">
+                                                Total
+                                            </span>
+                                            <span className="text-xl font-bold text-gray-900">
+                                                {dashboardData?.allocation?.totalAccounts || 0}
+                                            </span>
+                                        </div>
+
                                     </div>
                                 </div>
                             </Card>
@@ -290,16 +355,25 @@ function FrmDailyVisit() {
                         <div className='w-full'>
                             <Card className="w-full">
                                 <div className="p-4 w-full">
-                                    <div className="relative w-full">
+                                    <div className="relative w-full flex items-center justify-center">
                                         <DoughnutChart
                                             title='Visit Details'
                                             data={visitChartData}
                                             options={{
                                                 plugins: {
-                                                    legend: { position: 'right' },
+                                                    legend: { position: 'bottom' },
                                                 },
                                             }}
                                         />
+
+                                        <div className="absolute flex flex-col items-center justify-center pointer-events-none">
+                                            <span className="text-xs text-gray-500">
+                                                Total
+                                            </span>
+                                            <span className="text-xl font-bold text-gray-900">
+                                                {dashboardData?.allocation?.allocatedAccounts || 0}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </Card>
@@ -347,7 +421,11 @@ function FrmDailyVisit() {
                             <Card className="w-full">
                                 <div className="p-4 w-full">
                                     <div className="relative w-full">
-                                        <PieChart title="PTP Conversion Percent" />
+                                        <PieChart title="PTP Conversion Percent" data={ptpConversionChartData} options={{
+                                            plugins: {
+                                                legend: { position: 'bottom' },
+                                            },
+                                        }} />
                                     </div>
                                 </div>
                             </Card>
