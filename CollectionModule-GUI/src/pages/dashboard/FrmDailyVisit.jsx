@@ -381,22 +381,25 @@ function FrmDailyVisit() {
                                         if (value > today) {
                                             return 'Future dates are not allowed';
                                         }
-                                        if (toDateValue && value > toDateValue) {
-                                            return 'From Date cannot be after To Date';
-                                        }
+                                        // if (toDateValue && value > toDateValue) {
+                                        //     return 'From Date cannot be after To Date';
+                                        // }
                                         return true;
                                     }
                                 })}
                                 max={today}
                                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
                             />
-                            {errors.fromDate && (
+                            
+                        </div>
+                        {/* {errors.fromDate && <div>
+                                {errors.fromDate && (
                                 <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
                                     <AlertCircle className="w-4 h-4" />
                                     {errors.fromDate.message}
                                 </p>
                             )}
-                        </div>
+                        </div>} */}
                         <div className="flex flex-col md:flex-row gap-3">
                             <label className="block text-sm font-medium text-gray-900">
                                 To Date:
@@ -438,14 +441,14 @@ function FrmDailyVisit() {
                             />
 
                         </div>
-                        <div>
+                        {errors.toDate && <div>
                             {errors.toDate && (
                                 <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
                                     <AlertCircle className="w-4 h-4" />
                                     {errors.toDate.message}
                                 </p>
                             )}
-                        </div>
+                        </div>}
                         <div>
                             <button
                                 type="submit"
