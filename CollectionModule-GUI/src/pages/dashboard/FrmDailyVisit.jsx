@@ -7,6 +7,8 @@ import DoughnutChart from '../../components/charts/DoughnutChart';
 import PieChart from '../../components/charts/PieChart';
 import { Card } from '../../components/ui';
 import { useNotification } from '../../context/NotificationContext';
+import SunburstChart from '../../components/charts/SunburstChart';
+import { color } from 'echarts';
 
 function FrmDailyVisit() {
     const { user } = useAuth();
@@ -172,6 +174,115 @@ function FrmDailyVisit() {
         }]
     }), [dashboardData]);
 
+
+
+    const sunburstChartData = useMemo(() => ([
+        {
+            name: "Total",
+            value: dashboardData?.dispositionSunburst?.total,
+            itemStyle: {
+                color: 'rgba(254, 254, 254, 1)'
+            },
+            children: [
+                {
+                    name: "REACTED",
+                    value: dashboardData?.dispositionSunburst?.reacted,
+                    itemStyle: {
+                        color: 'rgba(251, 226, 130, 1)'
+                        // color: 'rgba(212, 185, 209, 1)'
+                    },
+                    children: [
+                        {
+                            name: "PAYMENT\nCOLLECTED",
+                            value: dashboardData?.dispositionSunburst?.collected,
+                            itemStyle: { color: 'rgba(247, 181, 165, 1)' },
+                            children: [
+                                {
+                                    name: "FULLY\nPAID",
+                                    value: dashboardData?.dispositionSunburst?.cf,
+                                    itemStyle: {
+                                        color: 'rgba(167, 103, 182, 1)'
+                                    }
+                                },
+                                {
+                                    name: "PARTIALLY\nPAID",
+                                    value: dashboardData?.dispositionSunburst?.cp,
+                                    itemStyle: {
+                                        color: 'rgba(160, 165, 187, 1)'
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            name: "PROMISE\nTO\nPAY",
+                            value: dashboardData?.dispositionSunburst?.ptp,
+                            itemStyle: {
+                                color: 'rgba(212, 185, 209, 1)',
+                            },
+                            children: [
+                                {
+                                    name: "PTP\nON\nFIELD",
+                                    value: dashboardData?.dispositionSunburst?.ptp,
+                                    itemStyle: {
+                                        color: 'rgba(183, 157, 178, 1)'
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            name: "BORROWER\nABUSIVE/\nAGGRESSIVE",
+                            value: dashboardData?.dispositionSunburst?.borrowerAbusive,
+                            itemStyle: {
+                                color: 'rgba(155, 136, 129, 1)'
+                            },
+                            children: [
+                                {
+                                    name: "BORROWER\nABUSIVE/\nAGGRESSIVE",
+                                    value: dashboardData?.dispositionSunburst?.borrowerAbusive,
+                                    itemStyle: {
+                                        color: 'rgba(155, 136, 129, 1)'
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "NON-\nCONTACT\nABLE",
+                    value: dashboardData?.dispositionSunburst?.nonReacted,
+                    itemStyle: {
+                        color: 'rgb(249, 75, 75)'
+                    },
+                    children: [
+                        {
+                            name: "INVALID",
+                            value: dashboardData?.dispositionSunburst?.invalid,
+                            itemStyle: {
+                                color: 'rgba(250, 198, 4, 1)'
+                            },
+                            children: [
+                                {
+                                    name: "SHORT ADDRESS",
+                                    value: dashboardData?.dispositionSunburst?.shortAddress,
+                                    itemStyle: {
+                                        color: 'rgba(146, 211, 227, 1)'
+                                    }
+                                },
+                                {
+                                    name: "ADDRESS NOT FOUND",
+                                    value: dashboardData?.dispositionSunburst?.addressNotFound,
+                                    itemStyle: {
+                                        color: 'rgba(63, 200, 200, 1)'
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]))
+
     const formatNumber = (value) => {
         const num = Number(value || 0);
         return num.toLocaleString('en-IN', { maximumFractionDigits: 2 });
@@ -256,7 +367,7 @@ function FrmDailyVisit() {
             <div className="bg-white rounded-lg border border-gray-200 p-8">
                 <p className="font-semibold text-md">Select Date Range</p>
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <div className="grid grid-cols-1 grid-cols-3 gap-6 items-center mt-7">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-center mt-7">
                         <div className="flex flex-col md:flex-row gap-3">
                             <label className="block text-sm font-medium text-gray-900">
                                 From Date:
@@ -325,6 +436,9 @@ function FrmDailyVisit() {
                                 max={today}
                                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
                             />
+
+                        </div>
+                        <div>
                             {errors.toDate && (
                                 <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
                                     <AlertCircle className="w-4 h-4" />
@@ -457,6 +571,13 @@ function FrmDailyVisit() {
                                 <p className="text-2xl font-bold text-blue-600 mt-2">{card.value}</p>
                             </div>
                         ))}
+                    </div>
+                    <div className="mt-7">
+                        <Card className="w-full">
+                            <div className="p-4 w-full">
+                                <SunburstChart data={sunburstChartData} total={dashboardData?.dispositionSunburst?.total} />
+                            </div>
+                        </Card>
                     </div>
                 </form>
             </div>
