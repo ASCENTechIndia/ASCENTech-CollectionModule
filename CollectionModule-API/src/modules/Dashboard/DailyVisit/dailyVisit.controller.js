@@ -1,5 +1,5 @@
 const { fetchDailyVisitDashboard } = require('./dailyVisit.service');
-const { logApiSuccess, logApiError } = require('../../utils/log');
+const { logApiSuccess, logApiError } = require('../../../utils/log');
 
 async function dailyVisitDashboardHandler(req, res, next) {
   try {

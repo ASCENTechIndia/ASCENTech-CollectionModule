@@ -1,5 +1,5 @@
 const express = require('express');
-const validate = require('../../middleware/validate.middleware');
+const validate = require('../../../middleware/validate.middleware');
 const { dailyVisitQuerySchema } = require('./dailyVisit.validation');
 const { dailyVisitDashboardHandler } = require('./dailyVisit.controller');
 

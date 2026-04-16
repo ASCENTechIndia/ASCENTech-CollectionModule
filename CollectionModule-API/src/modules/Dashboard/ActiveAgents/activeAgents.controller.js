@@ -1,5 +1,5 @@
 const { fetchDashboard } = require('./activeAgents.service');
-const { logApiSuccess, logApiError } = require('../../utils/log');
+const { logApiSuccess, logApiError } = require('../../../utils/log');
 
 async function activeAgentsDashboardHandler(req, res, next) {
   try {

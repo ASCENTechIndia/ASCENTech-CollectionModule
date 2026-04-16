@@ -1,6 +1,6 @@
 const oracledb = require('oracledb');
-const { executeQuery } = require('../../db/queryExecutor');
-const { executeProcedure } = require('../../db/procedureExecutor');
+const { executeQuery } = require('../../../db/queryExecutor');
+const { executeProcedure } = require('../../../db/procedureExecutor');
 
 const MONTH_MAP = {
   JAN: 0,

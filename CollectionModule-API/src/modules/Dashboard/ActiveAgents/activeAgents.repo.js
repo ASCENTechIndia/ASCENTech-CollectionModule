@@ -1,4 +1,4 @@
-const { executeQuery } = require('../../db/queryExecutor');
+const { executeQuery } = require('../../../db/queryExecutor');
 
 function normalizeUserId(userId) {
   const value = String(userId || '').trim();
