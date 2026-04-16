@@ -577,6 +577,9 @@ function FrmDailyVisit() {
                     </div>
                     <div className="mt-7">
                         <Card className="w-full">
+                            <div className="flex justify-center items-center mt-2">
+                                <span className="font-semibold text-md">Sunburst Chart</span>
+                            </div>
                             <div className="p-4 w-full">
                                 <SunburstChart data={sunburstChartData} total={dashboardData?.dispositionSunburst?.total} />
                             </div>
