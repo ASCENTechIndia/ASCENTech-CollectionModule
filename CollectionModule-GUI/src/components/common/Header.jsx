@@ -57,7 +57,7 @@ export function Header({ onMenuClick }) {
 
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center font-bold text-primary-600 shadow-md">
-              CB
+              CM
             </div>
             <h1 className="text-lg font-bold text-white hidden sm:block">
              Collection Module

@@ -11,6 +11,9 @@ import {
   Bell,
   ChevronDown,
   List,
+  ClipboardList,
+  Settings,
+  User
 } from "lucide-react";
 import { useState } from "react";
 import { clsx } from "clsx";
@@ -23,7 +26,7 @@ const MENU_ITEMS = [
   },
    {
     label: "Dashboards",
-    icon: LayoutDashboard,
+    icon: BarChart3,
     submenu: [
       { label: 'Active Agent Dashboard', href: '/Dashboard/FrmActiveAgents' },
       { label: 'Disposition Report', href: '/Dashboard/FrmNewDashboard2' },
@@ -46,7 +49,7 @@ const MENU_ITEMS = [
   },
   {
     label: "Admin",
-    icon: Users,
+    icon: User,
     submenu: [
       {
         label: "User Location Tracking",
@@ -58,7 +61,7 @@ const MENU_ITEMS = [
   },
   {
     label: "Report",
-    icon: List,
+    icon: ClipboardList,
     submenu: [
       { label: "Account Allocation Report", href: "/Report/FrmAccountAllocationReport" },
       { label: "Inactive User Pincode History", href: "/Report/FrmInactiveUserPincodeHistory" },
