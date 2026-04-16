@@ -50,6 +50,7 @@ import FrmLastLoginHistory from "./pages/Admin/FrmLastLoginHistory";
 import FrmNewDashboard2 from './pages/dashboard/FrmNewDashboard2'
 import FrmDailyVisit from './pages/dashboard/FrmDailyVisit'
 import FrmBucketSetter from "./pages/Admin/FrmBucketSetter"
+import FrmUnassignCases from "./pages/user/FrmUnassignCases"
 import FrmAccountAllocationReport from "./pages/reports/FrmAccountAllocationReport"
 import FrmInactiveUserPincodeHistory from "./pages/reports/FrmInactiveUserPincodeHistory"
 import FrmOverallPerformanceSummaryReport from "./pages/reports/FrmOverallPerformanceSummaryReport";
@@ -141,6 +142,10 @@ function App() {
                 <Route
                   path="/Admin/FrmBucketSetter"
                   element={<FrmBucketSetter />}
+                />
+                <Route
+                  path="/Admin/FrmUnassignCases"
+                  element={<FrmUnassignCases />}
                 />
                 <Route
                   path="/User/FrmUserModification"

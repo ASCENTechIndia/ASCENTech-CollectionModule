@@ -1,5 +1,9 @@
 const {
-  locationTrackingService, lastLoginService, bucketSetterService
+  locationTrackingService,
+  lastLoginService,
+  bucketSetterService,
+  getUsersWithPincodesService,
+  unassignCasesService,
 } = require('./Admin.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -55,6 +59,46 @@ async function bucketSetterHandler(req, res, next) {
   }
 }
 
+async function getUsersWithPincodesHandler(req, res, next) {
+  try {
+    const users = await getUsersWithPincodesService();
+    logApiSuccess(
+      req,
+      200,
+      { count: users?.length || 0 },
+      'Users with pincodes retrieved'
+    );
+    return res.ok(users);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Get users with pincodes error');
+    return next(error);
+  }
+}
+
+async function unassignCasesHandler(req, res, next) {
+  try {
+    const result = await unassignCasesService(req.body.selections);
+    logApiSuccess(
+      req,
+      200,
+      { rowsUpdated: result?.totalRowsUpdated || 0 },
+      result.message || 'Cases unassigned'
+    );
+    return res.ok(result);
+  } catch (error) {
+    const status = error?.statusCode || 500;
+    if (status < 500) {
+      return res.fail(error.message, status);
+    }
+    logApiError(req, 500, error.message, 'Unassign cases error');
+    return next(error);
+  }
+}
+
 module.exports = {
-  locationTrackingHandler, lastLoginHandler, bucketSetterHandler
+  locationTrackingHandler,
+  lastLoginHandler,
+  bucketSetterHandler,
+  getUsersWithPincodesHandler,
+  unassignCasesHandler,
 }

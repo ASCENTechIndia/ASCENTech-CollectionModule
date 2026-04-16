@@ -60,7 +60,7 @@ export function Header({ onMenuClick }) {
               CB
             </div>
             <h1 className="text-lg font-bold text-white hidden sm:block">
-              Center Bank Of India
+             Collection Module
             </h1>
           </div>
         </div>

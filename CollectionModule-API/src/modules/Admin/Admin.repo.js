@@ -74,6 +74,84 @@ async function bucketSetter() {
   };
 }
 
+async function fetchUsersWithPincodes() {
+  const sql = `
+    SELECT
+      var_bankdata_userid,
+      num_bankdata_pincode
+    FROM atbss.aoup_etech_bankdata
+    WHERE var_bankdata_userid IS NOT NULL
+    GROUP BY var_bankdata_userid, num_bankdata_pincode
+    ORDER BY var_bankdata_userid, num_bankdata_pincode
+  `;
+
+  const result = await executeQuery(sql);
+  const rows = result.rows || [];
+
+  const grouped = {};
+  for (const row of rows) {
+    const userId = String(row.VAR_BANKDATA_USERID || '').trim();
+    const pincode = String(row.NUM_BANKDATA_PINCODE || '').trim();
+
+    if (!userId) continue;
+    if (!grouped[userId]) {
+      grouped[userId] = [];
+    }
+    if (pincode && !grouped[userId].includes(pincode)) {
+      grouped[userId].push(pincode);
+    }
+  }
+
+  const users = Object.entries(grouped).map(([userId, pincodes]) => ({
+    userId,
+    pincodes: pincodes.sort(),
+  }));
+
+  return users;
+}
+
+async function unassignCases(selections) {
+  if (!selections || !Array.isArray(selections) || selections.length === 0) {
+    throw new Error('No selections provided');
+  }
+
+  let totalRowsUpdated = 0;
+
+  for (const selection of selections) {
+    const userId = String(selection.userId || '').trim();
+    const pincodes = Array.isArray(selection.pincodes) ? selection.pincodes : [];
+
+    if (!userId || pincodes.length === 0) continue;
+
+    const pincodePlaceholders = pincodes.map((_, i) => `:pincode${i}`).join(',');
+    const binds = { userId };
+
+    pincodes.forEach((pincode, i) => {
+      binds[`pincode${i}`] = String(pincode).trim();
+    });
+
+    const updateSql = `
+      UPDATE atbss.aoup_etech_bankdata
+      SET VAR_BANKDATA_USERID = NULL
+      WHERE VAR_BANKDATA_USERID = :userId
+        AND num_bankdata_pincode IN (${pincodePlaceholders})
+    `;
+
+    const updateResult = await executeQuery(updateSql, binds);
+    totalRowsUpdated += Number(updateResult?.rowsAffected || 0);
+  }
+
+  return {
+    success: true,
+    totalRowsUpdated,
+    message: `Cases unassigned successfully! Total rows updated: ${totalRowsUpdated}`,
+  };
+}
+
 module.exports = {
-  getUserLocationTracking, getUserLastLogin, bucketSetter
+  getUserLocationTracking,
+  getUserLastLogin,
+  bucketSetter,
+  fetchUsersWithPincodes,
+  unassignCases,
 } 
