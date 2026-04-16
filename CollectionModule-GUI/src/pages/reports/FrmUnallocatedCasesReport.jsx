@@ -36,11 +36,10 @@ const FrmUnallocatedCasesReport = () => {
 
         const { success, data, message } = response.data;
         if (success && data && data.length > 0) {
-          // Map API response to table fields (adjust keys as per actual response)
           const mappedData = data.map((item) => ({
-            accountNumber: item.var_bankdata_contractnum || "",
-            pincode: item.num_bankdata_pincode || "",
-            reason: item.reason || "",
+            accountNumber: item.VAR_BANKDATA_CONTRACTNUM || "",
+            pincode: item.NUM_BANKDATA_PINCODE || "",
+            reason: item.REASON || "",
           }));
           setTableData(mappedData);
           showSuccess(`Found ${mappedData.length} records`);
