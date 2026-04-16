@@ -197,51 +197,8 @@ async function getSMASummary() {
   return result.rows || [];
 }
 
-async function getZones(filters) {
-  let sql = `
-    SELECT 
-      a.var_companymst_branchname brname,
-      a.num_companymst_compid brid
-    FROM etech.aoup_companymst_def a
-    LEFT JOIN etech.aoup_companymst_def c 
-      ON c.num_companymst_compid = a.num_companymst_parentid
-    WHERE 1=1 `;
-  const binds = {};
-  const brcategory = Number(filters?.brcategory);
-  const brid = Number(filters?.brid);
-  if (brcategory === 0 || brcategory === 1) {
-    sql += ` AND a.num_companymst_brcategory = 3`;
-  }
-  else if (brcategory === 2) {
-    sql += `
-      AND a.num_companymst_brcategory = 3
-      AND a.num_companymst_compid = :brid`;
-    binds.brid = brid;
-  }
-  else if (brcategory === 4) {
-    sql += `
-      AND c.num_companymst_brcategory = 3
-      AND a.num_companymst_compid = :brid`;
-    binds.brid = brid;
-  }
-  else {
-    sql += ` AND a.num_companymst_brcategory = 3`;
-  }
-  sql += ` ORDER BY a.var_companymst_branchname`;
-  const result = await executeQuery(sql, binds);
-  return result.rows || [];
-}
-
-async function getRegions(zoneId) {
-  let sql = `
-       select var_companymst_branchname, num_companymst_compid from etech.aoup_companymst_def  
-    where num_companymst_parentid = :zoneId and num_companymst_brcategory = 4 order by var_companymst_branchname`;
-  const binds = {zoneId : (zoneId)};
-  const result = await executeQuery(sql, binds);
-  return result.rows || [];
-}
 
 module.exports = {
   accAllocationReport, getDailyUploadedReport, getpincodeHistoryReport, getnonvisitdoneSummary, overallPerformanceSummary,
-  getvisitdoneSummary, getSMASummary, getZones, getRegions
+  getvisitdoneSummary, getSMASummary
 };
