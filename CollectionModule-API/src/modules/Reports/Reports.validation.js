@@ -27,8 +27,5 @@ const pincodeHistorySchema = z.object({
   userId: z.string().optional().or(z.literal('')).nullable()
 });
 
-const regionSchema = z.object({
-  zoneId: z.string().min(1, "zoneId is required")
-});
 
-module.exports = {accAllocationSchema, dailyUploadSchema, pincodeHistorySchema, regionSchema};
+module.exports = {accAllocationSchema, dailyUploadSchema, pincodeHistorySchema};

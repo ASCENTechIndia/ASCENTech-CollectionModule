@@ -1,6 +1,6 @@
 const {
   accAllocationService, dailyUploadedReport, pincodeHistoryReport, nonVisitDoneService, overallPerfService,
-  visitDoneService, smaSummaryService, zoneDropdown, regionService
+  visitDoneService, smaSummaryService
 } = require('./Reports.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -91,33 +91,7 @@ async function smaSummaryHandler(req, res, next) {
   }
 }
 
-async function zoneInReportHandler(req, res, next) {
-  try {
-    const { brid, brcategory } = req.query;
-    const data = await zoneDropdown({ brid, brcategory });
-    return res.ok({
-      success: true,
-      count: data.length,
-      data
-    });
-  } catch (error) {
-    return next(error);
-  }
-}
-
-async function regionsHandler(req, res, next) {
-  try {
-    const { zoneId } = req.query;
-     const data = await regionService({zoneId });
-    logApiSuccess( req, 200, { count: data.length }, 'Regions received' );
-    return res.ok(data);
-  } catch (error) {
-    logApiError(req, 500, error.message, 'Regions search error');
-    return next(error);
-  }
-}
-
 module.exports = {
   accAllocationHandler, dailyUploadedReportHandler, pinCodeHistoryHandler, nonVisitDoneHandler, overallPerformanceHandler,
-  visitDoneHandler, smaSummaryHandler, zoneInReportHandler, regionsHandler
+  visitDoneHandler, smaSummaryHandler
 };
