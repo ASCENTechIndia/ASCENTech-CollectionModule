@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const oracledb = require('oracledb');
+const { executeQuery } = require('../../db/queryExecutor');
 const { executeProcedure } = require('../../db/procedureExecutor');
 const { config } = require('../../config/env');
 
@@ -65,7 +66,13 @@ async function loginWithStoredProcedure(userId, password) {
       message: out.Out_ErrorMsg || 'Login failed',
     };
   }
-
+const proofTypeResult = await executeQuery(
+  `SELECT NUM_USERMST_USERPROOFTYPE 
+   FROM etech.aoup_usermst_def 
+   WHERE VAR_USERMST_USERID = :userId`,
+  { userId }
+);
+const userProofType = proofTypeResult.rows?.[0]?.NUM_USERMST_USERPROOFTYPE;
   const user = {
     userId,
     compId: out.Out_CompId,
@@ -84,6 +91,7 @@ async function loginWithStoredProcedure(userId, password) {
     desgName: out.Out_desgname,
     brCategory: out.Out_brcategory,
     role: out.Out_role,
+    userProofType
   };
 
   const token = jwt.sign(

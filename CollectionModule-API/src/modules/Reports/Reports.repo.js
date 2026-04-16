@@ -433,10 +433,61 @@ async function getUserRouteExport(filters) {
   };
 }
 
+async function getUnallocatedCases(filters) {
+  const { brid, branchName } = filters;
+  // ---------------- CASE 1 ----------------
+  if (brid === "10001") {
+    const sql = `
+      SELECT
+        a.var_bankdata_contractnum,
+        a.num_bankdata_pincode,
+        CASE
+            WHEN pm.var_pincode_no IS NULL THEN 'Pincode not exists in master'
+            WHEN upm.VAR_USER_PINCODE IS NULL THEN 'Pincode not mapped to any FOS agent'
+            WHEN (SELECT COUNT(*) FROM atbss.aoup_user_pincode_map 
+                  WHERE VAR_USER_PINCODE = a.num_bankdata_pincode) > 1
+                THEN 'Pincode mapped to multiple users'
+            ELSE ''
+        END AS reason
+      FROM atbss.aoup_etech_bankdata a
+      INNER JOIN atbss.aoup_etech_contractuploadallocationdetails b
+        ON a.var_bankdata_contractnum = b.contractnumber
+      LEFT JOIN atbss.aoup_pincode_master pm
+        ON a.num_bankdata_pincode = pm.var_pincode_no
+      LEFT JOIN atbss.aoup_user_pincode_map upm
+        ON a.num_bankdata_pincode = upm.VAR_USER_PINCODE
+      WHERE TRUNC(b.CONTRACTUPLOADDATE) BETWEEN TRUNC(SYSDATE, 'MM') AND LAST_DAY(SYSDATE)
+      AND a.var_bankdata_userid IS NULL
+    `;
+    const result = await executeQuery(sql);
+    return result.rows || [];
+  }
+  // ---------------- CASE 2 ----------------
+  else {
+    const plsql = `
+      BEGIN
+        atbss.aoup_current_month_unallocated_cases(
+          :in_zone_Regn_Branch,
+          :p_result
+        );
+      END;
+    `;
+    const binds = {
+      in_zone_Regn_Branch: { val: branchName, type: oracledb.STRING },
+      p_result: { dir: oracledb.BIND_OUT, type: oracledb.CURSOR }
+    };
+    const result = await executeProcedure({
+      statement: plsql,
+      binds
+    });
+    const rows = result.outBinds.p_result || [];
+    return rows;
+  }
+}
 
 module.exports = {
   accAllocationReport, getDailyUploadedReport, getpincodeHistoryReport, getnonvisitdoneSummary, overallPerformanceSummary,
   getvisitdoneSummary, getSMASummary ,
   getUserRouteReport,
-  getUserRouteExport,
+  getUserRouteExport, getUnallocatedCases
 };

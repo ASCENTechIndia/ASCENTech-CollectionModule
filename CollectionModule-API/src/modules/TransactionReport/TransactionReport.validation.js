@@ -24,9 +24,14 @@ const transDetailsSchema = z.object({
   userId: z.string().optional(),
   associateId: z.string().optional(),
   transtype: z.string().optional(),
-  zoneId: z.string().optional(),
-  regionId: z.string().optional()
+  zoneName: z.string().optional(),
+  regionName: z.string().optional(),
+  userOf : z.string()
+});
+
+const imageSchema = z.object({
+  imageCode: z.string().min(1, "imageCode is required")
 });
 
 
-module.exports = { regionSchema, branchSchema, collAssociateSchema, transDetailsSchema};
+module.exports = { regionSchema, branchSchema, collAssociateSchema, transDetailsSchema, imageSchema};

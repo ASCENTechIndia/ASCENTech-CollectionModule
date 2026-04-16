@@ -150,71 +150,105 @@ var_usermst_userid AS user_id FROM etech.aoup_usermst_def WHERE num_usermst_brid
 }
 
 
-
 async function getTransDetailsReport(filters) {
   let sql = `
-    SELECT  
-      num_banktransdet_transid AS srno,
-      '''' || var_banktransdet_transidnew AS transid,
-      REPLACE(var_banktransdet_userid, 'E', '') AS userid,
-      var_usermst_userfullname AS username,
-      '''' || var_banktransmast_contrctno AS contractnum,
-      v.var_visitstatus_type AS visitststs,
-      ft.var_feedbacktype_mst_desc AS feedback,
-      bd.VAR_BANKDATA_BRANCH,
-      bd.VAR_BANKDATA_PRODUCTCODE,
-      bd.VAR_BANKDATA_PRODUCTNM,
-      CASE var_banktransdet_paymode 
-        WHEN 'C' THEN 'ONLINE' 
-        WHEN 'Q' THEN 'Cheque' 
-        WHEN 'R' THEN 'Online' 
-        ELSE var_banktransdet_paymode 
-      END AS paymode,
-      num_banktransdet_paidamt AS paidamt, num_banktransdet_chqno instrumentno,
-      TO_CHAR(dat_banktransdet_chqdt, 'DD/MM/YYYY') AS instrumentdt, var_banktransdet_bankname as bankname,
-      var_banktransdet_authcode authcode,var_banktransdet_billdeskmsg billdeskmsg, var_banktransdet_altrphno1 mobileno, 
-      var_banktransdet_altrphno2 altrphno2, var_banktransdet_email1 email1, 
-      var_banktransdet_altrnatadd address, TO_CHAR(dat_banktransmast_ptpdt, 'DD/MM/YYYY') AS ptpdate,  TO_CHAR(dat_banktransdet_reshudt, 'DD/MM/YYYY') AS reshudt,
-      var_banktransdet_visitremark visitremark, var_banktransdet_panform panform, var_banktransdet_pandetails pandetails, var_banktransdet_settleflag settleflag,
-      TO_CHAR(dat_banktransdet_transdat, 'DD/MM/YYYY') AS trans_date, TO_CHAR(dat_banktransdet_transdat, 'HH24:MI:SS') AS trans_time, 
-    TO_CHAR(dat_banktransdet_oflntransdate, 'DD/MM/YYYY') AS oflntransdate, var_banktransdet_golocation golocation,
-   '=HYPERLINK("https://www.google.com/maps/dir/' 
-    || REPLACE(var_bankdata_cobrowsraddress, ' ', '+') 
-    || '/' 
-    || REPLACE(var_banktransdet_golocation, ';', ',') 
-    || '","View Distance")' AS Distance_URL,
-    var_tmfl_uploadflag uploadflag, var_tmfl_response response, var_creditlimit_flag authorisationflag, var_rfdmst_name rf, var_rcstatus_name incomesource,
-    CASE WHEN var_banktransdet_rcstatus = 'Y' THEN 'Yes' ELSE 'No' END rcstatus, 
-    var_banktransdet_image1 imagecode, var_btm_tractorablity tractorablity, 
-    var_btm_thirdpersonname personname, var_btm_thirdpesonaddress pesonaddress, var_btm_tractoravafseizing tractoravafseizing, var_btm_vehicleregisterno vehicleregisterno, var_btm_tractormodel tractormodel,
-    var_btm_tractormanufactureyear tractormanufactureyear, var_btm_occupation occupation, nvl(NUM_BANKDATA_COLLECTAMOUNT, 0) COLLECTAMOUNT,num_bankdata_mobileno1 custno,var_bankdata_customernm custname, replace(replace(var_bankdata_cobrowsraddress, CHR(13), ''), CHR(10), '')  customeraddress, num_usermst_email as MDM_ID,bd.VAR_BANKDATA_DPDBUCKET,
-     CASE WHEN ROW_NUMBER() OVER (PARTITION BY var_banktransmast_contrctno, TRUNC(dat_banktransdet_transdat, 'MM') ORDER BY dat_banktransdet_transdat) = 1 THEN 'Unique Transaction' ELSE 'Duplicate Transaction' END AS transaction_status,dm.DIST_VAR_BANKDATA_MATRIX_DISTANCE,var_bankdata_registrno  
-    FROM atbss.aoup_etech_banktransdetails a
-    LEFT JOIN atbss.aoup_etech_bankingtransmast b
-      ON b.num_banktransmast_transid = a.num_banktransdet_transid
-    LEFT JOIN atbss.aoup_etech_bankdata bd
-      ON b.var_banktransmast_contrctno = bd.VAR_BANKDATA_CONTRACTNUM
-    LEFT OUTER JOIN atbss.aoup_etech_visitstatus_mst v ON num_visitstatus_id = var_banktransdet_visitststs
-      LEFT OUTER JOIN atbss.aoup_etech_feedbacktype_mst ON var_feedbacktype_mst_id = var_banktransdet_custfeedbck 
-    INNER JOIN etech.aoup_usermst_def u
-      ON u.var_usermst_userid = a.var_banktransdet_userid
-    LEFT JOIN etech.view_branchdetails brview
-      ON brview.brid = u.num_usermst_brid
-      LEFT OUTER JOIN etech.aoup_companycode_mas
-      ON num_companycode_id = num_usermst_compcode
-      LEFT OUTER JOIN atbss.aoup_etech_rfdmaster 
-      ON num_rfdmst_id = num_banktransdet_rfdid
-      LEFT OUTER JOIN atbss.aoup_etech_rcstatusmst ON num_rcstatus_id = num_banktransdet_rcid
-      left join atbss.aoup_etech_matrix_distince_banktransdetails dm on var_banktransdet_transidnew = dm.DIST_VAR_BANKTRANSDET_TRANSIDNEW
-     LEFT JOIN atbss.aoup_etech_feedbacktype_mst ft
-  ON ft.var_feedbacktype_mst_id = a.var_banktransdet_custfeedbck
-    WHERE TRUNC(a.dat_banktransdet_transdat) BETWEEN 
-          TO_DATE(:fromDate, 'DD/MM/YYYY') 
-      AND TO_DATE(:toDate, 'DD/MM/YYYY')
+  SELECT *
+FROM (
+  SELECT 
+  dat_banktransdet_transdat AS transdate,
+        num_banktransdet_transid srno,
+        '''' || var_banktransdet_transidnew transid,
+        REPLACE(var_banktransdet_userid, 'E', '') userid,
+        var_usermst_userfullname username,
+        '''' || var_banktransmast_contrctno contractnum,
+        var_visitstatus_type visitststs,
+        var_feedbacktype_mst_desc feedback,
+        VAR_BANKDATA_BRANCH,
+        VAR_BANKDATA_PRODUCTCODE,
+        VAR_BANKDATA_PRODUCTNM,
+        CASE var_banktransdet_paymode 
+            WHEN 'C' THEN 'ONLINE' 
+            WHEN 'Q' THEN 'Cheque' 
+            WHEN 'R' THEN 'Online' 
+            ELSE var_banktransdet_paymode 
+        END paymode,
+        num_banktransdet_paidamt paidamt,
+        num_banktransdet_chqno instrumentno,
+        dat_banktransdet_chqdt instrumentdt,
+        var_banktransdet_bankname bankname,
+        var_banktransdet_billdeskrefno billdeskrefno,
+        var_banktransdet_authcode authcode,
+        var_banktransdet_billdeskmsg billdeskmsg,
+        var_banktransdet_altrphno1 mobileno,
+        var_banktransdet_altrphno2 altrphno2,
+        var_banktransdet_email1 email1,
+        var_banktransdet_altrnatadd address,
+        dat_banktransmast_ptpdt ptpdate,
+        dat_banktransdet_reshudt reshudt,
+        var_banktransdet_visitremark visitremark,
+        var_banktransdet_panform panform,
+        var_banktransdet_pandetails pandetails,
+        var_banktransdet_settleflag settleflag,
+        TO_CHAR(dat_banktransdet_transdat, 'dd/mm/yyyy') trans_date,
+        TO_CHAR(dat_banktransdet_transdat, 'hh24:mi:ss') trans_time,
+        dat_banktransdet_oflntransdate oflntransdate,
+        var_banktransdet_golocation golocation,
+        var_tmfl_uploadflag uploadflag,
+        var_tmfl_response response,
+        var_creditlimit_flag authorisationflag,
+        var_rfdmst_name rf,
+        var_rcstatus_name incomesource,
+        CASE WHEN var_banktransdet_rcstatus = 'Y' THEN 'Yes' ELSE 'No' END rcstatus,
+        var_banktransdet_image1 imagecode,
+        var_btm_tractorablity tractorablity,
+        var_btm_thirdpersonname personname,
+        var_btm_thirdpesonaddress pesonaddress,
+        var_btm_tractoravafseizing tractoravafseizing,
+        var_btm_vehicleregisterno vehicleregisterno,
+        var_btm_tractormodel tractormodel,
+        var_btm_tractormanufactureyear tractormanufactureyear,
+        var_btm_occupation occupation,
+        NVL(NUM_BANKDATA_COLLECTAMOUNT, 0) COLLECTAMOUNT,
+        num_bankdata_mobileno1 custno,
+        var_bankdata_customernm custname,
+        REPLACE(REPLACE(var_bankdata_cobrowsraddress, CHR(13), ''), CHR(10), '') customeraddress,
+        num_usermst_email as MDM_ID,
+        bd.VAR_BANKDATA_DPDBUCKET,
+        dm.DIST_VAR_BANKDATA_MATRIX_DISTANCE,
+        var_bankdata_registrno,
+
+        ROW_NUMBER() OVER (
+            PARTITION BY num_banktransdet_transid 
+            ORDER BY dat_banktransdet_transdat DESC
+        ) rn
+
+    FROM atbss.aoup_etech_banktransdetails
+               LEFT OUTER JOIN atbss.aoup_etech_bankingtransmast
+               ON num_banktransmast_transid = num_banktransdet_transid
+               LEFT JOIN ATBSS.AOUP_ETECH_BANKDATA bd ON var_banktransmast_contrctno = bd.VAR_BANKDATA_CONTRACTNUM
+               LEFT OUTER JOIN atbss.aoup_etech_visitstatus_mst
+               ON num_visitstatus_id = var_banktransdet_visitststs
+               LEFT OUTER JOIN atbss.aoup_etech_feedbacktype_mst
+               ON var_feedbacktype_mst_id = var_banktransdet_custfeedbck
+               INNER JOIN etech.aoup_usermst_def
+               ON var_usermst_userid = var_banktransdet_userid
+               LEFT OUTER JOIN etech.view_branchdetails brview 
+               ON brview.brid = num_usermst_brid
+               LEFT OUTER JOIN etech.aoup_companycode_mas
+               ON num_companycode_id = num_usermst_compcode
+               LEFT OUTER JOIN atbss.aoup_etech_rfdmaster
+               ON num_rfdmst_id = num_banktransdet_rfdid
+               LEFT OUTER JOIN atbss.aoup_etech_rcstatusmst
+               ON num_rcstatus_id = num_banktransdet_rcid
+                left join atbss.aoup_etech_matrix_distince_banktransdetails dm 
+               on var_banktransdet_transidnew = dm.DIST_VAR_BANKTRANSDET_TRANSIDNEW
+               left outer join atbss.aoup_etech_feedback_mst  on  num_feedback_id=var_banktransdet_custfeedbck
+   WHERE dat_banktransdet_transdat >= TO_DATE(:fromDate,'DD/MM/YYYY') AND dat_banktransdet_transdat <  
+       TO_DATE(:toDate, 'DD/MM/YYYY') +1
   `;
   const binds = {
-    fromDate: { val: filters.fromDate, type: oracledb.STRING },
-    toDate: { val: filters.toDate, type: oracledb.STRING }
+    fromDate: filters.fromDate,
+    toDate: filters.toDate
   };
   // ---------------- SMA TYPE ----------------
   if (filters.smaType) {
@@ -228,12 +262,12 @@ async function getTransDetailsReport(filters) {
   }
   // ---------------- USER ID ----------------
   if (filters.userId) {
-    sql += ` AND u.var_usermst_userid = :userId`;
+    sql += ` AND var_usermst_userid = :userId`;
     binds.userId = { val: `E${filters.userId}`, type: oracledb.STRING };
   }
   // ---------------- USERNAME DROPDOWN ----------------
   if (filters.associateId) {
-    sql += ` AND u.var_usermst_userid = :associateId`;
+    sql += ` AND var_usermst_userid = :associateId`;
     binds.associateId = { val: filters.associateId, type: oracledb.STRING };
   }
   // ---------------- TRANSACTION TYPE ----------------
@@ -243,20 +277,63 @@ async function getTransDetailsReport(filters) {
     sql += ` AND num_feedback_id NOT IN (17,20)`;
   }
   // ---------------- ZONE ----------------
-  if (filters.zoneId) {
-    sql += ` AND UPPER(bd.VAR_BANKDATA_PRODUCTNM) = UPPER(:zoneId)`;
-    binds.zoneId = { val: filters.zoneId.trim(), type: oracledb.STRING };
+  if (filters.zoneName) {
+    sql += ` AND UPPER(bd.VAR_BANKDATA_PRODUCTNM) = UPPER(:zoneName)`;
+    binds.zoneName = { val: filters.zoneName.trim(), type: oracledb.STRING };
   }
   // ---------------- REGION ----------------
-  if (filters.regionId) {
-    sql += ` AND UPPER(bd.VAR_BANKDATA_PRODUCTCODE) = UPPER(:regionId)`;
-    binds.regionId = { val: filters.regionId.trim(), type: oracledb.STRING };
+  if (filters.regionName) {
+    sql += ` AND UPPER(bd.VAR_BANKDATA_PRODUCTCODE) = UPPER(:regionName)`;
+    binds.regionName = { val: filters.regionName.trim(), type: oracledb.STRING };
   }
-  sql += ` ORDER BY a.dat_banktransdet_transdat DESC`;
+  sql += ` )
+WHERE rn = 1
+ORDER BY transdate DESC`;
+console.log(sql)
+console.log("Filters:", filters);
+console.log("Binds:", binds);
+ const result = await executeQuery(sql, binds);
+const rows = result.rows || [];
+
+function maskValue(value) {
+  if (!value) return value;
+  const str = value.toString();
+  if (str.length <= 4) return str;
+  return '*'.repeat(str.length - 4) + str.slice(-4);
+}
+const userOf = filters.userOf;
+if (userOf === "1") {
+  rows.forEach(row => {
+    row.CUSTNO = maskValue(row.CUSTNO);
+    row.CONTRACTNUM = maskValue(row.CONTRACTNUM);
+  });
+}
+return rows;
+}
+
+async function getImage({ imageCode }) {
+  const sql = `
+    SELECT byte_imagewebserve_image AS image
+    FROM atbss.AOUP_IMAGEWEBSERVE_MST
+    WHERE num_imagewebserve_refno = :imageCode
+  `;
+  const binds = {
+    imageCode: Number(imageCode)
+  };
   const result = await executeQuery(sql, binds);
-  return result.rows || [];
+  if (!result.rows || result.rows.length === 0) {
+    return null;
+  }
+  const lob = result.rows[0].IMAGE;
+  if (!lob) return null;
+  const chunks = [];
+  for await (const chunk of lob) {
+    chunks.push(chunk);
+  }
+  const buffer = Buffer.concat(chunks);
+  return buffer.toString("base64");
 }
 
 module.exports = {
- getZones, getRegions, getBranches, getCollAssociate, getTransDetailsReport
+ getZones, getRegions, getBranches, getCollAssociate, getTransDetailsReport, getImage
 };
