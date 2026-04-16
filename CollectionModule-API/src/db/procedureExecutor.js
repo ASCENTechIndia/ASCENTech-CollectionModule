@@ -54,6 +54,18 @@ async function executeProcedure({
       ...safeOptions,
     });
 
+    if (result.outBinds) {
+  for (const key in result.outBinds) {
+    const val = result.outBinds[key];
+
+    if (val && typeof val.getRows === "function") {
+      const rows = await val.getRows(1000);
+      await val.close();
+      result.outBinds[key] = rows; 
+    }
+  }
+}
+
     if (useTx) {
       await connection.commit();
     }
