@@ -70,6 +70,7 @@ const MENU_ITEMS = [
       { label: "Visit Done Summary Report", href: "/Report/FrmVisitDoneSummaryReport" },
       { label: "SMA Summary Report", href: "/Report/SMASummaryReport" },
       { label: "Transaction Report", href: "/Report/TransactionReport" },
+      { label: "User Route Report", href: "/Report/FrmUserRouteReport" },
     ],
   },
   //  {
