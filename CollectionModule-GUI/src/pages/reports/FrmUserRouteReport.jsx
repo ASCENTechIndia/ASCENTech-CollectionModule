@@ -5,6 +5,7 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import apiClient from "../../services/apiService";
 import { useNotification } from "../../context/NotificationContext";
 import TailwindGridTable from "../../components/reports/TailwindGridTable";
+import RouteMap from "../../components/ui/RouteMap";
 
 const FrmUserRouteReport = () => {
   const navigate = useNavigate();
@@ -13,19 +14,24 @@ const FrmUserRouteReport = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      fosId: "",
+      date: "",
+      withDistance: false,
+    },
+  });
 
   const [tableData, setTableData] = useState([]);
+  const [coordinates, setCoordinates] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Helper: format YYYY-MM-DD to DD-MM-YYYY
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const [year, month, day] = dateString.split("-");
     return `${day}-${month}-${year}`;
   };
 
-  // Table headers and mapping
   const tableHeaders = [
     { displayName: "Sr No" },
     { displayName: "Collection Associate" },
@@ -50,18 +56,16 @@ const FrmUserRouteReport = () => {
 
   const onSubmit = async (data) => {
     const { fosId, date, withDistance } = data;
-
-    if (!fosId) {
-      showError("FOS ID is required");
-      return;
-    }
-    if (!date) {
-      showError("Date is required");
+    if (!fosId || !date) {
+      showError("Both FOS ID and Date are required");
       return;
     }
 
     const formattedDate = formatDate(date);
     setLoading(true);
+    setTableData([]);
+    setCoordinates([]);
+
     try {
       const response = await apiClient.get("/reports/user-route", {
         params: {
@@ -72,21 +76,23 @@ const FrmUserRouteReport = () => {
         },
       });
 
+      console.log("response :", response);
       const { success, data: apiData, message } = response.data;
 
       if (success && apiData?.rows?.length > 0) {
         setTableData(apiData.rows);
+        setCoordinates(apiData.coordinates || []);
         showSuccess(`Found ${apiData.rows.length} records`);
       } else {
         setTableData([]);
-        showError(message || "No route data found");
+        setCoordinates([]);
+        showError("No route data found");
       }
     } catch (err) {
-      console.error("API error:", err);
+      console.error(err);
       showError(
         err?.response?.data?.message || err.message || "Failed to fetch route",
       );
-      setTableData([]);
     } finally {
       setLoading(false);
     }
@@ -95,18 +101,15 @@ const FrmUserRouteReport = () => {
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
-        {/* Page Title */}
         <div className="mb-6">
           <h1 className="text-2xl font-semibold text-gray-900">
             User Route Report
           </h1>
         </div>
 
-        {/* Form Card */}
         <div className="bg-white rounded-lg border border-gray-200 p-8">
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* FOS ID */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   FOS ID<span className="text-red-600">*</span>
@@ -127,7 +130,6 @@ const FrmUserRouteReport = () => {
                 )}
               </div>
 
-              {/* Select Date */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   Select Date<span className="text-red-600">*</span>
@@ -148,7 +150,6 @@ const FrmUserRouteReport = () => {
               </div>
             </div>
 
-            {/* Checkbox - Along with distance */}
             <div className="mt-4 flex items-center gap-2">
               <input
                 type="checkbox"
@@ -164,7 +165,6 @@ const FrmUserRouteReport = () => {
               </label>
             </div>
 
-            {/* Action Buttons */}
             <div className="mt-7 flex justify-center gap-5">
               <button
                 type="submit"
@@ -185,7 +185,15 @@ const FrmUserRouteReport = () => {
           </form>
         </div>
 
-        {/* Table Section */}
+        {coordinates.length > 0 && (
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+              Route Map
+            </h3>
+            <RouteMap coordinates={coordinates} />
+          </div>
+        )}
+
         {tableData.length > 0 && (
           <div className="mt-6">
             <TailwindGridTable
