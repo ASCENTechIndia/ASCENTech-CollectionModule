@@ -17,39 +17,41 @@ import { clsx } from "clsx";
 
 const MENU_ITEMS = [
   {
-    label: 'Home',
-    href: '/dashboard',
+    label: "Home",
+    href: "/dashboard",
     icon: LayoutDashboard,
   },
   {
-    label: 'Demo Reports',
-    href: '/reports/demo-grid-tailwind',
+    label: "Demo Reports",
+    href: "/reports/demo-grid-tailwind",
     icon: List,
   },
 
   {
-    label: 'User Management',
+    label: "User Management",
     icon: Users,
-       submenu: [
-      { label: 'User Creation', href: '/User/FrmUserList' },
-      { label: 'User Modification', href: '/User/FrmUserModification' },
-         { label: 'Pincode Master', href: '/User/FrmPincodeMstrInserion' },
-      { label: 'Inactive User Cases', href: '/User/FrmInactiveUserAcs' },
+    submenu: [
+      { label: "User Creation", href: "/User/FrmUserList" },
+      { label: "User Modification", href: "/User/FrmUserModification" },
+      { label: "Pincode Master", href: "/User/FrmPincodeMstrInserion" },
+      { label: "Inactive User Cases", href: "/User/FrmInactiveUserAcs" },
       { label: "Assigned Pincode FOS", href: "/User/FrmUserPinAllocation" },
       { label: "Reset Password", href: "/User/FrmResetPassword" },
       { label: "Change Password", href: "/User/FrmChangePassword" },
-    
     ],
   },
-   {
+  {
     label: "Admin",
     icon: Users,
     submenu: [
-      { label: "User Location Tracking", href: "/User/FrmUserLocationTracking" },
+      {
+        label: "User Location Tracking",
+        href: "/User/FrmUserLocationTracking",
+      },
       { label: "Last Login History", href: "/User/FrmLastLoginHistory" },
+      { label: "Bucket Setter", href: "/Admin/FrmBucketSetter" },
     ],
   },
-
   {
     label: "Dashboards",
     icon: LayoutDashboard,
@@ -58,7 +60,26 @@ const MENU_ITEMS = [
       { label: 'Disposition Report', href: '/Dashboard/FrmNewDashboard2' },
       { label: 'Daily Visit Report', href: '/Dashboard/FrmDailyVisit' }
     ]
-  }
+  },
+  {
+    label: "Report",
+    icon: List,
+    submenu: [
+      { label: "Account Allocation Report", href: "/Report/FrmAccountAllocationReport" },
+      { label: "Inactive User Pincode History", href: "/Report/FrmInactiveUserPincodeHistory" },
+      { label: "Overall Performance Report", href: "/Report/FrmOverallPerformanceSummaryReport" },
+      { label: "Non Visit Done Summary Report", href: "/Report/FrmNonVisitDoneSummaryReport" },
+      { label: "Visit Done Summary Report", href: "/Report/FrmVisitDoneSummaryReport" },
+      { label: "SMA Summary Report", href: "/Report/SMASummaryReport" },
+      { label: "Transaction Report", href: "/Report/TransactionReport" },
+    ],
+  },
+
+
+
+
+
+
   // {
   //   label: 'Asset Management',
   //   icon: Package,

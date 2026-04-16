@@ -156,3 +156,7 @@
     @apply text-lg sm:text-xl md:text-2xl font-semibold;
   }
 }
+
+.css-n6voyy {
+  padding: 0 !important;
+}

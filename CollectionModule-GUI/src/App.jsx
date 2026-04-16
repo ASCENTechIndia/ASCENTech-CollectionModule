@@ -49,6 +49,14 @@ import FrmUserLocationTracking from "./pages/Admin/FrmUserLocationTracking";
 import FrmLastLoginHistory from "./pages/Admin/FrmLastLoginHistory";
 import FrmNewDashboard2 from './pages/dashboard/FrmNewDashboard2'
 import FrmDailyVisit from './pages/dashboard/FrmDailyVisit'
+import FrmBucketSetter from "./pages/Admin/FrmBucketSetter"
+import FrmAccountAllocationReport from "./pages/reports/FrmAccountAllocationReport"
+import FrmInactiveUserPincodeHistory from "./pages/reports/FrmInactiveUserPincodeHistory"
+import FrmOverallPerformanceSummaryReport from "./pages/reports/FrmOverallPerformanceSummaryReport";
+import FrmVisitDoneSummaryReport from "./pages/reports/FrmVisitDoneSummaryReport";
+import FrmNonVisitDoneSummaryReport from "./pages/reports/FrmNonVisitDoneSummaryReport";
+import SMASummaryReport from "./pages/reports/SMASummaryReport";
+import TransactionReport from "./pages/reports/TransactionReport";
 
 const queryClient = new QueryClient()
 
@@ -89,7 +97,7 @@ function App() {
                 <Route path="/Dashboard/FrmNewDashboard2" element={<FrmNewDashboard2 />} />
                 <Route path='/Dashboard/FrmDailyVisit' element={<FrmDailyVisit />} />
                 
-                {/* Asset Management */}
+                {/* Asset Management (commented out) */}
                 {/* <Route path="/assets" element={<AssetListPage />} />
                 <Route path="/assets/create" element={<AssetCreatePage />} />
                 <Route path="/assets/:id/edit" element={<AssetCreatePage />} /> */}
@@ -131,26 +139,30 @@ function App() {
                   element={<FrmLastLoginHistory />}
                 />
                 <Route
+                  path="/Admin/FrmBucketSetter"
+                  element={<FrmBucketSetter />}
+                />
+                <Route
                   path="/User/FrmUserModification"
                   element={<FrmUserModification />}
                 />
                 <Route path="/FrmAccessofPages" element={<FrmAccessofPages />} />
 
                 
-                {/* Branch Management */}
-                {/* <Route path="/branches" element={<BranchListPage />} /> */}
+                {/* Report */}
+                <Route path="/Report/FrmAccountAllocationReport" element={<FrmAccountAllocationReport />} />
+                <Route path="/Report/FrmInactiveUserPincodeHistory" element={<FrmInactiveUserPincodeHistory />} />
+                <Route path="/Report/FrmOverallPerformanceSummaryReport" element={<FrmOverallPerformanceSummaryReport />} />
+                <Route path="/Report/FrmNonVisitDoneSummaryReport" element={<FrmNonVisitDoneSummaryReport />} />
+                <Route path="/Report/FrmVisitDoneSummaryReport" element={<FrmVisitDoneSummaryReport />} />
+                <Route path="/Report/SMASummaryReport" element={<SMASummaryReport />} />
+                <Route path="/Report/TransactionReport" element={<TransactionReport />} />
                 
                 {/* Reports */}
                 <Route path="/reports" element={<ReportsPage />} />
                 <Route path="/reports/demo-grid" element={<DemoReportPage />} />
-                <Route
-                  path="/reports/demo-grid-tailwind"
-                  element={<DemoTailwindReportPage />}
-                />
-                <Route
-                  path="/reports/transactions"
-                  element={<TransactionReportPage />}
-                />
+                <Route path="/reports/demo-grid-tailwind" element={<DemoTailwindReportPage />} />
+                <Route path="/reports/transactions" element={<TransactionReportPage />} />
 
                 {/* Form Examples */}
                 <Route path="/forms/three-column" element={<ThreeColumnFormPage />} />
