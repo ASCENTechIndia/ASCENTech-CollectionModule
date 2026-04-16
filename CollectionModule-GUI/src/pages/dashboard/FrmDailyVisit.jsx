@@ -12,7 +12,16 @@ function FrmDailyVisit() {
     const { user } = useAuth();
     const { showError } = useNotification();
     const userId = user?.userId;
-    const today = new Date().toISOString().split('T')[0]
+    const toInputDate = (date) => {
+        const tzOffset = date.getTimezoneOffset() * 60000;
+        return new Date(date.getTime() - tzOffset).toISOString().split('T')[0];
+    };
+    const today = toInputDate(new Date());
+    const startOfMonth = (() => {
+        const date = new Date();
+        date.setDate(1);
+        return toInputDate(date);
+    })();
     const apiUserId = String(userId || '').replace(/\D/g, '');
     const {
         register,
@@ -21,13 +30,14 @@ function FrmDailyVisit() {
         watch
     } = useForm({
         defaultValues: {
-            fromDate: new Date().toISOString().split('T')[0],
-            toDate: new Date().toISOString().split('T')[0]
+            fromDate: startOfMonth,
+            toDate: today
         }
     });
 
     const [dashboardData, setDashboardData] = useState(null);
     const fromDateValue = watch('fromDate')
+    const toDateValue = watch('toDate')
     const fetchDailyVisitData = async (values) => {
         if (!apiUserId) {
             showError('User ID is not available');
@@ -60,8 +70,8 @@ function FrmDailyVisit() {
     useEffect(() => {
         if (userId) {
             fetchDailyVisitData({
-                fromDate: new Date().toISOString().split('T')[0],
-                toDate: new Date().toISOString().split('T')[0],
+                fromDate: startOfMonth,
+                toDate: today,
             });
         }
     }, [userId]);
@@ -255,7 +265,16 @@ function FrmDailyVisit() {
                                 type="date"
                                 {...register('fromDate', {
                                     required: 'From Date is required',
-                                    validate: (value) => !value || value <= today || 'Future dates are not allowed'
+                                    validate: (value) => {
+                                        if (!value) return true;
+                                        if (value > today) {
+                                            return 'Future dates are not allowed';
+                                        }
+                                        if (toDateValue && value > toDateValue) {
+                                            return 'From Date cannot be after To Date';
+                                        }
+                                        return true;
+                                    }
                                 })}
                                 max={today}
                                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
