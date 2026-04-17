@@ -475,11 +475,11 @@ function FrmDailyVisit() {
                                         />
 
                                         {/* 🔥 Center Text Overlay */}
-                                        <div className="absolute flex flex-col items-center justify-center pointer-events-none">
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[-12px] md:mt-[0px]">
                                             <span className="text-xs text-gray-500">
                                                 Total
                                             </span>
-                                            <span className="text-xl font-bold text-gray-900">
+                                            <span className="text-xs md:text-xl font-bold text-gray-900">
                                                 {dashboardData?.allocation?.totalAccounts || 0}
                                             </span>
                                         </div>
@@ -502,11 +502,11 @@ function FrmDailyVisit() {
                                             }}
                                         />
 
-                                        <div className="absolute flex flex-col items-center justify-center pointer-events-none">
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[-12px] md:mt-[0px]">
                                             <span className="text-xs text-gray-500">
                                                 Total
                                             </span>
-                                            <span className="text-xl font-bold text-gray-900">
+                                            <span className="text-xs md:text-xl font-bold text-gray-900">
                                                 {dashboardData?.allocation?.allocatedAccounts || 0}
                                             </span>
                                         </div>
