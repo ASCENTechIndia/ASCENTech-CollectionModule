@@ -4,6 +4,7 @@ const {
   bucketSetterService,
   getUsersWithPincodesService,
   unassignCasesService,
+  matrixDistanceInsertionService,
 } = require('./Admin.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -95,10 +96,27 @@ async function unassignCasesHandler(req, res, next) {
   }
 }
 
+async function matrixDistanceInsertionHandler(req, res, next) {
+  try {
+    const result = await matrixDistanceInsertionService();
+    logApiSuccess(
+      req,
+      200,
+      { rowsUpdated: result?.totalRowsAffected || 0 },
+      result.message || 'Matrix distance insertion completed'
+    );
+    return res.ok(result);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Matrix distance insertion error');
+    return next(error);
+  }
+}
+
 module.exports = {
   locationTrackingHandler,
   lastLoginHandler,
   bucketSetterHandler,
   getUsersWithPincodesHandler,
   unassignCasesHandler,
+  matrixDistanceInsertionHandler,
 }

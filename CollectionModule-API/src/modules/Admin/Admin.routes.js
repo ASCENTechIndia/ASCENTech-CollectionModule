@@ -12,6 +12,7 @@ const {
   bucketSetterHandler,
   getUsersWithPincodesHandler,
   unassignCasesHandler,
+  matrixDistanceInsertionHandler,
 } = require('./Admin.controller');
 
 const router = express.Router();
@@ -33,6 +34,8 @@ router.post(
   validate(unassignCasesSchema, { source: 'body' }),
   unassignCasesHandler
 );
+router.post('/matrix-distance-insertion', matrixDistanceInsertionHandler);
+
 
 module.exports = router;
 
