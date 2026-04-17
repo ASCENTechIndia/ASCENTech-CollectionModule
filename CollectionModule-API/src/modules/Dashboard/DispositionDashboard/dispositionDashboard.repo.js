@@ -76,6 +76,17 @@ function dedupeRowsByTransId(rows) {
   return output;
 }
 
+function maskValue(value) {
+        if (!value) {
+                return value;
+        }
+        const str = String(value);
+        if (str.length <= 4) {
+                return str;
+        }
+        return '*'.repeat(str.length - 4) + str.slice(-4);
+}
+
 function resolveLegacyChart1Day(dateText) {
         const raw = String(dateText || '').trim();
         const match = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
@@ -432,7 +443,14 @@ async function getDashboardData({ userId, brCategory, query }) {
                 (row) => row.DAY ?? row.day,
                 (row) => row.TRANSACTION_COUNT ?? row.transaction_count ?? row.NUM_TRANSACTIONS ?? row.num_transactions
         );
-  const grid = dedupeRowsByTransId(gridResult.rows || []);
+        const grid = dedupeRowsByTransId(gridResult.rows || []);
+        const shouldMaskContractNumber = String(query?.userOf || '') === '1';
+
+        if (shouldMaskContractNumber) {
+                grid.forEach((row) => {
+                        row.CONTRACTNUM = maskValue(row.CONTRACTNUM);
+                });
+        }
 
   return {
     monthYear: selectedMonthYear,

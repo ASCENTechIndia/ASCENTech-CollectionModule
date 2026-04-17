@@ -48,6 +48,7 @@ const config = {
   port: asInt(process.env.PORT, 5000),
   corsOrigin: process.env.CORS_ORIGIN || "*",
   jwtSecret: must("JWT_SECRET"),
+  loginEncryptionKey: must("LOGIN_ENCRYPTION_KEY"),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "12h",
   rateLimitWindowMs: asInt(process.env.RATE_LIMIT_WINDOW_MS, 15 * 60 * 1000),
   rateLimitMax: asInt(process.env.RATE_LIMIT_MAX, 500),
@@ -71,6 +72,7 @@ function validateConfig() {
 
   if (!config.oracle.connectString) missing.push("DB_CONNECT_STRING");
   if (!config.jwtSecret) missing.push("JWT_SECRET");
+  if (!config.loginEncryptionKey) missing.push("LOGIN_ENCRYPTION_KEY");
   if (keys.length === 0) missing.push("DB1_USER/DB1_PASSWORD (or DB2/DB3)");
 
   for (const key of keys) {
@@ -104,6 +106,7 @@ module.exports = {
   DB_CONNECT_STRING,
   DB_DEFAULT_NAME: defaultDbKey,
   JWT_SECRET: config.jwtSecret,
+  LOGIN_ENCRYPTION_KEY: config.loginEncryptionKey,
   NODE_ENV: config.nodeEnv,
   config,
   validateConfig,

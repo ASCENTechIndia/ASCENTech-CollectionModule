@@ -8,6 +8,7 @@ const dispositionDashboardQuerySchema = z.object({
     .optional(),
   month: z.coerce.number().int().min(1).max(12).optional(),
   year: z.coerce.number().int().min(2024).max(new Date().getFullYear() + 1).optional(),
+  userOf: z.enum(['0', '1']).optional(),
 }).passthrough();
 
 module.exports = {

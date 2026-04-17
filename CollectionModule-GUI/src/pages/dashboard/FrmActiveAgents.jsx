@@ -1,8 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Input, Select, Textarea, Button } from '../../components/ui';
-import { useNavigate } from 'react-router-dom';
-import { AlertCircle, Search } from 'lucide-react';
 import apiClient from '../../services/apiService';
 import { useAuth } from '../../context/AuthContext';
 import LineChart from '../../components/charts/LineChart';
@@ -14,10 +11,6 @@ function FrmActiveAgents() {
     const userId = user?.userId;
     const {
         register,
-        handleSubmit,
-        formState: { errors },
-        reset,
-        setValue
     } = useForm({
         defaultValues: {
             monthYear: getCurrentMonthYear()    
@@ -140,10 +133,6 @@ function FrmActiveAgents() {
         }
     }
 
-    const onSubmit = async (values) => {
-        fetchData(values.monthYear);
-    }
-
     useEffect(() => {
         if (userId) {
             const monthYearStr = getCurrentMonthYear();
@@ -151,11 +140,29 @@ function FrmActiveAgents() {
         }
     }, [userId]);
 
+    const chartOptions = {
+        maintainAspectRatio: false,
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: 'Days'
+                }
+            },
+            y: {
+                title: {
+                    display: true,
+                    text: 'Count'
+                },
+                beginAtZero: true
+            }
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="w-full px-4 py-6">
             <div className="w-full bg-white rounded-lg border border-gray-200 p-8">
-                <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="flex flex-col md:flex-row gap-8 my-3">
                         <p className='font-bold'>Collection Associate</p>
                         <div className='flex flex-col md:flex-row gap-5'>
@@ -164,7 +171,10 @@ function FrmActiveAgents() {
                                 {...register('monthYear', {
                                     required: 'Month Year is required'
                                 })}
-                                defaultValue=""
+                                onChange={(e) => {
+                                    setShowDetails(false);
+                                    fetchData(e.target.value);
+                                }}
                                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
                             >
                                 <option value="4-2025">April 2025</option>
@@ -182,16 +192,7 @@ function FrmActiveAgents() {
                                 <option value="4-2026">April 2026</option>
                             </select>
                         </div>
-                        <div>
-                            <button
-                                type="submit"
-                                className="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-                            >
-                                Submit
-                            </button>
-                        </div>
                     </div>
-                </form>
                 {showDetails &&
                     <>
                         <div className="mt-7">
@@ -211,7 +212,7 @@ function FrmActiveAgents() {
                             <Card className="w-full">
                                 <div className="p-4 w-full">
                                     <div className="relative h-[400px] w-full">
-                                        <LineChart data={chartData} options={{ maintainAspectRatio: false }} />
+                                        <LineChart data={chartData} options={chartOptions} />
                                     </div>
                                 </div>
                             </Card>

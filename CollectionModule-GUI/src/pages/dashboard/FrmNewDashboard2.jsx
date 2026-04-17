@@ -14,6 +14,7 @@ const FrmNewDashboard2 = () => {
     const { user } = useAuth();
     const userId = user?.userId;
     const brCategory = user?.brCategory;
+    const userOf = user?.userProofType;
     const {
         register,
         handleSubmit,
@@ -110,7 +111,7 @@ const FrmNewDashboard2 = () => {
             const [month, year] = monthYear.split("-");
             const userNo = userId.split("E")[1];
 
-            const response = await apiClient.get(`/disposition-dashboard/report?month=${month}&year=${year}&userId=${userNo}&brCategory=${brCategory}`, {});
+            const response = await apiClient.get(`/disposition-dashboard/report?month=${month}&year=${year}&userId=${userNo}&brCategory=${brCategory}&userOf=${userOf ?? 0}`, {});
 
             if (response.data.success) {
                 const formattedChartOneData = {
@@ -174,7 +175,26 @@ const FrmNewDashboard2 = () => {
             const monthYear = getCurrentMonthYear();
             fetchData(monthYear);
         }
-    }, [userId, brCategory])
+    }, [userId, brCategory, userOf])
+
+    const chartOptions = {
+        maintainAspectRatio: false,
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: 'Days'
+                }
+            },
+            y: {
+                title: {
+                    display: true,
+                    text: 'Count'
+                },
+                beginAtZero: true
+            }
+        }
+    }
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -218,14 +238,14 @@ const FrmNewDashboard2 = () => {
                                 <Card className="w-full">
                                     <div className="p-4 w-full">
                                         <div className="relative h-[400px] w-full">
-                                            <LineChart data={firstChartData} options={{ maintainAspectRatio: false }} />
+                                            <LineChart data={firstChartData} options={chartOptions} />
                                         </div>
                                     </div>
                                 </Card>
                                 <Card className="w-full">
                                     <div className="p-4 w-full">
                                         <div className="relative h-[400px] w-full">
-                                            <LineChart data={secondChartData} options={{ maintainAspectRatio: false }} />
+                                            <LineChart data={secondChartData} options={chartOptions} />
                                         </div>
                                     </div>
                                 </Card>

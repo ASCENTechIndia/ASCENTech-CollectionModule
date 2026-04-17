@@ -1,12 +1,15 @@
 import apiClient from './apiService'
+import { encryptPassword } from '../utils/passwordCrypto'
 
 const authService = {
   // Login API call
   login: async (credentials) => {
     try {
+      const encryptedPassword = await encryptPassword(credentials.password)
+
       const response = await apiClient.post('/auth/login', {
         userId: credentials.userId,
-        password: credentials.password
+        password: encryptedPassword
       })
 
       const payload = response.data || {}
