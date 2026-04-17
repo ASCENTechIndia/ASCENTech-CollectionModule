@@ -147,9 +147,9 @@ const FrmUserList = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
-        {/* <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900">User Creation</h1>
-        </div> */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold text-gray-900">User List</h1>
+        </div>
         <div className="bg-white rounded-lg border border-gray-200 p-8">
           <div className="flex flex-col md:flex-row justify-start gap-5 mb-7">
             <button

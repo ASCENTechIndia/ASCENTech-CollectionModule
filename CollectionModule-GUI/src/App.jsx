@@ -61,6 +61,7 @@ import TransactionReport from "./pages/reports/TransactionReport";
 import FrmUserRouteReport from "./pages/reports/FrmUserRouteReport";
 import MapViewPage from "./components/ui/MapViewPage";
 import FrmUnallocatedCasesReport from "./pages/reports/FrmUnallocatedCasesReport";
+import FrmContractAllocation from "./pages/Admin/FrmContractAllocation";
 
 const queryClient = new QueryClient();
 
@@ -177,6 +178,10 @@ function App() {
                 <Route
                   path="/Admin/FrmUnassignCases"
                   element={<FrmUnassignCases />}
+                />
+                <Route 
+                  path="/Admin/FrmContractAllocation"
+                  element={<FrmContractAllocation />}
                 />
                 <Route
                   path="/User/FrmUserModification"
