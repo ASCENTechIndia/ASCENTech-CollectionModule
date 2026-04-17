@@ -1,10 +1,6 @@
 const express = require('express');
 const authRoutes = require('../modules/auth/auth.routes');
-const menuRoutes = require('../modules/menu/menu.routes');
-const masterRoutes = require('../modules/master/master.routes');
-const legacyRoutes = require('../modules/legacy/legacy.routes');
 const usersRoutes = require('../modules/users/users.routes');
-const assetsRoutes = require('../modules/assets/assets.routes');
 const assignPincode = require('../modules/AssignPincode/assignPincode.routes');
 const passwordRoutes = require('../modules/Password/Password.routes')
 const inactiveUserAccountsRoutes = require('../modules/InactiveUserAccounts/inactiveUserAccounts.routes');
@@ -26,12 +22,7 @@ router.get('/ready', (req, res) => {
 });
 
 router.use('/auth', authRoutes);
-router.use('/master', menuRoutes);
-router.use('/master', masterRoutes);
 router.use('/users', usersRoutes);
-router.use('/assets', assetsRoutes);
-router.use('/legacy', legacyRoutes);
-router.use('/password', passwordRoutes);
 
 
 
