@@ -89,13 +89,7 @@ async function appendDistances(rows, withDistance) {
     return rows;
   }
 
-  rows[0].Distance = withDistance ? '0 km' : '0km';
-  if (!withDistance) {
-    for (let i = 1; i < rows.length; i += 1) {
-      rows[i].Distance = '0km';
-    }
-    return rows;
-  }
+  rows[0].Distance = '0 km';
 
   const apiKey = process.env.GOOGLE_MAPS_API_KEY || process.env.GOOGLE_DISTANCE_API_KEY || '';
   for (let i = 1; i < rows.length; i += 1) {
@@ -404,7 +398,14 @@ async function getUserRouteReport(filters) {
     };
   }
 
-  await appendDistances(rows, withDistance);
+  if (withDistance) {
+    await appendDistances(rows, withDistance);
+  } else {
+    rows[0].Distance = '0km';
+    for (let i = 1; i < rows.length; i += 1) {
+      rows[i].Distance = '0km';
+    }
+  }
   const securedRows = maskRowsForRestrictedUser(rows, filters.userof);
 
   const coordinates = securedRows
