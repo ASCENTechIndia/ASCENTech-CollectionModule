@@ -57,6 +57,7 @@ const MENU_ITEMS = [
       },
       { label: "Last Login History", href: "/User/FrmLastLoginHistory" },
       { label: "Bucket Setter", href: "/Admin/FrmBucketSetter" },
+      { label: "Contract Allocation", href: "/Admin/FrmContractAllocation"},
       { label: "Distance Matrix", href: "/Admin/FrmDistanceMatrix" },
     ],
   },

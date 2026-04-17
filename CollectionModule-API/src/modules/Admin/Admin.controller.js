@@ -4,7 +4,7 @@ const {
   bucketSetterService,
   getUsersWithPincodesService,
   unassignCasesService,
-  matrixDistanceInsertionService,
+  matrixDistanceInsertionService, accCountService, allocateAccService
 } = require('./Admin.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -95,7 +95,7 @@ async function unassignCasesHandler(req, res, next) {
     return next(error);
   }
 }
-
+  
 async function matrixDistanceInsertionHandler(req, res, next) {
   try {
     const result = await matrixDistanceInsertionService();
@@ -111,6 +111,44 @@ async function matrixDistanceInsertionHandler(req, res, next) {
     return next(error);
   }
 }
+async function getAccCountHandler(req, res, next) {
+  try {
+    const rows = await accCountService();
+    logApiSuccess(req, 200, { count: rows?.length || 0 }, `Counts retrieved`);
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Counts error');
+  }
+}
+
+async function allocateAccountHandler(req, res, next) {
+   try {
+    // const payload = req.body;
+    const out = await allocateAccService();
+
+    const isSuccess = String(out.Out_errorCode) === '9999';
+    if (isSuccess) {
+      logApiSuccess(req, 200, `Account Allocation Successful`);
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, `Account Allocation failed`);
+    }
+
+    auditLog({
+      action: 'ACCOUNT_ALLOCATION',
+      actor: req.user?.userId || 'system',
+ module: 'users',
+      entityId: out.Out_User,
+      status: isSuccess ? 'SUCCESS' : 'FAILED',
+      details: { outErrorCode: out.Out_errorCode, outErrorMsg: out.Out_ErrorMsg },
+      requestMeta: requestMeta(req),
+    });
+
+    return res.ok(out);
+  } catch (error) {
+logApiError(req, 500, error.message, 'Account Allocation error');
+ return next(error);
+  }
+}
 
 module.exports = {
   locationTrackingHandler,
@@ -118,5 +156,5 @@ module.exports = {
   bucketSetterHandler,
   getUsersWithPincodesHandler,
   unassignCasesHandler,
-  matrixDistanceInsertionHandler,
+  matrixDistanceInsertionHandler, getAccCountHandler, allocateAccountHandler
 }
