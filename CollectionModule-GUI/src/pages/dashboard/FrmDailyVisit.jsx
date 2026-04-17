@@ -54,7 +54,7 @@ function FrmDailyVisit() {
                     toDate: values.toDate,
                 },
             });
-
+            console.log(response.data.data);
             if (response?.data?.success && response?.data?.data) {
                 setDashboardData(response.data.data);
                 return;
@@ -544,9 +544,9 @@ function FrmDailyVisit() {
                         {dashboardData?.dateRange?.ptpDateRangeLabel || 'PTP spans from - to -'}
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-7">
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-start">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
                             {ptpCards.map((card) => (
-                                <div key={card.label} className="p-4 bg-blue-50 rounded border border-blue-100">
+                                <div key={card.label} className="p-4 bg-blue-50 rounded h-full border border-blue-100">
                                     <p className="text-xs text-gray-600">{card.label}</p>
                                     <p className="text-md font-bold text-blue-600 mt-2">{card.value}</p>
                                 </div>
@@ -556,7 +556,7 @@ function FrmDailyVisit() {
                         <div className='w-full'>
                             <Card className="w-full">
                                 <div className="p-4 w-full">
-                                    <div className="relative w-full">
+                                    <div className="relative md:w-64 md:h-64 md:mx-auto">
                                         <PieChart title="PTP Conversion Percent" data={ptpConversionChartData} options={{
                                             plugins: {
                                                 legend: { position: 'bottom' },
