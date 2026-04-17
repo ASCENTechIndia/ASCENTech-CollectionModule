@@ -60,6 +60,7 @@ import TransactionReport from "./pages/reports/TransactionReport";
 import FrmUserRouteReport from "./pages/reports/FrmUserRouteReport";
 import MapViewPage from "./components/ui/MapViewPage";
 import FrmUnallocatedCasesReport from "./pages/reports/FrmUnallocatedCasesReport";
+import RptDaywisedata from "./pages/reports/RptDaywisedata";
 
 const queryClient = new QueryClient();
 
@@ -218,6 +219,10 @@ function App() {
                 <Route
                   path="/Report/FrmUnallocatedCasesReport"
                   element={<FrmUnallocatedCasesReport />}
+                />
+                <Route
+                  path="/Report/RptDaywisedata"
+                  element={<RptDaywisedata />}
                 />
 
                 {/* Reports */}
