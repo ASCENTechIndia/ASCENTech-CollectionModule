@@ -332,24 +332,66 @@ async function getaccCount() {
   return result.rows || [];
 }
 
-async function accountAllocation(userId) {
+async function accountAllocation(payload) {
+  //for atbss.aoup_contract_pincode_map procedure :in_UserId use this instead :IN_UserName
+
   const statement = `
     BEGIN
-      atbss.aoup_contract_pincode_map(
-        :in_UserId,
-        :out_ErrorCode,
-        :out_ErrorMsg
+      atbss.aoup_contract_pincode_map_CBI_Prod(
+        :IN_UserName,
+        :OUT_ERRCODE,
+        :OUT_ERRTEXT,
+        :OUT_ASSIGN_COUNT,
+        :OUT_PEN_COUNT,
+        :OUT_date,
+        :OUT_TOTAL_COUNT
  );
     END;
   `;
     const binds = {
-          in_pincode: Number(userId),
-    out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
-    out_ErrorMsg: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 1000 },
+    // in_UserId: payload.userId,
+    IN_UserName: 1,
+    OUT_ERRCODE: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    OUT_ERRTEXT: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 1000 },
+    OUT_ASSIGN_COUNT: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    OUT_PEN_COUNT: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    OUT_date: { dir: oracledb.BIND_OUT, type: oracledb.DATE },
+    OUT_TOTAL_COUNT: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
   };
+   const result = await executeProcedure({ statement, binds, useTx: false });
 
-  const result = await executeProcedure({ statement, binds, useTx: false });
-  return result.outBinds;
+  const out = result.outBinds;
+  if (out.OUT_ERRCODE === 9999) {
+    const insertSql = `
+      INSERT INTO atbss.aoup_etech_bank_Allocationcount
+      (DATEFIELD, TOTALCOUNT, ALLOCATED, UNALLOCATED)
+      VALUES (
+        :dateVal,
+        :total,
+        :assigned,
+        :pending
+      )
+    `;
+    const insertBinds = {
+      dateVal: { val: out.OUT_date, type: oracledb.DATE },
+      total: { val: out.OUT_TOTAL_COUNT, type: oracledb.NUMBER },
+      assigned: { val: out.OUT_ASSIGN_COUNT, type: oracledb.NUMBER },
+      pending: { val: out.OUT_PEN_COUNT, type: oracledb.NUMBER }
+    };
+    await executeQuery(insertSql, insertBinds);
+    return {
+      success: true,
+      message: "Contract Allocation Successful",
+        total: out.OUT_TOTAL_COUNT,
+        allocated: out.OUT_ASSIGN_COUNT,
+        unallocated: out.OUT_PEN_COUNT,
+        date: out.OUT_date
+    };
+  }
+  return {
+    success: false,
+    message: out.OUT_ERRTEXT || "Something went wrong"
+  };
 }
 
 module.exports = {

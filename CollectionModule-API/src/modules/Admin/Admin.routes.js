@@ -36,7 +36,7 @@ router.post(
 );
 router.post('/matrix-distance-insertion', matrixDistanceInsertionHandler);
 router.get('/getAccCounts', getAccCountHandler);
-router.get('/allocateAccount', validate(lastLoginSchema), allocateAccountHandler);
+router.post('/allocateAccount', allocateAccountHandler);
 
 module.exports = router;
 

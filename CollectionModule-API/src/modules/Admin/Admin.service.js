@@ -35,8 +35,8 @@ async function accCountService() {
   return getaccCount();
 }
 
-async function allocateAccService(payload) {
-  return accountAllocation(payload);
+async function allocateAccService() {
+  return accountAllocation();
 }
 
 module.exports = {

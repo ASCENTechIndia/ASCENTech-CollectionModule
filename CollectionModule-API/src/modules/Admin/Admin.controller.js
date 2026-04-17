@@ -123,8 +123,8 @@ async function getAccCountHandler(req, res, next) {
 
 async function allocateAccountHandler(req, res, next) {
    try {
-    const payload = req.body;
-    const out = await allocateAccService(payload);
+    // const payload = req.body;
+    const out = await allocateAccService();
 
     const isSuccess = String(out.Out_errorCode) === '9999';
     if (isSuccess) {
