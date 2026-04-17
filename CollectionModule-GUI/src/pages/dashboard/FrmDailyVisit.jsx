@@ -83,12 +83,12 @@ function FrmDailyVisit() {
     }
 
     const allocationChartData = useMemo(() => ({
-        labels: ['Total'],
+        labels: ['Allocated', 'Unallocated'],
         datasets: [{
-            label: dashboardData?.allocation?.totalAccounts === 0 ? 'No Data' : "Accounts",
+            label: "Account",
             data: [
-                dashboardData?.allocation?.totalAccounts || 0,
-                dashboardData?.allocation?.totalAccounts === 0 ? 1 : 0
+                dashboardData?.allocation?.allocatedAccounts || 0,
+                dashboardData?.allocation?.unallocatedAccounts || 0
                 //     dashboardData?.allocation?.visitedAccounts || 0,
                 //     dashboardData?.allocation?.nonVisitedAccounts || 0,
             ],
@@ -111,12 +111,12 @@ function FrmDailyVisit() {
     }), [dashboardData]);
 
     const visitChartData = useMemo(() => ({
-        labels: ['Total Visits'],
+        labels: ['Visited', "Non-Visited"],
         datasets: [{
-            label: 'Visits',
+            label: "Visits",
             data: [
-                dashboardData?.allocation?.allocatedAccounts || 0,
-                dashboardData?.allocation?.allocatedAccounts === 0 ? 1 : 0
+                dashboardData?.allocation?.visitedAccounts || 0,
+                dashboardData?.allocation?.nonVisitedAccounts || 0
                 // dashboardData?.visitStats?.uniqueVisits || 0,
                 // Math.max(0, (dashboardData?.visitStats?.totalVisits || 0) - (dashboardData?.visitStats?.uniqueVisits || 0)),
             ],
@@ -475,11 +475,11 @@ function FrmDailyVisit() {
                                         />
 
                                         {/* 🔥 Center Text Overlay */}
-                                        <div className="absolute flex flex-col items-center justify-center pointer-events-none">
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[-12px] md:mt-[0px]">
                                             <span className="text-xs text-gray-500">
                                                 Total
                                             </span>
-                                            <span className="text-xl font-bold text-gray-900">
+                                            <span className="text-xs md:text-xl font-bold text-gray-900">
                                                 {dashboardData?.allocation?.totalAccounts || 0}
                                             </span>
                                         </div>
@@ -502,11 +502,11 @@ function FrmDailyVisit() {
                                             }}
                                         />
 
-                                        <div className="absolute flex flex-col items-center justify-center pointer-events-none">
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[-12px] md:mt-[0px]">
                                             <span className="text-xs text-gray-500">
                                                 Total
                                             </span>
-                                            <span className="text-xl font-bold text-gray-900">
+                                            <span className="text-xs md:text-xl font-bold text-gray-900">
                                                 {dashboardData?.allocation?.allocatedAccounts || 0}
                                             </span>
                                         </div>
