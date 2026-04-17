@@ -11,6 +11,7 @@ import { AlertCircle } from 'lucide-react';
 const FrmContractAllocation = () => {
     const { user } = useAuth();
     const [isChecked, setIsChecked] = useState(false);
+    const [showMessage, setShowMessage] = useState(false);
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
@@ -25,6 +26,7 @@ const FrmContractAllocation = () => {
                             onChange={setIsChecked}
                         />
                     </div>
+                    {}
                     <div>
                         <button
                             type="submit"

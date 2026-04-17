@@ -50,6 +50,7 @@ import FrmLastLoginHistory from "./pages/Admin/FrmLastLoginHistory";
 import FrmNewDashboard2 from './pages/dashboard/FrmNewDashboard2'
 import FrmDailyVisit from './pages/dashboard/FrmDailyVisit'
 import FrmBucketSetter from "./pages/Admin/FrmBucketSetter"
+import FrmDistanceMatrix from "./pages/Admin/FrmDistanceMatrix"
 import FrmUnassignCases from "./pages/user/FrmUnassignCases"
 import FrmAccountAllocationReport from "./pages/reports/FrmAccountAllocationReport"
 import FrmInactiveUserPincodeHistory from "./pages/reports/FrmInactiveUserPincodeHistory"
@@ -62,6 +63,7 @@ import FrmUserRouteReport from "./pages/reports/FrmUserRouteReport";
 import MapViewPage from "./components/ui/MapViewPage";
 import FrmUnallocatedCasesReport from "./pages/reports/FrmUnallocatedCasesReport";
 import FrmContractAllocation from "./pages/Admin/FrmContractAllocation";
+import RptDaywisedata from "./pages/reports/RptDaywisedata";
 
 const queryClient = new QueryClient();
 
@@ -176,6 +178,10 @@ function App() {
                   element={<FrmBucketSetter />}
                 />
                 <Route
+                  path="/Admin/FrmDistanceMatrix"
+                  element={<FrmDistanceMatrix />}
+                />
+                <Route
                   path="/Admin/FrmUnassignCases"
                   element={<FrmUnassignCases />}
                 />
@@ -228,6 +234,10 @@ function App() {
                 <Route
                   path="/Report/FrmUnallocatedCasesReport"
                   element={<FrmUnallocatedCasesReport />}
+                />
+                <Route
+                  path="/Report/RptDaywisedata"
+                  element={<RptDaywisedata />}
                 />
 
                 {/* Reports */}

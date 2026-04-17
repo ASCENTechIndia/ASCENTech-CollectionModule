@@ -12,6 +12,7 @@ const {
   bucketSetterHandler,
   getUsersWithPincodesHandler,
   unassignCasesHandler,
+  matrixDistanceInsertionHandler, getAccCountHandler, allocateAccountHandler
 } = require('./Admin.controller');
 
 const router = express.Router();
@@ -33,6 +34,9 @@ router.post(
   validate(unassignCasesSchema, { source: 'body' }),
   unassignCasesHandler
 );
+router.post('/matrix-distance-insertion', matrixDistanceInsertionHandler);
+router.get('/getAccCounts', getAccCountHandler);
+router.post('/allocateAccount', allocateAccountHandler);
 
 module.exports = router;
 
