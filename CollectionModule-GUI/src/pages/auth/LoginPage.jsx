@@ -298,7 +298,7 @@ export default function LoginPage() {
 
         {/* Footer text */}
         <p className="text-center text-sm text-gray-500 mt-6">
-          © 2024 CenterBank. All rights reserved.
+          © 2026 All rights reserved.
         </p>
       </div>
     </div>
