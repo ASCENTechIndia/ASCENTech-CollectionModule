@@ -83,12 +83,12 @@ function FrmDailyVisit() {
     }
 
     const allocationChartData = useMemo(() => ({
-        labels: ['Total'],
+        labels: ['Allocated', 'Unallocated'],
         datasets: [{
-            label: dashboardData?.allocation?.totalAccounts === 0 ? 'No Data' : "Accounts",
+            label: "Account",
             data: [
-                dashboardData?.allocation?.totalAccounts || 0,
-                dashboardData?.allocation?.totalAccounts === 0 ? 1 : 0
+                dashboardData?.allocation?.allocatedAccounts || 0,
+                dashboardData?.allocation?.unallocatedAccounts || 0
                 //     dashboardData?.allocation?.visitedAccounts || 0,
                 //     dashboardData?.allocation?.nonVisitedAccounts || 0,
             ],
@@ -111,12 +111,12 @@ function FrmDailyVisit() {
     }), [dashboardData]);
 
     const visitChartData = useMemo(() => ({
-        labels: ['Total Visits'],
+        labels: ['Visited', "Non-Visited"],
         datasets: [{
-            label: 'Visits',
+            label: "Visits",
             data: [
-                dashboardData?.allocation?.allocatedAccounts || 0,
-                dashboardData?.allocation?.allocatedAccounts === 0 ? 1 : 0
+                dashboardData?.allocation?.visitedAccounts || 0,
+                dashboardData?.allocation?.nonVisitedAccounts || 0
                 // dashboardData?.visitStats?.uniqueVisits || 0,
                 // Math.max(0, (dashboardData?.visitStats?.totalVisits || 0) - (dashboardData?.visitStats?.uniqueVisits || 0)),
             ],
