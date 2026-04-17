@@ -64,6 +64,7 @@ const MENU_ITEMS = [
     icon: ClipboardList,
     submenu: [
       { label: "Account Allocation Report", href: "/Report/FrmAccountAllocationReport" },
+      { label: "Daily Uploaded Report", href: "/Report/RptDaywisedata" },
       { label: "Inactive User Pincode History", href: "/Report/FrmInactiveUserPincodeHistory" },
       { label: "Overall Performance Report", href: "/Report/FrmOverallPerformanceSummaryReport" },
       { label: "Non Visit Done Summary Report", href: "/Report/FrmNonVisitDoneSummaryReport" },
