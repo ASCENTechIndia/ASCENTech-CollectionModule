@@ -3,7 +3,8 @@ const {
   lastLoginService,
   bucketSetterService,
   getUsersWithPincodesService,
-  unassignCasesService, accCountService, allocateAccService
+  unassignCasesService,
+  matrixDistanceInsertionService, accCountService, allocateAccService
 } = require('./Admin.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -94,8 +95,22 @@ async function unassignCasesHandler(req, res, next) {
     return next(error);
   }
 }
-
-
+  
+async function matrixDistanceInsertionHandler(req, res, next) {
+  try {
+    const result = await matrixDistanceInsertionService();
+    logApiSuccess(
+      req,
+      200,
+      { rowsUpdated: result?.totalRowsAffected || 0 },
+      result.message || 'Matrix distance insertion completed'
+    );
+    return res.ok(result);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Matrix distance insertion error');
+    return next(error);
+  }
+}
 async function getAccCountHandler(req, res, next) {
   try {
     const rows = await accCountService();
@@ -103,7 +118,6 @@ async function getAccCountHandler(req, res, next) {
     return res.ok(rows);
   } catch (error) {
     logApiError(req, 500, error.message, 'Counts error');
-    return next(error);
   }
 }
 
@@ -141,5 +155,6 @@ module.exports = {
   lastLoginHandler,
   bucketSetterHandler,
   getUsersWithPincodesHandler,
-  unassignCasesHandler, getAccCountHandler, allocateAccountHandler
-} 
+  unassignCasesHandler,
+  matrixDistanceInsertionHandler, getAccCountHandler, allocateAccountHandler
+}

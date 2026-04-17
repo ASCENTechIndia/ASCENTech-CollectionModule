@@ -11,7 +11,8 @@ const {
   lastLoginHandler,
   bucketSetterHandler,
   getUsersWithPincodesHandler,
-  unassignCasesHandler, getAccCountHandler, allocateAccountHandler
+  unassignCasesHandler,
+  matrixDistanceInsertionHandler, getAccCountHandler, allocateAccountHandler
 } = require('./Admin.controller');
 
 const router = express.Router();
@@ -33,21 +34,7 @@ router.post(
   validate(unassignCasesSchema, { source: 'body' }),
   unassignCasesHandler
 );
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+router.post('/matrix-distance-insertion', matrixDistanceInsertionHandler);
 router.get('/getAccCounts', getAccCountHandler);
 router.get('/allocateAccount', validate(lastLoginSchema), allocateAccountHandler);
 

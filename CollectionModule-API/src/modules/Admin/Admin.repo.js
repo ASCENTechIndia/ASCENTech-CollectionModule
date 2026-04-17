@@ -148,6 +148,171 @@ async function unassignCases(selections) {
   };
 }
 
+function parseLatLong(text) {
+  const value = String(text || '').trim();
+  if (!value || !value.includes(',')) {
+    return null;
+  }
+
+  const [latRaw, lngRaw] = value.split(',');
+  const lat = Number.parseFloat(String(latRaw || '').trim());
+  const lng = Number.parseFloat(String(lngRaw || '').trim());
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return null;
+  }
+
+  return { lat, lng };
+}
+
+async function getLatLongFromAddress(address, apiKey) {
+  const cleanAddress = String(address || '').trim();
+  if (!cleanAddress || !apiKey) {
+    return null;
+  }
+
+  const params = new URLSearchParams({
+    address: cleanAddress,
+    key: apiKey,
+  });
+
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?${params.toString()}`;
+  const response = await fetch(url, { method: 'GET' });
+  if (!response.ok) {
+    return null;
+  }
+
+  const payload = await response.json();
+  if (payload?.status !== 'OK') {
+    return null;
+  }
+
+  const location = payload?.results?.[0]?.geometry?.location;
+  const lat = Number(location?.lat);
+  const lng = Number(location?.lng);
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return null;
+  }
+
+  return { lat, lng };
+}
+
+async function getDistanceInKm(origin, destination, apiKey) {
+  if (!origin || !destination || !apiKey) {
+    return 0;
+  }
+
+  const params = new URLSearchParams({
+    origins: `${origin.lat},${origin.lng}`,
+    destinations: `${destination.lat},${destination.lng}`,
+    key: apiKey,
+  });
+
+  const url = `https://maps.googleapis.com/maps/api/distancematrix/json?${params.toString()}`;
+  const response = await fetch(url, { method: 'GET' });
+  if (!response.ok) {
+    return 0;
+  }
+
+  const payload = await response.json();
+  if (payload?.status !== 'OK') {
+    return 0;
+  }
+
+  const element = payload?.rows?.[0]?.elements?.[0];
+  if (!element || element.status !== 'OK') {
+    return 0;
+  }
+
+  const meters = Number(element?.distance?.value);
+  if (!Number.isFinite(meters)) {
+    return 0;
+  }
+
+  return Math.round((meters / 1000) * 100) / 100;
+}
+
+async function matrixDistanceInsertion() {
+  const statement = `
+    BEGIN
+      atbss.Aoup_INSERT_MATRIX_DISTINCT_BANKTRANS(
+        :out_count,
+        :out_errorcode
+      );
+    END;
+  `;
+
+  const binds = {
+    out_count: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    out_errorcode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+  };
+
+  const procResult = await executeProcedure({ statement, binds, useTx: false });
+  const insertedCount = Number(procResult?.outBinds?.out_count || 0);
+  const errorCode = Number(procResult?.outBinds?.out_errorcode || 0);
+
+  let totalRowsAffected = 0;
+  let rowsProcessed = 0;
+
+  if (errorCode === 9999) {
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY || process.env.GOOGLE_DISTANCE_API_KEY || '';
+
+    const selectSql = `
+      SELECT
+        dist_num_banktransdet_transid,
+        dist_var_banktransdet_transidnew,
+        dist_var_bankdata_cobrowsraddress,
+        dist_var_banktransdet_golocation
+      FROM atbss.aoup_etech_matrix_distince_banktransdetails
+      WHERE DIST_VAR_BANKDATA_MATRIX_DISTANCE IS NULL
+    `;
+
+    const pending = await executeQuery(selectSql);
+    const rows = pending.rows || [];
+
+    for (const row of rows) {
+      const address = row.DIST_VAR_BANKDATA_COBROWSRADDRESS;
+      const destinationText = row.DIST_VAR_BANKTRANSDET_GOLOCATION;
+      if (!address || !destinationText) {
+        continue;
+      }
+
+      const origin = await getLatLongFromAddress(address, apiKey);
+      const destination = parseLatLong(destinationText);
+      const distanceKm = await getDistanceInKm(origin, destination, apiKey);
+
+      const updateSql = `
+        UPDATE atbss.aoup_etech_matrix_distince_banktransdetails
+        SET DIST_VAR_BANKDATA_MATRIX_DISTANCE = :distance
+        WHERE dist_num_banktransdet_transid = :transId
+          AND dist_var_banktransdet_transidnew = :transIdNew
+      `;
+
+      const updateBinds = {
+        distance: String(distanceKm),
+        transId: row.DIST_NUM_BANKTRANSDET_TRANSID,
+        transIdNew: row.DIST_VAR_BANKTRANSDET_TRANSIDNEW,
+      };
+
+      const updated = await executeQuery(updateSql, updateBinds);
+      totalRowsAffected += Number(updated?.rowsAffected || 0);
+      rowsProcessed += 1;
+    }
+  }
+
+  return {
+    insertedCount,
+    errorCode,
+    rowsProcessed,
+    totalRowsAffected,
+    message:
+      errorCode === 9999
+        ? `Total updated transactions distance: ${totalRowsAffected}`
+        : 'Matrix insertion procedure did not return success code 9999',
+  };
+}
+
 async function getaccCount() {
   let sql = `
    SELECT COUNT(*) AS NullFOSCount
@@ -174,12 +339,11 @@ async function accountAllocation(userId) {
         :in_UserId,
         :out_ErrorCode,
         :out_ErrorMsg
-      );
+ );
     END;
   `;
-
-  const binds = {
-    in_pincode: Number(userId),
+    const binds = {
+          in_pincode: Number(userId),
     out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
     out_ErrorMsg: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 1000 },
   };
@@ -193,5 +357,6 @@ module.exports = {
   getUserLastLogin,
   bucketSetter,
   fetchUsersWithPincodes,
-  unassignCases, getaccCount, accountAllocation
+  unassignCases,
+  matrixDistanceInsertion,  getaccCount, accountAllocation
 } 
