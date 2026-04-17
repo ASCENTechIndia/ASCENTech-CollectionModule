@@ -11,7 +11,7 @@ const {
   lastLoginHandler,
   bucketSetterHandler,
   getUsersWithPincodesHandler,
-  unassignCasesHandler,
+  unassignCasesHandler, getAccCountHandler, allocateAccountHandler
 } = require('./Admin.controller');
 
 const router = express.Router();
@@ -33,6 +33,23 @@ router.post(
   validate(unassignCasesSchema, { source: 'body' }),
   unassignCasesHandler
 );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+router.get('/getAccCounts', getAccCountHandler);
+router.get('/allocateAccount', validate(lastLoginSchema), allocateAccountHandler);
 
 module.exports = router;
 

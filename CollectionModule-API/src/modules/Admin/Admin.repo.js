@@ -148,10 +148,50 @@ async function unassignCases(selections) {
   };
 }
 
+async function getaccCount() {
+  let sql = `
+   SELECT COUNT(*) AS NullFOSCount
+    FROM atbss.aoup_etech_contractUploadAllocationDetails t1
+    JOIN (
+        SELECT CONTRACTNUMBER, MAX(CONTRACTUPLOADDATE) AS LatestUploadDate
+        FROM atbss.aoup_etech_contractUploadAllocationDetails
+        GROUP BY CONTRACTNUMBER
+    ) t2
+    ON t1.CONTRACTNUMBER = t2.CONTRACTNUMBER
+    AND t1.CONTRACTUPLOADDATE = t2.LatestUploadDate
+    WHERE t1.ASSIGNEDFOS IS NULL
+  `;
+
+  const binds = {};
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function accountAllocation(userId) {
+  const statement = `
+    BEGIN
+      atbss.aoup_contract_pincode_map(
+        :in_UserId,
+        :out_ErrorCode,
+        :out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_pincode: Number(userId),
+    out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    out_ErrorMsg: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 1000 },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
 module.exports = {
   getUserLocationTracking,
   getUserLastLogin,
   bucketSetter,
   fetchUsersWithPincodes,
-  unassignCases,
+  unassignCases, getaccCount, accountAllocation
 } 
