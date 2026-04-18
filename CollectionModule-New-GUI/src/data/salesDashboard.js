@@ -1,0 +1,145 @@
+export const salesStats = [
+  {
+    value: '$124,563',
+    label: 'Total Revenue',
+    icon: 'bi bi-currency-dollar',
+    iconClass: 'primary',
+    change: '18.2% vs last month',
+    trend: 'positive',
+  },
+  {
+    value: '3,842',
+    label: 'Total Orders',
+    icon: 'bi bi-bag-check',
+    iconClass: 'success',
+    change: '12.5% vs last month',
+    trend: 'positive',
+  },
+  {
+    value: '4.28%',
+    label: 'Conversion Rate',
+    icon: 'bi bi-graph-up-arrow',
+    iconClass: 'warning',
+    change: '2.1% vs last month',
+    trend: 'negative',
+  },
+  {
+    value: '$32.42',
+    label: 'Avg Order Value',
+    icon: 'bi bi-receipt',
+    iconClass: 'info',
+    change: '5.3% vs last month',
+    trend: 'positive',
+  },
+]
+
+export const topProducts = [
+  {
+    name: 'MacBook Pro 14"',
+    category: 'Electronics',
+    price: '$1,999',
+    sold: 142,
+    revenue: '$283,858',
+    icon: 'bi bi-laptop',
+    iconClass: 'primary',
+    trend: '+12%',
+    trendClass: 'success',
+  },
+  {
+    name: 'iPhone 15 Pro',
+    category: 'Electronics',
+    price: '$1,199',
+    sold: 238,
+    revenue: '$285,362',
+    icon: 'bi bi-phone',
+    iconClass: 'success',
+    trend: '+8%',
+    trendClass: 'success',
+  },
+  {
+    name: 'AirPods Pro',
+    category: 'Audio',
+    price: '$249',
+    sold: 512,
+    revenue: '$127,488',
+    icon: 'bi bi-headphones',
+    iconClass: 'warning',
+    trend: '-3%',
+    trendClass: 'danger',
+  },
+  {
+    name: 'Apple Watch Series 9',
+    category: 'Wearables',
+    price: '$399',
+    sold: 186,
+    revenue: '$74,214',
+    icon: 'bi bi-watch',
+    iconClass: 'info',
+    trend: '+15%',
+    trendClass: 'success',
+  },
+  {
+    name: 'Magic Keyboard',
+    category: 'Accessories',
+    price: '$299',
+    sold: 98,
+    revenue: '$29,302',
+    icon: 'bi bi-keyboard',
+    iconClass: 'danger',
+    trend: '0%',
+    trendClass: 'warning',
+  },
+]
+
+export const categories = [
+  { name: 'Electronics', amount: '$569,220', value: 569220 },
+  { name: 'Audio', amount: '$127,488', value: 127488 },
+  { name: 'Wearables', amount: '$74,214', value: 74214 },
+  { name: 'Accessories', amount: '$29,302', value: 29302 },
+]
+
+export const transactions = [
+  {
+    title: 'Payment from #ORD-7352',
+    meta: 'Credit Card • 2 min ago',
+    amount: '+$1,999.00',
+    kind: 'positive',
+    icon: 'bi bi-arrow-down-left',
+  },
+  {
+    title: 'Refund to #ORD-7284',
+    meta: 'PayPal • 15 min ago',
+    amount: '-$249.00',
+    kind: 'negative',
+    icon: 'bi bi-arrow-up-right',
+  },
+  {
+    title: 'Payment from #ORD-7351',
+    meta: 'Credit Card • 32 min ago',
+    amount: '+$399.00',
+    kind: 'positive',
+    icon: 'bi bi-arrow-down-left',
+  },
+  {
+    title: 'Payment from #ORD-7350',
+    meta: 'Apple Pay • 1 hr ago',
+    amount: '+$2,398.00',
+    kind: 'positive',
+    icon: 'bi bi-arrow-down-left',
+  },
+  {
+    title: 'Payment from #ORD-7349',
+    meta: 'Credit Card • 2 hrs ago',
+    amount: '+$598.00',
+    kind: 'positive',
+    icon: 'bi bi-arrow-down-left',
+  },
+]
+
+export const regions = [
+  { flag: 'US', name: 'United States', value: '$52,420', width: 65, colorClass: '' },
+  { flag: 'GB', name: 'United Kingdom', value: '$28,350', width: 45, colorClass: 'bg-success' },
+  { flag: 'DE', name: 'Germany', value: '$18,920', width: 32, colorClass: 'bg-warning' },
+  { flag: 'FR', name: 'France', value: '$14,680', width: 25, colorClass: 'bg-info' },
+  { flag: 'CA', name: 'Canada', value: '$10,193', width: 18, colorClass: 'bg-danger' },
+]
