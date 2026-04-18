@@ -31,6 +31,10 @@ import FrmLastLoginHistory from './pages/Admin/FrmLastLoginHistory'
 import FrmBucketSetter from './pages/Admin/FrmBucketSetter'
 import FrmContractAllocation from './pages/Admin/FrmContractAllocation'
 import FrmDistanceMatrix from './pages/Admin/FrmDistanceMatrix'
+import FrmUserPinAllocation from './pages/user/FrmUserPinAllocation'
+import FrmUnassignCases from './pages/user/FrmUnassignCases'
+import FrmResetPassword from './pages/user/FrmResetPassword'
+import FrmChangePassword from './pages/user/FrmChangePassword'
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth()
@@ -79,6 +83,10 @@ function App() {
         <Route path="admin/bucket-setter" element={<FrmBucketSetter />} />
         <Route path="admin/contract-allocation" element={<FrmContractAllocation />} />
         <Route path="admin/distance-matrix" element={<FrmDistanceMatrix />} />
+        <Route path="user/pin-allocation" element={<FrmUserPinAllocation />} />
+        <Route path="user/unassign-cases" element={<FrmUnassignCases />} />
+        <Route path="user/reset-password" element={<FrmResetPassword />} />
+        <Route path="user/change-password" element={<FrmChangePassword />} />
       </Route>
 
       <Route
@@ -156,6 +164,10 @@ function App() {
       <Route path="/Report/FrmUnallocatedCasesReport" element={<Navigate to="/reports/unallocated-cases-report" replace />} />
       <Route path="/User/FrmUserLocationTracking" element={<Navigate to="/admin/user-location-tracking" replace />} />
       <Route path="/User/FrmLastLoginHistory" element={<Navigate to="/admin/last-login-history" replace />} />
+      <Route path="/User/FrmUserPinAllocation" element={<Navigate to="/user/pin-allocation" replace />} />
+      <Route path="/Admin/FrmUnassignCases" element={<Navigate to="/user/unassign-cases" replace />} />
+      <Route path="/User/FrmResetPassword" element={<Navigate to="/user/reset-password" replace />} />
+      <Route path="/User/FrmChangePassword" element={<Navigate to="/user/change-password" replace />} />
       <Route path="/Admin/FrmBucketSetter" element={<Navigate to="/admin/bucket-setter" replace />} />
       <Route path="/Admin/FrmContractAllocation" element={<Navigate to="/admin/contract-allocation" replace />} />
       <Route path="/Admin/FrmDistanceMatrix" element={<Navigate to="/admin/distance-matrix" replace />} />

@@ -14,6 +14,13 @@ const adminMenuItems = [
   { to: '/admin/distance-matrix', label: 'Distance Matrix' },
 ]
 
+const userMenuItems = [
+  { to: '/user/pin-allocation', label: 'Assigned Pincode FOS' },
+  { to: '/user/unassign-cases', label: 'Unassigned Cases' },
+  { to: '/user/reset-password', label: 'Reset Password' },
+  { to: '/user/change-password', label: 'Change Password' },
+]
+
 const tablesMenuItems = [{ to: '/tables/datatables', label: 'DataTables' }]
 
 const chartsMenuItems = [
@@ -86,6 +93,7 @@ function Sidebar({
   widgetsMenuOpen,
   reportsMenuOpen,
   adminMenuOpen,
+  userMenuOpen,
   onToggleAuthMenu,
   onToggleFormsMenu,
   onToggleComponentsMenu,
@@ -94,6 +102,7 @@ function Sidebar({
   onToggleWidgetsMenu,
   onToggleReportsMenu,
   onToggleAdminMenu,
+  onToggleUserMenu,
   onCloseMobile,
 }) {
   return (
@@ -224,6 +233,20 @@ function Sidebar({
               </button>
               <ul className={`nav-submenu ${adminMenuOpen ? 'show' : ''}`} style={{ maxHeight: adminMenuOpen ? `${adminMenuItems.length * 36 + 20}px` : '0px' }}>
                 {adminMenuItems.map((item) => (
+                  <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
+                ))}
+              </ul>
+            </li>
+
+            <li className={`nav-item has-submenu ${userMenuOpen ? 'open' : ''}`}>
+              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleUserMenu} aria-expanded={userMenuOpen}>
+                <span className="nav-icon"><i className="ph-light ph-user-circle" /></span>
+                <span className="nav-text">User</span>
+                <span className="nav-badge">{userMenuItems.length}</span>
+                <span className="nav-arrow"><i className="bi bi-chevron-right" /></span>
+              </button>
+              <ul className={`nav-submenu ${userMenuOpen ? 'show' : ''}`} style={{ maxHeight: userMenuOpen ? `${userMenuItems.length * 36 + 20}px` : '0px' }}>
+                {userMenuItems.map((item) => (
                   <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
                 ))}
               </ul>
