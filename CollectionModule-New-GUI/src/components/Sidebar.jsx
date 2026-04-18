@@ -53,6 +53,9 @@ const componentsMenuItems = [
   { to: '/components/toasts', label: 'Toasts' },
   { to: '/components/tooltips', label: 'Tooltips' },
 ]
+const user = [
+  { to: "/User/FrmUserModification", label: "User Modification"}
+]
 
 function Sidebar({
   desktopCollapsed,
@@ -103,6 +106,19 @@ function Sidebar({
                 <li><NavLink to="/auth/login" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> Login</NavLink></li>
                 <li><NavLink to="/auth/forgot-password" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> Forgot Password</NavLink></li>
                 <li><NavLink to="/auth/reset-password" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> Reset Password</NavLink></li>
+              </ul>
+            </li>
+
+            {/* Here i added my user FrmUserModification component */}
+            <li className={`nav-item has-submenu ${authMenuOpen ? 'open' : ''}`}>
+              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleAuthMenu} aria-expanded={authMenuOpen}>
+                <span className="nav-icon"><i className="ph-light ph-shield-check" /></span>
+                <span className="nav-text">User</span>
+                <span className="nav-badge">3</span>
+                <span className="nav-arrow"><i className="bi bi-chevron-right" /></span>
+              </button>
+              <ul className={`nav-submenu ${authMenuOpen ? 'show' : ''}`} style={{ maxHeight: authMenuOpen ? '220px' : '0px' }}>
+                <li><NavLink to="/User/FrmUserModification" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> User Modification</NavLink></li>
               </ul>
             </li>
 
