@@ -14,6 +14,17 @@ const chartsMenuItems = [
   { to: '/charts/echarts', label: 'ECharts' },
 ]
 
+const reportsMenuItems = [
+  { to: '/reports/account-allocation', label: 'Account Allocation Report' },
+  { to: '/reports/daywise-data', label: 'Daily Uploaded Report' },
+  { to: '/reports/inactive-user-pincode-history', label: 'Inactive User Pincode History' },
+  { to: '/reports/overall-performance-summary', label: 'Overall Performance Report' },
+  { to: '/reports/non-visit-done-summary', label: 'Non Visit Done Summary Report' },
+  { to: '/reports/visit-done-summary', label: 'Visit Done Summary Report' },
+  { to: '/reports/transaction-report', label: 'Transaction Report' },
+  { to: '/reports/sma-summary', label: 'SMA Summary Report' },
+]
+
 const widgetsMenuItems = [
   { to: '/widgets/widgets-cards', label: 'Cards' },
   { to: '/widgets/widgets-banners', label: 'Banners' },
@@ -67,12 +78,14 @@ function Sidebar({
   tablesMenuOpen,
   chartsMenuOpen,
   widgetsMenuOpen,
+  reportsMenuOpen,
   onToggleAuthMenu,
   onToggleFormsMenu,
   onToggleComponentsMenu,
   onToggleTablesMenu,
   onToggleChartsMenu,
   onToggleWidgetsMenu,
+  onToggleReportsMenu,
   onCloseMobile,
   userManagementMenuOpen,
   onToggleuserManagementMenu
@@ -183,6 +196,7 @@ function Sidebar({
               </ul>
             </li>
 
+<<<<<<< HEAD
              <li className={`nav-item has-submenu ${userManagementMenuOpen ? 'open' : ''}`}>
               <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleuserManagementMenu} aria-expanded={userManagementMenuOpen}>
                 <span className="nav-icon"><i className="ph-light ph-puzzle-piece" /></span>
@@ -192,12 +206,26 @@ function Sidebar({
               </button>
               <ul className={`nav-submenu ${userManagementMenuOpen ? 'show' : ''}`} style={{ maxHeight: userManagementMenuOpen ? `${userMgmtItems.length * 36 + 20}px` : '0px' }}>
                 {userMgmtItems.map((item) => (
+=======
+            <li className={`nav-item has-submenu ${reportsMenuOpen ? 'open' : ''}`}>
+              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleReportsMenu} aria-expanded={reportsMenuOpen}>
+                <span className="nav-icon"><i className="ph-light ph-chart-bar" /></span>
+                <span className="nav-text">Reports</span>
+                <span className="nav-badge">{reportsMenuItems.length}</span>
+                <span className="nav-arrow"><i className="bi bi-chevron-right" /></span>
+              </button>
+              <ul className={`nav-submenu ${reportsMenuOpen ? 'show' : ''}`} style={{ maxHeight: reportsMenuOpen ? `${reportsMenuItems.length * 36 + 20}px` : '0px' }}>
+                {reportsMenuItems.map((item) => (
+>>>>>>> 0b8e7afd479e57f7516fc704b13ef36dfd64e679
                   <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
                 ))}
               </ul>
             </li>
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 0b8e7afd479e57f7516fc704b13ef36dfd64e679
           </ul>
         </nav>
 

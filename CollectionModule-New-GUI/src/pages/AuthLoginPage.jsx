@@ -1,8 +1,35 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+import { useNotification } from '../context/useNotification'
 
 function AuthLoginPage() {
   const [showPassword, setShowPassword] = useState(false)
+  const [userId, setUserId] = useState('')
+  const [password, setPassword] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const navigate = useNavigate()
+  const { login } = useAuth()
+  const { showError, showSuccess } = useNotification()
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    if (!userId.trim() || !password) {
+      showError('User ID and Password are required')
+      return
+    }
+
+    setSubmitting(true)
+    try {
+      await login({ userId: userId.trim(), password })
+      showSuccess('Login successful')
+      navigate('/')
+    } catch (error) {
+      showError(error?.message || 'Login failed')
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   return (
     <>
@@ -12,10 +39,19 @@ function AuthLoginPage() {
           <p className="fauth-subtitle">Sign in to continue to your FlexAdmin workspace.</p>
         </div>
 
-        <form className="fauth-form" onSubmit={(event) => event.preventDefault()}>
+        <form className="fauth-form" onSubmit={handleSubmit}>
           <div className="fauth-field">
-            <label htmlFor="email" className="form-label">Email address</label>
-            <input type="email" className="form-control" id="email" name="email" placeholder="name@example.com" required />
+            <label htmlFor="userId" className="form-label">User ID</label>
+            <input
+              type="text"
+              className="form-control"
+              id="userId"
+              name="userId"
+              placeholder="Enter user ID"
+              value={userId}
+              onChange={(event) => setUserId(event.target.value)}
+              required
+            />
           </div>
 
           <div className="fauth-field">
@@ -30,6 +66,8 @@ function AuthLoginPage() {
                 id="password"
                 name="password"
                 placeholder="Enter your password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
                 required
               />
               <button className="btn btn-outline-secondary" type="button" onClick={() => setShowPassword((value) => !value)}>
@@ -46,7 +84,9 @@ function AuthLoginPage() {
             <a href="#" className="fauth-link" onClick={(event) => event.preventDefault()}>Use lock screen</a>
           </div>
 
-          <button type="submit" className="btn btn-primary w-100">Sign In</button>
+          <button type="submit" className="btn btn-primary w-100" disabled={submitting}>
+            {submitting ? 'Signing in...' : 'Sign In'}
+          </button>
 
           <div className="fauth-divider"><span>or continue with</span></div>
 

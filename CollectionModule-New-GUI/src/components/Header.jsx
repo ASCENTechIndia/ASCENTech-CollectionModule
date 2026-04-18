@@ -1,7 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAsRead, onToggleSidebar, searchInputRef }) {
+  const navigate = useNavigate()
+  const { user, logout } = useAuth()
   const [activeLang, setActiveLang] = useState('en')
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [messagesOpen, setMessagesOpen] = useState(false)
@@ -12,6 +16,9 @@ function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAs
   const messagesPanelRef = useRef(null)
   const quickAccessRef = useRef(null)
   const localSearchRef = useRef(null)
+  const displayName = user?.name || user?.userName || user?.fullName || user?.userId || 'User'
+  const displayEmail = user?.email || ''
+  const displayRole = user?.role || user?.designation || 'User'
 
   const unreadCount = notifications.filter((item) => !item.read).length
 
@@ -34,6 +41,12 @@ function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAs
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  const handleLogout = async (event) => {
+    event.preventDefault()
+    await logout()
+    navigate('/auth/login')
+  }
 
   return (
     <header className="header">
@@ -234,8 +247,8 @@ function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAs
             >
               <img src="/assets/img/profile-img.webp" alt="User" className="user-avatar" />
               <div className="user-brief">
-                <span className="user-name">John Doe</span>
-                <span className="user-role">Product Admin</span>
+                <span className="user-name">{displayName}</span>
+                <span className="user-role">{displayRole}</span>
               </div>
               <i className="bi bi-chevron-down user-chevron" />
             </button>
@@ -244,8 +257,8 @@ function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAs
                 <div className="user-menu-header">
                   <img src="/assets/img/profile-img.webp" alt="User" className="user-menu-avatar" />
                   <div className="user-menu-info">
-                    <div className="user-menu-name">John Doe</div>
-                    <div className="user-menu-email">john.doe@example.com</div>
+                    <div className="user-menu-name">{displayName}</div>
+                    <div className="user-menu-email">{displayEmail}</div>
                   </div>
                 </div>
                 <div className="user-menu-body">
@@ -275,7 +288,7 @@ function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAs
                   </a>
                 </div>
                 <div className="user-menu-footer">
-                  <a href="/auth/login" className="user-menu-logout">
+                  <a href="/auth/login" className="user-menu-logout" onClick={handleLogout}>
                     <i className="bi bi-box-arrow-right" />
                     <span>Sign Out</span>
                   </a>

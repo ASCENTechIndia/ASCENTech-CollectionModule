@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { createContext, useContext, useState, useCallback } from 'react'
+=======
+import { createContext, useCallback, useContext, useState } from 'react'
+>>>>>>> 0b8e7afd479e57f7516fc704b13ef36dfd64e679
 import authService from '../services/authService'
 
 const AuthContext = createContext(null)
@@ -16,6 +20,7 @@ export function AuthProvider({ children }) {
     setLoading(true)
     setError(null)
     try {
+<<<<<<< HEAD
       // Call auth service API
       const response = await authService.login(credentials)
 
@@ -28,10 +33,22 @@ export function AuthProvider({ children }) {
       }
 
       // Map API response to application user object
+=======
+      const response = await authService.login(credentials)
+
+      const nextToken = response?.token
+      const userData = response?.user || {}
+
+      if (!response?.success || !nextToken) {
+        throw new Error(response?.message || 'Authentication failed')
+      }
+
+>>>>>>> 0b8e7afd479e57f7516fc704b13ef36dfd64e679
       const mappedUser = {
         ...userData,
         name: userData.userName || userData.name || userData.fullName || '',
         id: userData.userId || userData.id,
+<<<<<<< HEAD
         email: userData.email || ''
       }
 
@@ -46,6 +63,21 @@ export function AuthProvider({ children }) {
       const errorMessage = err.message || 'Login failed. Please check your credentials.'
       setError(errorMessage)
       throw err
+=======
+        email: userData.email || '',
+      }
+
+      setUser(mappedUser)
+      setToken(nextToken)
+      localStorage.setItem('user', JSON.stringify(mappedUser))
+      localStorage.setItem('token', nextToken)
+
+      return mappedUser
+    } catch (apiError) {
+      const message = apiError.message || 'Login failed. Please check your credentials.'
+      setError(message)
+      throw apiError
+>>>>>>> 0b8e7afd479e57f7516fc704b13ef36dfd64e679
     } finally {
       setLoading(false)
     }
@@ -53,6 +85,7 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(async () => {
     try {
+<<<<<<< HEAD
       // Call logout API
       await authService.logout()
     } catch (error) {
@@ -60,6 +93,13 @@ export function AuthProvider({ children }) {
     }
     
     // Clear local state and storage
+=======
+      await authService.logout()
+    } catch (apiError) {
+      console.error('Logout API error:', apiError)
+    }
+
+>>>>>>> 0b8e7afd479e57f7516fc704b13ef36dfd64e679
     setUser(null)
     setToken(null)
     localStorage.removeItem('user')

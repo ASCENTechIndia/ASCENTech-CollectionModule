@@ -6,11 +6,14 @@ class ApiClient {
     const {
       method = 'GET',
       data = null,
+      params = null,
       headers = {},
       timeout = 10000,
     } = options
 
-    const url = `${API_BASE_URL}${endpoint}`
+    const baseUrl = `${API_BASE_URL}${endpoint}`
+    const query = params ? new URLSearchParams(params).toString() : ''
+    const url = query ? `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}${query}` : baseUrl
     
     // Get token from localStorage
     const token = localStorage.getItem('token')
