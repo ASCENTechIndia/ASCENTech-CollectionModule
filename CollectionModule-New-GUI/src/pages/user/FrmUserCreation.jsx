@@ -3,11 +3,11 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../../services/apiClient";
 import { Link } from 'react-router-dom'
-// import { useNotification } from "../../context/NotificationContext";
+import { useNotification } from "../../context/NotificationContext";
 
 const FrmUserCreation = () => {
   const navigate = useNavigate();
-//   const { showSuccess, showError } = useNotification();
+  const { showSuccess, showError } = useNotification();
 
   const {
     register,
@@ -80,16 +80,16 @@ const FrmUserCreation = () => {
 
       const res = await apiClient.post("/users/add-mobile-user", payload);
 
-      if (res?.data?.success && res?.data?.data?.Out_errorCode === 9999) {
-        showSuccess(res.data.data.Out_ErrorMsg || "User created successfully");
+      if (res?.success && res?.data?.Out_errorCode === 9999) {
+        window.alert(res.data.Out_ErrorMsg || "User created successfully");
         reset();
         navigate("/User/FrmUserList");
       } else {
-        showError(res?.data?.data?.Out_ErrorMsg || "Something went wrong");
+        window.alert(res?.data?.Out_ErrorMsg || "Something went wrong");
       }
     } catch (error) {
       console.error(error);
-      showError(error?.response?.data?.message || error.message || "Failed to create user. Please try again.");
+      window.alert(error?.response?.data?.message || error.message || "Failed to create user. Please try again.");
     }
   };
 
@@ -101,33 +101,34 @@ const FrmUserCreation = () => {
 
   // Fetch regions based on selected zone
   const fetchRegionsByZone = async (zoneId) => {
-    if (!zoneId) {
+  if (!zoneId) {
+    setRegionDropdown([]);
+    return;
+  }
+
+  setLoadingRegions(true);
+  try {
+    const response = await apiClient.get(`/users/regions?zoneId=${zoneId}`);
+    console.log(response);
+
+    if (response?.success && response?.data?.length > 0) {
+      const dd = response.data.map((item) => ({
+        value: item.id,
+        label: item.name,
+      }));
+
+      setRegionDropdown(dd);
+    } else {
       setRegionDropdown([]);
-      return;
     }
-
-    setLoadingRegions(true);
-    try {
-      const response = await apiClient.get(`/users/regions?zoneId=${zoneId}`);
-
-      if (response?.data?.success && response?.data?.data?.length > 0) {
-        const dd = response.data.data.map((item) => ({
-          value: item.id,
-          label: item.name,
-        }));
-        setRegionDropdown(dd);
-      } else {
-        setRegionDropdown([]);
-      }
-    } catch (error) {
-      console.error("Error fetching regions:", error);
-      setRegionDropdown([]);
-      showError(error.message || "Failed to fetch regions");
-    } finally {
-      setLoadingRegions(false);
-    }
-  };
-
+  } catch (error) {
+    console.error("Error fetching regions:", error);
+    setRegionDropdown([]);
+    showError(error.message || "Failed to fetch regions");
+  } finally {
+    setLoadingRegions(false);
+  }
+};
   // Fetch branches based on selected region
   const fetchBranchesByRegion = async (regionId) => {
     if (!regionId) {
@@ -141,8 +142,8 @@ const FrmUserCreation = () => {
         `/users/branches?regionId=${regionId}`,
       );
 
-      if (response?.data?.success && response?.data?.data?.length > 0) {
-        const dd = response.data.data.map((item) => ({
+      if (response?.success && response?.data?.length > 0) {
+        const dd = response.data.map((item) => ({
           value: item.id,
           label: item.name,
         }));
@@ -164,10 +165,10 @@ const FrmUserCreation = () => {
     try {
       const res = await apiClient.get("/users/mobile-form-options");
 
-      if (res?.data?.success && res?.data?.message === "success") {
+      if (res?.success && res?.message === "success") {
         // Working For
-        if (res?.data?.data?.workingFor?.length > 0) {
-          const dd = res.data.data.workingFor.map((item) => ({
+        if (res?.data?.workingFor?.length > 0) {
+          const dd = res.data.workingFor.map((item) => ({
             value: item.id,
             label: item.name,
           }));
@@ -177,8 +178,8 @@ const FrmUserCreation = () => {
         }
 
         // User Designation
-        if (res?.data?.data?.designations?.length > 0) {
-          const dd = res.data.data.designations.map((item) => ({
+        if (res?.data?.designations?.length > 0) {
+          const dd = res.data.designations.map((item) => ({
             value: item.id,
             label: item.name,
           }));
@@ -188,8 +189,8 @@ const FrmUserCreation = () => {
         }
 
         // Zone
-        if (res?.data?.data?.zones?.length > 0) {
-          const dd = res.data.data.zones.map((item) => ({
+        if (res?.data?.zones?.length > 0) {
+          const dd = res.data.zones.map((item) => ({
             value: item.id,
             label: item.name,
           }));
@@ -199,8 +200,8 @@ const FrmUserCreation = () => {
         }
 
         // User Role
-        if (res?.data?.data?.userRoles?.length > 0) {
-          const dd = res.data.data.userRoles.map((item) => ({
+        if (res?.data?.userRoles?.length > 0) {
+          const dd = res.data.userRoles.map((item) => ({
             value: item.id,
             label: item.name,
           }));
@@ -210,8 +211,8 @@ const FrmUserCreation = () => {
         }
 
         // User Device
-        if (res?.data?.data?.userDevices?.length > 0) {
-          const dd = res.data.data.userDevices.map((item) => ({
+        if (res?.data?.userDevices?.length > 0) {
+          const dd = res.data.userDevices.map((item) => ({
             value: item.id,
             label: item.name,
           }));
@@ -303,7 +304,7 @@ const FrmUserCreation = () => {
                 {...register("workingFor")}
                 className={`form-select ${errors.workingFor ? "is-invalid" : ""}`}
               >
-                <option value="">Select Department</option>
+                <option value="">Select Working For</option>
                 {workingDropdown.map((item) => (
                   <option value={item.value} key={item.value}>
                     {item.label}
@@ -323,8 +324,9 @@ const FrmUserCreation = () => {
                 Pincode <span className="text-danger">*</span>
               </label>
               <input
+              maxLength={6} 
                 type="text"
-                {...register("pinCode")}
+                {...register("pinCode",)}
                 className={`form-control ${errors.pinCode ? "is-invalid" : ""}`}
               />
               {errors.pinCode && (
@@ -382,6 +384,7 @@ const FrmUserCreation = () => {
     Mobile Number <span className="text-danger">*</span>
   </label>
   <input
+  maxLength={10}
     {...register("mobileNumber", {
       required: "Mobile Number is required",
     })}

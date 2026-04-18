@@ -37,8 +37,8 @@ const FrmUserCreationWeb = () => {
         try {
             const response = await apiClient.get(`/users/getUsercreationbranches/?brcategory=${brCategory}&userLevel=${selectedUserLevel}`, {});
 
-            if (response.data.success && Array.isArray(response.data.data)) {
-                const formattedOptions = response.data.data.map((item) => ({
+            if (response.success && Array.isArray(response.data)) {
+                const formattedOptions = response.data.map((item) => ({
                     label: item.BRANCHNAME,
                     value: item.BRID
                 }));
@@ -54,8 +54,8 @@ const FrmUserCreationWeb = () => {
         try {
             const response = await apiClient.get(`/users/getRoles`, {});
 
-            if (response.data.success && Array.isArray(response.data.data)) {
-                const formattedOptions = response.data.data.map((item) => ({
+            if (response.success && Array.isArray(response.data)) {
+                const formattedOptions = response.data.map((item) => ({
                     label: item.VAR_USERROLE_NAME,
                     value: item.NUM_USERROLE_ID
                 }));
@@ -70,8 +70,8 @@ const FrmUserCreationWeb = () => {
         try {
             const response = await apiClient.get(`/users/getUserDevices`, {});
 
-            if (response.data.success && Array.isArray(response.data.data)) {
-                const formattedOptions = response.data.data.map((item) => ({
+            if (response.success && Array.isArray(response.data)) {
+                const formattedOptions = response.data.map((item) => ({
                     label: item.VAR_USERDEVICE_NAME,
                     value: item.NUM_USERDEVICE_ID
                 }));
@@ -82,60 +82,68 @@ const FrmUserCreationWeb = () => {
         }
     }
 
-    const onSubmit = async (values) => {
-        try {
-            const payload = {
-                "in_brid": Number(values.zoneRegionBranch),
-                "in_userid": "0",
-                "in_username": `${values.firstName.trim()} ${values.lastName.trim()}`,
-                "in_userpwd": "",
-                "in_mobno": Number(values.mobileNumber),
-                "in_email": "",
-                "in_usertypeid": Number(values.userDevice),
-                "in_DOB": null,
-                "in_proofno": null,
-                "in_desgid": 0,
-                "in_roleid": Number(values.userRole),
-                "in_compcode": 0,
-                "in_workid": 0,
-                "in_empid": 0,
-                "in_collectionid": 0,
-                "in_categoryid": 0,
-                "in_mode": 1,
-                "in_status": "A",
-                "in_Empcode": values.employeeCode,
-                "in_firstname": values.firstName.trim(),
-                "in_lastname": values.lastName.trim(),
-                "in_prooftype": values.userFor === "1" ? 1 : 2,
-                "in_compid": 0,
-                "in_insby": userName
-            }
+   const onSubmit = async (values) => {
+  try {
+    const payload = {
+      in_brid: Number(values.zoneRegionBranch),
+      in_userid: "0",
+      in_username: `${values.firstName.trim()} ${values.lastName.trim()}`,
+      in_userpwd: "",
+      in_mobno: Number(values.mobileNumber),
+      in_email: "",
+      in_usertypeid: Number(values.userDevice),
+      in_DOB: null,
+      in_proofno: null,
+      in_desgid: 0,
+      in_roleid: Number(values.userRole),
+      in_compcode: 0,
+      in_workid: 0,
+      in_empid: 0,
+      in_collectionid: 0,
+      in_categoryid: 0,
+      in_mode: 1,
+      in_status: "A",
+      in_Empcode: values.employeeCode,
+      in_firstname: values.firstName.trim(),
+      in_lastname: values.lastName.trim(),
+      in_prooftype: values.userFor === "1" ? 1 : 2,
+      in_compid: 0,
+      in_insby: userName,
+    };
 
-            const response = await apiClient.post("/users/createWebUser", payload);
+    const response = await apiClient.post("/users/createWebUser", payload);
 
-            if (response.data.success && response.data.data.Out_errorCode === 9999) {
-                showSuccess(response.data.data.Out_ErrorMsg || 'User created successfully');
+    if (response?.data?.Out_errorCode === 9999) {
+      window.alert(response.data.Out_ErrorMsg || "User created successfully");
 
-                reset({
-                    userLevel: "",
-                    ZoneRegionBranch: "",
-                    userRole: "",
-                    userDevice: "",
-                    employeeCode: "",
-                    userFor: "",
-                    firstName: "",
-                    lastName: "",
-                    mobileNumber: ""
-                });
+      reset({
+        userLevel: "",
+        ZoneRegionBranch: "",
+        userRole: "",
+        userDevice: "",
+        employeeCode: "",
+        userFor: "",
+        firstName: "",
+        lastName: "",
+        mobileNumber: "",
+      });
 
-                setSelectedUserLevel("");
-                setBranchOptions([]);
-            }
-        } catch (error) {
-            console.error(error?.response?.data);
-            showError(error?.response?.data?.message || error?.message || 'Failed to create user');
-        }
+      setSelectedUserLevel("");
+      setBranchOptions([]);
+    } else {
+      window.alert(response?.data?.Out_ErrorMsg || "Something went wrong");
     }
+
+  } catch (error) {
+    console.error(error?.response?.data);
+
+    window.alert(
+      error?.response?.data?.message ||
+      error?.message ||
+      "Failed to create user"
+    );
+  }
+};
 
     useEffect(() => {
         if (!selectedUserLevel || !brCategory) return;
@@ -300,6 +308,7 @@ const FrmUserCreationWeb = () => {
             <div className="col-md-6">
               <label className="form-label">Mobile Number <span className="text-danger">*</span></label>
               <input
+              maxLength={10}
                 {...register("mobileNumber", { required: "Mobile Number is required" })}
                 className={`form-control ${errors.mobileNumber ? "is-invalid" : ""}`}
               />
@@ -318,7 +327,7 @@ const FrmUserCreationWeb = () => {
             <button
               type="button"
               className="btn btn-secondary"
-              onClick={() => navigate("/dashboard")}
+              onClick={() => navigate("/User/FrmUserList")}
             >
               Close
             </button>

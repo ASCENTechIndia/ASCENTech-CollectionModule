@@ -30,9 +30,9 @@ const FrmUserList = () => {
       const res = await apiClient.get(
         `/users/getBranches/?brcategory=${brCategory}&userLevel=${selectedUserLevel}`
       );
-      console.log("res", res)
-      if (res.data.success) {
-        const options = res.data.data.map((i) => ({
+    //   console.log("res", res)
+      if (res.success) {
+        const options = res.data.map((i) => ({
           label: i.BRANCHNAME,
           value: i.BRID,
         }));
@@ -50,8 +50,8 @@ const FrmUserList = () => {
         `/users/getAgents/?brid=${selectedBranch}`
       );
 
-      if (res.data.success) {
-        const rows = res.data.data.map((i) => ([
+      if (res.success) {
+        const rows = res.data.map((i) => ([
           i.USERID,
           i.EMPNAME,
           i.MOBNO,
