@@ -14,6 +14,7 @@ function AdminLayout() {
   const [tablesMenuManualOpen, setTablesMenuManualOpen] = useState(false)
   const [chartsMenuManualOpen, setChartsMenuManualOpen] = useState(false)
   const [widgetsMenuManualOpen, setWidgetsMenuManualOpen] = useState(false)
+  const [reportsMenuManualOpen, setReportsMenuManualOpen] = useState(false)
   const [theme, setTheme] = useState(() => {
     const savedTheme = localStorage.getItem('theme')
 
@@ -90,6 +91,7 @@ function AdminLayout() {
   const tablesRouteActive = location.pathname.startsWith('/tables')
   const chartsRouteActive = location.pathname.startsWith('/charts')
   const widgetsRouteActive = location.pathname.startsWith('/widgets')
+  const reportsRouteActive = location.pathname.startsWith('/reports')
 
   const authMenuOpen = authRouteActive || authMenuManualOpen
   const formsMenuOpen = formsRouteActive || formsMenuManualOpen
@@ -97,6 +99,7 @@ function AdminLayout() {
   const tablesMenuOpen = tablesRouteActive || tablesMenuManualOpen
   const chartsMenuOpen = chartsRouteActive || chartsMenuManualOpen
   const widgetsMenuOpen = widgetsRouteActive || widgetsMenuManualOpen
+  const reportsMenuOpen = reportsRouteActive || reportsMenuManualOpen
 
   const toggleSidebar = () => {
     // Debounce toggle to prevent rapid state changes during animations
@@ -164,12 +167,14 @@ function AdminLayout() {
         tablesMenuOpen={tablesMenuOpen}
         chartsMenuOpen={chartsMenuOpen}
         widgetsMenuOpen={widgetsMenuOpen}
+        reportsMenuOpen={reportsMenuOpen}
         onToggleAuthMenu={() => setAuthMenuManualOpen((value) => !value)}
         onToggleFormsMenu={() => setFormsMenuManualOpen((value) => !value)}
         onToggleComponentsMenu={() => setComponentsMenuManualOpen((value) => !value)}
         onToggleTablesMenu={() => setTablesMenuManualOpen((value) => !value)}
         onToggleChartsMenu={() => setChartsMenuManualOpen((value) => !value)}
         onToggleWidgetsMenu={() => setWidgetsMenuManualOpen((value) => !value)}
+        onToggleReportsMenu={() => setReportsMenuManualOpen((value) => !value)}
         onCloseMobile={() => setMobileOpen(false)}
       />
 

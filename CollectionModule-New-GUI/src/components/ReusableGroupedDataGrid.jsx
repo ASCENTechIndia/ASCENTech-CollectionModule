@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useNotification } from '../context/useNotification'
 
 function flattenHeaders(headers = []) {
   const leafColumns = []
@@ -50,6 +51,7 @@ export function ReusableGroupedDataGrid({
   className = '',
   searchPlaceholder = 'Search...',
 }) {
+  const { showError } = useNotification()
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(initialPageSize)
@@ -133,7 +135,7 @@ export function ReusableGroupedDataGrid({
       window.URL.revokeObjectURL(url)
     } catch (error) {
       console.error('Export failed:', error)
-      alert('Failed to export CSV')
+      showError('Failed to export CSV')
     }
   }
 
