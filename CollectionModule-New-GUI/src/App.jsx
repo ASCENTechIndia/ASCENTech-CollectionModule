@@ -16,6 +16,8 @@ import AuthLoginPage from './pages/AuthLoginPage'
 import AuthForgotPasswordPage from './pages/AuthForgotPasswordPage'
 import AuthResetPasswordPage from './pages/AuthResetPasswordPage'
 import SMASummaryReport from './pages/Reports/SMASummaryReport'
+import FrmUserList from './pages/user/FrmUserList'
+import FrmUserCreation from './pages/user/FrmUserCreation'
 
 function App() {
   return (
@@ -33,6 +35,8 @@ function App() {
         <Route path="charts/chartjs" element={<ChartsChartJsPage />} />
         <Route path="charts/echarts" element={<ChartsEChartsPage />} />
         <Route path="reports/sma-summary" element={<SMASummaryReport />} />
+        <Route path="User/FrmUserList" element={<FrmUserList />} />
+        <Route path="User/FrmUserCreation" element={<FrmUserCreation />} />
       </Route>
 
       <Route
@@ -100,6 +104,8 @@ function App() {
       <Route path="/components-toasts" element={<Navigate to="/components/toasts" replace />} />
       <Route path="/components-tooltips" element={<Navigate to="/components/tooltips" replace />} />
 
+      <Route path="/User" element={<Navigate to="/User/FrmUserList" replace />} />
+      <Route path="/User" element={<Navigate to="/User/FrmUserCreation" replace />} />
       <Route path="/404" element={<Error404Page />} />
       <Route path="*" element={<Navigate to="/404" replace />} />
     </Routes>

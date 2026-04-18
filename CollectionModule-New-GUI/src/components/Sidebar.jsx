@@ -54,6 +54,10 @@ const componentsMenuItems = [
   { to: '/components/tooltips', label: 'Tooltips' },
 ]
 
+const userMgmtItems = [
+  { to: '/User/FrmUserList', label: 'User Creation' }
+]
+
 function Sidebar({
   desktopCollapsed,
   mobileOpen,
@@ -70,6 +74,9 @@ function Sidebar({
   onToggleChartsMenu,
   onToggleWidgetsMenu,
   onCloseMobile,
+  userManagementMenuOpen,
+  onToggleuserManagementMenu
+
 }) {
   return (
     <>
@@ -175,6 +182,22 @@ function Sidebar({
                 ))}
               </ul>
             </li>
+
+             <li className={`nav-item has-submenu ${userManagementMenuOpen ? 'open' : ''}`}>
+              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleuserManagementMenu} aria-expanded={userManagementMenuOpen}>
+                <span className="nav-icon"><i className="ph-light ph-puzzle-piece" /></span>
+                <span className="nav-text">User Management</span>
+                <span className="nav-badge">{userMgmtItems.length}</span>
+                <span className="nav-arrow"><i className="bi bi-chevron-right" /></span>
+              </button>
+              <ul className={`nav-submenu ${userManagementMenuOpen ? 'show' : ''}`} style={{ maxHeight: userManagementMenuOpen ? `${userMgmtItems.length * 36 + 20}px` : '0px' }}>
+                {userMgmtItems.map((item) => (
+                  <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
+                ))}
+              </ul>
+            </li>
+
+
           </ul>
         </nav>
 
