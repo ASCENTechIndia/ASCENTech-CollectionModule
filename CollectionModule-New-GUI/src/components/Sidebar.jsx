@@ -2,8 +2,8 @@ import { NavLink } from 'react-router-dom'
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: 'ph-light ph-squares-four' },
-  { to: '/users', label: 'Users', icon: 'ph-light ph-users-three' },
-  { to: '/roles', label: 'Roles', icon: 'ph-light ph-shield' },
+  // { to: '/users', label: 'Users', icon: 'ph-light ph-users-three' },
+  // { to: '/roles', label: 'Roles', icon: 'ph-light ph-shield' },
 ]
 
 const adminMenuItems = [
@@ -15,13 +15,15 @@ const adminMenuItems = [
 ]
 
 const userMenuItems = [
+  { to: "/User/FrmUserModification", label: "User Modification" },
+  { to: "/User/FrmPincodeMstrInserion", label: "Pincode Master" },
   { to: '/user/pin-allocation', label: 'Assigned Pincode FOS' },
   { to: '/user/unassign-cases', label: 'Unassigned Cases' },
   { to: '/user/reset-password', label: 'Reset Password' },
   { to: '/user/change-password', label: 'Change Password' },
 ]
 
-const tablesMenuItems = [{ to: '/tables/datatables', label: 'DataTables' }]
+// const tablesMenuItems = [{ to: '/tables/datatables', label: 'DataTables' }]
 
 const chartsMenuItems = [
   { to: '/charts/apexcharts', label: 'ApexCharts' },
@@ -42,74 +44,67 @@ const reportsMenuItems = [
   { to: '/reports/sma-summary', label: 'SMA Summary Report' },
 ]
 
-const widgetsMenuItems = [
-  { to: '/widgets/widgets-cards', label: 'Cards' },
-  { to: '/widgets/widgets-banners', label: 'Banners' },
-  { to: '/widgets/widgets-charts', label: 'Charts' },
-  { to: '/widgets/widgets-apps', label: 'Apps' },
-  { to: '/widgets/widgets-data', label: 'Data' },
-]
+// const widgetsMenuItems = [
+//   { to: '/widgets/widgets-cards', label: 'Cards' },
+//   { to: '/widgets/widgets-banners', label: 'Banners' },
+//   { to: '/widgets/widgets-charts', label: 'Charts' },
+//   { to: '/widgets/widgets-apps', label: 'Apps' },
+//   { to: '/widgets/widgets-data', label: 'Data' },
+// ]
 
-const formsMenuItems = [
-  { to: '/forms/elements', label: 'Form Elements' },
-  { to: '/forms/layouts', label: 'Form Layouts' },
-  { to: '/forms/validation', label: 'Validation' },
-  { to: '/forms/wizard', label: 'Wizard' },
-  { to: '/forms/editors', label: 'Rich Editors' },
-  { to: '/forms/pickers', label: 'Date/Time Pickers' },
-  { to: '/forms/select', label: 'Advanced Select' },
-  { to: '/forms/upload', label: 'File Upload' },
-]
+// const formsMenuItems = [
+//   { to: '/forms/elements', label: 'Form Elements' },
+//   { to: '/forms/layouts', label: 'Form Layouts' },
+//   { to: '/forms/validation', label: 'Validation' },
+//   { to: '/forms/wizard', label: 'Wizard' },
+//   { to: '/forms/editors', label: 'Rich Editors' },
+//   { to: '/forms/pickers', label: 'Date/Time Pickers' },
+//   { to: '/forms/select', label: 'Advanced Select' },
+//   { to: '/forms/upload', label: 'File Upload' },
+// ]
 
-const componentsMenuItems = [
-  { to: '/components/accordion', label: 'Accordion' },
-  { to: '/components/alerts', label: 'Alerts' },
-  { to: '/components/badges', label: 'Badges' },
-  { to: '/components/breadcrumbs', label: 'Breadcrumbs' },
-  { to: '/components/buttons', label: 'Buttons' },
-  { to: '/components/cards', label: 'Cards' },
-  { to: '/components/carousel', label: 'Carousel' },
-  { to: '/components/dropdowns', label: 'Dropdowns' },
-  { to: '/components/list-group', label: 'List Group' },
-  { to: '/components/modal', label: 'Modal' },
-  { to: '/components/nav-tabs', label: 'Nav Tabs' },
-  { to: '/components/offcanvas', label: 'Offcanvas' },
-  { to: '/components/pagination', label: 'Pagination' },
-  { to: '/components/popovers', label: 'Popovers' },
-  { to: '/components/progress', label: 'Progress' },
-  { to: '/components/spinners', label: 'Spinners' },
-  { to: '/components/toasts', label: 'Toasts' },
-  { to: '/components/tooltips', label: 'Tooltips' },
-]
-
-const userMenuItems = [
-  { to: "/User/FrmUserModification", label: "User Modification" },
-  { to: "/User/FrmPincodeMstrInserion", label: "Pincode Master" },
-]
+// const componentsMenuItems = [
+//   { to: '/components/accordion', label: 'Accordion' },
+//   { to: '/components/alerts', label: 'Alerts' },
+//   { to: '/components/badges', label: 'Badges' },
+//   { to: '/components/breadcrumbs', label: 'Breadcrumbs' },
+//   { to: '/components/buttons', label: 'Buttons' },
+//   { to: '/components/cards', label: 'Cards' },
+//   { to: '/components/carousel', label: 'Carousel' },
+//   { to: '/components/dropdowns', label: 'Dropdowns' },
+//   { to: '/components/list-group', label: 'List Group' },
+//   { to: '/components/modal', label: 'Modal' },
+//   { to: '/components/nav-tabs', label: 'Nav Tabs' },
+//   { to: '/components/offcanvas', label: 'Offcanvas' },
+//   { to: '/components/pagination', label: 'Pagination' },
+//   { to: '/components/popovers', label: 'Popovers' },
+//   { to: '/components/progress', label: 'Progress' },
+//   { to: '/components/spinners', label: 'Spinners' },
+//   { to: '/components/toasts', label: 'Toasts' },
+//   { to: '/components/tooltips', label: 'Tooltips' },
+// ]
 
 function Sidebar({
   desktopCollapsed,
   mobileOpen,
-  authMenuOpen,
-  userMenuOpen,                // ✅ separate state for User menu
-  formsMenuOpen,
-  componentsMenuOpen,
-  tablesMenuOpen,
+  // authMenuOpen,
+  userMenuOpen,
+  // formsMenuOpen,
+  // componentsMenuOpen,
+  // tablesMenuOpen,
   chartsMenuOpen,
-  widgetsMenuOpen,
+  // widgetsMenuOpen,
   reportsMenuOpen,
   adminMenuOpen,
-  userMenuOpen,
-  onToggleAuthMenu,
-  onToggleUserMenu,            // ✅ separate handler
-  onToggleFormsMenu,
-  onToggleComponentsMenu,
-  onToggleTablesMenu,
+  // onToggleAuthMenu,
+  onToggleUserMenu,
+  // onToggleFormsMenu,
+  // onToggleComponentsMenu,
+  // onToggleTablesMenu,
   onToggleChartsMenu,
-  onToggleWidgetsMenu,
+  // onToggleWidgetsMenu,
   onToggleReportsMenu,
   onToggleAdminMenu,
-  onToggleUserMenu,
   onCloseMobile,
 }) {
   return (
@@ -135,7 +130,7 @@ function Sidebar({
             ))}
 
             {/* Authentication Menu (dropdown) */}
-            <li className={`nav-item has-submenu ${authMenuOpen ? 'open' : ''}`}>
+            {/* <li className={`nav-item has-submenu ${authMenuOpen ? 'open' : ''}`}>
               <button
                 type="button"
                 className="nav-link w-100 text-start border-0 bg-transparent"
@@ -152,7 +147,7 @@ function Sidebar({
                 <li><NavLink to="/auth/forgot-password" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> Forgot Password</NavLink></li>
                 <li><NavLink to="/auth/reset-password" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> Reset Password</NavLink></li>
               </ul>
-            </li>
+            </li> */}
 
             {/* User Menu (dropdown) – separate state and handler */}
             <li className={`nav-item has-submenu ${userMenuOpen ? 'open' : ''}`}>
@@ -179,7 +174,7 @@ function Sidebar({
             </li>
 
             {/* Forms Menu */}
-            <li className={`nav-item has-submenu ${formsMenuOpen ? 'open' : ''}`}>
+            {/* <li className={`nav-item has-submenu ${formsMenuOpen ? 'open' : ''}`}>
               <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleFormsMenu}>
                 <span className="nav-icon"><i className="ph-light ph-textbox" /></span>
                 <span className="nav-text">Forms</span>
@@ -191,10 +186,10 @@ function Sidebar({
                   <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
                 ))}
               </ul>
-            </li>
+            </li> */}
 
             {/* Components Menu */}
-            <li className={`nav-item has-submenu ${componentsMenuOpen ? 'open' : ''}`}>
+            {/* <li className={`nav-item has-submenu ${componentsMenuOpen ? 'open' : ''}`}>
               <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleComponentsMenu}>
                 <span className="nav-icon"><i className="ph-light ph-puzzle-piece" /></span>
                 <span className="nav-text">Components</span>
@@ -206,10 +201,10 @@ function Sidebar({
                   <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
                 ))}
               </ul>
-            </li>
+            </li> */}
 
             {/* Tables Menu */}
-            <li className={`nav-item has-submenu ${tablesMenuOpen ? 'open' : ''}`}>
+            {/* <li className={`nav-item has-submenu ${tablesMenuOpen ? 'open' : ''}`}>
               <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleTablesMenu}>
                 <span className="nav-icon"><i className="ph-light ph-table" /></span>
                 <span className="nav-text">Tables</span>
@@ -221,25 +216,12 @@ function Sidebar({
                   <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
                 ))}
               </ul>
-            </li>
+            </li> */}
 
-            {/* Charts Menu */}
-            <li className={`nav-item has-submenu ${chartsMenuOpen ? 'open' : ''}`}>
-              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleChartsMenu}>
-                <span className="nav-icon"><i className="ph-light ph-chart-line-up" /></span>
-                <span className="nav-text">Charts</span>
-                <span className="nav-badge">{chartsMenuItems.length}</span>
-                <span className="nav-arrow"><i className="bi bi-chevron-right" /></span>
-              </button>
-              <ul className={`nav-submenu ${chartsMenuOpen ? 'show' : ''}`} style={{ maxHeight: chartsMenuOpen ? `${chartsMenuItems.length * 36 + 20}px` : '0px' }}>
-                {chartsMenuItems.map((item) => (
-                  <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
-                ))}
-              </ul>
-            </li>
+           
 
             {/* Widgets Menu */}
-            <li className={`nav-item has-submenu ${widgetsMenuOpen ? 'open' : ''}`}>
+            {/* <li className={`nav-item has-submenu ${widgetsMenuOpen ? 'open' : ''}`}>
               <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleWidgetsMenu}>
                 <span className="nav-icon"><i className="ph-light ph-stack" /></span>
                 <span className="nav-text">Widgets</span>
@@ -248,6 +230,20 @@ function Sidebar({
               </button>
               <ul className={`nav-submenu ${widgetsMenuOpen ? 'show' : ''}`} style={{ maxHeight: widgetsMenuOpen ? `${widgetsMenuItems.length * 36 + 20}px` : '0px' }}>
                 {widgetsMenuItems.map((item) => (
+                  <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
+                ))}
+              </ul>
+            </li> */}
+
+             <li className={`nav-item has-submenu ${adminMenuOpen ? 'open' : ''}`}>
+              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleAdminMenu} aria-expanded={adminMenuOpen}>
+                <span className="nav-icon"><i className="ph-light ph-gear-six" /></span>
+                <span className="nav-text">Admin</span>
+                <span className="nav-badge">{adminMenuItems.length}</span>
+                <span className="nav-arrow"><i className="bi bi-chevron-right" /></span>
+              </button>
+              <ul className={`nav-submenu ${adminMenuOpen ? 'show' : ''}`} style={{ maxHeight: adminMenuOpen ? `${adminMenuItems.length * 36 + 20}px` : '0px' }}>
+                {adminMenuItems.map((item) => (
                   <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
                 ))}
               </ul>
@@ -268,33 +264,22 @@ function Sidebar({
               </ul>
             </li>
 
-            <li className={`nav-item has-submenu ${adminMenuOpen ? 'open' : ''}`}>
-              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleAdminMenu} aria-expanded={adminMenuOpen}>
-                <span className="nav-icon"><i className="ph-light ph-gear-six" /></span>
-                <span className="nav-text">Admin</span>
-                <span className="nav-badge">{adminMenuItems.length}</span>
+             {/* Charts Menu */}
+            <li className={`nav-item has-submenu ${chartsMenuOpen ? 'open' : ''}`}>
+              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleChartsMenu}>
+                <span className="nav-icon"><i className="ph-light ph-chart-line-up" /></span>
+                <span className="nav-text">Charts</span>
+                <span className="nav-badge">{chartsMenuItems.length}</span>
                 <span className="nav-arrow"><i className="bi bi-chevron-right" /></span>
               </button>
-              <ul className={`nav-submenu ${adminMenuOpen ? 'show' : ''}`} style={{ maxHeight: adminMenuOpen ? `${adminMenuItems.length * 36 + 20}px` : '0px' }}>
-                {adminMenuItems.map((item) => (
+              <ul className={`nav-submenu ${chartsMenuOpen ? 'show' : ''}`} style={{ maxHeight: chartsMenuOpen ? `${chartsMenuItems.length * 36 + 20}px` : '0px' }}>
+                {chartsMenuItems.map((item) => (
                   <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
                 ))}
               </ul>
             </li>
 
-            <li className={`nav-item has-submenu ${userMenuOpen ? 'open' : ''}`}>
-              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleUserMenu} aria-expanded={userMenuOpen}>
-                <span className="nav-icon"><i className="ph-light ph-user-circle" /></span>
-                <span className="nav-text">User</span>
-                <span className="nav-badge">{userMenuItems.length}</span>
-                <span className="nav-arrow"><i className="bi bi-chevron-right" /></span>
-              </button>
-              <ul className={`nav-submenu ${userMenuOpen ? 'show' : ''}`} style={{ maxHeight: userMenuOpen ? `${userMenuItems.length * 36 + 20}px` : '0px' }}>
-                {userMenuItems.map((item) => (
-                  <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
-                ))}
-              </ul>
-            </li>
+           
           </ul>
         </nav>
 
