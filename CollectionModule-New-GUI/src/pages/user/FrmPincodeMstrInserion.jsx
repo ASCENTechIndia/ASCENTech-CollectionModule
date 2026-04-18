@@ -1,13 +1,13 @@
-import { useForm } from 'react-hook-form'
-import { Link, useNavigate } from 'react-router-dom'
-import apiClient from '../../services/apiClient'
-import { useAuth } from '../../context/AuthContext'
-import { useNotification } from '../../context/NotificationContext'   // ✅ now works
+import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
+import apiClient from "../../services/apiClient";
+import { useAuth } from "../../context/AuthContext";
+import { useNotification } from "../../context/useNotification";
 
 const FrmPincodeMstrInserion = () => {
-  const { user } = useAuth()
-  const { showError, showSuccess } = useNotification()
-  const navigate = useNavigate()
+  const { user } = useAuth();
+  const { showError, showSuccess } = useNotification();
+  const navigate = useNavigate();
 
   const {
     register,
@@ -15,32 +15,41 @@ const FrmPincodeMstrInserion = () => {
     formState: { errors },
     reset,
   } = useForm({
-    defaultValues: { pinCode: '' },
-  })
+    defaultValues: { pinCode: "" },
+  });
 
   const onSubmit = async (values) => {
     try {
-      const payload = { pincode: values.pinCode }
-      const response = await apiClient.post('/assignPincode/insertPincodeMaster', payload)
+      const payload = { pincode: values.pinCode };
+      const response = await apiClient.post(
+        "/assignPincode/insertPincodeMaster",
+        payload,
+      );
 
-      if (response.data.success && response.data.data.isSuccess) {
-        showSuccess(response.data.data.message || 'Pincode inserted successfully')
-        reset({ pinCode: '' })
-      } else if (response.data.success && !response.data.data.isSuccess) {
-        showError(response.data.data.message || 'Failed to insert pincode')
+      if (response.success && response.data.isSuccess) {
+        showSuccess(response.data.message || "Pincode inserted successfully");
+        reset({ pinCode: "" });
+      } else if (response.success && !response.data.isSuccess) {
+        showError(response.data.message || "Failed to insert pincode");
       }
     } catch (error) {
-      console.log(error)
-      showError(error?.response?.data?.message || error?.message || 'Failed to insert pincode')
+      console.log(error);
+      showError(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Failed to insert pincode",
+      );
     }
-  }
+  };
 
   return (
     <div className="main-content">
       <div className="page-header">
         <h1 className="page-title">Pincode Master Insertion</h1>
         <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">Home</Link>
+          <Link to="/" className="breadcrumb-item">
+            Home
+          </Link>
           <span className="breadcrumb-item">User Management</span>
           <span className="breadcrumb-item active">Pincode Master</span>
         </nav>
@@ -57,18 +66,34 @@ const FrmPincodeMstrInserion = () => {
                   </label>
                   <input
                     type="text"
-                    className={`form-control ${errors.pinCode ? 'is-invalid' : ''}`}
+                    className={`form-control ${errors.pinCode ? "is-invalid" : ""}`}
                     placeholder="Enter Pincode (6 digits)"
                     maxLength={6}
-                    onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, '') }}
-                    {...register('pinCode', { required: 'Pincode is required' })}
+                    onInput={(e) => {
+                      e.target.value = e.target.value.replace(/\D/g, "");
+                    }}
+                    {...register("pinCode", {
+                      required: "Pincode is required",
+                    })}
                   />
-                  {errors.pinCode && <div className="invalid-feedback">{errors.pinCode.message}</div>}
+                  {errors.pinCode && (
+                    <div className="invalid-feedback">
+                      {errors.pinCode.message}
+                    </div>
+                  )}
                 </div>
 
                 <div className="d-flex justify-content-center gap-3 mt-4">
-                  <button type="submit" className="btn btn-primary">Submit</button>
-                  <button type="button" className="btn btn-secondary" onClick={() => navigate('/dashboard')}>Close</button>
+                  <button type="submit" className="btn btn-primary">
+                    Submit
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => navigate("/dashboard")}
+                  >
+                    Close
+                  </button>
                 </div>
               </form>
             </div>
@@ -76,7 +101,7 @@ const FrmPincodeMstrInserion = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default FrmPincodeMstrInserion
+export default FrmPincodeMstrInserion;
