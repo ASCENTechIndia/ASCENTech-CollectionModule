@@ -25,14 +25,14 @@ function createApp() {
   app.use(express.json({ limit: '2mb' }));
   app.use(express.urlencoded({ extended: true }));
   app.use(attachResponseHelpers);
-  app.use(
-    rateLimit({
-      windowMs: config.rateLimitWindowMs,
-      max: config.rateLimitMax,
-      standardHeaders: true,
-      legacyHeaders: false,
-    })
-  );
+  // app.use(
+  //   rateLimit({
+  //     windowMs: config.rateLimitWindowMs,
+  //     max: config.rateLimitMax,
+  //     standardHeaders: true,
+  //     legacyHeaders: false,
+  //   })
+  // );
 
   app.use('/api', routes);
 
