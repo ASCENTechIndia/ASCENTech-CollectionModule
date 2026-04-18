@@ -1,9 +1,4 @@
-<<<<<<< HEAD
-import { createContext, useContext, useState, useCallback } from 'react'
-
-const NotificationContext = createContext(null)
-=======
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState, useContext } from 'react'
 import { NotificationContext } from './notificationContextObject'
 
 const typeToClass = {
@@ -48,49 +43,30 @@ function ToastStack({ notifications, removeNotification }) {
     </div>
   )
 }
->>>>>>> 0b8e7afd479e57f7516fc704b13ef36dfd64e679
 
 export function NotificationProvider({ children }) {
   const [notifications, setNotifications] = useState([])
 
   const removeNotification = useCallback((id) => {
-<<<<<<< HEAD
-    setNotifications((prev) => prev.filter((n) => n.id !== id))
-=======
     setNotifications((prev) => prev.filter((notification) => notification.id !== id))
->>>>>>> 0b8e7afd479e57f7516fc704b13ef36dfd64e679
   }, [])
 
   const addNotification = useCallback((message, type = 'info', duration = 3000) => {
     const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
     const notification = { id, message, type }
-<<<<<<< HEAD
-    
-    setNotifications((prev) => [...prev, notification])
-    
-=======
 
     setNotifications((prev) => [...prev, notification])
 
->>>>>>> 0b8e7afd479e57f7516fc704b13ef36dfd64e679
     if (duration) {
       setTimeout(() => {
         removeNotification(id)
       }, duration)
     }
-<<<<<<< HEAD
-    
-    return id
-  }, [removeNotification])
-
-  const value = {
-=======
 
     return id
   }, [removeNotification])
 
   const value = useMemo(() => ({
->>>>>>> 0b8e7afd479e57f7516fc704b13ef36dfd64e679
     notifications,
     addNotification,
     showSuccess: (message, duration) => addNotification(message, 'success', duration),
@@ -98,30 +74,16 @@ export function NotificationProvider({ children }) {
     showWarning: (message, duration) => addNotification(message, 'warning', duration),
     showInfo: (message, duration) => addNotification(message, 'info', duration),
     removeNotification,
-<<<<<<< HEAD
-  }
-=======
   }), [notifications, addNotification, removeNotification])
->>>>>>> 0b8e7afd479e57f7516fc704b13ef36dfd64e679
 
   return (
     <NotificationContext.Provider value={value}>
       {children}
-<<<<<<< HEAD
-    </NotificationContext.Provider>
-  )
-}
-
-export function useNotification() {
-  const context = useContext(NotificationContext)
-  if (!context) {
-    throw new Error('useNotification must be used within NotificationProvider')
-  }
-  return context
-}
-=======
       <ToastStack notifications={notifications} removeNotification={removeNotification} />
     </NotificationContext.Provider>
   )
 }
->>>>>>> 0b8e7afd479e57f7516fc704b13ef36dfd64e679
+
+export const useNotification = () => {
+  return useContext(NotificationContext);
+};

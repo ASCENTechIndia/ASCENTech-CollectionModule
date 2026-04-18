@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { Input, Select, Textarea, Button } from '../../components/ui';
 import { useNavigate } from 'react-router-dom';
-import apiClient from '../../services/apiService';
+import apiClient from '../../services/apiClient';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
-import { AlertCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
 const FrmUserCreationWeb = () => {
     const {
         register,
@@ -148,270 +148,187 @@ const FrmUserCreationWeb = () => {
         fetchUserDevices();
     }, [])
 
-    return (
-        <div className="min-h-screen bg-gray-50">
-            <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
-                <div className="mb-6">
-                    <h1 className="text-2xl font-semibold text-gray-900">Web User Creation</h1>
-                </div>
-                <div className="bg-white rounded-lg border border-gray-200 p-8">
-                    <form onSubmit={handleSubmit(onSubmit)}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
-                                    User Level<span className="text-danger-600">*</span>
-                                </label>
-                                <select
-                                    {...register('userLevel', {
-                                        required: 'User Level is required',
-                                    })}
-                                    defaultValue=""
-                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
-                                    onChange={(e) => {
-                                        setSelectedUserLevel(e.target.value);
-                                    }}
-                                >
-                                    <option value="">-- Select Option --</option>
-                                    <option value="Zone">Zone</option>
-                                    <option value="Branch">Branch</option>
-                                    <option value="Region">Region</option>
+  return (
+  <div className="main-content">
+     <div className="page-header">
+        <h1 className="page-title">Web User Creation</h1>
+        <nav className="breadcrumb">
+          <Link to="/" className="breadcrumb-item">
+            Home
+          </Link>
+          <span className="breadcrumb-item">User</span>
+          <span className="breadcrumb-item active">Web User Creation</span>
+        </nav>
+      </div>
 
-                                </select>
-                                {errors.userLevel && (
-                                    <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
-                                        <AlertCircle className="w-4 h-4" />
-                                        {errors.userLevel.message}
-                                    </p>
-                                )}
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
-                                    Zone/Region/Branch<span className="text-danger-600">*</span>
-                                </label>
-                                <select
-                                    {...register('zoneRegionBranch', {
-                                        required: 'Zone/Region/Branch is required',
-                                    })}
-                                    defaultValue=""
-                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
-                                >
-                                    <option value="">--Select Option--</option>
-                                    {branchOptions.map((item) => (
-                                        <option key={item.value} value={item.value}>{item.label}</option>
-                                    ))}
+    <div className="card">
+      <div className="card-header">
+        <h5>Create Web User</h5>
+      </div>
 
-                                </select>
-                                {errors.zoneRegionBranch && (
-                                    <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
-                                        <AlertCircle className="w-4 h-4" />
-                                        {errors.zoneRegionBranch.message}
-                                    </p>
-                                )}
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
-                                    User Role<span className="text-danger-600">*</span>
-                                </label>
-                                <select
-                                    {...register('userRole', {
-                                        required: 'User Role is required',
-                                    })}
-                                    defaultValue=""
-                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
-                                >
-                                    <option value="">Select User Role</option>
-                                    {roleOptions.map((item) => (
-                                        <option value={item.value} key={item.value}>{item.label}</option>
-                                    ))}
-                                </select>
-                                {errors.userRole && (
-                                    <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
-                                        <AlertCircle className="w-4 h-4" />
-                                        {errors.userRole.message}
-                                    </p>
-                                )}
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
-                                    User Device<span className="text-danger-600">*</span>
-                                </label>
-                                <select
-                                    {...register('userDevice', {
-                                        required: 'User Device is required',
-                                    })}
-                                    defaultValue=""
-                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
-                                >
-                                    <option value="">Select User Device</option>
-                                    {deviceOptions.map((item) => (
-                                        <option key={item.value} value={item.value}>{item.label}</option>
-                                    ))}
-                                </select>
-                                {errors.userDevice && (
-                                    <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
-                                        <AlertCircle className="w-4 h-4" />
-                                        {errors.userDevice.message}
-                                    </p>
-                                )}
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
-                                    Employee Code<span className="text-danger-600">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    {...register('employeeCode', {
-                                        required: 'Employee Code is required',
-                                    })}
-                                    placeholder="Enter Employee Code"
-                                    className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.employeeCode
-                                        ? 'border-danger-500'
-                                        : 'border-gray-300'
-                                        }`}
-                                />
-                                {errors.employeeCode && (
-                                    <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
-                                        <AlertCircle className="w-4 h-4" />
-                                        {errors.employeeCode.message}
-                                    </p>
-                                )}
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
-                                    User For<span className="text-danger-600">*</span>
-                                </label>
-                                <select
-                                    {...register('userFor', {
-                                        required: 'User For is required',
-                                    })}
-                                    defaultValue=""
-                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
-                                >
-                                    <option value="">-- Select Option -- </option>
-                                    <option value="1">Conneqt</option>
-                                    <option value="2">Central Bank</option>
-                                </select>
-                                {errors.userFor && (
-                                    <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
-                                        <AlertCircle className="w-4 h-4" />
-                                        {errors.userFor.message}
-                                    </p>
-                                )}
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
-                                    User Name<span className="text-danger-600">*</span>
-                                </label>
-                                <div className="flex flex-col md:flex-row justify-start gap-3">
-                                    <div>
-                                        <input
-                                            type="text"
-                                            {...register('firstName', {
-                                                required: 'First Name is required',
-                                                pattern: {
-                                                    value: /^[A-Za-z]+$/,
-                                                    message: 'Only alphabets are allowed'
-                                                }
-                                            })}
-                                            placeholder="FIRST NAME"
-                                            onInput={(e) => {
-                                                e.target.value = e.target.value.replace(/[^A-Za-z]/g, '');
-                                            }}
-                                            className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.firstName
-                                                ? 'border-danger-500'
-                                                : 'border-gray-300'
-                                                }`}
-                                        />
-                                        {errors.firstName && (
-                                            <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
-                                                <AlertCircle className="w-4 h-4" />
-                                                {errors.firstName.message}
-                                            </p>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <input
-                                            type="text"
-                                            {...register('lastName', {
-                                                required: 'Last Name is required',
-                                                pattern: {
-                                                    value: /^[A-Za-z]+$/,
-                                                    message: 'Only alphabets are allowed'
-                                                }
-                                            })}
-                                            placeholder="LAST NAME"
-                                            onInput={(e) => {
-                                                e.target.value = e.target.value.replace(/[^A-Za-z]/g, '');
-                                            }}
-                                            className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.lastName
-                                                ? 'border-danger-500'
-                                                : 'border-gray-300'
-                                                }`}
-                                        />
-                                        {errors.lastName && (
-                                            <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
-                                                <AlertCircle className="w-4 h-4" />
-                                                {errors.lastName.message}
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
-                                    Mobile Number<span className="text-danger-600">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    {...register('mobileNumber', {
-                                        required: 'Mobile Number is required',
-                                        pattern: {
-                                            value: /^[0-9]{10}$/,
-                                            message: 'Mobile number must be exactly 10 digits'
-                                        }
-                                    })}
-                                    placeholder="Enter Mobile Number"
-                                    onInput={(e) => {
-                                        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
-                                    }}
-                                    maxLength={10}
-                                    className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all ${errors.mobileNumber
-                                        ? 'border-danger-500'
-                                        : 'border-gray-300'
-                                        }`}
-                                />
-                                {errors.mobileNumber && (
-                                    <p className="text-danger-600 text-sm mt-1 flex items-center gap-1">
-                                        <AlertCircle className="w-4 h-4" />
-                                        {errors.mobileNumber.message}
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-                        <div className="mt-7 flex justify-center gap-5">
-                            <button
-                                type="submit"
-                                className="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-                            >
-                                Submit
-                            </button>
-                            <button
-                                type="button"
-                                className="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-                                onClick={() => {
-                                    navigate("/dashboard");
-                                }}
-                            >
-                                Close
-                            </button>
-                        </div>
-                    </form>
+      <div className="card-body">
+        <form onSubmit={handleSubmit(onSubmit)}>
+
+          <div className="row g-3">
+
+            {/* User Level */}
+            <div className="col-md-6">
+              <label className="form-label">User Level <span className="text-danger">*</span></label>
+              <select
+                {...register("userLevel", { required: "User Level is required" })}
+                className={`form-select ${errors.userLevel ? "is-invalid" : ""}`}
+                onChange={(e) => setSelectedUserLevel(e.target.value)}
+              >
+                <option value="">Select</option>
+                <option value="Zone">Zone</option>
+                <option value="Branch">Branch</option>
+                <option value="Region">Region</option>
+              </select>
+              {errors.userLevel && (
+                <div className="invalid-feedback">
+                  {errors.userLevel.message}
                 </div>
+              )}
             </div>
-        </div>
-    )
+
+            {/* Branch */}
+            <div className="col-md-6">
+              <label className="form-label">Zone/Region/Branch <span className="text-danger">*</span></label>
+              <select
+                {...register("zoneRegionBranch", { required: "Required" })}
+                className={`form-select ${errors.zoneRegionBranch ? "is-invalid" : ""}`}
+              >
+                <option value="">Select</option>
+                {branchOptions.map((i) => (
+                  <option key={i.value} value={i.value}>{i.label}</option>
+                ))}
+              </select>
+              {errors.zoneRegionBranch && (
+                <div className="invalid-feedback">
+                  {errors.zoneRegionBranch.message}
+                </div>
+              )}
+            </div>
+
+            {/* Role */}
+            <div className="col-md-6">
+              <label className="form-label">User Role <span className="text-danger">*</span></label>
+              <select
+                {...register("userRole", { required: "User Role is required" })}
+                className={`form-select ${errors.userRole ? "is-invalid" : ""}`}
+              >
+                <option value="">Select</option>
+                {roleOptions.map((i) => (
+                  <option key={i.value} value={i.value}>{i.label}</option>
+                ))}
+              </select>
+              {errors.userRole && (
+                <div className="invalid-feedback">{errors.userRole.message}</div>
+              )}
+            </div>
+
+            {/* Device */}
+            <div className="col-md-6">
+              <label className="form-label">User Device <span className="text-danger">*</span></label>
+              <select
+                {...register("userDevice", { required: "User Device is required" })}
+                className={`form-select ${errors.userDevice ? "is-invalid" : ""}`}
+              >
+                <option value="">Select</option>
+                {deviceOptions.map((i) => (
+                  <option key={i.value} value={i.value}>{i.label}</option>
+                ))}
+              </select>
+              {errors.userDevice && (
+                <div className="invalid-feedback">{errors.userDevice.message}</div>
+              )}
+            </div>
+
+            {/* Employee Code */}
+            <div className="col-md-6">
+              <label className="form-label">Employee Code <span className="text-danger">*</span></label>
+              <input
+                {...register("employeeCode", { required: "Employee Code is required" })}
+                className={`form-control ${errors.employeeCode ? "is-invalid" : ""}`}
+              />
+              {errors.employeeCode && (
+                <div className="invalid-feedback">{errors.employeeCode.message}</div>
+              )}
+            </div>
+
+            {/* User For */}
+            <div className="col-md-6">
+              <label className="form-label">User For <span className="text-danger">*</span></label>
+              <select
+                {...register("userFor", { required: "User For is required" })}
+                className={`form-select ${errors.userFor ? "is-invalid" : ""}`}
+              >
+                <option value="">Select</option>
+                <option value="1">Conneqt</option>
+                <option value="2">Central Bank</option>
+              </select>
+              {errors.userFor && (
+                <div className="invalid-feedback">{errors.userFor.message}</div>
+              )}
+            </div>
+
+            {/* First Name */}
+            <div className="col-md-6">
+              <label className="form-label">First Name <span className="text-danger">*</span></label>
+              <input
+                {...register("firstName", { required: "First Name is required" })}
+                className={`form-control ${errors.firstName ? "is-invalid" : ""}`}
+              />
+              {errors.firstName && (
+                <div className="invalid-feedback">{errors.firstName.message}</div>
+              )}
+            </div>
+
+            {/* Last Name */}
+            <div className="col-md-6">
+              <label className="form-label">Last Name <span className="text-danger">*</span></label>
+              <input
+                {...register("lastName", { required: "Last Name is required" })}
+                className={`form-control ${errors.lastName ? "is-invalid" : ""}`}
+              />
+              {errors.lastName && (
+                <div className="invalid-feedback">{errors.lastName.message}</div>
+              )}
+            </div>
+
+            {/* Mobile */}
+            <div className="col-md-6">
+              <label className="form-label">Mobile Number <span className="text-danger">*</span></label>
+              <input
+                {...register("mobileNumber", { required: "Mobile Number is required" })}
+                className={`form-control ${errors.mobileNumber ? "is-invalid" : ""}`}
+              />
+              {errors.mobileNumber && (
+                <div className="invalid-feedback">{errors.mobileNumber.message}</div>
+              )}
+            </div>
+
+          </div>
+
+          {/* Buttons */}
+          <div className="mt-4 text-center">
+            <button type="submit" className="btn btn-primary me-2">
+              Submit
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => navigate("/dashboard")}
+            >
+              Close
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+);
 }
 
 export default FrmUserCreationWeb;

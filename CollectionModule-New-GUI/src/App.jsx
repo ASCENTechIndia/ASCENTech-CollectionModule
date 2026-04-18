@@ -25,6 +25,7 @@ import FrmOverallPerformanceSummaryReport from './pages/Reports/FrmOverallPerfor
 import FrmNonVisitDoneSummaryReport from './pages/Reports/FrmNonVisitDoneSummaryReport'
 import FrmVisitDoneSummaryReport from './pages/Reports/FrmVisitDoneSummaryReport'
 import FrmTransactionReport from './pages/Reports/FrmTransactionReport'
+import FrmUserCreationWeb from './pages/user/FrmUserCreationWeb'
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
         <Route path="reports/sma-summary" element={<SMASummaryReport />} />
         <Route path="User/FrmUserList" element={<FrmUserList />} />
         <Route path="User/FrmUserCreation" element={<FrmUserCreation />} />
+        <Route path="User/FrmUserCreationWeb" element={<FrmUserCreationWeb />} />
         <Route path="reports/account-allocation" element={<FrmAccountAllocationReport />} />
         <Route path="reports/daywise-data" element={<RptDaywisedata />} />
         <Route path="reports/inactive-user-pincode-history" element={<FrmInactiveUserPincodeHistory />} />
@@ -127,6 +129,7 @@ function App() {
 
       <Route path="/User" element={<Navigate to="/User/FrmUserList" replace />} />
       <Route path="/User" element={<Navigate to="/User/FrmUserCreation" replace />} />
+      <Route path="/User" element={<Navigate to="User/FrmUserCreationWeb" replace />} />
       <Route path="/404" element={<Error404Page />} />
       <Route path="*" element={<Navigate to="/404" replace />} />
     </Routes>
