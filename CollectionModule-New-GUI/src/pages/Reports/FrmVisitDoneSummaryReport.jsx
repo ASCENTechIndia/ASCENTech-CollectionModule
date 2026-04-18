@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ReusableGroupedDataGrid } from '../../components/ReusableGroupedDataGrid'
 import apiClient from '../../services/apiClient'
 import { useNotification } from '../../context/useNotification'
@@ -9,6 +9,7 @@ function FrmVisitDoneSummaryReport() {
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const hasFetchedRef = useRef(false)
 
   const headers = [
     {
@@ -49,6 +50,9 @@ function FrmVisitDoneSummaryReport() {
   ]
 
   useEffect(() => {
+    if (hasFetchedRef.current) return
+    hasFetchedRef.current = true
+
     const fetchData = async () => {
       setLoading(true)
       setError('')
@@ -104,7 +108,7 @@ function FrmVisitDoneSummaryReport() {
     }
 
     void fetchData()
-  }, [showError, showSuccess])
+  }, [])
 
   return (
     <div className="main-content page-visit-done-summary-report">

@@ -1,6 +1,7 @@
 import { Link, Navigate, Route, Routes } from 'react-router-dom'
 import AdminLayout from './layouts/AdminLayout'
 import AuthLayout from './layouts/AuthLayout'
+import { useAuth } from './context/AuthContext'
 import UsersPage from './pages/UsersPage'
 import RolesPage from './pages/RolesPage'
 import DashboardPage from './pages/DashboardPage'
@@ -26,11 +27,30 @@ import FrmNonVisitDoneSummaryReport from './pages/Reports/FrmNonVisitDoneSummary
 import FrmVisitDoneSummaryReport from './pages/Reports/FrmVisitDoneSummaryReport'
 import FrmTransactionReport from './pages/Reports/FrmTransactionReport'
 import FrmUserCreationWeb from './pages/user/FrmUserCreationWeb'
+import FrmUserRouteReport from './pages/Reports/FrmUserRouteReport'
+import FrmUnallocatedCasesReport from './pages/Reports/FrmUnallocatedCasesReport'
+
+function ProtectedRoute({ children }) {
+  const { isAuthenticated } = useAuth()
+
+  if (!isAuthenticated) {
+    return <Navigate to="/auth/login" replace />
+  }
+
+  return children
+}
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<AdminLayout />}>
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
         <Route index element={<DashboardPage />} />
         <Route path="users" element={<UsersPage />} />
         <Route path="roles" element={<RolesPage />} />
@@ -53,6 +73,8 @@ function App() {
         <Route path="reports/non-visit-done-summary" element={<FrmNonVisitDoneSummaryReport />} />
         <Route path="reports/visit-done-summary" element={<FrmVisitDoneSummaryReport />} />
         <Route path="reports/transaction-report" element={<FrmTransactionReport />} />
+        <Route path="reports/user-route-report" element={<FrmUserRouteReport />} />
+        <Route path="reports/unallocated-cases-report" element={<FrmUnallocatedCasesReport />} />
       </Route>
 
       <Route
@@ -126,6 +148,8 @@ function App() {
       <Route path="/Report/FrmNonVisitDoneSummaryReport" element={<Navigate to="/reports/non-visit-done-summary" replace />} />
       <Route path="/Report/FrmVisitDoneSummaryReport" element={<Navigate to="/reports/visit-done-summary" replace />} />
       <Route path="/Report/TransactionReport" element={<Navigate to="/reports/transaction-report" replace />} />
+      <Route path="/Report/FrmUserRouteReport" element={<Navigate to="/reports/user-route-report" replace />} />
+      <Route path="/Report/FrmUnallocatedCasesReport" element={<Navigate to="/reports/unallocated-cases-report" replace />} />
 
       <Route path="/User" element={<Navigate to="/User/FrmUserList" replace />} />
       <Route path="/User" element={<Navigate to="/User/FrmUserCreation" replace />} />

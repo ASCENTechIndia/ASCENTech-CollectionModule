@@ -22,6 +22,8 @@ const reportsMenuItems = [
   { to: '/reports/non-visit-done-summary', label: 'Non Visit Done Summary Report' },
   { to: '/reports/visit-done-summary', label: 'Visit Done Summary Report' },
   { to: '/reports/transaction-report', label: 'Transaction Report' },
+  { to: '/reports/user-route-report', label: 'User Route Report' },
+  { to: '/reports/unallocated-cases-report', label: 'Unallocated Cases Report' },
   { to: '/reports/sma-summary', label: 'SMA Summary Report' },
 ]
 
