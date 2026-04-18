@@ -2,11 +2,11 @@ import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 import apiClient from '../../services/apiClient'
 import { useAuth } from '../../context/AuthContext'
-import { useNotification } from '../../context/NotificationContext'
+import { useNotification } from '../../context/NotificationContext'   // ✅ now works
 
 const FrmPincodeMstrInserion = () => {
   const { user } = useAuth()
-  const { showSuccess, showError } = useNotification()
+  const { showError, showSuccess } = useNotification()
   const navigate = useNavigate()
 
   const {
@@ -15,16 +15,12 @@ const FrmPincodeMstrInserion = () => {
     formState: { errors },
     reset,
   } = useForm({
-    defaultValues: {
-      pinCode: '',
-    },
+    defaultValues: { pinCode: '' },
   })
 
   const onSubmit = async (values) => {
     try {
-      const payload = {
-        pincode: values.pinCode,
-      }
+      const payload = { pincode: values.pinCode }
       const response = await apiClient.post('/assignPincode/insertPincodeMaster', payload)
 
       if (response.data.success && response.data.data.isSuccess) {
@@ -41,7 +37,6 @@ const FrmPincodeMstrInserion = () => {
 
   return (
     <div className="main-content">
-      {/* Page Header */}
       <div className="page-header">
         <h1 className="page-title">Pincode Master Insertion</h1>
         <nav className="breadcrumb">
@@ -51,7 +46,6 @@ const FrmPincodeMstrInserion = () => {
         </nav>
       </div>
 
-      {/* Centered Form Card */}
       <div className="row justify-content-center">
         <div className="col-md-6 col-lg-5">
           <div className="card">
@@ -66,27 +60,15 @@ const FrmPincodeMstrInserion = () => {
                     className={`form-control ${errors.pinCode ? 'is-invalid' : ''}`}
                     placeholder="Enter Pincode (6 digits)"
                     maxLength={6}
-                    onInput={(e) => {
-                      e.target.value = e.target.value.replace(/\D/g, '')
-                    }}
-                    {...register('pinCode', {
-                      required: 'Pincode is required',
-                    })}
+                    onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, '') }}
+                    {...register('pinCode', { required: 'Pincode is required' })}
                   />
                   {errors.pinCode && <div className="invalid-feedback">{errors.pinCode.message}</div>}
                 </div>
 
                 <div className="d-flex justify-content-center gap-3 mt-4">
-                  <button type="submit" className="btn btn-primary">
-                    Submit
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => navigate('/dashboard')}
-                  >
-                    Close
-                  </button>
+                  <button type="submit" className="btn btn-primary">Submit</button>
+                  <button type="button" className="btn btn-secondary" onClick={() => navigate('/dashboard')}>Close</button>
                 </div>
               </form>
             </div>
