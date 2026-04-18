@@ -6,6 +6,14 @@ const navItems = [
   { to: '/roles', label: 'Roles', icon: 'ph-light ph-shield' },
 ]
 
+const adminMenuItems = [
+  { to: '/admin/user-location-tracking', label: 'User Location Tracking' },
+  { to: '/admin/last-login-history', label: 'Last Login History' },
+  { to: '/admin/bucket-setter', label: 'Bucket Setter' },
+  { to: '/admin/contract-allocation', label: 'Contract Allocation' },
+  { to: '/admin/distance-matrix', label: 'Distance Matrix' },
+]
+
 const tablesMenuItems = [{ to: '/tables/datatables', label: 'DataTables' }]
 
 const chartsMenuItems = [
@@ -77,6 +85,7 @@ function Sidebar({
   chartsMenuOpen,
   widgetsMenuOpen,
   reportsMenuOpen,
+  adminMenuOpen,
   onToggleAuthMenu,
   onToggleFormsMenu,
   onToggleComponentsMenu,
@@ -84,6 +93,7 @@ function Sidebar({
   onToggleChartsMenu,
   onToggleWidgetsMenu,
   onToggleReportsMenu,
+  onToggleAdminMenu,
   onCloseMobile,
 }) {
   return (
@@ -200,6 +210,20 @@ function Sidebar({
               </button>
               <ul className={`nav-submenu ${reportsMenuOpen ? 'show' : ''}`} style={{ maxHeight: reportsMenuOpen ? `${reportsMenuItems.length * 36 + 20}px` : '0px' }}>
                 {reportsMenuItems.map((item) => (
+                  <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
+                ))}
+              </ul>
+            </li>
+
+            <li className={`nav-item has-submenu ${adminMenuOpen ? 'open' : ''}`}>
+              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleAdminMenu} aria-expanded={adminMenuOpen}>
+                <span className="nav-icon"><i className="ph-light ph-gear-six" /></span>
+                <span className="nav-text">Admin</span>
+                <span className="nav-badge">{adminMenuItems.length}</span>
+                <span className="nav-arrow"><i className="bi bi-chevron-right" /></span>
+              </button>
+              <ul className={`nav-submenu ${adminMenuOpen ? 'show' : ''}`} style={{ maxHeight: adminMenuOpen ? `${adminMenuItems.length * 36 + 20}px` : '0px' }}>
+                {adminMenuItems.map((item) => (
                   <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
                 ))}
               </ul>

@@ -26,6 +26,11 @@ import FrmVisitDoneSummaryReport from './pages/Reports/FrmVisitDoneSummaryReport
 import FrmTransactionReport from './pages/Reports/FrmTransactionReport'
 import FrmUserRouteReport from './pages/Reports/FrmUserRouteReport'
 import FrmUnallocatedCasesReport from './pages/Reports/FrmUnallocatedCasesReport'
+import FrmUserLocationTracking from './pages/Admin/FrmUserLocationTracking'
+import FrmLastLoginHistory from './pages/Admin/FrmLastLoginHistory'
+import FrmBucketSetter from './pages/Admin/FrmBucketSetter'
+import FrmContractAllocation from './pages/Admin/FrmContractAllocation'
+import FrmDistanceMatrix from './pages/Admin/FrmDistanceMatrix'
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth()
@@ -69,6 +74,11 @@ function App() {
         <Route path="reports/transaction-report" element={<FrmTransactionReport />} />
         <Route path="reports/user-route-report" element={<FrmUserRouteReport />} />
         <Route path="reports/unallocated-cases-report" element={<FrmUnallocatedCasesReport />} />
+        <Route path="admin/user-location-tracking" element={<FrmUserLocationTracking />} />
+        <Route path="admin/last-login-history" element={<FrmLastLoginHistory />} />
+        <Route path="admin/bucket-setter" element={<FrmBucketSetter />} />
+        <Route path="admin/contract-allocation" element={<FrmContractAllocation />} />
+        <Route path="admin/distance-matrix" element={<FrmDistanceMatrix />} />
       </Route>
 
       <Route
@@ -144,6 +154,11 @@ function App() {
       <Route path="/Report/TransactionReport" element={<Navigate to="/reports/transaction-report" replace />} />
       <Route path="/Report/FrmUserRouteReport" element={<Navigate to="/reports/user-route-report" replace />} />
       <Route path="/Report/FrmUnallocatedCasesReport" element={<Navigate to="/reports/unallocated-cases-report" replace />} />
+      <Route path="/User/FrmUserLocationTracking" element={<Navigate to="/admin/user-location-tracking" replace />} />
+      <Route path="/User/FrmLastLoginHistory" element={<Navigate to="/admin/last-login-history" replace />} />
+      <Route path="/Admin/FrmBucketSetter" element={<Navigate to="/admin/bucket-setter" replace />} />
+      <Route path="/Admin/FrmContractAllocation" element={<Navigate to="/admin/contract-allocation" replace />} />
+      <Route path="/Admin/FrmDistanceMatrix" element={<Navigate to="/admin/distance-matrix" replace />} />
 
       <Route path="/404" element={<Error404Page />} />
       <Route path="*" element={<Navigate to="/404" replace />} />
