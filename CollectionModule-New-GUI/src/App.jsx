@@ -16,6 +16,7 @@ import AuthLoginPage from './pages/AuthLoginPage'
 import AuthForgotPasswordPage from './pages/AuthForgotPasswordPage'
 import AuthResetPasswordPage from './pages/AuthResetPasswordPage'
 import SMASummaryReport from './pages/Reports/SMASummaryReport'
+import FrmActiveAgents from './pages/Dashboard/FrmActiveAgents'
 
 function App() {
   return (
@@ -33,6 +34,8 @@ function App() {
         <Route path="charts/chartjs" element={<ChartsChartJsPage />} />
         <Route path="charts/echarts" element={<ChartsEChartsPage />} />
         <Route path="reports/sma-summary" element={<SMASummaryReport />} />
+        {/* Dashboard */}
+        <Route path='/Dashboard/FrmActiveAgents' element={<FrmActiveAgents />} />
       </Route>
 
       <Route
@@ -99,6 +102,8 @@ function App() {
       <Route path="/components-spinners" element={<Navigate to="/components/spinners" replace />} />
       <Route path="/components-toasts" element={<Navigate to="/components/toasts" replace />} />
       <Route path="/components-tooltips" element={<Navigate to="/components/tooltips" replace />} />
+
+
 
       <Route path="/404" element={<Error404Page />} />
       <Route path="*" element={<Navigate to="/404" replace />} />
