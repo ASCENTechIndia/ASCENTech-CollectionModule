@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useNotification } from '../context/useNotification'
 
 /**
  * ReusableDataGrid Component
@@ -24,6 +25,7 @@ export function ReusableDataGrid({
   pageSize: initialPageSize = 10,
   className = '',
 }) {
+  const { showError } = useNotification()
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(initialPageSize)
@@ -114,7 +116,7 @@ export function ReusableDataGrid({
       window.URL.revokeObjectURL(url)
     } catch (error) {
       console.error('Export failed:', error)
-      alert('Failed to export CSV')
+      showError('Failed to export CSV')
     }
   }
 

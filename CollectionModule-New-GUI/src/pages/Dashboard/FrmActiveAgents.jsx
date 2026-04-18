@@ -4,16 +4,18 @@ import * as echarts from 'echarts'
 import Chart from 'chart.js/auto'
 import ReusableDataGrid from '../../components/ReusableDataGrid'
 import apiClient from "../../services/apiClient";
-// import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
+import { useForm } from "react-hook-form";
+import { color } from "chart.js/helpers";
 
 const FrmActiveAgents = () => {
-    //  const { user } = useAuth();
-    // const userId = user?.userId;
+    const { user } = useAuth();
+    const userId = user?.userId;
     const {
         register,
     } = useForm({
         defaultValues: {
-            monthYear: getCurrentMonthYear()    
+            monthYear: getCurrentMonthYear()
         }
     });
     const [loading, setLoading] = useState(false);
@@ -24,73 +26,44 @@ const FrmActiveAgents = () => {
     });
     const [tableData, setTableData] = useState([]);
     const [showDetails, setShowDetails] = useState(false);
-     const columns = [
-    { label: 'Zone Name', sortable: true, className: 'fw-medium' },
-    { label: 'Region Name', sortable: true },
-    { label: 'Branch Name', sortable: true },
-    {
-      label: 'Collection Associate ID',
-      sortable: true,
-    //   render: (value) => `$${parseFloat(value || 0).toFixed(2)}`,
-    },
-    {
-      label: 'Collection Associate',
-      sortable: true,
-      render: (value) => `$${parseFloat(value || 0).toFixed(2)}`,
-    },
-    {
-      label: 'Login Date',
-      sortable: true,
-    //   render: (value) => {
-    //     const percentage = parseFloat(value || 0)
-    //     const badgeClass =
-    //       percentage >= 100 ? 'badge-soft-success' : percentage >= 80 ? 'badge-soft-info' : 'badge-soft-warning'
-    //     return <span className={`badge ${badgeClass}`}>{percentage.toFixed(1)}%</span>
-    //   },
-    },
-    {
-      label: 'First Login of the Day',
-      sortable: true,
-    //   render: (value) => {
-    //     const statusClass =
-    //       value === 'Active'
-    //         ? 'badge-soft-success'
-    //         : value === 'Pending'
-    //           ? 'badge-soft-warning'
-    //           : 'badge-soft-danger'
-    //     return <span className={`badge ${statusClass}`}>{value}</span>
-    //   },
-    },
-    {
-      label: 'Last Logout of the Day',
-      sortable: true,
-    //   render: (value) => new Date(value).toLocaleDateString(),
-    },
-    {
-      label: 'MDM ID',
-      sortable: false,
-    //   render: () => (
-    //     <div className="table-actions">
-    //       <button className="btn btn-icon btn-sm btn-light" type="button" title="View">
-    //         <i className="bi bi-eye" />
-    //       </button>
-    //       <button className="btn btn-icon btn-sm btn-light" type="button" title="Edit">
-    //         <i className="bi bi-pencil" />
-    //       </button>
-    //       <button className="btn btn-icon btn-sm btn-light" type="button" title="Download">
-    //         <i className="bi bi-download" />
-    //       </button>
-    //     </div>
-    //   ),
-    },
-  ]
+    const columns = [
+        { label: 'Zone Name', sortable: false },
+        { label: 'Region Name', sortable: false },
+        { label: 'Branch Name', sortable: false },
+        {
+            label: 'Collection Associate ID',
+            sortable: true,
+        },
+        {
+            label: 'Collection Associate',
+            sortable: false,
+        },
+        {
+            label: 'Login Date',
+            sortable: true,
+        },
+        {
+            label: 'First Login of the Day',
+            sortable: true,
+        },
+        {
+            label: 'Last Logout of the Day',
+            sortable: true,
+        },
+        {
+            label: 'MDM ID',
+            sortable: true,
+        },
+    ]
 
-    const commonColors = {
+    const colors = {
         accent: '#3b82f6',
         success: '#22c55e',
         warning: '#f59e0b',
-        info: '#06b6d4',
         danger: '#ef4444',
+        info: '#06b6d4',
+        border: 'rgba(148, 163, 184, 0.25)',
+        muted: '#64748b',
     }
 
     function ChartCard({ title, children, subtitle }) {
@@ -104,38 +77,86 @@ const FrmActiveAgents = () => {
             </div>
         )
     }
-    function useChart(setup) {
-        const canvasRef = useRef(null)
+    // function useChart(setup) {
+    //     const canvasRef = useRef(null)
+
+    //     useEffect(() => {
+    //         const context = canvasRef.current?.getContext('2d')
+    //         if (!context) return undefined
+
+    //         const chart = setup(context)
+    //         return () => chart?.destroy?.()
+    //     }, [setup])
+
+    //     return canvasRef
+    // }
+
+    // const area1 = useChart((context) => new Chart(context, {
+    //     type: 'line',
+    //     data: { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], datasets: [{ label: 'Unique Collection Associate using the app on a day', data: [31, 40, 28, 51, 42, 109, 100], borderColor: commonColors.accent, backgroundColor: 'rgba(59,130,246,.2)', fill: true, tension: 0.4 }] },
+    //     options: { responsive: true, maintainAspectRatio: false },
+    // }))
+
+    // ECharts
+    const commonGrid = { left: '3%', right: '4%', bottom: '3%', containLabel: true }
+    const axisStyle = { color: colors.muted }
+    function useEChart(optionFactory) {
+        const ref = useRef(null)
 
         useEffect(() => {
-            const context = canvasRef.current?.getContext('2d')
-            if (!context) return undefined
+            if (!ref.current) return undefined
+            const chart = echarts.init(ref.current)
+            chart.setOption(optionFactory())
+            const resize = () => chart.resize()
+            window.addEventListener('resize', resize)
+            return () => {
+                window.removeEventListener('resize', resize)
+                chart.dispose()
+            }
+        }, [optionFactory])
 
-            const chart = setup(context)
-            return () => chart?.destroy?.()
-        }, [setup])
-
-        return canvasRef
+        return ref
     }
 
-    const area1 = useChart((context) => new Chart(context, {
-        type: 'line',
-        data: { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], datasets: [{ label: 'Unique Collection Associate using the app on a day', data: [31, 40, 28, 51, 42, 109, 100], borderColor: commonColors.accent, backgroundColor: 'rgba(59,130,246,.2)', fill: true, tension: 0.4 }] },
-        options: { responsive: true, maintainAspectRatio: false },
+    const gradientArea = useEChart(() => ({
+        tooltip: {
+            trigger: 'axis',
+            padding: [2, 6],
+            textStyle: {
+                fontSize: 10,
+                lineHeight: 14
+            },
+            extraCssText: 'max-width:120px; max-height: 80px; white-space:normal;'
+        },
+        grid: commonGrid,
+        legend: {
+            show: true,
+            top: 20,
+            left: 'center',
+            textStyle: {
+                color: colors.muted,
+                fontSize: 12
+            }
+        },
+        xAxis: { type: 'category', boundaryGap: false, data: chartData.labels, axisLine: { lineStyle: { color: colors.border } }, axisLabel: axisStyle },
+        yAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: colors.border, type: 'dashed' } }, axisLabel: axisStyle },
+        series: [{
+            name: 'Unique Collection Associate using the app on a day', type: 'line', smooth: true, data: chartData.datasets, itemStyle: { color: colors.accent }, areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: colors.accent }, { offset: 1, color: 'rgba(59,130,246,0.05)' }]) }
+        }],
     }))
 
-        function getCurrentMonthYear(padded = false) {
-    const now = new Date();
+    function getCurrentMonthYear(padded = false) {
+        const now = new Date();
 
-    let month = now.getMonth() + 1; // 0-based → 1-based
-    const year = now.getFullYear();
+        let month = now.getMonth() + 1; // 0-based → 1-based
+        const year = now.getFullYear();
 
-    if (padded) {
-        month = String(month).padStart(2, '0');
+        if (padded) {
+            month = String(month).padStart(2, '0');
+        }
+
+        return `${month}-${year}`;
     }
-
-    return `${month}-${year}`;
-}
 
     function formatDate(dateString) {
         const date = new Date(dateString);
@@ -150,42 +171,32 @@ const FrmActiveAgents = () => {
 
         return `${day}-${month}-${year}`;
     }
-    
+
     const fetchData = async (monthYear) => {
         try {
             const [month, year] = monthYear.split("-");
             const userNo = userId.split("E")[1];
 
             const response = await apiClient.get(`/active-agents/dashboard?userId=${userNo}&month=${month}&year=${year}`, {});
+            console.log(response);
+            if (response.success) {
+                setSummaryDetails(response.data.summary);
+                setChartData({
+                    labels: response?.data?.chart?.labels,
+                    datasets: response?.data?.chart?.data
+                });
 
-            if (response.data.success) {
-                setSummaryDetails(response.data.data.summary);
-                const formattedChartData = {
-                    labels: response.data.data.chart.labels,
-                    datasets: [
-                        {
-                            label: "Unique Collection Associate using the app on a day",
-                            data: response.data.data.chart.data,
-                            borderColor: 'rgba(59, 130, 246, 1)',
-                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                            tension: 0.4,
-                            fill: true,
-                        }
-                    ]
-                }
-                setChartData(formattedChartData);
-
-                const formattedGridData = response.data.data.grid.map(item => ({
-                    zone: item.GRANDPARENT_BRANCH_NAME,
-                    regionName: item.PARENT_BRANCH_NAME,
-                    branchName: item.CURRENT_BRANCH_NAME,
-                    collassociateId: item.USERID,
-                    collassociate: item.VAR_USERMST_USERFULLNAME,
-                    loginDate: item?.LOGIN_DATE ? formatDate(item.LOGIN_DATE) : "",
-                    firstLogin: item?.MIN_LOGIN ? formatDate(item.MIN_LOGIN) : "",
-                    lastLogout: item?.MAX_LOGOUT ? formatDate(item.MAX_LOGOUT) : "",
-                    mdmId: item.MDM_ID
-                }))
+                const formattedGridData = response.data.grid.map(item => ([
+                    item.GRANDPARENT_BRANCH_NAME,
+                    item.PARENT_BRANCH_NAME,
+                    item.CURRENT_BRANCH_NAME,
+                    item.USERID,
+                    item.VAR_USERMST_USERFULLNAME,
+                    item?.LOGIN_DATE ? formatDate(item.LOGIN_DATE) : "",
+                    item?.MIN_LOGIN ? formatDate(item.MIN_LOGIN) : "",
+                    item?.MAX_LOGOUT ? formatDate(item.MAX_LOGOUT) : "",
+                    item.MDM_ID
+                ]))
                 setTableData(formattedGridData);
                 setShowDetails(true);
             }
@@ -224,7 +235,13 @@ const FrmActiveAgents = () => {
                             <label className="form-label mb-0">
                                 Select Month & Year:
                             </label>
-                            <select className="form-select">
+                            <select className="form-select"
+                                {...register("monthYear")}
+                                onChange={(e) => {
+                                    setShowDetails(false);
+                                    fetchData(e.target.value);
+                                }}
+                            >
                                 <option value="4-2025">April 2025</option>
                                 <option value="5-2025">May 2025</option>
                                 <option value="6-2025">June 2025</option>
@@ -241,64 +258,85 @@ const FrmActiveAgents = () => {
                             </select>
                         </div>
                     </div>
-
-                    <div className="col-12 col-md-2">
-                        <button type="button" className="btn btn-info w-100">
-                            <i className="bi bi-search me-1" /> Search
-                        </button>
-                    </div>
                 </div>
 
                 <div className="row align-items-stretch g-3 mt-2">
-                    <div className="col-12 col-md-4">
-                        <div className="card text-bg-light h-100">
+                    <div className="col-12 col-md-4 d-flex">
+                        <div className="card widget-info-stat h-100 w-100">
                             <div className="card-body">
-                                <h5 className="card-title">No. of Onboarded and Active Collection Associate: </h5>
-                                <p className="card-text">32</p>
+                                <div className="widget-info-stat-icon primary">
+                                    <i className="bi bi-people" />
+                                </div>
+                                <div className="widget-info-stat-content">
+                                    <span className="widget-info-stat-value">
+                                        {summaryDetails?.onboardedActiveAssociates}
+                                    </span>
+                                    <span className="widget-info-stat-label">
+                                        No. of Onboarded and Active Collection Associate
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div className="col-12 col-md-4">
-                        <div className="card text-bg-light h-100">
+
+                    <div className="col-12 col-md-4 d-flex">
+                        <div className="card widget-info-stat h-100 w-100">
                             <div className="card-body">
-                                <h5 className="card-title">Collection Associate having Accounts Assigned:</h5>
-                                <p className="card-text">0</p>
+                                <div className="widget-info-stat-icon primary">
+                                    <i className="bi bi-cash-stack" />
+                                </div>
+                                <div className="widget-info-stat-content">
+                                    <span className="widget-info-stat-value">
+                                        {summaryDetails?.accountsAssigned}
+                                    </span>
+                                    <span className="widget-info-stat-label">
+                                        Collection Associate having Accounts Assigned
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div className="col-12 col-md-4">
-                        <div className="card text-bg-light h-100">
+
+                    <div className="col-12 col-md-4 d-flex">
+                        <div className="card widget-info-stat h-100 w-100">
                             <div className="card-body">
-                                <h5 className="card-title">Total No. of Unique Logins:</h5>
-                                <p className="card-text">1</p>
+                                <div className="widget-info-stat-icon primary">
+                                    <i className="bi bi-box-arrow-in-right" />
+                                </div>
+                                <div className="widget-info-stat-content">
+                                    <span className="widget-info-stat-value">
+                                        {summaryDetails?.uniqueLogins}
+                                    </span>
+                                    <span className="widget-info-stat-label">
+                                        Total No. of Unique Logins
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div className="card h-100 mt-3">
-                    <div className="card-body" style={{ height: "400px" }}>
-                        <canvas ref={area1} />
-                    </div>
+                    <div className="echart-container" ref={gradientArea} />
                 </div>
 
                 <div className="mt-3 card">
-        <div className="card-body">
-                  {loading ? (
-                    <div className="text-center py-5">
-                      <div className="spinner-border text-primary" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                      </div>
-                      <p className="mt-2 text-muted">Loading report data...</p>
+                    <div className="card-body">
+                        {loading ? (
+                            <div className="text-center py-5">
+                                <div className="spinner-border text-primary" role="status">
+                                    <span className="visually-hidden">Loading...</span>
+                                </div>
+                                <p className="mt-2 text-muted">Loading report data...</p>
+                            </div>
+                        ) : (
+                            <ReusableDataGrid
+                                rows={tableData}
+                                columns={columns}
+                                pageSize={10}
+                            />
+                        )}
                     </div>
-                  ) : (
-                    <ReusableDataGrid
-                      rows={[]}
-                      columns={columns}
-                      pageSize={10}
-                    />
-                  )}
-                </div>
                 </div>
 
             </div>

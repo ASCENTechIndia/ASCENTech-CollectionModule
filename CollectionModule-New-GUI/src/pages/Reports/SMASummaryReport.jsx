@@ -1,75 +1,92 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import ReusableDataGrid from '../../components/ReusableDataGrid'
+import ReusableGroupedDataGrid from '../../components/ReusableGroupedDataGrid'
+import apiClient from '../../services/apiClient'
+import { useNotification } from '../../context/useNotification'
 
 /**
  * SMA Summary Report Page
  * Features: Built-in searching, sorting, pagination, and CSV export
  */
 function SMASummaryReport() {
+  const { showError, showSuccess } = useNotification()
   const [reportData, setReportData] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  // Column definitions
-  const columns = [
-    { label: 'SMA ID', sortable: true, className: 'fw-medium' },
-    { label: 'Name', sortable: true },
-    { label: 'Territory', sortable: true },
+  const formatNumber = (value) => Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })
+  const formatAmount = (value) =>
+    Number(value || 0).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
+  const formatPercent = (value) => `${Number(value || 0).toFixed(2)}%`
+
+  const headers = [
     {
-      label: 'Target',
-      sortable: true,
-      render: (value) => `$${parseFloat(value || 0).toFixed(2)}`,
+      displayName: 'SUMMARY',
+      children: [
+        { displayName: 'SMA_STATUS', field: 'SMA_STATUS' },
+        { displayName: 'FROM_SMA', field: 'FROM_SMA' },
+      ],
     },
     {
-      label: 'Achieved',
-      sortable: true,
-      render: (value) => `$${parseFloat(value || 0).toFixed(2)}`,
+      displayName: 'ALLOCATION DURING THE MONTH',
+      children: [
+        { displayName: 'ALLOCATED_CASES', field: 'ALLOCATED_CASES', render: formatNumber },
+        { displayName: 'TOTAL_COLLECTABLE_AMT', field: 'TOTAL_COLLECTABLE_AMT', render: formatAmount },
+      ],
     },
     {
-      label: 'Performance %',
-      sortable: true,
-      render: (value) => {
-        const percentage = parseFloat(value || 0)
-        const badgeClass =
-          percentage >= 100 ? 'badge-soft-success' : percentage >= 80 ? 'badge-soft-info' : 'badge-soft-warning'
-        return <span className={`badge ${badgeClass}`}>{percentage.toFixed(1)}%</span>
-      },
+      displayName: 'CF COLLECTED DURING THE MONTH',
+      children: [
+        { displayName: 'CF_COUNT', field: 'CF_COUNT', render: formatNumber },
+        { displayName: 'CF_COLLECTED_AMT', field: 'CF_COLLECTED_AMT', render: formatAmount },
+        { displayName: 'CF_COLLECTED_PERC', field: 'CF_COLLECTED_PERC', render: formatPercent },
+      ],
     },
     {
-      label: 'Status',
-      sortable: true,
-      render: (value) => {
-        const statusClass =
-          value === 'Active'
-            ? 'badge-soft-success'
-            : value === 'Pending'
-              ? 'badge-soft-warning'
-              : 'badge-soft-danger'
-        return <span className={`badge ${statusClass}`}>{value}</span>
-      },
+      displayName: 'CP COLLECTED DURING THE MONTH',
+      children: [
+        { displayName: 'CP_COUNT', field: 'CP_COUNT', render: formatNumber },
+        { displayName: 'CP_COLLECTED_AMT', field: 'CP_COLLECTED_AMT', render: formatAmount },
+        { displayName: 'CP_COLLECTED_PERC', field: 'CP_COLLECTED_PERC', render: formatPercent },
+      ],
     },
     {
-      label: 'Last Updated',
-      sortable: true,
-      render: (value) => new Date(value).toLocaleDateString(),
+      displayName: 'MOVED TO SMA2',
+      children: [
+        { displayName: 'MOVED_TO_SMA2', field: 'MOVED_TO_SMA2', render: formatNumber },
+        { displayName: 'COLLECTED_TO_SMA2', field: 'COLLECTED_TO_SMA2', render: formatAmount },
+      ],
     },
     {
-      label: 'Actions',
-      sortable: false,
-      render: () => (
-        <div className="table-actions">
-          <button className="btn btn-icon btn-sm btn-light" type="button" title="View">
-            <i className="bi bi-eye" />
-          </button>
-          <button className="btn btn-icon btn-sm btn-light" type="button" title="Edit">
-            <i className="bi bi-pencil" />
-          </button>
-          <button className="btn btn-icon btn-sm btn-light" type="button" title="Download">
-            <i className="bi bi-download" />
-          </button>
-        </div>
-      ),
+      displayName: 'MOVED TO SMA1',
+      children: [
+        { displayName: 'MOVED_TO_SMA1', field: 'MOVED_TO_SMA1', render: formatNumber },
+        { displayName: 'COLLECTED_TO_SMA1', field: 'COLLECTED_TO_SMA1', render: formatAmount },
+      ],
+    },
+    {
+      displayName: 'MOVED TO SMA0',
+      children: [
+        { displayName: 'MOVED_TO_SMA0', field: 'MOVED_TO_SMA0', render: formatNumber },
+        { displayName: 'COLLECTED_TO_SMA0', field: 'COLLECTED_TO_SMA0', render: formatAmount },
+      ],
+    },
+    {
+      displayName: 'MOVED TO STANDARD ASSET',
+      children: [
+        { displayName: 'MOVED_TO_STANDARD_ASSET', field: 'MOVED_TO_STANDARD_ASSET', render: formatNumber },
+        { displayName: 'COLLECTED_TO_STANDARD_ASSET', field: 'COLLECTED_TO_STANDARD_ASSET', render: formatAmount },
+      ],
+    },
+    {
+      displayName: 'SLIPPED TO NPA',
+      children: [
+        { displayName: 'MOVED_TO_NPA_UNPAID', field: 'MOVED_TO_NPA_UNPAID', render: formatNumber },
+        { displayName: 'COLLECTED_TO_NPA_UNPAID', field: 'COLLECTED_TO_NPA_UNPAID', render: formatAmount },
+      ],
     },
   ]
 
@@ -78,25 +95,12 @@ function SMASummaryReport() {
       setLoading(true)
       setError(null)
       try {
-        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
-        const token = localStorage.getItem('token')
-
-        const response = await fetch(`${API_BASE_URL}/reports/sma-summary`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token && { Authorization: `Bearer ${token}` }),
-          },
-        })
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`)
-        }
-
-        const data = await response.json()
-        setReportData(data.rows || [])
+        const response = await apiClient.get('/reports/smaSummary')
+        setReportData(response.data || [])
+        showSuccess('SMA report loaded')
       } catch (err) {
         console.error('Failed to fetch report:', err)
+        showError('Failed to load report data')
         setError('Failed to load report data')
       } finally {
         setLoading(false)
@@ -104,7 +108,7 @@ function SMASummaryReport() {
     }
 
     void fetchReportData()
-  }, [])
+  }, [showError, showSuccess])
 
   return (
     <div className="main-content page-sma-summary-report">
@@ -140,9 +144,9 @@ function SMASummaryReport() {
               <p className="mt-2 text-muted">Loading report data...</p>
             </div>
           ) : (
-            <ReusableDataGrid
+            <ReusableGroupedDataGrid
               rows={reportData}
-              columns={columns}
+              headers={headers}
               pageSize={10}
             />
           )}

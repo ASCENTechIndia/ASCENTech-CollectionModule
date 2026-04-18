@@ -17,6 +17,13 @@ import AuthForgotPasswordPage from './pages/AuthForgotPasswordPage'
 import AuthResetPasswordPage from './pages/AuthResetPasswordPage'
 import SMASummaryReport from './pages/Reports/SMASummaryReport'
 import FrmActiveAgents from './pages/Dashboard/FrmActiveAgents'
+import FrmAccountAllocationReport from './pages/Reports/FrmAccountAllocationReport'
+import RptDaywisedata from './pages/Reports/RptDaywisedata'
+import FrmInactiveUserPincodeHistory from './pages/Reports/FrmInactiveUserPincodeHistory'
+import FrmOverallPerformanceSummaryReport from './pages/Reports/FrmOverallPerformanceSummaryReport'
+import FrmNonVisitDoneSummaryReport from './pages/Reports/FrmNonVisitDoneSummaryReport'
+import FrmVisitDoneSummaryReport from './pages/Reports/FrmVisitDoneSummaryReport'
+import FrmTransactionReport from './pages/Reports/FrmTransactionReport'
 
 function App() {
   return (
@@ -36,6 +43,13 @@ function App() {
         <Route path="reports/sma-summary" element={<SMASummaryReport />} />
         {/* Dashboard */}
         <Route path='/Dashboard/FrmActiveAgents' element={<FrmActiveAgents />} />
+        <Route path="reports/account-allocation" element={<FrmAccountAllocationReport />} />
+        <Route path="reports/daywise-data" element={<RptDaywisedata />} />
+        <Route path="reports/inactive-user-pincode-history" element={<FrmInactiveUserPincodeHistory />} />
+        <Route path="reports/overall-performance-summary" element={<FrmOverallPerformanceSummaryReport />} />
+        <Route path="reports/non-visit-done-summary" element={<FrmNonVisitDoneSummaryReport />} />
+        <Route path="reports/visit-done-summary" element={<FrmVisitDoneSummaryReport />} />
+        <Route path="reports/transaction-report" element={<FrmTransactionReport />} />
       </Route>
 
       <Route
@@ -102,6 +116,13 @@ function App() {
       <Route path="/components-spinners" element={<Navigate to="/components/spinners" replace />} />
       <Route path="/components-toasts" element={<Navigate to="/components/toasts" replace />} />
       <Route path="/components-tooltips" element={<Navigate to="/components/tooltips" replace />} />
+      <Route path="/Report/FrmAccountAllocationReport" element={<Navigate to="/reports/account-allocation" replace />} />
+      <Route path="/Report/RptDaywisedata" element={<Navigate to="/reports/daywise-data" replace />} />
+      <Route path="/Report/FrmInactiveUserPincodeHistory" element={<Navigate to="/reports/inactive-user-pincode-history" replace />} />
+      <Route path="/Report/FrmOverallPerformanceSummaryReport" element={<Navigate to="/reports/overall-performance-summary" replace />} />
+      <Route path="/Report/FrmNonVisitDoneSummaryReport" element={<Navigate to="/reports/non-visit-done-summary" replace />} />
+      <Route path="/Report/FrmVisitDoneSummaryReport" element={<Navigate to="/reports/visit-done-summary" replace />} />
+      <Route path="/Report/TransactionReport" element={<Navigate to="/reports/transaction-report" replace />} />
 
 
 
