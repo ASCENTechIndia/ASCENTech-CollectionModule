@@ -2,12 +2,14 @@ import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import ReusableGroupedDataGrid from '../../components/ReusableGroupedDataGrid'
 import apiClient from '../../services/apiClient'
+import { useNotification } from '../../context/useNotification'
 
 /**
  * SMA Summary Report Page
  * Features: Built-in searching, sorting, pagination, and CSV export
  */
 function SMASummaryReport() {
+  const { showError, showSuccess } = useNotification()
   const [reportData, setReportData] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -95,8 +97,10 @@ function SMASummaryReport() {
       try {
         const response = await apiClient.get('/reports/smaSummary')
         setReportData(response.data || [])
+        showSuccess('SMA report loaded')
       } catch (err) {
         console.error('Failed to fetch report:', err)
+        showError('Failed to load report data')
         setError('Failed to load report data')
       } finally {
         setLoading(false)
@@ -104,7 +108,7 @@ function SMASummaryReport() {
     }
 
     void fetchReportData()
-  }, [])
+  }, [showError, showSuccess])
 
   return (
     <div className="main-content page-sma-summary-report">
