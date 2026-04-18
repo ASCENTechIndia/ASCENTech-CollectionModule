@@ -42,6 +42,7 @@ function ProtectedRoute({ children }) {
 import FrmUserModification from "./pages/user/FrmUserModification"
 import FrmAccessofPages from './pages/user/FrmAccessofPages'
 import FrmPincodeMstrInserion from './pages/user/FrmPincodeMstrInserion'
+import FrmInactiveUserAcs from './pages/user/FrmInactiveUserAcs'
 
 function App() {
   return (
@@ -71,6 +72,7 @@ function App() {
         <Route path='/User/FrmUserModification' element={<FrmUserModification/>}/>
         <Route path="/FrmAccessofPages" element={<FrmAccessofPages />} />
         <Route path='/User/FrmPincodeMstrInserion' element={<FrmPincodeMstrInserion/>}/>
+        <Route path='/User/FrmInactiveUserAcs' element={<FrmInactiveUserAcs/>}/>
 
 
 
