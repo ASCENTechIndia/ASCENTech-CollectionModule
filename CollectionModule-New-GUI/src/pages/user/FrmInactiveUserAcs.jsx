@@ -1,89 +1,111 @@
-import { useState, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import apiClient from '../../services/authService'
+import ReusableDataGrid from '../../components/ReusableDataGrid'
+import apiClient from '../../services/apiClient'
 import { useAuth } from '../../context/AuthContext'
-import { useNotification } from '../../context/NotificationContext'
-import ReusableGroupedDataGrid from '../../components/ReusableGroupedDataGrid'
+import { useNotification } from "../../context/useNotification";
 
-const FrmInactiveUserAcs = () => {
+const formatDateForApi = (value) => {
+  if (!value) return ''
+  const date = new Date(value)
+  if (isNaN(date.getTime())) return ''
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = months[date.getMonth()]
+  const year = date.getFullYear()
+  return `${day}-${month}-${year}`
+}
+
+const formatDateToDDMMYYYY = (dateString) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  if (isNaN(date.getTime())) return ''
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
+  return `${day}-${month}-${year}`
+}
+
+function FrmInactiveUserAcs() {
   const { user } = useAuth()
   const { showWarning, showError, showSuccess } = useNotification()
-  const today = new Date().toISOString().split('T')[0]
   const navigate = useNavigate()
+  const today = new Date().toISOString().split('T')[0]
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm({
-    defaultValues: {
-      startDate: '',
-      endDate: '',
-      userId: '',
-      userDropdownId: 'Inactive',
-    },
-  })
+  // Form state
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [userId, setUserId] = useState('')
+  const [userDropdownId, setUserDropdownId] = useState('Inactive')
+  const [rows, setRows] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [searched, setSearched] = useState(false)
+  const [error, setError] = useState('')
 
-  const tableHeader = [
-    { displayName: 'Unallocated Date', field: 'date' },
-    { displayName: 'Collection Associate ID', field: 'collectionID' },
-    { displayName: 'Account Number', field: 'accountNumber' },
+  // Table columns
+  const columns = [
+    { label: 'Unallocated Date', sortable: true },
+    { label: 'Collection Associate ID', sortable: true },
+    { label: 'Account Number', sortable: true },
   ]
 
-  const [tableData, setTableData] = useState([])
-  const [showTable, setShowTable] = useState(false)
+  // Convert rows to array of arrays for ReusableDataGrid
+  const tableRows = rows.map((item) => [
+    item.date || '',
+    item.collectionID || '',
+    item.accountNumber || '',
+  ])
 
-  function formatDate(dateString) {
-    const date = new Date(dateString)
-    const day = String(date.getDate()).padStart(2, '0')
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    const month = months[date.getMonth()]
-    const year = date.getFullYear()
-    return `${day}-${month}-${year}`
-  }
+  const handleSearch = async (event) => {
+    event.preventDefault()
+    setError('')
+    setSearched(true)
 
-  function formatDateToDDMMYYYY(dateString) {
-    const date = new Date(dateString)
-    const day = String(date.getDate()).padStart(2, '0')
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}-${month}-${year}`
-  }
+    if (!startDate || !endDate) {
+      showError('Start Date and End Date are required')
+      setError('Start Date and End Date are required')
+      return
+    }
 
-  const onSearch = async (values) => {
+    const startDateFormatted = formatDateForApi(startDate)
+    const endDateFormatted = formatDateForApi(endDate)
+    const trimmedUserId = userId.trim()
+    const userType = userDropdownId
+
+    let url = `/inactive-user-accounts/search?startDate=${startDateFormatted}&endDate=${endDateFormatted}&userType=${userType}`
+    if (trimmedUserId) url += `&userId=${trimmedUserId}`
+
+    setLoading(true)
     try {
-      const payload = {
-        startDate: values.startDate ? formatDate(values.startDate) : '',
-        endDate: values.endDate ? formatDate(values.endDate) : '',
-        userType: values.userDropdownId,
-      }
-      const url = `/inactive-user-accounts/search?startDate=${payload.startDate}&endDate=${payload.endDate}&userType=${payload.userType}${values.userId.trim().length > 0 ? `&userId=${values.userId}` : ''}`
-
       const response = await apiClient.get(url)
 
-      if (response.data.success && Array.isArray(response.data.data) && response.data.data.length > 0) {
-        const formattedTableData = response.data.data.map((item) => ({
+      if (response.success && Array.isArray(response.data) && response.data.length > 0) {
+        const formattedData = response.data.map((item) => ({
           date: formatDateToDDMMYYYY(item.UNALLOCATE_DATE),
           collectionID: item.VAR_BANKDATA_USERID,
           accountNumber: item.VAR_BANKDATA_CONTRACTNUM,
         }))
-        setTableData(formattedTableData)
-        setShowTable(true)
-      }
-      if (response.data.success && response.data.data.length === 0) {
+        setRows(formattedData)
+        showSuccess(`Found ${formattedData.length} records`)
+      } else if (response.success && response.data.length === 0) {
+        setRows([])
         showWarning('No records found')
-        setShowTable(false)
-        setTableData([])
+        setError('No records found')
+      } else {
+        setRows([])
+        showError('Unexpected response format')
+        setError('Unexpected response format')
       }
-    } catch (error) {
-      console.error(error)
-      showError(error?.response?.data?.message || error?.message || 'Failed to fetch inactive user accounts')
+    } catch (err) {
+      console.error(err)
+      setRows([])
+      showError(err?.message || 'Failed to fetch inactive user accounts')
+      setError(err?.message || 'Failed to fetch inactive user accounts')
+    } finally {
+      setLoading(false)
     }
   }
 
-  // Placeholder for the "Unallocate All Accounts" button action
   const handleUnallocateAll = async () => {
     // TODO: implement API call
     showWarning('Unallocate All Accounts feature not yet implemented')
@@ -91,7 +113,6 @@ const FrmInactiveUserAcs = () => {
 
   return (
     <div className="main-content">
-      {/* Page Header */}
       <div className="page-header">
         <h1 className="page-title">Inactive User Accounts</h1>
         <nav className="breadcrumb">
@@ -101,9 +122,8 @@ const FrmInactiveUserAcs = () => {
         </nav>
       </div>
 
-      <div className="card">
+      <div className="card mb-4">
         <div className="card-body">
-          {/* Unallocate All Accounts button - centered */}
           <div className="d-flex justify-content-center mb-4">
             <button type="button" className="btn btn-primary" onClick={handleUnallocateAll}>
               Unallocate All Accounts
@@ -112,87 +132,89 @@ const FrmInactiveUserAcs = () => {
 
           <p className="fw-semibold mb-3">Users Unallocated Accounts</p>
 
-          <form onSubmit={handleSubmit(onSearch)}>
+          <form onSubmit={handleSearch}>
             <div className="row g-3">
-              {/* Start Date */}
               <div className="col-md-6">
-                <label className="form-label">Select Start Date</label>
+                <label htmlFor="startDate" className="form-label">
+                  Select Start Date <span className="text-danger">*</span>
+                </label>
                 <input
+                  id="startDate"
                   type="date"
-                  className={`form-control ${errors.startDate ? 'is-invalid' : ''}`}
+                  className={`form-control ${!startDate && searched ? 'is-invalid' : ''}`}
+                  value={startDate}
                   max={today}
-                  {...register('startDate', {
-                    required: 'Start Date is required',
-                    validate: (value) => !value || value <= today || 'Future dates are not allowed',
-                  })}
+                  onChange={(e) => setStartDate(e.target.value)}
                 />
-                {errors.startDate && <div className="invalid-feedback">{errors.startDate.message}</div>}
               </div>
 
-              {/* End Date */}
               <div className="col-md-6">
-                <label className="form-label">Select End Date</label>
+                <label htmlFor="endDate" className="form-label">
+                  Select End Date <span className="text-danger">*</span>
+                </label>
                 <input
+                  id="endDate"
                   type="date"
-                  className={`form-control ${errors.endDate ? 'is-invalid' : ''}`}
+                  className={`form-control ${!endDate && searched ? 'is-invalid' : ''}`}
+                  value={endDate}
                   max={today}
-                  {...register('endDate', {
-                    required: 'End Date is required',
-                    validate: (value) => !value || value <= today || 'Future dates are not allowed',
-                  })}
+                  onChange={(e) => setEndDate(e.target.value)}
                 />
-                {errors.endDate && <div className="invalid-feedback">{errors.endDate.message}</div>}
               </div>
 
-              {/* User ID (optional) */}
               <div className="col-md-6">
-                <label className="form-label">User Id</label>
+                <label htmlFor="userId" className="form-label">User Id</label>
                 <input
+                  id="userId"
                   type="text"
                   className="form-control"
-                  placeholder="Enter User ID"
-                  {...register('userId')}
+                  value={userId}
+                  onChange={(e) => setUserId(e.target.value)}
+                  placeholder="Enter User ID (optional)"
                 />
               </div>
 
-              {/* User Type Dropdown */}
               <div className="col-md-6">
-                <label className="form-label">Select User</label>
+                <label htmlFor="userType" className="form-label">Select User</label>
                 <select
-                  className={`form-select ${errors.userDropdownId ? 'is-invalid' : ''}`}
-                  {...register('userDropdownId', { required: 'User Type is required' })}
+                  id="userType"
+                  className="form-select"
+                  value={userDropdownId}
+                  onChange={(e) => setUserDropdownId(e.target.value)}
                 >
                   <option value="">-- Select Option --</option>
                   <option value="All">All</option>
                   <option value="Inactive">Inactive</option>
                 </select>
-                {errors.userDropdownId && <div className="invalid-feedback">{errors.userDropdownId.message}</div>}
               </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="d-flex justify-content-center gap-3 mt-4">
-              <button type="submit" className="btn btn-primary">
-                Search
+              <button type="submit" className="btn btn-primary" disabled={loading}>
+                {loading ? 'Searching...' : 'Search'}
               </button>
               <button type="button" className="btn btn-secondary" onClick={() => navigate('/dashboard')}>
                 Close
               </button>
             </div>
-
-            {/* Table */}
-            {showTable && (
-              <div className="mt-4">
-                <ReusableGroupedDataGrid
-                  title="Users Unallocated Accounts"
-                  headers={tableHeader}
-                  rows={tableData}
-                />
-              </div>
-            )}
           </form>
         </div>
       </div>
+
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          <i className="bi bi-exclamation-triangle me-2" />
+          {error}
+        </div>
+      )}
+
+      {tableRows.length > 0 && (
+        <div className="card">
+          <div className="card-body">
+            <ReusableDataGrid rows={tableRows} columns={columns} pageSize={10} />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

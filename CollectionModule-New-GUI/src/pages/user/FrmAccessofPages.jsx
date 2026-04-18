@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import apiClient from "../../services/apiClient";
-// import { useAuth } from '../../context/AuthContext'  // temporarily commented
-// import { useNotification } from '../../context/NotificationContext'
+import { useAuth } from '../../context/AuthContext';
+import { useNotification } from "../../context/useNotification";
 
 function FrmAccessofPages() {
   const {
@@ -20,8 +20,8 @@ function FrmAccessofPages() {
       accessPages: [],
     },
   });
-  // const { user } = useAuth()
-  // const { showSuccess, showError } = useNotification()
+  const { user } = useAuth();
+  const { showSuccess, showError } = useNotification();
   const navigate = useNavigate();
   const location = useLocation();
   const { userID } = location.state || null;
@@ -42,25 +42,29 @@ function FrmAccessofPages() {
   const fetchPageAccessDetails = async () => {
     try {
       const response = await apiClient.get(
-        `/users/get-page-access?userId=${userID}`,
+        `/users/get-page-access?userId=${userID}`
       );
-      if (response.success) {
-        setUserPageAccessDetails(response.data);
-        setValue("userId", response.data.userId);
+      // ✅ correct API response check
+      if (response.data?.success) {
+        const data = response.data.data;
+        setUserPageAccessDetails(data);
+        setValue("userId", data.userId);
 
-        const userOfValue = fetchUserOfId(response.data.userOf);
+        const userOfValue = fetchUserOfId(data.userOf);
         setValue("userOf", userOfValue);
 
-        setPageAccessList(response.data.pages);
+        setPageAccessList(data.pages);
 
-        const selectedPages = response.data.pages
+        const selectedPages = data.pages
           .filter((page) => page.selected)
           .map((page) => page.menuId);
         setValue("accessPages", selectedPages);
+      } else {
+        showError(response.data?.message || "Failed to fetch page access details");
       }
     } catch (error) {
       console.error(error);
-      alert(error?.message || "Failed to fetch page access details");
+      showError(error?.response?.data?.message || error?.message || "Failed to fetch page access details");
     }
   };
 
@@ -70,12 +74,10 @@ function FrmAccessofPages() {
         userId: values.userId,
         menuIds: values.accessPages.map((id) => Number(id)),
       };
-      const response = await apiClient.post(
-        `/users/update-page-access`,
-        payload,
-      );
-      if (response?.success && response?.data?.out_ErrorCode === "9999") {
-        alert("Page Access Updated Successfully");
+      const response = await apiClient.post(`/users/update-page-access`, payload);
+      // ✅ correct response check
+      if (response.data?.success && response.data?.data?.out_ErrorCode === "9999") {
+        showSuccess("Page Access Updated Successfully");
         reset({
           userOf: "",
           userId: "",
@@ -83,13 +85,15 @@ function FrmAccessofPages() {
           accessPages: [],
         });
         navigate("/User/FrmUserModification");
+      } else {
+        showError(response.data?.data?.out_ErrorMsg || "Failed to update page access");
       }
     } catch (error) {
       console.error(error);
-      alert(
+      showError(
         error?.response?.data?.message ||
           error?.message ||
-          "Failed to update page access",
+          "Failed to update page access"
       );
     }
   };
@@ -106,9 +110,7 @@ function FrmAccessofPages() {
       <div className="page-header">
         <h1 className="page-title">Page Access</h1>
         <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">
-            Home
-          </Link>
+          <Link to="/" className="breadcrumb-item">Home</Link>
           <span className="breadcrumb-item">User Management</span>
           <span className="breadcrumb-item active">Page Access</span>
         </nav>
@@ -135,9 +137,7 @@ function FrmAccessofPages() {
                   </option>
                 ))}
               </select>
-              {errors.userOf && (
-                <div className="invalid-feedback">{errors.userOf.message}</div>
-              )}
+              {errors.userOf && <div className="invalid-feedback">{errors.userOf.message}</div>}
             </div>
 
             {/* User ID (disabled) */}
@@ -152,9 +152,7 @@ function FrmAccessofPages() {
                 placeholder="User ID"
                 {...register("userId", { required: "User ID is required" })}
               />
-              {errors.userId && (
-                <div className="invalid-feedback">{errors.userId.message}</div>
-              )}
+              {errors.userId && <div className="invalid-feedback">{errors.userId.message}</div>}
             </div>
 
             {/* User Name (read‑only text) */}
@@ -203,9 +201,7 @@ function FrmAccessofPages() {
                 )}
               </div>
               {errors.accessPages && (
-                <div className="text-danger small mt-1">
-                  {errors.accessPages.message}
-                </div>
+                <div className="text-danger small mt-1">{errors.accessPages.message}</div>
               )}
             </div>
 
