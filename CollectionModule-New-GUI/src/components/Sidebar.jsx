@@ -64,14 +64,17 @@ const componentsMenuItems = [
   { to: '/components/toasts', label: 'Toasts' },
   { to: '/components/tooltips', label: 'Tooltips' },
 ]
-const user = [
-  { to: "/User/FrmUserModification", label: "User Modification"}
+
+const userMenuItems = [
+  { to: "/User/FrmUserModification", label: "User Modification" },
+  { to: "/User/FrmPincodeMstrInserion", label: "Pincode Master" },
 ]
 
 function Sidebar({
   desktopCollapsed,
   mobileOpen,
   authMenuOpen,
+  userMenuOpen,                // ✅ separate state for User menu
   formsMenuOpen,
   componentsMenuOpen,
   tablesMenuOpen,
@@ -79,6 +82,7 @@ function Sidebar({
   widgetsMenuOpen,
   reportsMenuOpen,
   onToggleAuthMenu,
+  onToggleUserMenu,            // ✅ separate handler
   onToggleFormsMenu,
   onToggleComponentsMenu,
   onToggleTablesMenu,
@@ -92,6 +96,7 @@ function Sidebar({
       <aside className={`sidebar ${desktopCollapsed ? 'collapsed' : ''} ${mobileOpen ? 'open' : ''}`}>
         <nav className="sidebar-nav">
           <ul className="nav-menu">
+            {/* Static Nav Items */}
             {navItems.map((item) => (
               <li className="nav-item" key={item.to}>
                 <NavLink
@@ -108,8 +113,14 @@ function Sidebar({
               </li>
             ))}
 
+            {/* Authentication Menu (dropdown) */}
             <li className={`nav-item has-submenu ${authMenuOpen ? 'open' : ''}`}>
-              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleAuthMenu} aria-expanded={authMenuOpen}>
+              <button
+                type="button"
+                className="nav-link w-100 text-start border-0 bg-transparent"
+                onClick={onToggleAuthMenu}
+                aria-expanded={authMenuOpen}
+              >
                 <span className="nav-icon"><i className="ph-light ph-shield-check" /></span>
                 <span className="nav-text">Authentication</span>
                 <span className="nav-badge">3</span>
@@ -122,21 +133,33 @@ function Sidebar({
               </ul>
             </li>
 
-            {/* Here i added my user FrmUserModification component */}
-            <li className={`nav-item has-submenu ${authMenuOpen ? 'open' : ''}`}>
-              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleAuthMenu} aria-expanded={authMenuOpen}>
-                <span className="nav-icon"><i className="ph-light ph-shield-check" /></span>
+            {/* User Menu (dropdown) – separate state and handler */}
+            <li className={`nav-item has-submenu ${userMenuOpen ? 'open' : ''}`}>
+              <button
+                type="button"
+                className="nav-link w-100 text-start border-0 bg-transparent"
+                onClick={onToggleUserMenu}
+                aria-expanded={userMenuOpen}
+              >
+                <span className="nav-icon"><i className="ph-light ph-user" /></span>
                 <span className="nav-text">User</span>
-                <span className="nav-badge">3</span>
+                <span className="nav-badge">{userMenuItems.length}</span>
                 <span className="nav-arrow"><i className="bi bi-chevron-right" /></span>
               </button>
-              <ul className={`nav-submenu ${authMenuOpen ? 'show' : ''}`} style={{ maxHeight: authMenuOpen ? '220px' : '0px' }}>
-                <li><NavLink to="/User/FrmUserModification" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> User Modification</NavLink></li>
+              <ul className={`nav-submenu ${userMenuOpen ? 'show' : ''}`} style={{ maxHeight: userMenuOpen ? `${userMenuItems.length * 36 + 20}px` : '0px' }}>
+                {userMenuItems.map((item) => (
+                  <li key={item.to}>
+                    <NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}>
+                      <span className="nav-dot" /> {item.label}
+                    </NavLink>
+                  </li>
+                ))}
               </ul>
             </li>
 
+            {/* Forms Menu */}
             <li className={`nav-item has-submenu ${formsMenuOpen ? 'open' : ''}`}>
-              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleFormsMenu} aria-expanded={formsMenuOpen}>
+              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleFormsMenu}>
                 <span className="nav-icon"><i className="ph-light ph-textbox" /></span>
                 <span className="nav-text">Forms</span>
                 <span className="nav-badge">{formsMenuItems.length}</span>
@@ -149,8 +172,9 @@ function Sidebar({
               </ul>
             </li>
 
+            {/* Components Menu */}
             <li className={`nav-item has-submenu ${componentsMenuOpen ? 'open' : ''}`}>
-              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleComponentsMenu} aria-expanded={componentsMenuOpen}>
+              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleComponentsMenu}>
                 <span className="nav-icon"><i className="ph-light ph-puzzle-piece" /></span>
                 <span className="nav-text">Components</span>
                 <span className="nav-badge">{componentsMenuItems.length}</span>
@@ -163,8 +187,9 @@ function Sidebar({
               </ul>
             </li>
 
+            {/* Tables Menu */}
             <li className={`nav-item has-submenu ${tablesMenuOpen ? 'open' : ''}`}>
-              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleTablesMenu} aria-expanded={tablesMenuOpen}>
+              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleTablesMenu}>
                 <span className="nav-icon"><i className="ph-light ph-table" /></span>
                 <span className="nav-text">Tables</span>
                 <span className="nav-badge">{tablesMenuItems.length}</span>
@@ -177,8 +202,9 @@ function Sidebar({
               </ul>
             </li>
 
+            {/* Charts Menu */}
             <li className={`nav-item has-submenu ${chartsMenuOpen ? 'open' : ''}`}>
-              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleChartsMenu} aria-expanded={chartsMenuOpen}>
+              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleChartsMenu}>
                 <span className="nav-icon"><i className="ph-light ph-chart-line-up" /></span>
                 <span className="nav-text">Charts</span>
                 <span className="nav-badge">{chartsMenuItems.length}</span>
@@ -191,8 +217,9 @@ function Sidebar({
               </ul>
             </li>
 
+            {/* Widgets Menu */}
             <li className={`nav-item has-submenu ${widgetsMenuOpen ? 'open' : ''}`}>
-              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleWidgetsMenu} aria-expanded={widgetsMenuOpen}>
+              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleWidgetsMenu}>
                 <span className="nav-icon"><i className="ph-light ph-stack" /></span>
                 <span className="nav-text">Widgets</span>
                 <span className="nav-badge">{widgetsMenuItems.length}</span>
@@ -205,8 +232,9 @@ function Sidebar({
               </ul>
             </li>
 
+            {/* Reports Menu */}
             <li className={`nav-item has-submenu ${reportsMenuOpen ? 'open' : ''}`}>
-              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleReportsMenu} aria-expanded={reportsMenuOpen}>
+              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleReportsMenu}>
                 <span className="nav-icon"><i className="ph-light ph-chart-bar" /></span>
                 <span className="nav-text">Reports</span>
                 <span className="nav-badge">{reportsMenuItems.length}</span>
