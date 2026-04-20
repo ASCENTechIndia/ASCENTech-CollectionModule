@@ -453,3 +453,47 @@ body {
     right: 0;
   }
 }
+
+.table > :not(caption) > * > * {
+  color: inherit !important;
+}
+
+.datagrid-wrapper .grouped-datagrid-table,
+.datagrid-wrapper .reusable-datagrid-table {
+  --bs-table-bg: var(--bg-primary);
+  --bs-table-color: var(--text-primary);
+  --bs-table-border-color: var(--border-color);
+  --bs-table-striped-bg: color-mix(in srgb, var(--table-stripe-bg), var(--bg-primary) 35%);
+  --bs-table-hover-bg: color-mix(in srgb, var(--table-hover-bg), var(--accent-color) 6%);
+  border-color: var(--border-color);
+  background-color: var(--bg-primary);
+}
+
+.datagrid-wrapper .grouped-datagrid-table thead th,
+.datagrid-wrapper .reusable-datagrid-table thead th {
+  background-color: var(--table-header-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.datagrid-wrapper .grouped-datagrid-table thead tr:first-child th,
+.datagrid-wrapper .reusable-datagrid-table thead tr:first-child th {
+  border-top: 2px solid var(--border-color-dark) !important;
+  border-bottom: 2px solid var(--border-color-dark) !important;
+  border-left: 1px solid var(--border-color-dark) !important;
+  border-right: 1px solid var(--border-color-dark) !important;
+}
+
+.datagrid-wrapper .grouped-datagrid-table thead th.table-secondary {
+  background: color-mix(in srgb, var(--table-header-bg), var(--accent-color) 14%) !important;
+}
+
+.datagrid-wrapper .grouped-datagrid-table thead th.table-light {
+  background: color-mix(in srgb, var(--table-header-bg), var(--accent-color) 6%) !important;
+}
+
+.datagrid-wrapper .grouped-datagrid-table tbody td,
+.datagrid-wrapper .reusable-datagrid-table tbody td {
+  border-color: var(--border-color) !important;
+  color: var(--text-primary);
+}

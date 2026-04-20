@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import ReusableDataGrid from '../../components/ReusableDataGrid'
 import apiClient from '../../services/apiClient'
 import { useNotification } from '../../context/useNotification'
@@ -19,16 +20,26 @@ const formatDateForApi = (value) => {
 }
 
 function RptDaywisedata() {
-  const { showError, showSuccess } = useNotification()
+  const { showError, showSuccess, showWarning } = useNotification()
+  const {
+    register,
+    handleSubmit: handleFormSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      startDate: '',
+      endDate: '',
+      accountNo: '',
+      smaType: '',
+    },
+  })
   const today = new Date().toISOString().split('T')[0]
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [accountNo, setAccountNo] = useState('')
   const [smaType, setSmaType] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
   const [rows, setRows] = useState([])
-  const [searched, setSearched] = useState(false)
 
   const columns = [
     { label: 'Contract Upload Date', sortable: true },
@@ -70,16 +81,7 @@ function RptDaywisedata() {
     [rows]
   )
 
-  const handleSearch = async (event) => {
-    event.preventDefault()
-    setSearched(true)
-    setError('')
-
-    if (!startDate || !endDate) {
-      showError('Start Date and End Date are required')
-      setError('Start Date and End Date are required')
-      return
-    }
+  const handleSearch = async () => {
 
     const params = {
       startDate: formatDateForApi(startDate),
@@ -104,8 +106,7 @@ function RptDaywisedata() {
 
       if (!success || !data.length) {
         setRows([])
-        showError('No Data Found')
-        setError('No Data Found')
+        showWarning('No Data Found')
         return
       }
 
@@ -125,7 +126,6 @@ function RptDaywisedata() {
     } catch (apiError) {
       setRows([])
       showError(apiError.message || 'API Error')
-      setError(apiError.message || 'API Error')
     } finally {
       setLoading(false)
     }
@@ -137,8 +137,10 @@ function RptDaywisedata() {
     setAccountNo('')
     setSmaType('')
     setRows([])
-    setError('')
-    setSearched(false)
+    setValue('startDate', '')
+    setValue('endDate', '')
+    setValue('accountNo', '')
+    setValue('smaType', '')
   }
 
   return (
@@ -159,7 +161,7 @@ function RptDaywisedata() {
           <h5 className="card-title mb-0">Search Filters</h5>
         </div>
         <div className="card-body">
-          <form onSubmit={handleSearch}>
+          <form onSubmit={handleFormSubmit(handleSearch)}>
             <div className="row g-3">
               <div className="col-md-6">
                 <label htmlFor="startDate" className="form-label">
@@ -169,10 +171,14 @@ function RptDaywisedata() {
                   id="startDate"
                   type="date"
                   max={today}
-                  className={`form-control ${!startDate && searched ? 'is-invalid' : ''}`}
+                  className={`form-control ${errors.startDate ? 'is-invalid' : ''}`}
                   value={startDate}
-                  onChange={(event) => setStartDate(event.target.value)}
+                  {...register('startDate', {
+                    required: 'Start Date is required',
+                    onChange: (event) => setStartDate(event.target.value),
+                  })}
                 />
+                {errors.startDate && <div className="invalid-feedback">{errors.startDate.message}</div>}
               </div>
 
               <div className="col-md-6">
@@ -183,10 +189,14 @@ function RptDaywisedata() {
                   id="endDate"
                   type="date"
                   max={today}
-                  className={`form-control ${!endDate && searched ? 'is-invalid' : ''}`}
+                  className={`form-control ${errors.endDate ? 'is-invalid' : ''}`}
                   value={endDate}
-                  onChange={(event) => setEndDate(event.target.value)}
+                  {...register('endDate', {
+                    required: 'End Date is required',
+                    onChange: (event) => setEndDate(event.target.value),
+                  })}
                 />
+                {errors.endDate && <div className="invalid-feedback">{errors.endDate.message}</div>}
               </div>
 
               <div className="col-md-6">
@@ -198,8 +208,10 @@ function RptDaywisedata() {
                   type="text"
                   className="form-control"
                   value={accountNo}
-                  onChange={(event) => setAccountNo(event.target.value)}
                   placeholder="Enter account number (optional)"
+                  {...register('accountNo', {
+                    onChange: (event) => setAccountNo(event.target.value),
+                  })}
                 />
               </div>
 
@@ -211,7 +223,9 @@ function RptDaywisedata() {
                   id="smaType"
                   className="form-select"
                   value={smaType}
-                  onChange={(event) => setSmaType(event.target.value)}
+                  {...register('smaType', {
+                    onChange: (event) => setSmaType(event.target.value),
+                  })}
                 >
                   <option value="">--Select Option--</option>
                   <option value="SMA0">SMA0</option>
@@ -232,13 +246,6 @@ function RptDaywisedata() {
           </form>
         </div>
       </div>
-
-      {error && (
-        <div className="alert alert-danger" role="alert">
-          <i className="bi bi-exclamation-triangle me-2" />
-          {error}
-        </div>
-      )}
 
       {rows.length > 0 && (
         <div className="card">

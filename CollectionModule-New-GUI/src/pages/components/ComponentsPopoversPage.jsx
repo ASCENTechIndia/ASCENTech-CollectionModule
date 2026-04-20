@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 function ComponentsPopoversPage() {
   return (
     <div>
@@ -6,7 +7,7 @@ function ComponentsPopoversPage() {
         <div className="page-header">
           <h1 className="page-Title">Popovers</h1>
           <nav className="breadcrumb">
-            <a href="#" className="breadcrumb-item">Home</a>
+            <Link to="/" className="breadcrumb-item">Home</Link>
             <a href="#" className="breadcrumb-item">Components</a>
             <span className="breadcrumb-item active">Popovers</span>
           </nav>

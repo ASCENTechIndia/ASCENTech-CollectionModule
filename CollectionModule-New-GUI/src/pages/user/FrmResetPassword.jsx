@@ -6,6 +6,7 @@ import { useNotification } from '../../context/useNotification'
 function FrmResetPassword() {
   const navigate = useNavigate()
   const { showSuccess, showError, showWarning } = useNotification()
+  const userIdPattern = /^\d+$/
 
   const [userId, setUserId] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -22,8 +23,8 @@ function FrmResetPassword() {
       return
     }
 
-    if (!/^[A-Za-z0-9]+$/.test(trimmedUserId)) {
-      showError('User ID must contain only letters and numbers')
+    if (!userIdPattern.test(trimmedUserId)) {
+      showError('User ID must contain numbers only')
       return
     }
 
@@ -79,10 +80,17 @@ function FrmResetPassword() {
                 id="resetUserId"
                 type="text"
                 value={userId}
-                onChange={(event) => setUserId(event.target.value)}
+                onChange={(event) => setUserId(event.target.value.replace(/\D/g, ''))}
                 placeholder="Enter User ID"
-                className={`form-control ${!userId.trim() && searched ? 'is-invalid' : ''}`}
+                className={`form-control ${searched && (!userId.trim() || !userIdPattern.test(userId.trim())) ? 'is-invalid' : ''}`}
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={20}
               />
+              {searched && !userId.trim() && <div className="invalid-feedback">User ID is required.</div>}
+              {searched && userId.trim() && !userIdPattern.test(userId.trim()) && (
+                <div className="invalid-feedback">User ID must contain numbers only.</div>
+              )}
             </div>
 
             {newPassword && (

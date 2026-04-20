@@ -1,147 +1,146 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useMemo, useState } from 'react'
-import ReusableDataGrid from '../../components/ReusableDataGrid'
-import apiClient from '../../services/apiClient'
-import { useAuth } from '../../context/AuthContext'
-import { useNotification } from '../../context/useNotification'
+import { Link, useNavigate } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
+import ReusableDataGrid from "../../components/ReusableDataGrid";
+import apiClient from "../../services/apiClient";
+import { useAuth } from "../../context/AuthContext";
+import { useNotification } from "../../context/useNotification";
+import RouteMap from "../../components/ui/RouteMap";
 
 const formatDateForApi = (value) => {
-  if (!value) return ''
+  if (!value) return "";
 
-  const [year, month, day] = value.split('-')
-  if (!year || !month || !day) return ''
+  const [year, month, day] = value.split("-");
+  if (!year || !month || !day) return "";
 
-  return `${day}-${month}-${year}`
-}
+  return `${day}-${month}-${year}`;
+};
 
 const getCoordinates = (value) => {
-  if (!Array.isArray(value)) return []
+  if (!Array.isArray(value)) return [];
 
   return value
-    .map((item) => String(item || '').trim())
-    .filter((item) => item && item.includes(','))
-}
+    .map((item) => String(item || "").trim())
+    .filter((item) => item && item.includes(","));
+};
 
 const getRouteUrl = (coordinates) => {
-  if (!coordinates.length) return ''
+  if (!coordinates.length) return "";
 
   if (coordinates.length === 1) {
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(coordinates[0])}`
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(coordinates[0])}`;
   }
 
-  const origin = coordinates[0]
-  const destination = coordinates[coordinates.length - 1]
-  const waypoints = coordinates.slice(1, -1).join('|')
+  const origin = coordinates[0];
+  const destination = coordinates[coordinates.length - 1];
+  const waypoints = coordinates.slice(1, -1).join("|");
 
   const params = new URLSearchParams({
-    api: '1',
+    api: "1",
     origin,
     destination,
-    travelmode: 'driving',
-  })
+    travelmode: "driving",
+  });
 
   if (waypoints) {
-    params.set('waypoints', waypoints)
+    params.set("waypoints", waypoints);
   }
 
-  return `https://www.google.com/maps/dir/?${params.toString()}`
-}
+  return `https://www.google.com/maps/dir/?${params.toString()}`;
+};
 
 function FrmUserRouteReport() {
-  const navigate = useNavigate()
-  const { user } = useAuth()
-  const { showError, showSuccess } = useNotification()
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { showError, showSuccess, showWarning } = useNotification();
+  const {
+    register,
+    handleSubmit: handleFormSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      fosId: "",
+      date: "",
+      withDistance: false,
+    },
+  });
 
-  const [fosId, setFosId] = useState('')
-  const [date, setDate] = useState('')
-  const [withDistance, setWithDistance] = useState(false)
-  const [rows, setRows] = useState([])
-  const [coordinates, setCoordinates] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [searched, setSearched] = useState(false)
+  const [fosId, setFosId] = useState("");
+  const [date, setDate] = useState("");
+  const [withDistance, setWithDistance] = useState(false);
+  const [rows, setRows] = useState([]);
+  const [coordinates, setCoordinates] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const columns = [
-    { label: 'Sr No', sortable: true },
-    { label: 'Collection Associate', sortable: true },
-    { label: 'Account Number', sortable: true },
-    { label: 'Transaction Date', sortable: true },
-    { label: 'Go Location', sortable: true },
-    { label: 'Disposition Type', sortable: true },
-    { label: 'Visit Remark', sortable: true },
-    { label: 'Distance', sortable: true },
-  ]
+    { label: "Sr No", sortable: true },
+    { label: "Collection Associate", sortable: true },
+    { label: "Account Number", sortable: true },
+    { label: "Transaction Date", sortable: true },
+    { label: "Go Location", sortable: true },
+    { label: "Disposition Type", sortable: true },
+    { label: "Visit Remark", sortable: true },
+    { label: "Distance", sortable: true },
+  ];
 
   const tableRows = useMemo(() => {
-    if (!Array.isArray(rows)) return []
+    if (!Array.isArray(rows)) return [];
 
     return rows.map((item) => [
-      item['Sr No'] ?? '',
-      item['Collection Associate'] ?? '',
-      item['Account Number'] ?? '',
-      item['Transaction Date'] ?? '',
-      item.GO_Location ?? '',
-      item['Disposition Type'] ?? '',
-      item['Visit Remark'] ?? '',
-      item.Distance ?? '',
-    ])
-  }, [rows])
+      item["Sr No"] ?? "",
+      item["Collection Associate"] ?? "",
+      item["Account Number"] ?? "",
+      item["Transaction Date"] ?? "",
+      item.GO_Location ?? "",
+      item["Disposition Type"] ?? "",
+      item["Visit Remark"] ?? "",
+      item.Distance ?? "",
+    ]);
+  }, [rows]);
 
-  const routeUrl = useMemo(() => getRouteUrl(coordinates), [coordinates])
+  const routeUrl = useMemo(() => getRouteUrl(coordinates), [coordinates]);
 
-  const handleSearch = async (event) => {
-    event.preventDefault()
-    setSearched(true)
-    setError('')
+  const handleSearch = async () => {
+    const trimmedFosId = fosId.trim();
+    const formattedDate = formatDateForApi(date);
 
-    const trimmedFosId = fosId.trim()
-    const formattedDate = formatDateForApi(date)
-
-    if (!trimmedFosId || !formattedDate) {
-      showError('Both FOS ID and Date are required')
-      setError('Both FOS ID and Date are required')
-      return
-    }
-
-    setLoading(true)
-    setRows([])
-    setCoordinates([])
+    setLoading(true);
+    setRows([]);
+    setCoordinates([]);
 
     try {
-      const response = await apiClient.get('/reports/user-route', {
+      const response = await apiClient.get("/reports/user-route", {
         params: {
           fosId: trimmedFosId,
           date: formattedDate,
           withDistance,
           userof: user?.userof ?? 0,
         },
-      })
+      });
 
-      const success = response?.success
-      const apiData = response?.data || {}
-      const apiRows = Array.isArray(apiData?.rows) ? apiData.rows : []
-      const apiCoordinates = getCoordinates(apiData?.coordinates)
+      const success = response?.success;
+      const apiData = response?.data || {};
+      const apiRows = Array.isArray(apiData?.rows) ? apiData.rows : [];
+      const apiCoordinates = getCoordinates(apiData?.coordinates);
 
       if (success && apiRows.length > 0) {
-        setRows(apiRows)
-        setCoordinates(apiCoordinates)
-        showSuccess(`Found ${apiRows.length} records`)
+        setRows(apiRows);
+        setCoordinates(apiCoordinates);
+        showSuccess(`Found ${apiRows.length} records`);
       } else {
-        setRows([])
-        setCoordinates([])
-        showError('No route data found')
-        setError('No route data found')
+        setRows([]);
+        setCoordinates([]);
+        showWarning("No route data found");
       }
     } catch (apiError) {
-      setRows([])
-      setCoordinates([])
-      const message = apiError?.message || 'Failed to fetch route report'
-      showError(message)
-      setError(message)
+      setRows([]);
+      setCoordinates([]);
+      const message = apiError?.message || "Failed to fetch route report";
+      showError(message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="main-content page-user-route-report">
@@ -161,7 +160,7 @@ function FrmUserRouteReport() {
           <h5 className="card-title mb-0">Search Filters</h5>
         </div>
         <div className="card-body">
-          <form onSubmit={handleSearch}>
+          <form onSubmit={handleFormSubmit(handleSearch)}>
             <div className="row g-3">
               <div className="col-md-6">
                 <label htmlFor="fosId" className="form-label">
@@ -170,11 +169,21 @@ function FrmUserRouteReport() {
                 <input
                   id="fosId"
                   type="text"
-                  className={`form-control ${!fosId.trim() && searched ? 'is-invalid' : ''}`}
+                  className={`form-control ${errors.fosId ? "is-invalid" : ""}`}
                   value={fosId}
-                  onChange={(event) => setFosId(event.target.value)}
                   placeholder="Enter FOS ID"
+                  inputMode="numeric"
+                  maxLength={20}
+                  {...register("fosId", {
+                    required: "FOS ID is required",
+                    pattern: {
+                      value: /^\d+$/,
+                      message: "FOS ID must contain numbers only",
+                    },
+                    onChange: (event) => setFosId(event.target.value.replace(/\D/g, "")),
+                  })}
                 />
+                {errors.fosId && <div className="invalid-feedback">{errors.fosId.message}</div>}
               </div>
 
               <div className="col-md-6">
@@ -184,10 +193,14 @@ function FrmUserRouteReport() {
                 <input
                   id="date"
                   type="date"
-                  className={`form-control ${!date && searched ? 'is-invalid' : ''}`}
+                  className={`form-control ${errors.date ? "is-invalid" : ""}`}
                   value={date}
-                  onChange={(event) => setDate(event.target.value)}
+                  {...register("date", {
+                    required: "Date is required",
+                    onChange: (event) => setDate(event.target.value),
+                  })}
                 />
+                {errors.date && <div className="invalid-feedback">{errors.date.message}</div>}
               </div>
 
               <div className="col-12">
@@ -197,7 +210,9 @@ function FrmUserRouteReport() {
                     type="checkbox"
                     className="form-check-input"
                     checked={withDistance}
-                    onChange={(event) => setWithDistance(event.target.checked)}
+                    {...register("withDistance", {
+                      onChange: (event) => setWithDistance(event.target.checked),
+                    })}
                   />
                   <label htmlFor="withDistance" className="form-check-label">
                     Along with distance
@@ -207,10 +222,18 @@ function FrmUserRouteReport() {
             </div>
 
             <div className="d-flex justify-content-center gap-3 mt-4">
-              <button type="submit" className="btn btn-primary" disabled={loading}>
-                {loading ? 'Loading...' : 'Show Route'}
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={loading}
+              >
+                {loading ? "Loading..." : "Show Route"}
               </button>
-              <button type="button" className="btn btn-secondary" onClick={() => navigate('/')}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => navigate("/")}
+              >
                 Close
               </button>
             </div>
@@ -218,48 +241,26 @@ function FrmUserRouteReport() {
         </div>
       </div>
 
-      {error && (
-        <div className="alert alert-danger" role="alert">
-          <i className="bi bi-exclamation-triangle me-2" />
-          {error}
-        </div>
-      )}
-
       {coordinates.length > 0 && (
-        <div className="card mb-4">
-          <div className="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <h5 className="card-title mb-0">Route Map</h5>
-            {routeUrl ? (
-              <a href={routeUrl} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline-primary">
-                Open in Google Maps
-              </a>
-            ) : null}
-          </div>
-          <div className="card-body">
-            <div className="small text-muted mb-2">Coordinates found: {coordinates.length}</div>
-            <div className="d-flex flex-wrap gap-2">
-              {coordinates.slice(0, 12).map((point, index) => (
-                <span key={`${point}-${index}`} className="badge rounded-pill text-bg-light border">
-                  {index + 1}. {point}
-                </span>
-              ))}
-            </div>
-            {coordinates.length > 12 && (
-              <div className="small text-muted mt-2">Showing first 12 points. Open map for full route.</div>
-            )}
-          </div>
+        <div className="mt-6">
+          <h3 className="fs-5 fw-semibold text-secondary mb-2">Route Map</h3>
+          <RouteMap coordinates={coordinates} />
         </div>
       )}
 
       {tableRows.length > 0 && (
-        <div className="card">
+        <div className="card mt-5">
           <div className="card-body">
-            <ReusableDataGrid rows={tableRows} columns={columns} pageSize={10} />
+            <ReusableDataGrid
+              rows={tableRows}
+              columns={columns}
+              pageSize={10}
+            />
           </div>
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default FrmUserRouteReport
+export default FrmUserRouteReport;

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState, useContext } from 'react'
 import { NotificationContext } from './notificationContextObject'
 
 const typeToClass = {
@@ -83,3 +83,7 @@ export function NotificationProvider({ children }) {
     </NotificationContext.Provider>
   )
 }
+
+export const useNotification = () => {
+  return useContext(NotificationContext);
+};

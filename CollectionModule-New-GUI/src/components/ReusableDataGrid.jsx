@@ -120,10 +120,12 @@ export function ReusableDataGrid({
     }
   }
 
-  const tableClassName = `table table-striped table-hover align-middle ${className}`
+  const tableClassName = `table table-bordered table-striped table-hover align-middle reusable-datagrid-table ${className}`
 
   return (
     <div className="datagrid-wrapper">
+      {title ? <h6 className="mb-3 text-primary fw-semibold">{title}</h6> : null}
+
       {/* Toolbar */}
       <div className="datatable-toolbar d-flex flex-wrap gap-3 justify-content-between align-items-center mb-3">
         {/* Search */}

@@ -1,9 +1,16 @@
 import { NavLink } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 const navItems = [
-  { to: '/', label: 'Dashboard', icon: 'ph-light ph-squares-four' },
+  { to: '/', label: 'Home', icon: 'ph-light ph-house' },
   // { to: '/users', label: 'Users', icon: 'ph-light ph-users-three' },
   // { to: '/roles', label: 'Roles', icon: 'ph-light ph-shield' },
+]
+
+const dashboardMenuItems = [
+  { to: '/Dashboard/FrmActiveAgents', label: 'Active Agents Dashboard' },
+  { to: '/Dashboard/FrmNewDashboard2', label: 'Disposition Dashboard' },
+  { to: '/Dashboard/FrmDailyVisit', label: 'Daily Visit Dashboard' },
 ]
 
 const adminMenuItems = [
@@ -15,8 +22,9 @@ const adminMenuItems = [
 ]
 
 const userMenuItems = [
-  { to: "/User/FrmUserModification", label: "User Modification" },
-  { to: "/User/FrmPincodeMstrInserion", label: "Pincode Master" },
+  { to: "/user/FrmUserList", label: "User List" },
+  { to: "/user/FrmUserModification", label: "User Modification" },
+  { to: "/user/FrmPincodeMstrInserion", label: "Pincode Master" },
   { to: '/user/pin-allocation', label: 'Assigned Pincode FOS' },
   { to: '/user/unassign-cases', label: 'Unassigned Cases' },
   { to: '/user/reset-password', label: 'Reset Password' },
@@ -87,6 +95,7 @@ const reportsMenuItems = [
 function Sidebar({
   desktopCollapsed,
   mobileOpen,
+  dashboardMenuOpen,
   // authMenuOpen,
   userMenuOpen,
   // formsMenuOpen,
@@ -103,10 +112,18 @@ function Sidebar({
   // onToggleTablesMenu,
   onToggleChartsMenu,
   // onToggleWidgetsMenu,
+  onToggleDashboardMenu,
   onToggleReportsMenu,
   onToggleAdminMenu,
   onCloseMobile,
+  // userManagementMenuOpen,
+  // onToggleuserManagementMenu
+
 }) {
+  const { user } = useAuth()
+  const displayName = user?.name || user?.userName || user?.fullName || user?.userId || 'User'
+  const displayRole = user?.role || user?.designation || 'User'
+
   return (
     <>
       <aside className={`sidebar ${desktopCollapsed ? 'collapsed' : ''} ${mobileOpen ? 'open' : ''}`}>
@@ -128,6 +145,29 @@ function Sidebar({
                 </NavLink>
               </li>
             ))}
+
+            <li className={`nav-item has-submenu ${dashboardMenuOpen ? 'open' : ''}`}>
+              <button
+                type="button"
+                className="nav-link w-100 text-start border-0 bg-transparent"
+                onClick={onToggleDashboardMenu}
+                aria-expanded={dashboardMenuOpen}
+              >
+                <span className="nav-icon"><i className="ph-light ph-squares-four" /></span>
+                <span className="nav-text">Dashboard</span>
+                <span className="nav-badge">{dashboardMenuItems.length}</span>
+                <span className="nav-arrow"><i className="bi bi-chevron-right" /></span>
+              </button>
+              <ul className={`nav-submenu ${dashboardMenuOpen ? 'show' : ''}`} style={{ maxHeight: dashboardMenuOpen ? `${dashboardMenuItems.length * 36 + 20}px` : '0px' }}>
+                {dashboardMenuItems.map((item) => (
+                  <li key={item.to}>
+                    <NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}>
+                      <span className="nav-dot" /> {item.label}
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </li>
 
             {/* Authentication Menu (dropdown) */}
             {/* <li className={`nav-item has-submenu ${authMenuOpen ? 'open' : ''}`}>
@@ -278,18 +318,16 @@ function Sidebar({
                 ))}
               </ul>
             </li>
-
-           
           </ul>
         </nav>
 
         <div className="sidebar-footer">
           <div className="sidebar-footer-user">
             <a href="#" className="sidebar-footer-profile" onClick={(event) => event.preventDefault()}>
-              <img src="/assets/img/profile-img.webp" alt="User" className="sidebar-footer-avatar" />
+              <img src="/assets/img/profile-img.jpg" alt="User" className="sidebar-footer-avatar" />
               <div className="sidebar-footer-info">
-                <div className="sidebar-footer-name">John Doe</div>
-                <div className="sidebar-footer-role">Product Admin</div>
+                <div className="sidebar-footer-name">{displayName}</div>
+                <div className="sidebar-footer-role">{displayRole}</div>
               </div>
             </a>
           </div>

@@ -3400,7 +3400,7 @@ button {
 
 .fauth-visual-title {
   margin: 0;
-  font-size: 1.7rem;
+  font-size: 1.35rem;
   line-height: 1.2;
   font-weight: 700;
   color: #ffffff;
@@ -3456,12 +3456,12 @@ button {
   gap: 8px;
   text-decoration: none;
   color: inherit;
-  font-size: 1.06rem;
+  font-size: 1.2rem;
   font-weight: 700;
 }
 
 .fauth-logo img {
-  height: 23px;
+  height: 30px;
   width: auto;
 }
 
@@ -3469,10 +3469,12 @@ button {
   color: #ffffff;
   position: relative;
   z-index: 1;
+  font-size: 1.3rem;
 }
 
 .fauth-visual .fauth-logo img {
   filter: brightness(0) invert(1);
+  height: 36px;
 }
 
 .fauth-logo-center {

@@ -1,16 +1,23 @@
 import { Link } from 'react-router-dom'
 import { useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import ReusableDataGrid from '../../components/ReusableDataGrid'
 import apiClient from '../../services/apiClient'
 import { useNotification } from '../../context/useNotification'
 
 function FrmLastLoginHistory() {
   const { showError, showWarning } = useNotification()
-  const [userId, setUserId] = useState('')
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      userId: '',
+    },
+  })
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(false)
-  const [searched, setSearched] = useState(false)
-  const [error, setError] = useState('')
 
   const columns = [
     { label: 'User ID', sortable: true },
@@ -23,25 +30,8 @@ function FrmLastLoginHistory() {
     [rows],
   )
 
-  const handleSubmit = async (event) => {
-    event.preventDefault()
-    setSearched(true)
-    setError('')
-
-    const trimmedUserId = userId.trim()
-    if (!trimmedUserId) {
-      const message = 'Enter User ID'
-      setError(message)
-      showError(message)
-      return
-    }
-
-    if (!/^\d+$/.test(trimmedUserId)) {
-      const message = 'User ID must contain numbers only'
-      setError(message)
-      showError(message)
-      return
-    }
+  const onSubmit = async (values) => {
+    const trimmedUserId = String(values.userId || '').trim()
 
     setLoading(true)
     try {
@@ -61,13 +51,11 @@ function FrmLastLoginHistory() {
         setRows(mapped)
       } else {
         setRows([])
-        setError('No records found')
         showWarning('No data available')
       }
     } catch (apiError) {
       setRows([])
       const message = apiError?.message || 'Failed to fetch login history'
-      setError(message)
       showError(message)
     } finally {
       setLoading(false)
@@ -90,7 +78,7 @@ function FrmLastLoginHistory() {
           <h5 className="card-title mb-0">Search</h5>
         </div>
         <div className="card-body">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className="row g-3 align-items-end">
               <div className="col-md-8">
                 <label htmlFor="userId" className="form-label">
@@ -99,10 +87,20 @@ function FrmLastLoginHistory() {
                 <input
                   id="userId"
                   type="text"
-                  value={userId}
-                  onChange={(event) => setUserId(event.target.value.replace(/\D/g, ''))}
-                  className={`form-control ${!userId.trim() && searched ? 'is-invalid' : ''}`}
+                  className={`form-control ${errors.userId ? 'is-invalid' : ''}`}
                   placeholder="Enter User ID"
+                  maxLength={20}
+                  inputMode="numeric"
+                  onInput={(event) => {
+                    event.target.value = event.target.value.replace(/\D/g, '')
+                  }}
+                  {...register('userId', {
+                    required: 'Enter User ID',
+                    pattern: {
+                      value: /^\d+$/,
+                      message: 'User ID must contain numbers only',
+                    },
+                  })}
                 />
               </div>
               <div className="col-md-4 d-grid">
@@ -114,13 +112,6 @@ function FrmLastLoginHistory() {
           </form>
         </div>
       </div>
-
-      {error && (
-        <div className="alert alert-danger" role="alert">
-          <i className="bi bi-exclamation-triangle me-2" />
-          {error}
-        </div>
-      )}
 
       {tableRows.length > 0 && (
         <div className="card">

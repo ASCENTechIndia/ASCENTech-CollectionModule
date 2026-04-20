@@ -1,13 +1,23 @@
 import { Link } from "react-router-dom";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import * as echarts from 'echarts'
-import Chart from 'chart.js/auto'
 import ReusableDataGrid from '../../components/ReusableDataGrid'
 import apiClient from "../../services/apiClient";
 import { useAuth } from '../../context/AuthContext';
 import { useForm } from "react-hook-form";
-import { color } from "chart.js/helpers";
 import { useNotification } from "../../context/useNotification";
+
+const ChartCard = ({ title, children, subtitle }) => {
+    return (
+        <div className="card h-100 shadow border-0">
+            <div className="card-header">
+                <h5 className="card-title mb-1">{title}</h5>
+                {subtitle ? <p className="card-subtitle mb-0">{subtitle}</p> : null}
+            </div>
+            <div className="card-body">{children}</div>
+        </div>
+    )
+}
 
 const FrmActiveAgents = () => {
     const { user } = useAuth();
@@ -27,7 +37,6 @@ const FrmActiveAgents = () => {
         datasets: []
     });
     const [tableData, setTableData] = useState([]);
-    const [showDetails, setShowDetails] = useState(false);
     const columns = [
         { label: 'Zone Name', sortable: false },
         { label: 'Region Name', sortable: false },
@@ -68,17 +77,6 @@ const FrmActiveAgents = () => {
         muted: '#64748b',
     }
 
-    function ChartCard({ title, children, subtitle }) {
-        return (
-            <div className="card h-100">
-                <div className="card-header">
-                    <h5 className="card-title mb-1">{title}</h5>
-                    {subtitle ? <p className="card-subtitle mb-0">{subtitle}</p> : null}
-                </div>
-                <div className="card-body">{children}</div>
-            </div>
-        )
-    }
     // function useChart(setup) {
     //     const canvasRef = useRef(null)
 
@@ -120,36 +118,79 @@ const FrmActiveAgents = () => {
         return ref
     }
 
-    const gradientArea = useEChart(() => ({
-        tooltip: {
-            trigger: 'axis',
-            padding: [2, 6],
-            textStyle: {
-                fontSize: 10,
-                lineHeight: 14
+    const gradientArea = useEChart(() => {
+        const width = typeof window !== 'undefined' ? window.innerWidth : 1200;
+        const isMobile = width < 576;
+        const isTablet = width >= 576 && width < 992;
+
+        return {
+            tooltip: {
+                trigger: 'axis',
+                padding: [3, 8],
+                textStyle: {
+                    fontSize: isMobile ? 10 : 12,
+                    lineHeight: 14
+                },
+                extraCssText: 'max-width:150px; max-height: 90px; white-space:normal;'
             },
-            extraCssText: 'max-width:120px; max-height: 80px; white-space:normal;'
-        },
-        grid: commonGrid,
-        legend: {
-            show: true,
-            top: 20,
-            left: 'center',
-            textStyle: {
-                color: colors.muted,
-                fontSize: 12
-            }
-        },
-        xAxis: {
-            type: 'category', name: "Days", nameLocation: "middle", nameGap: 30, boundaryGap: false, data: chartData.labels, axisLine: { lineStyle: { color: colors.border } }, axisLabel: axisStyle, nameTextStyle: {
-                color: colors.muted
-            }
-        },
-        yAxis: { type: 'value', name: "Count", nameLocation: "middle", nameRotate: 90, nameGap: 35, axisLine: { show: false }, splitLine: { lineStyle: { color: colors.border, type: 'dashed' } }, axisLabel: axisStyle },
-        series: [{
-            name: 'Unique Collection Associate using the app on a day', type: 'line', smooth: true, data: chartData.datasets, itemStyle: { color: colors.accent }, areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: colors.accent }, { offset: 1, color: 'rgba(59,130,246,0.05)' }]) }
-        }],
-    }))
+            grid: {
+                left: isMobile ? '10%' : commonGrid.left,
+                right: isMobile ? '6%' : commonGrid.right,
+                bottom: isMobile ? '22%' : isTablet ? '16%' : commonGrid.bottom,
+                containLabel: true
+            },
+            legend: {
+                show: true,
+                top: isMobile ? 10 : 20,
+                left: 'center',
+                textStyle: {
+                    color: colors.muted,
+                    fontSize: isMobile ? 10 : 12
+                }
+            },
+            xAxis: {
+                type: 'category',
+                name: "Days",
+                nameLocation: "middle",
+                nameGap: isMobile ? 24 : 30,
+                boundaryGap: false,
+                data: chartData.labels,
+                axisLine: { lineStyle: { color: colors.border } },
+                axisLabel: {
+                    ...axisStyle,
+                    fontSize: isMobile ? 10 : 12,
+                    rotate: isMobile ? 35 : 0
+                },
+                nameTextStyle: {
+                    color: colors.muted,
+                    fontSize: isMobile ? 10 : 12
+                }
+            },
+            yAxis: {
+                type: 'value',
+                name: "Count",
+                nameLocation: "middle",
+                nameRotate: 90,
+                nameGap: isMobile ? 45 : 35,
+                axisLine: { show: false },
+                splitLine: { lineStyle: { color: colors.border, type: 'dashed' } },
+                axisLabel: { ...axisStyle, fontSize: isMobile ? 10 : 12 }
+            },
+            series: [{
+                name: 'Unique Collection Associate using the app on a day',
+                type: 'line',
+                smooth: true,
+                data: chartData.datasets,
+                itemStyle: { color: colors.accent },
+                areaStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        { offset: 0, color: colors.accent },
+                        { offset: 1, color: 'rgba(59,130,246,0.05)' }
+                    ])
+                }
+            }],
+        }
+    })
 
     function getCurrentMonthYear(padded = false) {
         const now = new Date();
@@ -178,7 +219,8 @@ const FrmActiveAgents = () => {
         return `${day}-${month}-${year}`;
     }
 
-    const fetchData = async (monthYear) => {
+    const fetchData = useCallback(async (monthYear) => {
+        setLoading(true);
         try {
             const [month, year] = monthYear.split("-");
             const userNo = userId.split("E")[1];
@@ -204,20 +246,47 @@ const FrmActiveAgents = () => {
                     item.MDM_ID
                 ]))
                 setTableData(formattedGridData);
-                setShowDetails(true);
             }
         } catch (error) {
             console.error(error);
-            showError(error?.response?.data?.message || error?.message || 'Failed to load active agent data');
+        } finally {
+            setLoading(false);
         }
-    }
+    }, [userId])
 
     useEffect(() => {
         if (userId) {
             const monthYearStr = getCurrentMonthYear();
-            fetchData(monthYearStr);
+            const timeoutId = window.setTimeout(() => {
+                fetchData(monthYearStr);
+            }, 0);
+            return () => window.clearTimeout(timeoutId);
         }
-    }, [userId]);
+    }, [userId, fetchData]);
+
+    const summaryCards = [
+        {
+            label: 'No. of Onboarded and Active Collection Associate',
+            value: summaryDetails?.onboardedActiveAssociates ?? 0,
+            icon: 'bi bi-people',
+            accent: '#3b82f6',
+            bg: '#eff6ff'
+        },
+        {
+            label: 'Collection Associate having Accounts Assigned',
+            value: summaryDetails?.accountsAssigned ?? 0,
+            icon: 'bi bi-cash-stack',
+            accent: '#10b981',
+            bg: '#ecfdf5'
+        },
+        {
+            label: 'Total No. of Unique Logins',
+            value: summaryDetails?.uniqueLogins ?? 0,
+            icon: 'bi bi-box-arrow-in-right',
+            accent: '#f59e0b',
+            bg: '#fffbeb'
+        },
+    ];
 
     return (
         <div className="main-content">
@@ -231,21 +300,21 @@ const FrmActiveAgents = () => {
                     <span className="breadcrumb-item active">Active Agents Dashboard</span>
                 </nav>
             </div>
-            <div className="card p-4">
+            <div className="card p-4 shadow border-0">
                 <div className="row align-items-center g-3 ">
-                    <div className="col-12 col-md-3">
+                    <div className="col-12 col-lg-4">
                         <p className="fw-bold mb-0">Collection Associate</p>
                     </div>
 
-                    <div className="col-12 col-md-5">
+                    <div className="col-12 col-lg-8">
                         <div className="d-flex flex-column flex-md-row align-items-md-center gap-2">
                             <label className="form-label mb-0">
                                 Select Month & Year:
                             </label>
                             <select className="form-select"
+                                style={{ maxWidth: '280px' }}
                                 {...register("monthYear")}
                                 onChange={(e) => {
-                                    setShowDetails(false);
                                     fetchData(e.target.value);
                                 }}
                             >
@@ -267,88 +336,77 @@ const FrmActiveAgents = () => {
                     </div>
                 </div>
 
-                {showDetails &&
-                    <>
-                        <div className="row align-items-stretch g-3 mt-2">
-                            <div className="col-12 col-md-4 d-flex">
-                                <div className="card widget-info-stat h-100 w-100">
-                                    <div className="card-body">
-                                        <div className="widget-info-stat-icon primary">
-                                            <i className="bi bi-people" />
+                <div className="row align-items-stretch g-3 mt-2">
+                    {summaryCards.map((card) => (
+                        <div className="col-12 col-sm-6 col-xl-4 d-flex" key={card.label}>
+                            <div
+                                className="card h-100 w-100 border-0 shadow"
+                                style={{ transition: 'all 0.3s ease', cursor: 'pointer' }}
+                                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)' }}
+                                onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)' }}
+                            >
+                                <div className="card-body">
+                                    <div className="d-flex align-items-start gap-3 mb-2">
+                                        <div
+                                            style={{
+                                                width: '50px',
+                                                height: '50px',
+                                                borderRadius: '10px',
+                                                backgroundColor: card.bg,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                flexShrink: 0
+                                            }}
+                                        >
+                                            <i className={card.icon} style={{ fontSize: '24px', color: card.accent }} />
                                         </div>
-                                        <div className="widget-info-stat-content">
-                                            <span className="widget-info-stat-value">
-                                                {summaryDetails?.onboardedActiveAssociates}
-                                            </span>
-                                            <span className="widget-info-stat-label">
-                                                No. of Onboarded and Active Collection Associate
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="col-12 col-md-4 d-flex">
-                                <div className="card widget-info-stat h-100 w-100">
-                                    <div className="card-body">
-                                        <div className="widget-info-stat-icon primary">
-                                            <i className="bi bi-cash-stack" />
-                                        </div>
-                                        <div className="widget-info-stat-content">
-                                            <span className="widget-info-stat-value">
-                                                {summaryDetails?.accountsAssigned}
-                                            </span>
-                                            <span className="widget-info-stat-label">
-                                                Collection Associate having Accounts Assigned
-                                            </span>
+                                        <div className="flex-grow-1">
+                                            <div style={{ fontSize: '24px', fontWeight: 700, color: '#111827', lineHeight: '1.2' }}>
+                                                {card.value}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div className="col-12 col-md-4 d-flex">
-                                <div className="card widget-info-stat h-100 w-100">
-                                    <div className="card-body">
-                                        <div className="widget-info-stat-icon primary">
-                                            <i className="bi bi-box-arrow-in-right" />
-                                        </div>
-                                        <div className="widget-info-stat-content">
-                                            <span className="widget-info-stat-value">
-                                                {summaryDetails?.uniqueLogins}
-                                            </span>
-                                            <span className="widget-info-stat-label">
-                                                Total No. of Unique Logins
-                                            </span>
-                                        </div>
-                                    </div>
+                                    <p style={{ fontSize: '12px', color: '#64748b', margin: 0, lineHeight: '1.4' }}>
+                                        {card.label}
+                                    </p>
                                 </div>
                             </div>
                         </div>
+                    ))}
+                </div>
 
-                        <div className="card h-100 mt-3 px-2">
-                            <div className="echart-container" ref={gradientArea} />
-                        </div>
+                <div className="mt-3">
+                    <ChartCard
+                        title="Unique Collection Associate Trend"
+                        subtitle="Daily active app usage"
+                    >
+                        <div
+                            className="echart-container"
+                            ref={gradientArea}
+                            style={{ width: '100%', height: 'clamp(260px, 40vh, 430px)' }}
+                        />
+                    </ChartCard>
+                </div>
 
-                        <div className="mt-3 card">
-                            <div className="card-body">
-                                {loading ? (
-                                    <div className="text-center py-5">
-                                        <div className="spinner-border text-primary" role="status">
-                                            <span className="visually-hidden">Loading...</span>
-                                        </div>
-                                        <p className="mt-2 text-muted">Loading report data...</p>
-                                    </div>
-                                ) : (
-                                    <ReusableDataGrid
-                                        rows={tableData}
-                                        columns={columns}
-                                        pageSize={10}
-                                    />
-                                )}
+                <div className="mt-3 card shadow border-0">
+                    <div className="card-body">
+                        {loading ? (
+                            <div className="text-center py-5">
+                                <div className="spinner-border text-primary" role="status">
+                                    <span className="visually-hidden">Loading...</span>
+                                </div>
+                                <p className="mt-2 text-muted">Loading report data...</p>
                             </div>
-                        </div>
-                    </>
-                }
+                        ) : (
+                            <ReusableDataGrid
+                                rows={tableData}
+                                columns={columns}
+                                pageSize={10}
+                            />
+                        )}
+                    </div>
+                </div>
 
             </div>
         </div>

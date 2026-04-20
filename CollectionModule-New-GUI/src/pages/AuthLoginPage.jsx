@@ -35,8 +35,8 @@ function AuthLoginPage() {
     <>
       <div className="fauth-card">
         <div className="fauth-card-head">
-          <h1 className="fauth-title">Welcome back</h1>
-          <p className="fauth-subtitle">Sign in to continue to your FlexAdmin workspace.</p>
+          <h1 className="fauth-title">Collection Module Login</h1>
+          <p className="fauth-subtitle">Sign in to continue to your collection dashboard.</p>
         </div>
 
         <form className="fauth-form" onSubmit={handleSubmit}>
@@ -47,7 +47,7 @@ function AuthLoginPage() {
               className="form-control"
               id="userId"
               name="userId"
-              placeholder="Enter user ID"
+              placeholder="Enter Collection User ID"
               value={userId}
               onChange={(event) => setUserId(event.target.value)}
               required
@@ -65,7 +65,7 @@ function AuthLoginPage() {
                 className="form-control"
                 id="password"
                 name="password"
-                placeholder="Enter your password"
+                placeholder="Enter Collection password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 required
@@ -81,22 +81,12 @@ function AuthLoginPage() {
               <input className="form-check-input" type="checkbox" id="remember" name="remember" />
               <label className="form-check-label" htmlFor="remember">Remember me</label>
             </div>
-            <a href="#" className="fauth-link" onClick={(event) => event.preventDefault()}>Use lock screen</a>
           </div>
 
           <button type="submit" className="btn btn-primary w-100" disabled={submitting}>
             {submitting ? 'Signing in...' : 'Sign In'}
           </button>
-
-          <div className="fauth-divider"><span>or continue with</span></div>
-
-          <div className="fauth-social">
-            <button type="button" className="btn btn-outline-secondary"><i className="bi bi-google" /> Google</button>
-            <button type="button" className="btn btn-outline-secondary"><i className="bi bi-github" /> GitHub</button>
-          </div>
         </form>
-
-        <p className="fauth-foot-text">Don't have an account? <a href="#" className="fauth-link" onClick={(event) => event.preventDefault()}>Create one</a></p>
       </div>
     </>
   )

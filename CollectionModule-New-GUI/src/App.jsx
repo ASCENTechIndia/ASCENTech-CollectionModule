@@ -17,6 +17,8 @@ import AuthLoginPage from './pages/AuthLoginPage'
 import AuthForgotPasswordPage from './pages/AuthForgotPasswordPage'
 import AuthResetPasswordPage from './pages/AuthResetPasswordPage'
 import SMASummaryReport from './pages/Reports/SMASummaryReport'
+import FrmUserList from './pages/user/FrmUserList'
+import FrmUserCreation from './pages/user/FrmUserCreation'
 import FrmActiveAgents from './pages/Dashboard/FrmActiveAgents'
 import FrmAccountAllocationReport from './pages/Reports/FrmAccountAllocationReport'
 import RptDaywisedata from './pages/Reports/RptDaywisedata'
@@ -25,6 +27,7 @@ import FrmOverallPerformanceSummaryReport from './pages/Reports/FrmOverallPerfor
 import FrmNonVisitDoneSummaryReport from './pages/Reports/FrmNonVisitDoneSummaryReport'
 import FrmVisitDoneSummaryReport from './pages/Reports/FrmVisitDoneSummaryReport'
 import FrmTransactionReport from './pages/Reports/FrmTransactionReport'
+import FrmUserCreationWeb from './pages/user/FrmUserCreationWeb'
 import FrmNewDashboard2 from './pages/Dashboard/FrmNewDashboard2'
 import FrmUserRouteReport from './pages/Reports/FrmUserRouteReport'
 import FrmUnallocatedCasesReport from './pages/Reports/FrmUnallocatedCasesReport'
@@ -54,11 +57,13 @@ import FrmUserModification from "./pages/user/FrmUserModification"
 import FrmAccessofPages from './pages/user/FrmAccessofPages'
 import FrmPincodeMstrInserion from './pages/user/FrmPincodeMstrInserion'
 import FrmInactiveUserAcs from './pages/user/FrmInactiveUserAcs'
+import MapViewPage from './components/ui/MapViewPage'
 import FrmDailyVisit from './pages/Dashboard/FrmDailyVisit'
 
 function App() {
   return (
     <Routes>
+      
       <Route
         path="/"
         element={
@@ -79,6 +84,9 @@ function App() {
         <Route path="charts/chartjs" element={<ChartsChartJsPage />} />
         <Route path="charts/echarts" element={<ChartsEChartsPage />} />
         <Route path="reports/sma-summary" element={<SMASummaryReport />} />
+        <Route path="user/FrmUserList" element={<FrmUserList />} />
+        <Route path="User/FrmUserCreation" element={<FrmUserCreation />} />
+        <Route path="User/FrmUserCreationWeb" element={<FrmUserCreationWeb />} />
         {/* Dashboard */}
         <Route path='/Dashboard/FrmActiveAgents' element={<FrmActiveAgents />} />
         <Route path="Dashboard/FrmNewDashboard2" element={<FrmNewDashboard2 />} />
@@ -113,7 +121,7 @@ function App() {
         <Route path="user/reset-password" element={<FrmResetPassword />} />
         <Route path="user/change-password" element={<FrmChangePassword />} />
       </Route>
-
+      <Route path="/map-view" element={<MapViewPage />} />
       <Route
         path="/auth/login"
         element={
@@ -122,16 +130,15 @@ function App() {
             visual={
               <>
                 <Link to="/" className="fauth-logo">
-                  <img src="/assets/img/logo.webp" alt="FlexAdmin" />
-                  <span>FlexAdmin</span>
+                  <img src="/assets/img/logo.webp" alt="Collection Module" />
+                  <span>Collection Module</span>
                 </Link>
-                <span className="fauth-kicker">Workspace Intelligence</span>
-                <h2 className="fauth-visual-title">Command your operations from one modern control center.</h2>
-                <p className="fauth-visual-text">Track growth, team activity, and operational risk with a dashboard built for fast decisions.</p>
+                <h2 className="fauth-visual-title">Manage collection operations from one unified control center.</h2>
+                <p className="fauth-visual-text">Track field performance, collection efficiency, and risk trends with real-time operational visibility.</p>
                 <div className="fauth-visual-points">
-                  <div className="fauth-point"><i className="bi bi-graph-up-arrow" /> Real-time business insights</div>
-                  <div className="fauth-point"><i className="bi bi-shield-lock" /> Enterprise-grade account protection</div>
-                  <div className="fauth-point"><i className="bi bi-lightning-charge" /> Fast collaboration workflows</div>
+                  <div className="fauth-point"><i className="bi bi-graph-up-arrow" /> Real-time collection insights</div>
+                  <div className="fauth-point"><i className="bi bi-shield-lock" /> Secure user access and controls</div>
+                  <div className="fauth-point"><i className="bi bi-lightning-charge" /> Faster field and branch coordination</div>
                 </div>
               </>
             }
@@ -204,6 +211,9 @@ function App() {
 
 
 
+      <Route path="/User" element={<Navigate to="/user/FrmUserList" replace />} />
+      <Route path="/User" element={<Navigate to="/User/FrmUserCreation" replace />} />
+      <Route path="/User" element={<Navigate to="User/FrmUserCreationWeb" replace />} />
 
 
       <Route path="/404" element={<Error404Page />} />
