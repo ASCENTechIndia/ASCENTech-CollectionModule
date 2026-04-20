@@ -55,10 +55,12 @@ import FrmUserModification from "./pages/user/FrmUserModification"
 import FrmAccessofPages from './pages/user/FrmAccessofPages'
 import FrmPincodeMstrInserion from './pages/user/FrmPincodeMstrInserion'
 import FrmInactiveUserAcs from './pages/user/FrmInactiveUserAcs'
+import MapViewPage from './components/ui/MapViewPage'
 
 function App() {
   return (
     <Routes>
+      
       <Route
         path="/"
         element={
@@ -112,7 +114,7 @@ function App() {
         <Route path="user/reset-password" element={<FrmResetPassword />} />
         <Route path="user/change-password" element={<FrmChangePassword />} />
       </Route>
-
+      <Route path="/map-view" element={<MapViewPage />} />
       <Route
         path="/auth/login"
         element={

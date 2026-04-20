@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: 'ph-light ph-squares-four' },
@@ -85,10 +86,6 @@ const reportsMenuItems = [
 //   { to: '/components/tooltips', label: 'Tooltips' },
 // ]
 
-const userMgmtItems = [
-  { to: '/User/FrmUserList', label: 'User Creation' }
-]
-
 function Sidebar({
   desktopCollapsed,
   mobileOpen,
@@ -111,10 +108,14 @@ function Sidebar({
   onToggleReportsMenu,
   onToggleAdminMenu,
   onCloseMobile,
-  userManagementMenuOpen,
-  onToggleuserManagementMenu
+  // userManagementMenuOpen,
+  // onToggleuserManagementMenu
 
 }) {
+  const { user } = useAuth()
+  const displayName = user?.name || user?.userName || user?.fullName || user?.userId || 'User'
+  const displayRole = user?.role || user?.designation || 'User'
+
   return (
     <>
       <aside className={`sidebar ${desktopCollapsed ? 'collapsed' : ''} ${mobileOpen ? 'open' : ''}`}>
@@ -292,10 +293,10 @@ function Sidebar({
         <div className="sidebar-footer">
           <div className="sidebar-footer-user">
             <a href="#" className="sidebar-footer-profile" onClick={(event) => event.preventDefault()}>
-              <img src="/assets/img/profile-img.webp" alt="User" className="sidebar-footer-avatar" />
+              <img src="/assets/img/profile-img.jpg" alt="User" className="sidebar-footer-avatar" />
               <div className="sidebar-footer-info">
-                <div className="sidebar-footer-name">John Doe</div>
-                <div className="sidebar-footer-role">Product Admin</div>
+                <div className="sidebar-footer-name">{displayName}</div>
+                <div className="sidebar-footer-role">{displayRole}</div>
               </div>
             </a>
           </div>

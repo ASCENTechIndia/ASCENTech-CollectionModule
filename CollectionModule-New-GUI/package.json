@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-google-maps/api": "^2.20.8",
+    "@vis.gl/react-google-maps": "^1.8.3",
     "apexcharts": "^5.10.6",
     "axios": "^1.14.0",
     "chart.js": "^4.5.1",
