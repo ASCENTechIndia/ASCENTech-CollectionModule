@@ -162,6 +162,7 @@ const FrmUserCreation = () => {
 
   // Fetch initial dropdown data
   const fetchDropdown = async () => {
+    setLoadingDropdown(true);
     try {
       const res = await apiClient.get("/users/mobile-form-options");
 
@@ -239,6 +240,8 @@ const FrmUserCreation = () => {
       setUserDeviceDropdown([]);
       console.error(error);
       showError(error.message || "Failed to fetch form options");
+    } finally{
+       setLoadingDropdown(false);
     }
   };
 
@@ -272,6 +275,15 @@ const FrmUserCreation = () => {
   }, []);
 
  return (
+  <>
+   {loadingDropdown && (
+      <div
+        className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+        style={{ backgroundColor: "rgba(0,0,0,0.4)", zIndex: 9999 }}
+      >
+        <div className="spinner-border text-light" style={{ width: "3rem", height: "3rem" }} />
+      </div>
+    )}
   <div className="main-content">
     <div className="page-header">
         <h1 className="page-title">User Creation</h1>
@@ -592,6 +604,7 @@ const FrmUserCreation = () => {
       </div>
     </div>
   </div>
+  </>
 );
 };
 
