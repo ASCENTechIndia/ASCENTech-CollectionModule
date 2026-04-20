@@ -257,6 +257,9 @@ const FrmUserCreationWeb = () => {
               <label className="form-label">Employee Code <span className="text-danger">*</span></label>
               <input
                 {...register("employeeCode", { required: "Employee Code is required" })}
+                   onChange={(e) => {
+                e.target.value = e.target.value.replace(/[^A-Za-z0-9]/g, "");
+              }}
                 className={`form-control ${errors.employeeCode ? "is-invalid" : ""}`}
               />
               {errors.employeeCode && (
@@ -285,6 +288,9 @@ const FrmUserCreationWeb = () => {
               <label className="form-label">First Name <span className="text-danger">*</span></label>
               <input
                 {...register("firstName", { required: "First Name is required" })}
+                   onChange={(e) => {
+                    e.target.value = e.target.value.replace(/[^A-Za-z\s]/g, "");
+                  }}
                 className={`form-control ${errors.firstName ? "is-invalid" : ""}`}
               />
               {errors.firstName && (
@@ -297,6 +303,9 @@ const FrmUserCreationWeb = () => {
               <label className="form-label">Last Name <span className="text-danger">*</span></label>
               <input
                 {...register("lastName", { required: "Last Name is required" })}
+                   onChange={(e) => {
+                    e.target.value = e.target.value.replace(/[^A-Za-z\s]/g, "");
+                  }}
                 className={`form-control ${errors.lastName ? "is-invalid" : ""}`}
               />
               {errors.lastName && (
@@ -310,6 +319,9 @@ const FrmUserCreationWeb = () => {
               <input
               maxLength={10}
                 {...register("mobileNumber", { required: "Mobile Number is required" })}
+                   onChange={(e) => {
+                    e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                  }}
                 className={`form-control ${errors.mobileNumber ? "is-invalid" : ""}`}
               />
               {errors.mobileNumber && (
