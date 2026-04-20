@@ -50,6 +50,11 @@ function FrmUserPinAllocation() {
       return
     }
 
+    if (!/^\d+$/.test(trimmedUserId)) {
+      showWarning('User ID must contain numbers only.')
+      return
+    }
+
     setLoadingUsername(true)
     setLoadingUserPincodes(true)
 
@@ -109,7 +114,9 @@ function FrmUserPinAllocation() {
   const filteredPins = useMemo(() => {
     const term = search.trim()
     if (!term) return allPincodes
-    return allPincodes.filter((pin) => pin.includes(term))
+
+    if (term.length !== 6) return []
+    return allPincodes.filter((pin) => pin === term)
   }, [allPincodes, search])
 
   const handleSubmit = async (event) => {
@@ -118,6 +125,11 @@ function FrmUserPinAllocation() {
     const trimmedUserId = userId.trim()
     if (!trimmedUserId) {
       showWarning('User ID is required')
+      return
+    }
+
+    if (!/^\d+$/.test(trimmedUserId)) {
+      showWarning('User ID must contain numbers only.')
       return
     }
 
@@ -178,8 +190,10 @@ function FrmUserPinAllocation() {
                     type="text"
                     className="form-control"
                     value={userId}
-                    onChange={(event) => setUserId(event.target.value)}
+                    onChange={(event) => setUserId(event.target.value.replace(/\D/g, ''))}
                     placeholder="Enter User ID"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                   />
                   <button
                     type="button"
@@ -211,11 +225,17 @@ function FrmUserPinAllocation() {
               <input
                 id="pinSearch"
                 type="text"
-                className="form-control mb-2"
+                className={`form-control mb-2 ${search.length > 0 && search.length !== 6 ? 'is-invalid' : ''}`}
                 value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search pincode..."
+                onChange={(event) => setSearch(event.target.value.replace(/\D/g, '').slice(0, 6))}
+                placeholder="Search 6-digit pincode"
+                inputMode="numeric"
+                pattern="[0-9]{6}"
+                maxLength={6}
               />
+              {search.length > 0 && search.length !== 6 && (
+                <div className="invalid-feedback d-block">Please enter exactly 6 digits.</div>
+              )}
 
               <div className="row g-3">
                 <div className="col-md-6">

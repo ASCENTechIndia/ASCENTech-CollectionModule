@@ -8,6 +8,8 @@ function FrmChangePassword() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { showSuccess, showError } = useNotification()
+  const userIdPattern = /^\d+$/
+  const newPasswordPattern = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/
 
   const userId = user?.userId || user?.userid || ''
 
@@ -18,6 +20,7 @@ function FrmChangePassword() {
   const [usernameDisabled, setUsernameDisabled] = useState(true)
   const [userInfoLoading, setUserInfoLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
 
   useEffect(() => {
     if (!userId) return
@@ -49,13 +52,24 @@ function FrmChangePassword() {
     }
 
     fetchUserInfo()
-  }, [userId])
+  }, [userId, showError])
 
   const handleSubmit = async (event) => {
     event.preventDefault()
+    setSubmitted(true)
 
     if (!username.trim() || !oldPassword || !newPassword || !confirmPassword) {
       showError('All fields are required')
+      return
+    }
+
+    if (!userIdPattern.test(username.trim())) {
+      showError('User ID must contain numbers only')
+      return
+    }
+
+    if (!newPasswordPattern.test(newPassword)) {
+      showError('New Password must be at least 8 characters and include letters and numbers')
       return
     }
 
@@ -79,6 +93,7 @@ function FrmChangePassword() {
         setOldPassword('')
         setNewPassword('')
         setConfirmPassword('')
+        setSubmitted(false)
       } else {
         showError(data.out_ErrorMsg || 'Something went wrong')
       }
@@ -109,12 +124,19 @@ function FrmChangePassword() {
                 <input
                   id="username"
                   type="text"
-                  className="form-control"
+                  className={`form-control ${submitted && (!username.trim() || !userIdPattern.test(username.trim())) ? 'is-invalid' : ''}`}
                   disabled={usernameDisabled}
                   value={username}
-                  onChange={(event) => setUsername(event.target.value)}
+                  onChange={(event) => setUsername(event.target.value.replace(/\D/g, ''))}
                   placeholder={userInfoLoading ? 'Loading...' : 'Enter User Name'}
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={20}
                 />
+                {submitted && !username.trim() && <div className="invalid-feedback">User ID is required.</div>}
+                {submitted && username.trim() && !userIdPattern.test(username.trim()) && (
+                  <div className="invalid-feedback">User ID must contain numbers only.</div>
+                )}
               </div>
 
               <div className="col-md-6">
@@ -134,11 +156,15 @@ function FrmChangePassword() {
                 <input
                   id="newPassword"
                   type="password"
-                  className="form-control"
+                  className={`form-control ${submitted && (!newPassword || !newPasswordPattern.test(newPassword)) ? 'is-invalid' : ''}`}
                   value={newPassword}
                   onChange={(event) => setNewPassword(event.target.value)}
                   placeholder="Enter New Password"
                 />
+                {submitted && !newPassword && <div className="invalid-feedback">New Password is required.</div>}
+                {submitted && newPassword && !newPasswordPattern.test(newPassword) && (
+                  <div className="invalid-feedback">Must be 8+ chars with letters and numbers.</div>
+                )}
               </div>
 
               <div className="col-md-6">
@@ -146,11 +172,15 @@ function FrmChangePassword() {
                 <input
                   id="confirmPassword"
                   type="password"
-                  className="form-control"
+                  className={`form-control ${submitted && (!confirmPassword || confirmPassword !== newPassword) ? 'is-invalid' : ''}`}
                   value={confirmPassword}
                   onChange={(event) => setConfirmPassword(event.target.value)}
                   placeholder="Re-enter New Password"
                 />
+                {submitted && !confirmPassword && <div className="invalid-feedback">Confirm Password is required.</div>}
+                {submitted && confirmPassword && confirmPassword !== newPassword && (
+                  <div className="invalid-feedback">Passwords do not match.</div>
+                )}
               </div>
             </div>
 

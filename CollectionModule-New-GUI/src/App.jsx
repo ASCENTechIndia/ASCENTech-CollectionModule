@@ -122,9 +122,8 @@ function App() {
               <>
                 <Link to="/" className="fauth-logo">
                   <img src="/assets/img/logo.webp" alt="FlexAdmin" />
-                  <span>FlexAdmin</span>
+                  <span>Collection Module</span>
                 </Link>
-                <span className="fauth-kicker">Workspace Intelligence</span>
                 <h2 className="fauth-visual-title">Command your operations from one modern control center.</h2>
                 <p className="fauth-visual-text">Track growth, team activity, and operational risk with a dashboard built for fast decisions.</p>
                 <div className="fauth-visual-points">

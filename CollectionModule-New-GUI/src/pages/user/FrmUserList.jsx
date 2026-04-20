@@ -1,5 +1,5 @@
 import { useNavigate, Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import apiClient from "../../services/apiClient";
 import { useAuth } from "../../context/AuthContext";
 import ReusableDataGrid from "../../components/ReusableDataGrid";
@@ -10,8 +10,8 @@ const FrmUserList = () => {
 
   const brCategory = user?.brCategory;
 
-  const [selectedUserLevel, setSelectedUserLevel] = useState("");
-  const [selectedBranch, setSelectedBranch] = useState("");
+  const [, setSelectedUserLevel] = useState("");
+  const [, setSelectedBranch] = useState("");
   const [branchOptions, setBranchOptions] = useState([]);
   const [tableData, setTableData] = useState([]);
 
@@ -25,12 +25,12 @@ const FrmUserList = () => {
   ];
 
   // 🔹 Fetch Branches
-  const fetchBranches = async () => {
+  const fetchBranches = async (userLevel) => {
     try {
       const res = await apiClient.get(
-        `/users/getBranches/?brcategory=${brCategory}&userLevel=${selectedUserLevel}`
+        `/users/getBranches/?brcategory=${brCategory}&userLevel=${userLevel}`
       );
-    //   console.log("res", res)
+      //   console.log("res", res)
       if (res.success) {
         const options = res.data.map((i) => ({
           label: i.BRANCHNAME,
@@ -44,10 +44,10 @@ const FrmUserList = () => {
   };
 
   // 🔹 Fetch Agents
-  const fetchAgents = async () => {
+  const fetchAgents = async (branchId) => {
     try {
       const res = await apiClient.get(
-        `/users/getAgents/?brid=${selectedBranch}`
+        `/users/getAgents/?brid=${branchId}`
       );
 
       if (res.success) {
@@ -65,19 +65,6 @@ const FrmUserList = () => {
     }
   };
 
-  useEffect(() => {
-    if (selectedUserLevel && brCategory) {
-        console.log(selectedUserLevel, brCategory)
-      fetchBranches();
-    }
-  }, [selectedUserLevel, brCategory]);
-
-  useEffect(() => {
-    if (selectedBranch) {
-      fetchAgents();
-    }
-  }, [selectedBranch]);
-
   return (
     <div className="main-content">
       <div className="page-header">
@@ -90,25 +77,26 @@ const FrmUserList = () => {
         </nav>
       </div>
 
+      <div className="d-flex justify-content-end gap-3 mb-3 flex-wrap">
+        <button
+          className="btn btn-primary d-inline-flex align-items-center"
+          onClick={() => navigate("/User/FrmUserCreation")}
+        >
+          <i className="bi bi-person-plus-fill me-2" />
+          New Mobile User
+        </button>
+
+        <button
+          className="btn btn-primary d-inline-flex align-items-center"
+          onClick={() => navigate("/User/FrmUserCreationWeb")}
+        >
+          <i className="bi bi-globe2 me-2" />
+          New Web User
+        </button>
+      </div>
+
       <div className="card mb-4">
         <div className="card-body">
-
-          {/* Buttons */}
-          <div className="d-flex gap-3 mb-4">
-            <button
-              className="btn btn-primary"
-              onClick={() => navigate("/User/FrmUserCreation")}
-            >
-              New Mobile User
-            </button>
-
-            <button
-              className="btn btn-primary"
-              onClick={() => navigate("/User/FrmUserCreationWeb")}
-            >
-              New Web User
-            </button>
-          </div>
 
           {/* Dropdowns */}
           <div className="row g-3">
@@ -117,9 +105,15 @@ const FrmUserList = () => {
               <select
                 className="form-select"
                 onChange={(e) => {
-                  setSelectedUserLevel(e.target.value);
+                  const userLevel = e.target.value;
+                  setSelectedUserLevel(userLevel);
                   setTableData([]);
                   setSelectedBranch("");
+                  setBranchOptions([]);
+
+                  if (userLevel && brCategory) {
+                    fetchBranches(userLevel);
+                  }
                 }}
               >
                 <option value="">Select</option>
@@ -133,7 +127,14 @@ const FrmUserList = () => {
               <label className="form-label">Zone/Region/Branch</label>
               <select
                 className="form-select"
-                onChange={(e) => setSelectedBranch(e.target.value)}
+                onChange={(e) => {
+                  const branchId = e.target.value;
+                  setSelectedBranch(branchId);
+
+                  if (branchId) {
+                    fetchAgents(branchId);
+                  }
+                }}
               >
                 <option value="">Select</option>
                 {branchOptions.map((item) => (
