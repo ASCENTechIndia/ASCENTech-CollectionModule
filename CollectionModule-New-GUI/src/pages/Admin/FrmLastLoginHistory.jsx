@@ -91,17 +91,17 @@ function FrmLastLoginHistory() {
                   placeholder="Enter User ID"
                   maxLength={20}
                   inputMode="numeric"
-                  value={userId}
+                  onInput={(event) => {
+                    event.target.value = event.target.value.replace(/\D/g, '')
+                  }}
                   {...register('userId', {
                     required: 'Enter User ID',
                     pattern: {
                       value: /^\d+$/,
                       message: 'User ID must contain numbers only',
                     },
-                    onChange: (event) => setUserId(event.target.value.replace(/\D/g, '')),
                   })}
                 />
-                {errors.userId && <div className="invalid-feedback">{errors.userId.message}</div>}
               </div>
               <div className="col-md-4 d-grid">
                 <button type="submit" className="btn btn-primary" disabled={loading}>

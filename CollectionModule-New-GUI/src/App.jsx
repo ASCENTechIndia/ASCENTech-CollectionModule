@@ -83,7 +83,7 @@ function App() {
         <Route path="charts/chartjs" element={<ChartsChartJsPage />} />
         <Route path="charts/echarts" element={<ChartsEChartsPage />} />
         <Route path="reports/sma-summary" element={<SMASummaryReport />} />
-        <Route path="User/FrmUserList" element={<FrmUserList />} />
+        <Route path="user/FrmUserList" element={<FrmUserList />} />
         <Route path="User/FrmUserCreation" element={<FrmUserCreation />} />
         <Route path="User/FrmUserCreationWeb" element={<FrmUserCreationWeb />} />
         {/* Dashboard */}
@@ -209,7 +209,7 @@ function App() {
 
 
 
-      <Route path="/User" element={<Navigate to="/User/FrmUserList" replace />} />
+      <Route path="/User" element={<Navigate to="/user/FrmUserList" replace />} />
       <Route path="/User" element={<Navigate to="/User/FrmUserCreation" replace />} />
       <Route path="/User" element={<Navigate to="User/FrmUserCreationWeb" replace />} />
 

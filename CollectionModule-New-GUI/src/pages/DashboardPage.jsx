@@ -69,7 +69,7 @@ const DashboardPage = () => {
     <div>
       <div className="main-content page-dashboard-sales">
         <div className="page-header">
-          <h1 className="page-title">Sales Dashboard</h1>
+          <h1 className="page-title">Dashboard</h1>
           <nav className="breadcrumb">
             <span className="breadcrumb-item active">Dashboard</span>
           </nav>

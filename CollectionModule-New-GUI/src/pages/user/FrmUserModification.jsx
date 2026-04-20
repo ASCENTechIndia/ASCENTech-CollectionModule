@@ -95,7 +95,7 @@ const FrmUserModification = () => {
         <div className="card-body">
           <form>
             {/* User ID Search Section */}
-            <div className="row g-3 align-items-start">
+            <div className="row g-3 align-items-end">
               <div className="col-md-8">
                 <label className="form-label">
                   User ID <span className="text-danger">*</span>
@@ -113,14 +113,11 @@ const FrmUserModification = () => {
                     validate: (value) => /^\d+$/.test(value) || 'User ID must contain only numbers',
                   })}
                 />
-                <div className={`invalid-feedback d-block ${errors.userId ? '' : 'invisible'}`}>
-                  {errors.userId?.message || '\u00A0'}
-                </div>
               </div>
-              <div className="col-md-4 pt-md-4 d-flex">
+              <div className="col-md-4">
                 <button
                   type="button"
-                  className="btn btn-primary w-100 align-self-start"
+                  className="btn btn-primary w-100"
                   onClick={handleSubmit((values) => handleSearch(values.userId))}
                 >
                   <Search size={18} className="me-1" /> Search
@@ -183,7 +180,7 @@ const FrmUserModification = () => {
               <button
                 type="button"
                 className="btn btn-secondary"
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/')}
               >
                 Close
               </button>

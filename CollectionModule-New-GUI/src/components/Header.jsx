@@ -30,10 +30,10 @@ function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAs
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const handleLogout = async (event) => {
-    event.preventDefault()
+  const handleLogout = async () => {
+    setUserMenuOpen(false)
     await logout()
-    navigate('/auth/login')
+    navigate('/auth/login', { replace: true })
   }
 
   return (
@@ -144,30 +144,24 @@ function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAs
                     </span>
                     <span>My Profile</span>
                   </a>
-                  <a href="/" className="user-menu-item">
+                  <Link to="/user/reset-password" className="user-menu-item" onClick={() => setUserMenuOpen(false)}>
                     <span className="user-menu-icon">
-                      <i className="bi bi-sliders" />
+                      <i className="bi bi-key" />
                     </span>
-                    <span>Preferences</span>
-                  </a>
-                  <a href="/" className="user-menu-item">
+                    <span>Reset Password</span>
+                  </Link>
+                  <Link to="/user/change-password" className="user-menu-item" onClick={() => setUserMenuOpen(false)}>
                     <span className="user-menu-icon">
-                      <i className="bi bi-activity" />
+                      <i className="bi bi-shield-lock" />
                     </span>
-                    <span>Activity Log</span>
-                  </a>
-                  <a href="/" className="user-menu-item">
-                    <span className="user-menu-icon">
-                      <i className="bi bi-credit-card" />
-                    </span>
-                    <span>Billing</span>
-                  </a>
+                    <span>Change Password</span>
+                  </Link>
                 </div>
                 <div className="user-menu-footer">
-                  <a href="/auth/login" className="user-menu-logout" onClick={handleLogout}>
+                  <button type="button" className="user-menu-logout" onClick={handleLogout}>
                     <i className="bi bi-box-arrow-right" />
-                    <span>Sign Out</span>
-                  </a>
+                    <span>Logout</span>
+                  </button>
                 </div>
               </div>
             )}

@@ -40,15 +40,36 @@ function FrmDistanceMatrix() {
       </div>
 
       <div className="card">
-        <div className="card-body d-flex justify-content-center">
-          <button
-            type="button"
-            onClick={handleMatrixInsertion}
-            disabled={loading}
-            className="btn btn-primary"
-          >
-            {loading ? 'Processing...' : 'Matrix Distance Insertion'}
-          </button>
+        <div className="card-body py-4">
+          <div className="mb-4 mx-auto" style={{ maxWidth: '760px' }}>
+            <div className="border rounded-4 bg-body-tertiary p-4 p-md-5 shadow-sm">
+              <div className="d-flex align-items-start gap-3">
+                <div
+                  className="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                  style={{ width: '44px', height: '44px', background: 'color-mix(in srgb, var(--accent-color), transparent 84%)', color: 'var(--accent-color)' }}
+                >
+                  <i className="bi bi-diagram-3 fs-5" />
+                </div>
+                <div className="flex-grow-1">
+                  <h5 className="mb-2 fw-semibold">Distance Matrix</h5>
+                  <p className="mb-0 text-muted">
+                    This page is used to calculate and store the distance between the Field Officer’s (FOS) disposition location and the customer’s address.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="d-flex justify-content-center">
+            <button
+              type="button"
+              onClick={handleMatrixInsertion}
+              disabled={loading}
+              className="btn btn-primary px-4"
+            >
+              {loading ? 'Processing...' : 'Matrix Distance Insertion'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
