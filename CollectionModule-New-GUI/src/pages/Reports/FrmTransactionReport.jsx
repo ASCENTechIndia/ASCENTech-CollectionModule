@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import ReusableDataGrid from '../../components/ReusableDataGrid'
 import ImageViewer from '../../components/ui/ImageViewer'
 import apiClient from '../../services/apiClient'
@@ -13,10 +14,6 @@ const formatDateForAPI = (dateStr) => {
 }
 
 const getPayload = (response) => response?.data ?? response ?? {}
-const getArray = (value) => {
-  if (Array.isArray(value)) return value
-  return []
-}
 const getDataRows = (response) => {
   const payload = getPayload(response)
 
@@ -31,7 +28,18 @@ const getDataRows = (response) => {
 function FrmTransactionReport() {
   const navigate = useNavigate()
   const { user } = useAuth()
-  const { showError, showSuccess } = useNotification()
+  const { showError, showSuccess, showWarning } = useNotification()
+  const {
+    register,
+    handleSubmit: handleFormSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      fromDate: '',
+      toDate: '',
+      userId: '',
+    },
+  })
   const brid = user?.brid ?? user?.BRID ?? user?.num_usermst_brid ?? null
   const brCategory = user?.brCategory ?? user?.brcategory ?? user?.BRCATEGORY ?? null
 
@@ -58,7 +66,6 @@ function FrmTransactionReport() {
   const [rows, setRows] = useState([])
   const [searching, setSearching] = useState(false)
   const [error, setError] = useState('')
-  const [searched, setSearched] = useState(false)
 
   const [selectedImageCode, setSelectedImageCode] = useState('')
   const [showImageViewer, setShowImageViewer] = useState(false)
@@ -235,19 +242,11 @@ function FrmTransactionReport() {
     window.open(`/map-view?lat=${lat.trim()}&lng=${lng.trim()}`, '_blank')
   }
 
-  const handleSearch = async (event) => {
-    event.preventDefault()
+  const handleSearch = async () => {
     setError('')
-    setSearched(true)
 
     const fromDateFormatted = fromDate ? formatDateForAPI(fromDate) : ''
     const toDateFormatted = toDate ? formatDateForAPI(toDate) : ''
-
-    if (!fromDateFormatted || !toDateFormatted) {
-      showError('From Date and To Date are required')
-      setError('From Date and To Date are required')
-      return
-    }
 
     const zoneName = zoneOptions.find((opt) => opt.value == zone)?.label || ''
     const regionName = regionOptions.find((opt) => opt.value == region)?.label || ''
@@ -304,7 +303,7 @@ function FrmTransactionReport() {
         showSuccess(`Found ${mappedRows.length} records`)
       } else {
         setRows([])
-        showError('No records found')
+        showWarning('No records found')
         setError('No records found')
       }
     } catch (apiError) {
@@ -380,7 +379,7 @@ function FrmTransactionReport() {
           <h5 className="card-title mb-0">Search Filters</h5>
         </div>
         <div className="card-body">
-          <form onSubmit={handleSearch}>
+          <form onSubmit={handleFormSubmit(handleSearch)}>
             <div className="row g-3">
               <div className="col-md-6">
                 <label htmlFor="fromDate" className="form-label">
@@ -389,10 +388,14 @@ function FrmTransactionReport() {
                 <input
                   id="fromDate"
                   type="date"
-                  className={`form-control ${!fromDate && searched ? 'is-invalid' : ''}`}
+                  className={`form-control ${errors.fromDate ? 'is-invalid' : ''}`}
                   value={fromDate}
-                  onChange={(event) => setFromDate(event.target.value)}
+                  {...register('fromDate', {
+                    required: 'From Date is required',
+                    onChange: (event) => setFromDate(event.target.value),
+                  })}
                 />
+                {errors.fromDate && <div className="invalid-feedback">{errors.fromDate.message}</div>}
               </div>
 
               <div className="col-md-6">
@@ -402,10 +405,14 @@ function FrmTransactionReport() {
                 <input
                   id="toDate"
                   type="date"
-                  className={`form-control ${!toDate && searched ? 'is-invalid' : ''}`}
+                  className={`form-control ${errors.toDate ? 'is-invalid' : ''}`}
                   value={toDate}
-                  onChange={(event) => setToDate(event.target.value)}
+                  {...register('toDate', {
+                    required: 'To Date is required',
+                    onChange: (event) => setToDate(event.target.value),
+                  })}
                 />
+                {errors.toDate && <div className="invalid-feedback">{errors.toDate.message}</div>}
               </div>
 
               <div className="col-md-6">
@@ -475,11 +482,17 @@ function FrmTransactionReport() {
                 <input
                   id="userId"
                   type="text"
-                  className="form-control"
+                  className={`form-control ${errors.userId ? 'is-invalid' : ''}`}
                   value={userId}
-                  onChange={(event) => setUserId(event.target.value)}
                   placeholder="Enter User Id"
+                  inputMode="numeric"
+                  maxLength={20}
+                  {...register('userId', {
+                    validate: (value) => !value || /^\d+$/.test(value) || 'User ID must contain numbers only',
+                    onChange: (event) => setUserId(event.target.value.replace(/\D/g, '')),
+                  })}
                 />
+                {errors.userId && <div className="invalid-feedback">{errors.userId.message}</div>}
               </div>
 
               <div className="col-md-6">

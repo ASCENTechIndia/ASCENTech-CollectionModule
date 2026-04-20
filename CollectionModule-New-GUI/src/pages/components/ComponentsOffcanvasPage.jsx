@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 function ComponentsOffcanvasPage() {
   return (
     <div>
@@ -6,7 +7,7 @@ function ComponentsOffcanvasPage() {
         <div className="page-header">
           <h1 className="page-title">Offcanvas</h1>
           <nav className="breadcrumb">
-            <a href="#" onClick={(event) => event.preventDefault()} className="breadcrumb-item">Home</a>
+            <Link to="/" className="breadcrumb-item">Home</Link>
             <a href="#" onClick={(event) => event.preventDefault()} className="breadcrumb-item">Components</a>
             <span className="breadcrumb-item active">Offcanvas</span>
           </nav>

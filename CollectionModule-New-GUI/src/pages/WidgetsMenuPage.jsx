@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import WidgetsCardsPage from './WidgetsCardsPage'
 import WidgetsBannersPage from './WidgetsBannersPage'
 import WidgetsChartsPage from './WidgetsChartsPage'
@@ -27,7 +27,7 @@ function WidgetsMenuPage() {
         <div className="page-header">
           <h1 className="page-title">Widgets</h1>
           <nav className="breadcrumb">
-            <span className="breadcrumb-item">Home</span>
+            <Link to="/" className="breadcrumb-item">Home</Link>
             <span className="breadcrumb-item active">Widgets</span>
           </nav>
         </div>
@@ -45,7 +45,7 @@ function WidgetsMenuPage() {
       <div className="page-header">
         <h1 className="page-title">Widgets</h1>
         <nav className="breadcrumb">
-          <span className="breadcrumb-item">Home</span>
+          <Link to="/" className="breadcrumb-item">Home</Link>
           <span className="breadcrumb-item">Widgets</span>
           <span className="breadcrumb-item active">Not Found</span>
         </nav>

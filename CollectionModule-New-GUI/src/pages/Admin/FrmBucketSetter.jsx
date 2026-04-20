@@ -1,16 +1,17 @@
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import apiClient from '../../services/apiClient'
 import { useNotification } from '../../context/useNotification'
 
 function FrmBucketSetter() {
   const { showSuccess, showError } = useNotification()
+  const { handleSubmit } = useForm()
   const [loading, setLoading] = useState(false)
   const [firstMessage, setFirstMessage] = useState('')
   const [secondMessage, setSecondMessage] = useState('')
 
-  const handleSubmit = async (event) => {
-    event.preventDefault()
+  const onSubmit = async () => {
     setLoading(true)
     setFirstMessage('')
     setSecondMessage('')
@@ -51,7 +52,7 @@ function FrmBucketSetter() {
 
       <div className="card">
         <div className="card-body">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <button
               type="submit"
               disabled={loading}

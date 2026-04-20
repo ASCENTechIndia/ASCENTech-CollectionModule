@@ -1,9 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import apiClient from "../../services/apiClient";
-import { useAuth } from '../../context/AuthContext';
 import { useNotification } from "../../context/useNotification";
+
+const userOfOptions = [
+  { label: "Conneqt", value: "1" },
+  { label: "Central Bank", value: "2" },
+];
 
 function FrmAccessofPages() {
   const {
@@ -20,26 +24,15 @@ function FrmAccessofPages() {
       accessPages: [],
     },
   });
-  const { user } = useAuth();
   const { showSuccess, showError } = useNotification();
   const navigate = useNavigate();
   const location = useLocation();
   const { userID } = location.state || null;
 
-  const userOfOptions = [
-    { label: "Conneqt", value: "1" },
-    { label: "Central Bank", value: "2" },
-  ];
-
   const [userPageAccessDetails, setUserPageAccessDetails] = useState({});
   const [pageAccessList, setPageAccessList] = useState([]);
 
-  const fetchUserOfId = (name) => {
-    const userOfObj = userOfOptions.find((item) => item.label === name);
-    return userOfObj ? userOfObj.value : "";
-  };
-
-  const fetchPageAccessDetails = async () => {
+  const fetchPageAccessDetails = useCallback(async () => {
     try {
       const response = await apiClient.get(
         `/users/get-page-access?userId=${userID}`
@@ -50,7 +43,8 @@ function FrmAccessofPages() {
         setUserPageAccessDetails(data);
         setValue("userId", data.userId);
 
-        const userOfValue = fetchUserOfId(data.userOf);
+        const userOfObj = userOfOptions.find((item) => item.label === data.userOf);
+        const userOfValue = userOfObj ? userOfObj.value : "";
         setValue("userOf", userOfValue);
 
         setPageAccessList(data.pages);
@@ -66,7 +60,7 @@ function FrmAccessofPages() {
       console.error(error);
       showError(error?.response.message || error?.message || "Failed to fetch page access details");
     }
-  };
+  }, [showError, userID, setValue]);
 
   const onSubmit = async (values) => {
     try {
@@ -100,9 +94,13 @@ function FrmAccessofPages() {
 
   useEffect(() => {
     if (userID) {
-      fetchPageAccessDetails();
+      const loadTimer = setTimeout(() => {
+        fetchPageAccessDetails();
+      }, 0);
+
+      return () => clearTimeout(loadTimer);
     }
-  }, [userID]);
+  }, [userID, fetchPageAccessDetails]);
 
   return (
     <div className="main-content">

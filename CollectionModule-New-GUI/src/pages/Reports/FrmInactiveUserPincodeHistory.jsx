@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import ReusableDataGrid from '../../components/ReusableDataGrid'
 import apiClient from '../../services/apiClient'
 import { useNotification } from '../../context/useNotification'
@@ -20,14 +21,23 @@ const formatDateForApi = (value) => {
 
 function FrmInactiveUserPincodeHistory() {
   const navigate = useNavigate()
-  const { showError, showSuccess } = useNotification()
+  const { showError, showSuccess, showWarning } = useNotification()
+  const {
+    register,
+    handleSubmit: handleFormSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      startDate: '',
+      endDate: '',
+      userId: '',
+    },
+  })
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [userId, setUserId] = useState('')
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [searched, setSearched] = useState(false)
 
   const columns = [
     { label: 'Inactive Date', sortable: true },
@@ -45,16 +55,7 @@ function FrmInactiveUserPincodeHistory() {
     [rows]
   )
 
-  const handleSearch = async (event) => {
-    event.preventDefault()
-    setSearched(true)
-    setError('')
-
-    if (!startDate || !endDate) {
-      showError('Start Date and End Date are required')
-      setError('Start Date and End Date are required')
-      return
-    }
+  const handleSearch = async () => {
 
     const params = {
       startDate: formatDateForApi(startDate),
@@ -72,8 +73,7 @@ function FrmInactiveUserPincodeHistory() {
 
       if (!success || !data.length) {
         setRows([])
-        showError('No data found')
-        setError('No data found')
+        showWarning('No data found')
         return
       }
 
@@ -88,7 +88,6 @@ function FrmInactiveUserPincodeHistory() {
     } catch (apiError) {
       setRows([])
       showError(apiError.message || 'Something went wrong')
-      setError(apiError.message || 'Something went wrong')
     } finally {
       setLoading(false)
     }
@@ -112,7 +111,7 @@ function FrmInactiveUserPincodeHistory() {
           <h5 className="card-title mb-0">Search Filters</h5>
         </div>
         <div className="card-body">
-          <form onSubmit={handleSearch}>
+          <form onSubmit={handleFormSubmit(handleSearch)}>
             <div className="row g-3">
               <div className="col-md-6">
                 <label htmlFor="startDate" className="form-label">
@@ -121,10 +120,14 @@ function FrmInactiveUserPincodeHistory() {
                 <input
                   id="startDate"
                   type="date"
-                  className={`form-control ${!startDate && searched ? 'is-invalid' : ''}`}
+                  className={`form-control ${errors.startDate ? 'is-invalid' : ''}`}
                   value={startDate}
-                  onChange={(event) => setStartDate(event.target.value)}
+                  {...register('startDate', {
+                    required: 'Start Date is required',
+                    onChange: (event) => setStartDate(event.target.value),
+                  })}
                 />
+                {errors.startDate && <div className="invalid-feedback">{errors.startDate.message}</div>}
               </div>
 
               <div className="col-md-6">
@@ -134,10 +137,14 @@ function FrmInactiveUserPincodeHistory() {
                 <input
                   id="endDate"
                   type="date"
-                  className={`form-control ${!endDate && searched ? 'is-invalid' : ''}`}
+                  className={`form-control ${errors.endDate ? 'is-invalid' : ''}`}
                   value={endDate}
-                  onChange={(event) => setEndDate(event.target.value)}
+                  {...register('endDate', {
+                    required: 'End Date is required',
+                    onChange: (event) => setEndDate(event.target.value),
+                  })}
                 />
+                {errors.endDate && <div className="invalid-feedback">{errors.endDate.message}</div>}
               </div>
 
               <div className="col-md-6">
@@ -147,11 +154,17 @@ function FrmInactiveUserPincodeHistory() {
                 <input
                   id="userId"
                   type="text"
-                  className="form-control"
+                  className={`form-control ${errors.userId ? 'is-invalid' : ''}`}
                   value={userId}
-                  onChange={(event) => setUserId(event.target.value)}
                   placeholder="Enter User ID (optional)"
+                  inputMode="numeric"
+                  maxLength={20}
+                  {...register('userId', {
+                    validate: (value) => !value || /^\d+$/.test(value) || 'User ID must contain numbers only',
+                    onChange: (event) => setUserId(event.target.value.replace(/\D/g, '')),
+                  })}
                 />
+                {errors.userId && <div className="invalid-feedback">{errors.userId.message}</div>}
               </div>
             </div>
 
@@ -166,13 +179,6 @@ function FrmInactiveUserPincodeHistory() {
           </form>
         </div>
       </div>
-
-      {error && (
-        <div className="alert alert-danger" role="alert">
-          <i className="bi bi-exclamation-triangle me-2" />
-          {error}
-        </div>
-      )}
 
       {tableRows.length > 0 && (
         <div className="card">

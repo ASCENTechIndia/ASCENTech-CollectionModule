@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
 import ReusableDataGrid from "../../components/ReusableDataGrid";
 import apiClient from "../../services/apiClient";
 import { useAuth } from "../../context/AuthContext";
@@ -51,7 +52,18 @@ const getRouteUrl = (coordinates) => {
 function FrmUserRouteReport() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { showError, showSuccess } = useNotification();
+  const { showError, showSuccess, showWarning } = useNotification();
+  const {
+    register,
+    handleSubmit: handleFormSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      fosId: "",
+      date: "",
+      withDistance: false,
+    },
+  });
 
   const [fosId, setFosId] = useState("");
   const [date, setDate] = useState("");
@@ -59,8 +71,6 @@ function FrmUserRouteReport() {
   const [rows, setRows] = useState([]);
   const [coordinates, setCoordinates] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [searched, setSearched] = useState(false);
 
   const columns = [
     { label: "Sr No", sortable: true },
@@ -90,19 +100,9 @@ function FrmUserRouteReport() {
 
   const routeUrl = useMemo(() => getRouteUrl(coordinates), [coordinates]);
 
-  const handleSearch = async (event) => {
-    event.preventDefault();
-    setSearched(true);
-    setError("");
-
+  const handleSearch = async () => {
     const trimmedFosId = fosId.trim();
     const formattedDate = formatDateForApi(date);
-
-    if (!trimmedFosId || !formattedDate) {
-      showError("Both FOS ID and Date are required");
-      setError("Both FOS ID and Date are required");
-      return;
-    }
 
     setLoading(true);
     setRows([]);
@@ -130,15 +130,13 @@ function FrmUserRouteReport() {
       } else {
         setRows([]);
         setCoordinates([]);
-        showError("No route data found");
-        setError("No route data found");
+        showWarning("No route data found");
       }
     } catch (apiError) {
       setRows([]);
       setCoordinates([]);
       const message = apiError?.message || "Failed to fetch route report";
       showError(message);
-      setError(message);
     } finally {
       setLoading(false);
     }
@@ -162,7 +160,7 @@ function FrmUserRouteReport() {
           <h5 className="card-title mb-0">Search Filters</h5>
         </div>
         <div className="card-body">
-          <form onSubmit={handleSearch}>
+          <form onSubmit={handleFormSubmit(handleSearch)}>
             <div className="row g-3">
               <div className="col-md-6">
                 <label htmlFor="fosId" className="form-label">
@@ -171,11 +169,21 @@ function FrmUserRouteReport() {
                 <input
                   id="fosId"
                   type="text"
-                  className={`form-control ${!fosId.trim() && searched ? "is-invalid" : ""}`}
+                  className={`form-control ${errors.fosId ? "is-invalid" : ""}`}
                   value={fosId}
-                  onChange={(event) => setFosId(event.target.value)}
                   placeholder="Enter FOS ID"
+                  inputMode="numeric"
+                  maxLength={20}
+                  {...register("fosId", {
+                    required: "FOS ID is required",
+                    pattern: {
+                      value: /^\d+$/,
+                      message: "FOS ID must contain numbers only",
+                    },
+                    onChange: (event) => setFosId(event.target.value.replace(/\D/g, "")),
+                  })}
                 />
+                {errors.fosId && <div className="invalid-feedback">{errors.fosId.message}</div>}
               </div>
 
               <div className="col-md-6">
@@ -185,10 +193,14 @@ function FrmUserRouteReport() {
                 <input
                   id="date"
                   type="date"
-                  className={`form-control ${!date && searched ? "is-invalid" : ""}`}
+                  className={`form-control ${errors.date ? "is-invalid" : ""}`}
                   value={date}
-                  onChange={(event) => setDate(event.target.value)}
+                  {...register("date", {
+                    required: "Date is required",
+                    onChange: (event) => setDate(event.target.value),
+                  })}
                 />
+                {errors.date && <div className="invalid-feedback">{errors.date.message}</div>}
               </div>
 
               <div className="col-12">
@@ -198,7 +210,9 @@ function FrmUserRouteReport() {
                     type="checkbox"
                     className="form-check-input"
                     checked={withDistance}
-                    onChange={(event) => setWithDistance(event.target.checked)}
+                    {...register("withDistance", {
+                      onChange: (event) => setWithDistance(event.target.checked),
+                    })}
                   />
                   <label htmlFor="withDistance" className="form-check-label">
                     Along with distance
@@ -226,13 +240,6 @@ function FrmUserRouteReport() {
           </form>
         </div>
       </div>
-
-      {error && (
-        <div className="alert alert-danger" role="alert">
-          <i className="bi bi-exclamation-triangle me-2" />
-          {error}
-        </div>
-      )}
 
       {coordinates.length > 0 && (
         <div className="mt-6">

@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import ComponentsAccordionPage from './components/ComponentsAccordionPage'
 import ComponentsAlertsPage from './components/ComponentsAlertsPage'
 import ComponentsBadgesPage from './components/ComponentsBadgesPage'
@@ -49,7 +49,7 @@ function ComponentsMenuPage() {
         <div className="page-header">
           <h1 className="page-title">Components</h1>
           <nav className="breadcrumb">
-            <span className="breadcrumb-item">Home</span>
+            <Link to="/" className="breadcrumb-item">Home</Link>
             <span className="breadcrumb-item active">Components</span>
           </nav>
         </div>
