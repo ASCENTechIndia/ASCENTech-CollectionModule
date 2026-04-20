@@ -29,6 +29,15 @@ import FrmTransactionReport from './pages/Reports/FrmTransactionReport'
 import FrmUserCreationWeb from './pages/user/FrmUserCreationWeb'
 import FrmUserRouteReport from './pages/Reports/FrmUserRouteReport'
 import FrmUnallocatedCasesReport from './pages/Reports/FrmUnallocatedCasesReport'
+import FrmUserLocationTracking from './pages/Admin/FrmUserLocationTracking'
+import FrmLastLoginHistory from './pages/Admin/FrmLastLoginHistory'
+import FrmBucketSetter from './pages/Admin/FrmBucketSetter'
+import FrmContractAllocation from './pages/Admin/FrmContractAllocation'
+import FrmDistanceMatrix from './pages/Admin/FrmDistanceMatrix'
+import FrmUserPinAllocation from './pages/user/FrmUserPinAllocation'
+import FrmUnassignCases from './pages/user/FrmUnassignCases'
+import FrmResetPassword from './pages/user/FrmResetPassword'
+import FrmChangePassword from './pages/user/FrmChangePassword'
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth()
@@ -39,6 +48,13 @@ function ProtectedRoute({ children }) {
 
   return children
 }
+
+
+// Users
+import FrmUserModification from "./pages/user/FrmUserModification"
+import FrmAccessofPages from './pages/user/FrmAccessofPages'
+import FrmPincodeMstrInserion from './pages/user/FrmPincodeMstrInserion'
+import FrmInactiveUserAcs from './pages/user/FrmInactiveUserAcs'
 
 function App() {
   return (
@@ -66,6 +82,17 @@ function App() {
         <Route path="User/FrmUserList" element={<FrmUserList />} />
         <Route path="User/FrmUserCreation" element={<FrmUserCreation />} />
         <Route path="User/FrmUserCreationWeb" element={<FrmUserCreationWeb />} />
+        
+        {/* User */}
+        <Route path='/User/FrmUserModification' element={<FrmUserModification/>}/>
+        <Route path="/FrmAccessofPages" element={<FrmAccessofPages />} />
+        <Route path='/User/FrmPincodeMstrInserion' element={<FrmPincodeMstrInserion/>}/>
+        <Route path='/User/FrmInactiveUserAcs' element={<FrmInactiveUserAcs/>}/>
+
+
+
+
+        
         <Route path="reports/account-allocation" element={<FrmAccountAllocationReport />} />
         <Route path="reports/daywise-data" element={<RptDaywisedata />} />
         <Route path="reports/inactive-user-pincode-history" element={<FrmInactiveUserPincodeHistory />} />
@@ -75,6 +102,15 @@ function App() {
         <Route path="reports/transaction-report" element={<FrmTransactionReport />} />
         <Route path="reports/user-route-report" element={<FrmUserRouteReport />} />
         <Route path="reports/unallocated-cases-report" element={<FrmUnallocatedCasesReport />} />
+        <Route path="admin/user-location-tracking" element={<FrmUserLocationTracking />} />
+        <Route path="admin/last-login-history" element={<FrmLastLoginHistory />} />
+        <Route path="admin/bucket-setter" element={<FrmBucketSetter />} />
+        <Route path="admin/contract-allocation" element={<FrmContractAllocation />} />
+        <Route path="admin/distance-matrix" element={<FrmDistanceMatrix />} />
+        <Route path="user/pin-allocation" element={<FrmUserPinAllocation />} />
+        <Route path="user/unassign-cases" element={<FrmUnassignCases />} />
+        <Route path="user/reset-password" element={<FrmResetPassword />} />
+        <Route path="user/change-password" element={<FrmChangePassword />} />
       </Route>
 
       <Route
@@ -150,6 +186,22 @@ function App() {
       <Route path="/Report/TransactionReport" element={<Navigate to="/reports/transaction-report" replace />} />
       <Route path="/Report/FrmUserRouteReport" element={<Navigate to="/reports/user-route-report" replace />} />
       <Route path="/Report/FrmUnallocatedCasesReport" element={<Navigate to="/reports/unallocated-cases-report" replace />} />
+      <Route path="/User/FrmUserLocationTracking" element={<Navigate to="/admin/user-location-tracking" replace />} />
+      <Route path="/User/FrmLastLoginHistory" element={<Navigate to="/admin/last-login-history" replace />} />
+      <Route path="/User/FrmUserPinAllocation" element={<Navigate to="/user/pin-allocation" replace />} />
+      <Route path="/Admin/FrmUnassignCases" element={<Navigate to="/user/unassign-cases" replace />} />
+      <Route path="/User/FrmResetPassword" element={<Navigate to="/user/reset-password" replace />} />
+      <Route path="/User/FrmChangePassword" element={<Navigate to="/user/change-password" replace />} />
+      <Route path="/Admin/FrmBucketSetter" element={<Navigate to="/admin/bucket-setter" replace />} />
+      <Route path="/Admin/FrmContractAllocation" element={<Navigate to="/admin/contract-allocation" replace />} />
+      <Route path="/Admin/FrmDistanceMatrix" element={<Navigate to="/admin/distance-matrix" replace />} />
+
+
+
+
+
+
+
 
       <Route path="/User" element={<Navigate to="/User/FrmUserList" replace />} />
       <Route path="/User" element={<Navigate to="/User/FrmUserCreation" replace />} />
