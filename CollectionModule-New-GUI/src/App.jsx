@@ -58,6 +58,7 @@ import FrmAccessofPages from './pages/user/FrmAccessofPages'
 import FrmPincodeMstrInserion from './pages/user/FrmPincodeMstrInserion'
 import FrmInactiveUserAcs from './pages/user/FrmInactiveUserAcs'
 import MapViewPage from './components/ui/MapViewPage'
+import FrmDailyVisit from './pages/Dashboard/FrmDailyVisit'
 
 function App() {
   return (
@@ -89,6 +90,7 @@ function App() {
         {/* Dashboard */}
         <Route path='/Dashboard/FrmActiveAgents' element={<FrmActiveAgents />} />
         <Route path="Dashboard/FrmNewDashboard2" element={<FrmNewDashboard2 />} />
+        <Route path='Dashboard/FrmDailyVisit' element={<FrmDailyVisit />} />
         
         {/* User */}
         <Route path='/User/FrmUserModification' element={<FrmUserModification/>}/>
