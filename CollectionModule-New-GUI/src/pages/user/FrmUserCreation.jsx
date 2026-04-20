@@ -8,7 +8,7 @@ import { useNotification } from "../../context/NotificationContext";
 const FrmUserCreation = () => {
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
-
+  const [loadingDropdown, setLoadingDropdown] = useState(false);
   const {
     register,
     handleSubmit,

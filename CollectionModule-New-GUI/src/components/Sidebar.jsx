@@ -15,6 +15,7 @@ const adminMenuItems = [
 ]
 
 const userMenuItems = [
+  { to: "/User/FrmUserList", label: "User List" },
   { to: "/User/FrmUserModification", label: "User Modification" },
   { to: "/User/FrmPincodeMstrInserion", label: "Pincode Master" },
   { to: '/user/pin-allocation', label: 'Assigned Pincode FOS' },
