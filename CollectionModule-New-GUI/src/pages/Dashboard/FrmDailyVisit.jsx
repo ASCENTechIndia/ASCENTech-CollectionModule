@@ -37,6 +37,7 @@ const FrmDailyVisit = () => {
         }
     });
     const [dashboardData, setDashboardData] = useState(null);
+    const [showDetails, setShowDetails] = useState(false);
     const fromDateValue = watch('fromDate')
     const toDateValue = watch('toDate');
 
@@ -318,6 +319,7 @@ const FrmDailyVisit = () => {
     }))
 
     const fetchDailyVisitData = async (values) => {
+        setShowDetails(false);
         if (!apiUserId) {
             showError('User ID is not available');
             return;
@@ -331,9 +333,10 @@ const FrmDailyVisit = () => {
                     toDate: values.toDate,
                 },
             });
-            console.log(response.data);
+
             if (response?.success && response?.data) {
                 setDashboardData(response.data);
+                setShowDetails(true);
                 return;
             }
 
@@ -536,116 +539,118 @@ const FrmDailyVisit = () => {
                                 Submit
                             </button>
                         </div>
-                        <div className="card mt-3">
-                            <div className="row g-4 my-2">
-                                <div className="col-lg-4">
-                                    <div className="position-relative">
-                                        <ChartCard title="Total Accounts">
-                                            <canvas ref={totalAccountsData}></canvas>
-                                            <div className="chart-center-text">
-                                                <div className="chart-center-value">75%</div>
-                                                <div className="chart-center-label">Complete</div>
-                                            </div>
-                                        </ChartCard>
-                                    </div>
-                                </div>
-                                <div className="col-lg-4">
-                                    <div className="position-relative d-flex justify-content-center align-items-center">
-                                        <ChartCard title="Visit Details">
-                                            <canvas ref={totalVisitsData}></canvas>
-                                            <div className="chart-center-text position-absolute top-50 start-50 translate-middle text-center">
-                                                <div className="chart-center-value">75%</div>
-                                                <div className="chart-center-label">Complete</div>
-                                            </div>
-                                        </ChartCard>
-                                    </div>
-                                </div>
-                                <div className="col-lg-4">
-                                    <ChartCard title="FOS Assigned %">
-                                        <canvas ref={fosAssignedData} />
-                                    </ChartCard>
-                                </div>
-                            </div>
-                            <div className="row g-4 mt-3">
-                                {summaryCards.map(card => (
-                                    <div className="col-md-3 col-12 d-flex">
-                                        <div className="card widget-icon-left-stat h-100">
-                                            <div className="card-body d-flex flex-row">
-
-                                                <div className="widget-icon-left-icon primary">
-                                                    <i className="bi bi-person-lines-fill" />
+                        {showDetails &&
+                            <div className="card mt-3">
+                                <div className="row g-4 my-2">
+                                    <div className="col-lg-4">
+                                        <div className="position-relative">
+                                            <ChartCard title="Total Accounts">
+                                                <canvas ref={totalAccountsData}></canvas>
+                                                <div className="chart-center-text">
+                                                    <div className="chart-center-value">75%</div>
+                                                    <div className="chart-center-label">Complete</div>
                                                 </div>
-
-                                                <div className="widget-icon-left-content">
-                                                    <span className="widget-icon-left-value">{card.value}</span>
-                                                    <span className="widget-icon-left-label">{card.label}</span>
-                                                </div>
-
-                                            </div>
+                                            </ChartCard>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-                            <p className="mt-4 fw-semibold fs-6">
-                                {dashboardData?.dateRange?.ptpDateRangeLabel || 'PTP spans from - to -'}
-                            </p>
-                            <div className="row g-4 align-items-stretch">
+                                    <div className="col-lg-4">
+                                        <div className="position-relative d-flex justify-content-center align-items-center">
+                                            <ChartCard title="Visit Details">
+                                                <canvas ref={totalVisitsData}></canvas>
+                                                <div className="chart-center-text position-absolute top-50 start-50 translate-middle text-center">
+                                                    <div className="chart-center-value">75%</div>
+                                                    <div className="chart-center-label">Complete</div>
+                                                </div>
+                                            </ChartCard>
+                                        </div>
+                                    </div>
+                                    <div className="col-lg-4">
+                                        <ChartCard title="FOS Assigned %">
+                                            <canvas ref={fosAssignedData} />
+                                        </ChartCard>
+                                    </div>
+                                </div>
+                                <div className="row g-4 mt-3">
+                                    {summaryCards.map(card => (
+                                        <div className="col-md-3 col-12 d-flex">
+                                            <div className="card widget-icon-left-stat h-100">
+                                                <div className="card-body d-flex flex-row">
 
-                                {/* LEFT SIDE */}
-                                <div className="col-12 col-md-6 d-flex">
-                                    <div className="row g-3 w-100 align-items-stretch">
-                                        {ptpCards.map(item => (
-                                            <div className="col-12 col-md-6 d-flex" key={item.label}>
-                                                <div className="card widget-icon-left-stat h-100 w-100">
-                                                    <div className="card-body">
-                                                        <div className="widget-icon-left-icon primary">
-                                                            <i className="bi bi-person-lines-fill" />
-                                                        </div>
-                                                        <div className="widget-icon-left-content">
-                                                            <span className="widget-icon-left-value">{item.value}</span>
-                                                            <span className="widget-icon-left-label">{item.label}</span>
+                                                    <div className="widget-icon-left-icon primary">
+                                                        <i className="bi bi-person-lines-fill" />
+                                                    </div>
+
+                                                    <div className="widget-icon-left-content">
+                                                        <span className="widget-icon-left-value">{card.value}</span>
+                                                        <span className="widget-icon-left-label">{card.label}</span>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <p className="mt-4 fw-semibold fs-6">
+                                    {dashboardData?.dateRange?.ptpDateRangeLabel || 'PTP spans from - to -'}
+                                </p>
+                                <div className="row g-4 align-items-stretch">
+
+                                    {/* LEFT SIDE */}
+                                    <div className="col-12 col-md-6 d-flex">
+                                        <div className="row g-3 w-100 align-items-stretch">
+                                            {ptpCards.map(item => (
+                                                <div className="col-12 col-md-6 d-flex" key={item.label}>
+                                                    <div className="card widget-icon-left-stat h-100 w-100">
+                                                        <div className="card-body">
+                                                            <div className="widget-icon-left-icon primary">
+                                                                <i className="bi bi-person-lines-fill" />
+                                                            </div>
+                                                            <div className="widget-icon-left-content">
+                                                                <span className="widget-icon-left-value">{item.value}</span>
+                                                                <span className="widget-icon-left-label">{item.label}</span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
 
-                                {/* RIGHT SIDE */}
-                                <div className="col-12 col-md-6 d-flex">
-                                    <ChartCard title="PTP Conversion Percent">
-                                        <canvas ref={ptpConversionData} />
-                                    </ChartCard>
-                                </div>
+                                    {/* RIGHT SIDE */}
+                                    <div className="col-12 col-md-6 d-flex">
+                                        <ChartCard title="PTP Conversion Percent">
+                                            <canvas ref={ptpConversionData} />
+                                        </ChartCard>
+                                    </div>
 
-                            </div>
-                            <div className="row g-4 mt-3 justify-content-around">
-                                {fullPaymentCards.map(card => (
-                                    <div className="col-md-4 col-12">
-                                        <div className="card widget-icon-left-stat w-100">
-                                            <div key={card.label} className="card-body">
-                                                <div className="widget-icon-left-icon primary">
-                                                    <i className="bi bi-person-lines-fill" />
-                                                </div>
-                                                <div className="widget-icon-left-content">
-                                                    <span className="widget-icon-left-value">{card.value}</span>
-                                                    <span className="widget-icon-left-label">{card.label}</span>
+                                </div>
+                                <div className="row g-4 mt-3 justify-content-around">
+                                    {fullPaymentCards.map(card => (
+                                        <div className="col-md-4 col-12">
+                                            <div className="card widget-icon-left-stat w-100">
+                                                <div key={card.label} className="card-body">
+                                                    <div className="widget-icon-left-icon primary">
+                                                        <i className="bi bi-person-lines-fill" />
+                                                    </div>
+                                                    <div className="widget-icon-left-content">
+                                                        <span className="widget-icon-left-value">{card.value}</span>
+                                                        <span className="widget-icon-left-label">{card.label}</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
+                                <div className="mt-3 p-1">
+                                    <ChartCard title="Sunburst Chart">
+                                        <div className="echart-container" ref={sunburst} style={{
+                                            width: "100%",
+                                            height: "80vh"
+                                        }} />
+                                    </ChartCard>
+                                </div>
                             </div>
-                            <div className="mt-3 p-1">
-                                <ChartCard title="Sunburst Chart">
-                                    <div className="echart-container" ref={sunburst} style={{
-                                        width: "100%",
-                                        height: "80vh"
-                                    }} />
-                                </ChartCard>
-                            </div>
-                        </div>
+                        }
                     </div>
                 </form>
             </div>

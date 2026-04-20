@@ -5,12 +5,14 @@ import ReusableDataGrid from '../../components/ReusableDataGrid'
 import apiClient from "../../services/apiClient";
 import { useAuth } from '../../context/AuthContext';
 import { useForm } from "react-hook-form";
+import { useNotification } from '../../context/useNotification';
 
 const FrmNewDashboard2 = () => {
     const { user } = useAuth();
     const userId = user?.userId;
     const brCategory = user?.brCategory;
     const userOf = user?.userProofType;
+    const { showError } = useNotification();
     const [showDetails, setShowDetails] = useState(false);
     const [agentChartData, setAgentChartData] = useState({
         labels: [],
@@ -193,11 +195,12 @@ const FrmNewDashboard2 = () => {
                 fontSize: 12
             }
         },
-        xAxis: { type: 'category', name: "Days", nameLocation: "middle", nameGap: 30, boundaryGap: false, data: dispositionChartData.labels, axisLine: { lineStyle: { color: colors.border } }, axisLabel: axisStyle,
-        nameTextStyle: {
-            color: colors.muted
-        }
-    },
+        xAxis: {
+            type: 'category', name: "Days", nameLocation: "middle", nameGap: 30, boundaryGap: false, data: dispositionChartData.labels, axisLine: { lineStyle: { color: colors.border } }, axisLabel: axisStyle,
+            nameTextStyle: {
+                color: colors.muted
+            }
+        },
         yAxis: { type: 'value', name: "Count", nameLocation: "middle", nameRotate: 90, nameGap: 30, axisLine: { show: false }, splitLine: { lineStyle: { color: colors.border, type: 'dashed' } }, axisLabel: axisStyle },
         series: [{
             name: 'Dispositions Added in a Day', type: 'line', smooth: true, data: dispositionChartData.datasets, itemStyle: { color: colors.warning }, areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: colors.warning }, { offset: 1, color: 'rgba(246, 196, 59, 0.05)' }]) }
@@ -210,8 +213,6 @@ const FrmNewDashboard2 = () => {
             const userNo = userId.split("E")[1];
 
             const response = await apiClient.get(`/disposition-dashboard/report?month=${month}&year=${year}&userId=${userNo}&brCategory=${brCategory}&userOf=${userOf ?? 0}`, {});
-
-            console.log(response);
 
             if (response.success) {
                 setAgentChartData({
@@ -243,6 +244,7 @@ const FrmNewDashboard2 = () => {
             }
         } catch (error) {
             console.error(error?.response);
+            showError(error?.response?.data?.message || error?.message || 'Failed to load disposition report data');
         }
     }
 
@@ -295,32 +297,37 @@ const FrmNewDashboard2 = () => {
                         </div>
                     </div>
                 </div>
-                <div className="card h-100 mt-3 px-2 g-6">
-                    <div className="col-lg-12">
-                        <div className="echart-container" ref={gradientArea1} />
-                    </div>
-                    <div className="col-lg-12">
-                        <div className="echart-container" ref={gradientArea2} />
-                    </div>
-                </div>
-                <div className="mt-3 card">
-                    <div className="card-body">
-                        {loading ? (
-                            <div className="text-center py-5">
-                                <div className="spinner-border text-primary" role="status">
-                                    <span className="visually-hidden">Loading...</span>
-                                </div>
-                                <p className="mt-2 text-muted">Loading report data...</p>
+                {showDetails &&
+                    <>
+
+                        <div className="card h-100 mt-3 px-2 g-6">
+                            <div className="col-lg-12">
+                                <div className="echart-container" ref={gradientArea1} />
                             </div>
-                        ) : (
-                            <ReusableDataGrid
-                                rows={tableData}
-                                columns={tableHeader}
-                                pageSize={10}
-                            />
-                        )}
-                    </div>
-                </div>
+                            <div className="col-lg-12">
+                                <div className="echart-container" ref={gradientArea2} />
+                            </div>
+                        </div>
+                        <div className="mt-3 card">
+                            <div className="card-body">
+                                {loading ? (
+                                    <div className="text-center py-5">
+                                        <div className="spinner-border text-primary" role="status">
+                                            <span className="visually-hidden">Loading...</span>
+                                        </div>
+                                        <p className="mt-2 text-muted">Loading report data...</p>
+                                    </div>
+                                ) : (
+                                    <ReusableDataGrid
+                                        rows={tableData}
+                                        columns={tableHeader}
+                                        pageSize={10}
+                                    />
+                                )}
+                            </div>
+                        </div>
+                    </>
+                }
             </div>
         </div>
     )

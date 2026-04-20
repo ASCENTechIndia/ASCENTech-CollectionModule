@@ -7,10 +7,12 @@ import apiClient from "../../services/apiClient";
 import { useAuth } from '../../context/AuthContext';
 import { useForm } from "react-hook-form";
 import { color } from "chart.js/helpers";
+import { useNotification } from "../../context/useNotification";
 
 const FrmActiveAgents = () => {
     const { user } = useAuth();
     const userId = user?.userId;
+    const { showError } = useNotification();
     const {
         register,
     } = useForm({
@@ -182,7 +184,7 @@ const FrmActiveAgents = () => {
             const userNo = userId.split("E")[1];
 
             const response = await apiClient.get(`/active-agents/dashboard?userId=${userNo}&month=${month}&year=${year}`, {});
-            console.log(response);
+
             if (response.success) {
                 setSummaryDetails(response.data.summary);
                 setChartData({
@@ -206,6 +208,7 @@ const FrmActiveAgents = () => {
             }
         } catch (error) {
             console.error(error);
+            showError(error?.response?.data?.message || error?.message || 'Failed to load active agent data');
         }
     }
 
@@ -264,84 +267,88 @@ const FrmActiveAgents = () => {
                     </div>
                 </div>
 
-                <div className="row align-items-stretch g-3 mt-2">
-                    <div className="col-12 col-md-4 d-flex">
-                        <div className="card widget-info-stat h-100 w-100">
-                            <div className="card-body">
-                                <div className="widget-info-stat-icon primary">
-                                    <i className="bi bi-people" />
+                {showDetails &&
+                    <>
+                        <div className="row align-items-stretch g-3 mt-2">
+                            <div className="col-12 col-md-4 d-flex">
+                                <div className="card widget-info-stat h-100 w-100">
+                                    <div className="card-body">
+                                        <div className="widget-info-stat-icon primary">
+                                            <i className="bi bi-people" />
+                                        </div>
+                                        <div className="widget-info-stat-content">
+                                            <span className="widget-info-stat-value">
+                                                {summaryDetails?.onboardedActiveAssociates}
+                                            </span>
+                                            <span className="widget-info-stat-label">
+                                                No. of Onboarded and Active Collection Associate
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="widget-info-stat-content">
-                                    <span className="widget-info-stat-value">
-                                        {summaryDetails?.onboardedActiveAssociates}
-                                    </span>
-                                    <span className="widget-info-stat-label">
-                                        No. of Onboarded and Active Collection Associate
-                                    </span>
+                            </div>
+
+                            <div className="col-12 col-md-4 d-flex">
+                                <div className="card widget-info-stat h-100 w-100">
+                                    <div className="card-body">
+                                        <div className="widget-info-stat-icon primary">
+                                            <i className="bi bi-cash-stack" />
+                                        </div>
+                                        <div className="widget-info-stat-content">
+                                            <span className="widget-info-stat-value">
+                                                {summaryDetails?.accountsAssigned}
+                                            </span>
+                                            <span className="widget-info-stat-label">
+                                                Collection Associate having Accounts Assigned
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="col-12 col-md-4 d-flex">
+                                <div className="card widget-info-stat h-100 w-100">
+                                    <div className="card-body">
+                                        <div className="widget-info-stat-icon primary">
+                                            <i className="bi bi-box-arrow-in-right" />
+                                        </div>
+                                        <div className="widget-info-stat-content">
+                                            <span className="widget-info-stat-value">
+                                                {summaryDetails?.uniqueLogins}
+                                            </span>
+                                            <span className="widget-info-stat-label">
+                                                Total No. of Unique Logins
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="col-12 col-md-4 d-flex">
-                        <div className="card widget-info-stat h-100 w-100">
+                        <div className="card h-100 mt-3 px-2">
+                            <div className="echart-container" ref={gradientArea} />
+                        </div>
+
+                        <div className="mt-3 card">
                             <div className="card-body">
-                                <div className="widget-info-stat-icon primary">
-                                    <i className="bi bi-cash-stack" />
-                                </div>
-                                <div className="widget-info-stat-content">
-                                    <span className="widget-info-stat-value">
-                                        {summaryDetails?.accountsAssigned}
-                                    </span>
-                                    <span className="widget-info-stat-label">
-                                        Collection Associate having Accounts Assigned
-                                    </span>
-                                </div>
+                                {loading ? (
+                                    <div className="text-center py-5">
+                                        <div className="spinner-border text-primary" role="status">
+                                            <span className="visually-hidden">Loading...</span>
+                                        </div>
+                                        <p className="mt-2 text-muted">Loading report data...</p>
+                                    </div>
+                                ) : (
+                                    <ReusableDataGrid
+                                        rows={tableData}
+                                        columns={columns}
+                                        pageSize={10}
+                                    />
+                                )}
                             </div>
                         </div>
-                    </div>
-
-                    <div className="col-12 col-md-4 d-flex">
-                        <div className="card widget-info-stat h-100 w-100">
-                            <div className="card-body">
-                                <div className="widget-info-stat-icon primary">
-                                    <i className="bi bi-box-arrow-in-right" />
-                                </div>
-                                <div className="widget-info-stat-content">
-                                    <span className="widget-info-stat-value">
-                                        {summaryDetails?.uniqueLogins}
-                                    </span>
-                                    <span className="widget-info-stat-label">
-                                        Total No. of Unique Logins
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="card h-100 mt-3 px-2">
-                    <div className="echart-container" ref={gradientArea} />
-                </div>
-
-                <div className="mt-3 card">
-                    <div className="card-body">
-                        {loading ? (
-                            <div className="text-center py-5">
-                                <div className="spinner-border text-primary" role="status">
-                                    <span className="visually-hidden">Loading...</span>
-                                </div>
-                                <p className="mt-2 text-muted">Loading report data...</p>
-                            </div>
-                        ) : (
-                            <ReusableDataGrid
-                                rows={tableData}
-                                columns={columns}
-                                pageSize={10}
-                            />
-                        )}
-                    </div>
-                </div>
+                    </>
+                }
 
             </div>
         </div>
