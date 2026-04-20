@@ -45,8 +45,8 @@ function FrmAccessofPages() {
         `/users/get-page-access?userId=${userID}`
       );
       // ✅ correct API response check
-      if (response.data?.success) {
-        const data = response.data.data;
+      if (response.success) {
+        const data = response.data;
         setUserPageAccessDetails(data);
         setValue("userId", data.userId);
 
@@ -60,11 +60,11 @@ function FrmAccessofPages() {
           .map((page) => page.menuId);
         setValue("accessPages", selectedPages);
       } else {
-        showError(response.data?.message || "Failed to fetch page access details");
+        showError(response?.message || "Failed to fetch page access details");
       }
     } catch (error) {
       console.error(error);
-      showError(error?.response?.data?.message || error?.message || "Failed to fetch page access details");
+      showError(error?.response.message || error?.message || "Failed to fetch page access details");
     }
   };
 
@@ -76,7 +76,7 @@ function FrmAccessofPages() {
       };
       const response = await apiClient.post(`/users/update-page-access`, payload);
       // ✅ correct response check
-      if (response.data?.success && response.data?.data?.out_ErrorCode === "9999") {
+      if (response?.success && response?.data?.out_ErrorCode === "9999") {
         showSuccess("Page Access Updated Successfully");
         reset({
           userOf: "",
@@ -86,12 +86,12 @@ function FrmAccessofPages() {
         });
         navigate("/User/FrmUserModification");
       } else {
-        showError(response.data?.data?.out_ErrorMsg || "Failed to update page access");
+        showError(response?.data?.out_ErrorMsg || "Failed to update page access");
       }
     } catch (error) {
       console.error(error);
       showError(
-        error?.response?.data?.message ||
+        error?.response?.message ||
           error?.message ||
           "Failed to update page access"
       );

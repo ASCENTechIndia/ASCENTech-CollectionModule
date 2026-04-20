@@ -3,19 +3,13 @@ import { Link } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
-function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAsRead, onToggleSidebar, searchInputRef }) {
+function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAsRead, onToggleSidebar }) {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
-  const [activeLang, setActiveLang] = useState('en')
   const [notificationsOpen, setNotificationsOpen] = useState(false)
-  const [messagesOpen, setMessagesOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
-  const [quickAccessOpen, setQuickAccessOpen] = useState(false)
   const notificationPanelRef = useRef(null)
   const userMenuRef = useRef(null)
-  const messagesPanelRef = useRef(null)
-  const quickAccessRef = useRef(null)
-  const localSearchRef = useRef(null)
   const displayName = user?.name || user?.userName || user?.fullName || user?.userId || 'User'
   const displayEmail = user?.email || ''
   const displayRole = user?.role || user?.designation || 'User'
@@ -29,12 +23,6 @@ function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAs
       }
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
         setUserMenuOpen(false)
-      }
-      if (messagesPanelRef.current && !messagesPanelRef.current.contains(event.target)) {
-        setMessagesOpen(false)
-      }
-      if (quickAccessRef.current && !quickAccessRef.current.contains(event.target)) {
-        setQuickAccessOpen(false)
       }
     }
 
@@ -61,125 +49,13 @@ function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAs
         <i className="bi bi-layout-sidebar-inset" />
       </button>
 
-      <div className="header-search">
-        <form className="search-form" onSubmit={(e) => e.preventDefault()}>
-          <i className="bi bi-search search-icon" />
-          <input ref={searchInputRef || localSearchRef} type="search" placeholder="Search users, invoices, tickets..." autoComplete="off" />
-          <kbd className="search-shortcut">/</kbd>
-        </form>
-      </div>
-
       <div className="header-right">
         <div className="header-actions-desktop">
           <div className="header-action-cluster">
-            {/* Language Switcher */}
-            <div className="header-action-wrap dropdown lang-dropdown">
-              <button
-                className="header-action lang-trigger dropdown-toggle"
-                onClick={() => setQuickAccessOpen(!quickAccessOpen)}
-                title="Quick Access"
-              >
-                <i className="bi bi-grid-3x3-gap" />
-              </button>
-              {quickAccessOpen && (
-                <div className="dropdown-menu dropdown-menu-end quickaccess-menu show" ref={quickAccessRef} style={{ position: 'absolute', top: '100%', right: 0, zIndex: 1000 }}>
-                  <div className="menu-title">Quick Actions</div>
-                  <div className="quickaccess-grid">
-                    <Link to="/" className="quickaccess-item">
-                      <span className="quickaccess-icon">
-                        <i className="bi bi-calendar3" />
-                      </span>
-                      <span className="quickaccess-label">Calendar</span>
-                    </Link>
-                    <Link to="/" className="quickaccess-item">
-                      <span className="quickaccess-icon">
-                        <i className="bi bi-chat-dots" />
-                      </span>
-                      <span className="quickaccess-label">Chat</span>
-                    </Link>
-                    <Link to="/" className="quickaccess-item">
-                      <span className="quickaccess-icon">
-                        <i className="bi bi-envelope" />
-                      </span>
-                      <span className="quickaccess-label">Email</span>
-                    </Link>
-                    <Link to="/" className="quickaccess-item">
-                      <span className="quickaccess-icon">
-                        <i className="bi bi-kanban" />
-                      </span>
-                      <span className="quickaccess-label">Kanban</span>
-                    </Link>
-                    <Link to="/" className="quickaccess-item">
-                      <span className="quickaccess-icon">
-                        <i className="bi bi-folder2-open" />
-                      </span>
-                      <span className="quickaccess-label">Files</span>
-                    </Link>
-                    <Link to="/" className="quickaccess-item">
-                      <span className="quickaccess-icon">
-                        <i className="bi bi-headset" />
-                      </span>
-                      <span className="quickaccess-label">Support</span>
-                    </Link>
-                  </div>
-                </div>
-              )}
-            </div>
-
             {/* Theme Toggle */}
             <button className="header-action theme-toggle" title="Toggle Theme" onClick={onThemeToggle}>
               <i className={`ph-light ${theme === 'dark' ? 'ph-sun' : 'ph-moon-stars'}`} />
             </button>
-
-            {/* Messages */}
-            <div className="header-action-wrap dropdown messages-dropdown">
-              <button
-                className="header-action dropdown-toggle"
-                onClick={() => setMessagesOpen(!messagesOpen)}
-                title="Messages"
-              >
-                <i className="bi bi-chat-left-text" />
-                <span className="header-badge">5</span>
-              </button>
-              {messagesOpen && (
-                <div className="dropdown-menu dropdown-menu-end messages-menu show" ref={messagesPanelRef} style={{ position: 'absolute', top: '100%', right: 0, zIndex: 1000 }}>
-                  <div className="notification-header">
-                    <div>
-                      <h6>Messages</h6>
-                      <span className="notification-count">5 new messages</span>
-                    </div>
-                    <Link to="/" className="notification-mark-read">
-                      Open chat
-                    </Link>
-                  </div>
-                  <div className="notification-list">
-                    <Link to="/" className="notification-item unread">
-                      <span className="notification-dot" />
-                      <img src="/assets/img/avatars/avatar-2.webp" alt="" className="notification-avatar" />
-                      <div className="notification-content">
-                        <div className="notification-title">Mia Rodriguez</div>
-                        <div className="notification-text">Can you review the analytics wireframe today?</div>
-                        <span className="notification-time">2m ago</span>
-                      </div>
-                    </Link>
-                    <Link to="/" className="notification-item unread">
-                      <span className="notification-dot" />
-                      <img src="/assets/img/avatars/avatar-3.webp" alt="" className="notification-avatar" />
-                      <div className="notification-content">
-                        <div className="notification-title">Dev Channel</div>
-                        <div className="notification-text">Build passed. Ready for production deploy.</div>
-                        <span className="notification-time">12m ago</span>
-                      </div>
-                    </Link>
-                  </div>
-                  <div className="notification-footer">
-                    <Link to="/">
-                      View all messages <i className="bi bi-arrow-right" />
-                    </Link>
-                  </div>
-                </div>
-              )}
-            </div>
 
             {/* Notifications */}
             <div className="header-action-wrap dropdown notification-dropdown">
@@ -245,7 +121,7 @@ function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAs
               className="dropdown-toggle user-trigger"
               onClick={() => setUserMenuOpen(!userMenuOpen)}
             >
-              <img src="/assets/img/profile-img.webp" alt="User" className="user-avatar" />
+              <img src="/assets/img/profile-img.jpg" alt="User" className="user-avatar" />
               <div className="user-brief">
                 <span className="user-name">{displayName}</span>
                 <span className="user-role">{displayRole}</span>
@@ -255,7 +131,7 @@ function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAs
             {userMenuOpen && (
               <div className="dropdown-menu dropdown-menu-end user-menu show" ref={userMenuRef} style={{ position: 'absolute', top: '100%', right: 0, zIndex: 1000 }}>
                 <div className="user-menu-header">
-                  <img src="/assets/img/profile-img.webp" alt="User" className="user-menu-avatar" />
+                  <img src="/assets/img/profile-img.jpg" alt="User" className="user-menu-avatar" />
                   <div className="user-menu-info">
                     <div className="user-menu-name">{displayName}</div>
                     <div className="user-menu-email">{displayEmail}</div>

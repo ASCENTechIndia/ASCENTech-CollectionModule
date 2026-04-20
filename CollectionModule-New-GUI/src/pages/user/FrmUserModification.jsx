@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 import { Search } from 'lucide-react'
 import apiClient from '../../services/apiClient'
+import { useNotification } from '../../context/useNotification'
 
 const FrmUserModification = () => {
   const {
@@ -19,6 +20,7 @@ const FrmUserModification = () => {
   })
   const navigate = useNavigate()
   const webUserId = "test"
+  const { showError, showSuccess, showWarning } = useNotification()
 
   const [userDetails, setUserDetails] = useState({})
   const [openModifyStatusModal, setOpenModifyStatusModal] = useState(false)
@@ -26,7 +28,7 @@ const FrmUserModification = () => {
 
   const handleSearch = async (userId) => {
     if (!userId) {
-      alert('Enter User ID')
+      showWarning('Enter User ID')
       return
     }
     try {
@@ -38,20 +40,21 @@ const FrmUserModification = () => {
         setValue('userCurrentStatus', response.data.currentStatus)
       }
       else{
-        setUserDetails("")
+        setUserDetails({})
         setValue('userName', "")
         setValue('userCurrentStatus', "")
+        showWarning(response?.message || 'No user found for this User ID')
       }
     } catch (error) {
       console.error(error)
-      alert(error?.response?.data?.message || error?.message || 'Failed to fetch user details')
+      showError(error?.response?.data?.message || error?.message || 'Failed to fetch user details')
     }
   }
 
   const handleModifyStatus = async () => {
     try {
       if (!newStatus.length) {
-        alert('Please select the status')
+        showWarning('Please select the status')
         return
       }
       const payload = {
@@ -62,14 +65,16 @@ const FrmUserModification = () => {
       const response = await apiClient.post('/users/modify-status-submit', payload)
       console.log("response :", response)
       if (response.success && response.data.out_ErrorCode === -100) {
-        alert(response.data.out_ErrorMsg || 'User status updated successfully')
+        showSuccess(response.data.out_ErrorMsg || 'User status updated successfully')
         setOpenModifyStatusModal(false)
         setNewStatus('')
         handleSearch(userDetails?.userId)
+      } else {
+        showError(response?.data?.out_ErrorMsg || response?.message || 'Failed to update user status')
       }
     } catch (error) {
       console.error(error)
-      alert(error?.message || 'Failed to update user status')
+      showError(error?.message || 'Failed to update user status')
     }
   }
 
@@ -150,7 +155,7 @@ const FrmUserModification = () => {
                 className="btn btn-primary"
                 onClick={() => {
                   if (!userDetails?.userName || !userDetails?.currentStatus) {
-                    alert('Username and User Current Status cannot be blank')
+                    showWarning('Username and User Current Status cannot be blank')
                     return
                   }
                   setOpenModifyStatusModal(true)
@@ -163,7 +168,7 @@ const FrmUserModification = () => {
                 className="btn btn-primary"
                 onClick={() => {
                   if (!userDetails?.userName || !userDetails?.currentStatus) {
-                    alert('Username and User Current Status cannot be blank')
+                    showWarning('Username and User Current Status cannot be blank')
                     return
                   }
                   navigate('/FrmAccessofPages', {

@@ -15,8 +15,7 @@ function AuthLayout({ split = false, visual = null }) {
           ) : null}
           <Outlet />
           <footer className="footer-centered">
-            <div className="footer-copyright">&copy; 2026 <a href="#">FlexAdmin</a>. All Rights Reserved.</div>
-            <div className="footer-links"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Help</a></div>
+            <div className="footer-copyright">&copy; 2026 All Rights Reserved.</div>
           </footer>
         </div>
       </main>
