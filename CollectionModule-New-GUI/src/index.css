@@ -453,7 +453,3 @@ body {
     right: 0;
   }
 }
-
-.table > :not(caption) > * > * {
-  color: inherit !important;
-}

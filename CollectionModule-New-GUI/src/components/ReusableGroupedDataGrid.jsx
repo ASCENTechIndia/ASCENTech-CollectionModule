@@ -221,7 +221,16 @@ export function ReusableGroupedDataGrid({
                         key={header.displayName || index}
                         colSpan={children.length || 1}
                         rowSpan={children.length ? 1 : 2}
-                        className={`table-secondary ${header.className || ''}`}
+                        className={header.className || ''}
+                        style={{
+                          textAlign: 'center',
+                          verticalAlign: 'middle',
+                          whiteSpace: 'normal',
+                          backgroundColor: 'var(--bs-secondary-bg, #eef2f7)',
+                          border: '1px solid var(--bs-border-color, #dee2e6)',
+                          borderBottomWidth: '2px',
+                          fontWeight: 700,
+                        }}
                       >
                         {header.displayName || header.label || header.field}
                       </th>
@@ -233,48 +242,30 @@ export function ReusableGroupedDataGrid({
                     <th
                       key={column.field || index}
                       onClick={() => handleSort(column.field)}
-                      className={`table-light ${column.className || ''}`}
                       style={{
                         cursor: column.sortable === false ? 'default' : 'pointer',
                         userSelect: 'none',
+                        textAlign: 'center',
+                        verticalAlign: 'middle',
+                        whiteSpace: 'normal',
+                        backgroundColor: 'var(--bs-tertiary-bg, #f8fafc)',
+                        border: '1px solid var(--bs-border-color, #dee2e6)',
                       }}
+                      className={column.className || ''}
                     >
                       <div className="d-flex align-items-center gap-2">
                         <span>{column.displayName || column.label || column.field}</span>
-                        {column.sortable !== false && (
+                        {column.sortable !== false ? (
                           <span className="ms-1 text-muted small">
                             {sortField === column.field ? (sortDirection === 'asc' ? '▲' : '▼') : '↕'}
                           </span>
-                        )}
+                        ) : null}
                       </div>
                     </th>
                   ))}
                 </tr>
               </>
-            ) : (
-              <tr>
-                {leafColumns.map((column, index) => (
-                  <th
-                    key={column.field || index}
-                    onClick={() => handleSort(column.field)}
-                    className={`table-light ${column.className || ''}`}
-                    style={{
-                      cursor: column.sortable === false ? 'default' : 'pointer',
-                      userSelect: 'none',
-                    }}
-                  >
-                    <div className="d-flex align-items-center gap-2">
-                      <span>{column.displayName || column.label || column.field}</span>
-                      {column.sortable !== false && (
-                        <span className="ms-1 text-muted small">
-                          {sortField === column.field ? (sortDirection === 'asc' ? '▲' : '▼') : '↕'}
-                        </span>
-                      )}
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            )}
+            ) : null}
           </thead>
           <tbody>
             {visibleRows.length > 0 ? (
