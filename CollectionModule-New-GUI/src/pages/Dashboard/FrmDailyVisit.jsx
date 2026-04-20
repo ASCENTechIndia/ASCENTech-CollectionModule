@@ -611,7 +611,7 @@ const FrmDailyVisit = () => {
                                 Submit
                             </button>
                         </div>
-                        <div className="card mt-3 shadow border-0">
+                        <div className="mt-3">
                             <div className="row g-4 my-2">
                                 <div className="col-12 col-md-6 col-xl-4">
                                     <div className="position-relative">
