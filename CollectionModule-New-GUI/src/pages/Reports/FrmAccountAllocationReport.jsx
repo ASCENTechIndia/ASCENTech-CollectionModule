@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import ReusableDataGrid from '../../components/ReusableDataGrid'
 import apiClient from '../../services/apiClient'
 import { useAuth } from '../../context/AuthContext'
@@ -22,15 +23,25 @@ const formatDateForApi = (value) => {
 function FrmAccountAllocationReport() {
   const navigate = useNavigate()
   const { user } = useAuth()
-  const { showError, showSuccess } = useNotification()
+  const { showError, showSuccess, showWarning } = useNotification()
+  const {
+    register,
+    handleSubmit: handleFormSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      startDate: '',
+      endDate: '',
+      userId: '',
+      smaType: '',
+    },
+  })
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [userId, setUserId] = useState('')
   const [smaType, setSmaType] = useState('')
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [searched, setSearched] = useState(false)
 
   const columns = [
     { label: 'Collection Associate ID', sortable: true },
@@ -58,22 +69,7 @@ function FrmAccountAllocationReport() {
     [rows]
   )
 
-  // Handle numeric input only
-  const handleUserIdChange = (event) => {
-    const numericValue = event.target.value.replace(/\D/g, '')
-    setUserId(numericValue)
-  }
-
-  const handleSearch = async (event) => {
-    event.preventDefault()
-    setError('')
-    setSearched(true)
-
-    if (!startDate || !endDate) {
-      showError('Start Date and End Date are required')
-      setError('Start Date and End Date are required')
-      return
-    }
+  const handleSearch = async () => {
 
     const trimmedUserId = userId.trim()
     if (trimmedUserId && !/^\d+$/.test(trimmedUserId)) {
@@ -105,8 +101,7 @@ function FrmAccountAllocationReport() {
 
       if (!success || !apiData.length) {
         setRows([])
-        showError('No data found')
-        setError('No data found')
+        showWarning('No data found')
         return
       }
 
@@ -126,7 +121,6 @@ function FrmAccountAllocationReport() {
     } catch (apiError) {
       setRows([])
       showError(apiError.message || 'Something went wrong while fetching report data')
-      setError(apiError.message || 'Something went wrong while fetching report data')
     } finally {
       setLoading(false)
     }
@@ -153,7 +147,7 @@ function FrmAccountAllocationReport() {
           <h5 className="card-title mb-0">Search Filters</h5>
         </div>
         <div className="card-body">
-          <form onSubmit={handleSearch}>
+          <form onSubmit={handleFormSubmit(handleSearch)}>
             <div className="row g-3">
               <div className="col-md-6">
                 <label htmlFor="startDate" className="form-label">
@@ -162,11 +156,14 @@ function FrmAccountAllocationReport() {
                 <input
                   id="startDate"
                   type="date"
-                  className={`form-control ${isStartDateInvalid ? 'is-invalid' : ''}`}
+                  className={`form-control ${errors.startDate ? 'is-invalid' : ''}`}
                   value={startDate}
-                  onChange={(event) => setStartDate(event.target.value)}
+                  {...register('startDate', {
+                    required: 'Start Date is required',
+                    onChange: (event) => setStartDate(event.target.value),
+                  })}
                 />
-                {isStartDateInvalid && <div className="invalid-feedback">Start Date is required</div>}
+                {errors.startDate && <div className="invalid-feedback">{errors.startDate.message}</div>}
               </div>
 
               <div className="col-md-6">
@@ -176,11 +173,14 @@ function FrmAccountAllocationReport() {
                 <input
                   id="endDate"
                   type="date"
-                  className={`form-control ${isEndDateInvalid ? 'is-invalid' : ''}`}
+                  className={`form-control ${errors.endDate ? 'is-invalid' : ''}`}
                   value={endDate}
-                  onChange={(event) => setEndDate(event.target.value)}
+                  {...register('endDate', {
+                    required: 'End Date is required',
+                    onChange: (event) => setEndDate(event.target.value),
+                  })}
                 />
-                {isEndDateInvalid && <div className="invalid-feedback">End Date is required</div>}
+                {errors.endDate && <div className="invalid-feedback">{errors.endDate.message}</div>}
               </div>
 
               <div className="col-md-6">
@@ -190,15 +190,17 @@ function FrmAccountAllocationReport() {
                 <input
                   id="userId"
                   type="text"
-                  inputMode="numeric"
-                  className={`form-control ${isUserIdInvalid ? 'is-invalid' : ''}`}
+                  className={`form-control ${errors.userId ? 'is-invalid' : ''}`}
                   value={userId}
-                  onChange={handleUserIdChange}
-                  placeholder="Enter User ID (numbers only, optional)"
+                  placeholder="Enter User ID (optional)"
+                  inputMode="numeric"
+                  maxLength={20}
+                  {...register('userId', {
+                    validate: (value) => !value || /^\d+$/.test(value) || 'User ID must contain numbers only',
+                    onChange: (event) => setUserId(event.target.value.replace(/\D/g, '')),
+                  })}
                 />
-                {isUserIdInvalid && (
-                  <div className="invalid-feedback">User ID must contain only numbers</div>
-                )}
+                {errors.userId && <div className="invalid-feedback">{errors.userId.message}</div>}
               </div>
 
               <div className="col-md-6">
@@ -209,7 +211,9 @@ function FrmAccountAllocationReport() {
                   id="smaType"
                   className="form-select"
                   value={smaType}
-                  onChange={(event) => setSmaType(event.target.value)}
+                  {...register('smaType', {
+                    onChange: (event) => setSmaType(event.target.value),
+                  })}
                 >
                   <option value="">Select SMA Type (optional)</option>
                   <option value="SMA1">SMA1</option>
@@ -229,13 +233,6 @@ function FrmAccountAllocationReport() {
           </form>
         </div>
       </div>
-
-      {error && (
-        <div className="alert alert-danger" role="alert">
-          <i className="bi bi-exclamation-triangle me-2" />
-          {error}
-        </div>
-      )}
 
       {tableRows.length > 0 && (
         <div className="card">

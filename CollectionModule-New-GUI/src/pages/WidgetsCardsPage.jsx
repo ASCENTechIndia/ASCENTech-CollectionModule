@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 function WidgetsCardsPage() {
   return (
     <div>
@@ -6,7 +7,7 @@ function WidgetsCardsPage() {
         <div className="page-header">
           <h1 className="page-title">Card Widgets</h1>
           <nav className="breadcrumb">
-            <a href="#" onClick={(event) => event.preventDefault()} className="breadcrumb-item">Home</a>
+            <Link to="/" className="breadcrumb-item">Home</Link>
             <a href="#" onClick={(event) => event.preventDefault()} className="breadcrumb-item">Widgets</a>
             <span className="breadcrumb-item active">Cards</span>
           </nav>

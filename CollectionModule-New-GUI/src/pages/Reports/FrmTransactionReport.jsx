@@ -1,10 +1,11 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import ReusableDataGrid from "../../components/ReusableDataGrid";
-import ImageViewer from "../../components/ui/ImageViewer";
-import apiClient from "../../services/apiClient";
-import { useAuth } from "../../context/AuthContext";
-import { useNotification } from "../../context/useNotification";
+import { Link, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import ReusableDataGrid from '../../components/ReusableDataGrid'
+import ImageViewer from '../../components/ui/ImageViewer'
+import apiClient from '../../services/apiClient'
+import { useAuth } from '../../context/AuthContext'
+import { useNotification } from '../../context/useNotification'
 
 const formatDateForAPI = (dateStr) => {
   if (!dateStr) return "";
@@ -12,11 +13,7 @@ const formatDateForAPI = (dateStr) => {
   return `${day}/${month}/${year}`;
 };
 
-const getPayload = (response) => response?.data ?? response ?? {};
-const getArray = (value) => {
-  if (Array.isArray(value)) return value;
-  return [];
-};
+const getPayload = (response) => response?.data ?? response ?? {}
 const getDataRows = (response) => {
   const payload = getPayload(response);
 
@@ -29,12 +26,22 @@ const getDataRows = (response) => {
 };
 
 function FrmTransactionReport() {
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  const { showError, showSuccess } = useNotification();
-  const brid = user?.brid ?? user?.BRID ?? user?.num_usermst_brid ?? null;
-  const brCategory =
-    user?.brCategory ?? user?.brcategory ?? user?.BRCATEGORY ?? null;
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  const { showError, showSuccess, showWarning } = useNotification()
+  const {
+    register,
+    handleSubmit: handleFormSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      fromDate: '',
+      toDate: '',
+      userId: '',
+    },
+  })
+  const brid = user?.brid ?? user?.BRID ?? user?.num_usermst_brid ?? null
+  const brCategory = user?.brCategory ?? user?.brcategory ?? user?.BRCATEGORY ?? null
 
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -56,10 +63,9 @@ function FrmTransactionReport() {
   const [loadingBranches, setLoadingBranches] = useState(false);
   const [loadingCollection, setLoadingCollection] = useState(false);
 
-  const [rows, setRows] = useState([]);
-  const [searching, setSearching] = useState(false);
-  const [error, setError] = useState("");
-  const [searched, setSearched] = useState(false);
+  const [rows, setRows] = useState([])
+  const [searching, setSearching] = useState(false)
+  const [error, setError] = useState('')
 
   const [selectedImageCode, setSelectedImageCode] = useState("");
   const [showImageViewer, setShowImageViewer] = useState(false);
@@ -293,30 +299,14 @@ function FrmTransactionReport() {
     setUserId(numericValue);
   };
 
-  const handleSearch = async (event) => {
-    event.preventDefault();
-    setError("");
-    setSearched(true);
+  const handleSearch = async () => {
+    setError('')
 
     const fromDateFormatted = fromDate ? formatDateForAPI(fromDate) : "";
     const toDateFormatted = toDate ? formatDateForAPI(toDate) : "";
 
-    if (!fromDateFormatted || !toDateFormatted) {
-      showError("From Date and To Date are required");
-      setError("From Date and To Date are required");
-      return;
-    }
-
-    const trimmedUserId = userId.trim();
-    if (trimmedUserId && !/^\d+$/.test(trimmedUserId)) {
-      showError("User ID must contain only numbers");
-      setError("User ID must contain only numbers");
-      return;
-    }
-
-    const zoneName = zoneOptions.find((opt) => opt.value == zone)?.label || "";
-    const regionName =
-      regionOptions.find((opt) => opt.value == region)?.label || "";
+    const zoneName = zoneOptions.find((opt) => opt.value == zone)?.label || ''
+    const regionName = regionOptions.find((opt) => opt.value == region)?.label || ''
 
     const params = {
       fromDate: fromDateFormatted,
@@ -372,9 +362,9 @@ function FrmTransactionReport() {
         setRows(mappedRows);
         showSuccess(`Found ${mappedRows.length} records`);
       } else {
-        setRows([]);
-        showError("No records found");
-        setError("No records found");
+        setRows([])
+        showWarning('No records found')
+        setError('No records found')
       }
     } catch (apiError) {
       setRows([]);
@@ -461,7 +451,7 @@ function FrmTransactionReport() {
           <h5 className="card-title mb-0">Search Filters</h5>
         </div>
         <div className="card-body">
-          <form onSubmit={handleSearch}>
+          <form onSubmit={handleFormSubmit(handleSearch)}>
             <div className="row g-3">
               <div className="col-md-6">
                 <label htmlFor="fromDate" className="form-label">
@@ -470,10 +460,14 @@ function FrmTransactionReport() {
                 <input
                   id="fromDate"
                   type="date"
-                  className={`form-control ${!fromDate && searched ? "is-invalid" : ""}`}
+                  className={`form-control ${errors.fromDate ? 'is-invalid' : ''}`}
                   value={fromDate}
-                  onChange={(event) => setFromDate(event.target.value)}
+                  {...register('fromDate', {
+                    required: 'From Date is required',
+                    onChange: (event) => setFromDate(event.target.value),
+                  })}
                 />
+                {errors.fromDate && <div className="invalid-feedback">{errors.fromDate.message}</div>}
               </div>
 
               <div className="col-md-6">
@@ -483,10 +477,14 @@ function FrmTransactionReport() {
                 <input
                   id="toDate"
                   type="date"
-                  className={`form-control ${!toDate && searched ? "is-invalid" : ""}`}
+                  className={`form-control ${errors.toDate ? 'is-invalid' : ''}`}
                   value={toDate}
-                  onChange={(event) => setToDate(event.target.value)}
+                  {...register('toDate', {
+                    required: 'To Date is required',
+                    onChange: (event) => setToDate(event.target.value),
+                  })}
                 />
+                {errors.toDate && <div className="invalid-feedback">{errors.toDate.message}</div>}
               </div>
 
               <div className="col-md-6">
@@ -556,17 +554,17 @@ function FrmTransactionReport() {
                 <input
                   id="userId"
                   type="text"
-                  inputMode="numeric"
-                  className={`form-control ${isUserIdInvalid ? "is-invalid" : ""}`}
+                  className={`form-control ${errors.userId ? 'is-invalid' : ''}`}
                   value={userId}
-                  onChange={handleUserIdChange}
-                  placeholder="Enter User Id (numbers only, optional)"
+                  placeholder="Enter User Id"
+                  inputMode="numeric"
+                  maxLength={20}
+                  {...register('userId', {
+                    validate: (value) => !value || /^\d+$/.test(value) || 'User ID must contain numbers only',
+                    onChange: (event) => setUserId(event.target.value.replace(/\D/g, '')),
+                  })}
                 />
-                {isUserIdInvalid && (
-                  <div className="invalid-feedback">
-                    User ID must contain only numbers
-                  </div>
-                )}
+                {errors.userId && <div className="invalid-feedback">{errors.userId.message}</div>}
               </div>
 
               <div className="col-md-6">

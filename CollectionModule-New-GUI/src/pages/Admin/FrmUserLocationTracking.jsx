@@ -1,7 +1,8 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useMemo, useState } from "react";
-import apiClient from "../../services/apiClient";
-import { useNotification } from "../../context/useNotification";
+import { Link, useNavigate } from 'react-router-dom'
+import { useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import apiClient from '../../services/apiClient'
+import { useNotification } from '../../context/useNotification'
 
 const parseCoordinates = (location) => {
   const raw = String(location || "").trim();
@@ -17,15 +18,21 @@ const parseCoordinates = (location) => {
 };
 
 function FrmUserLocationTracking() {
-  const navigate = useNavigate();
-  const { showWarning, showError, showSuccess } = useNotification();
+  const navigate = useNavigate()
+  const { showWarning, showError, showSuccess } = useNotification()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      trackingDate: '',
+      userId: '',
+    },
+  })
 
-  const [trackingDate, setTrackingDate] = useState("");
-  const [userId, setUserId] = useState("");
-  const [coordinates, setCoordinates] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [searched, setSearched] = useState(false);
+  const [coordinates, setCoordinates] = useState(null)
+  const [loading, setLoading] = useState(false)
 
   const mapUrl = useMemo(() => {
     if (!coordinates) return "";
@@ -38,26 +45,9 @@ function FrmUserLocationTracking() {
     setUserId(numericValue);
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setSearched(true);
-    setError("");
-
-    const trimmedUserId = userId.trim();
-
-    if (!trackingDate || !trimmedUserId) {
-      const message = "Tracking Date and User ID are required";
-      showError(message);
-      setError(message);
-      return;
-    }
-
-    if (!/^\d+$/.test(trimmedUserId)) {
-      const message = "User ID must contain only numbers";
-      showError(message);
-      setError(message);
-      return;
-    }
+  const onSubmit = async (values) => {
+    const trimmedUserId = String(values.userId || '').trim()
+    const trackingDate = values.trackingDate
 
     setLoading(true);
     setCoordinates(null);
@@ -79,18 +69,15 @@ function FrmUserLocationTracking() {
         setCoordinates(parsed);
         showSuccess("Location found");
       } else if (success && apiRows.length > 0) {
-        const message = "The received location data is invalid.";
-        showError(message);
-        setError(message);
+        const message = 'The received location data is invalid.'
+        showError(message)
       } else {
-        const message = "No location found for the given user and date.";
-        showWarning(message);
-        setError(message);
+        const message = 'No location found for the given user and date.'
+        showWarning(message)
       }
     } catch (apiError) {
-      const message = apiError?.message || "Failed to fetch location.";
-      showError(message);
-      setError(message);
+      const message = apiError?.message || 'Failed to fetch location.'
+      showError(message)
     } finally {
       setLoading(false);
     }
@@ -119,7 +106,7 @@ function FrmUserLocationTracking() {
           <h5 className="card-title mb-0">Search Filters</h5>
         </div>
         <div className="card-body">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className="row g-3">
               <div className="col-md-6">
                 <label htmlFor="trackingDate" className="form-label">
@@ -128,15 +115,10 @@ function FrmUserLocationTracking() {
                 <input
                   id="trackingDate"
                   type="date"
-                  className={`form-control ${isDateInvalid ? "is-invalid" : ""}`}
-                  value={trackingDate}
-                  onChange={(event) => setTrackingDate(event.target.value)}
+                  className={`form-control ${errors.trackingDate ? 'is-invalid' : ''}`}
+                  {...register('trackingDate', { required: 'Tracking Date is required' })}
                 />
-                {isDateInvalid && (
-                  <div className="invalid-feedback">
-                    Tracking Date is required
-                  </div>
-                )}
+                {errors.trackingDate && <div className="invalid-feedback">{errors.trackingDate.message}</div>}
               </div>
 
               <div className="col-md-6">
@@ -146,19 +128,22 @@ function FrmUserLocationTracking() {
                 <input
                   id="userId"
                   type="text"
+                  className={`form-control ${errors.userId ? 'is-invalid' : ''}`}
+                  placeholder="Enter User ID"
                   inputMode="numeric"
-                  className={`form-control ${isUserIdInvalid ? "is-invalid" : ""}`}
-                  value={userId}
-                  onChange={handleUserIdChange}
-                  placeholder="Enter User ID (numbers only)"
+                  maxLength={20}
+                  {...register('userId', {
+                    required: 'User ID is required',
+                    pattern: {
+                      value: /^\d+$/,
+                      message: 'User ID must contain numbers only',
+                    },
+                    onChange: (event) => {
+                      event.target.value = event.target.value.replace(/\D/g, '')
+                    },
+                  })}
                 />
-                {isUserIdInvalid && (
-                  <div className="invalid-feedback">
-                    {!userId.trim()
-                      ? "User ID is required"
-                      : "User ID must contain only numbers"}
-                  </div>
-                )}
+                {errors.userId && <div className="invalid-feedback">{errors.userId.message}</div>}
               </div>
             </div>
 
@@ -181,13 +166,6 @@ function FrmUserLocationTracking() {
           </form>
         </div>
       </div>
-
-      {error && (
-        <div className="alert alert-danger" role="alert">
-          <i className="bi bi-exclamation-triangle me-2" />
-          {error}
-        </div>
-      )}
 
       {coordinates && (
         <div className="card">
