@@ -313,7 +313,9 @@ const FrmUserCreation = () => {
                 Working For <span className="text-danger">*</span>
               </label>
               <select
-                {...register("workingFor")}
+                  {...register("workingFor", {
+    required: "Working For is required",
+  })}
                 className={`form-select ${errors.workingFor ? "is-invalid" : ""}`}
               >
                 <option value="">Select Working For</option>
@@ -338,8 +340,17 @@ const FrmUserCreation = () => {
               <input
               maxLength={6} 
                 type="text"
-                {...register("pinCode",)}
+                {...register("pinCode",{
+      required: "Pin Code is required",
+       pattern: {
+      value: /^[0-9]{6}$/,
+      message: "Enter valid 6 digit pincode",
+    },
+    })}
                 className={`form-control ${errors.pinCode ? "is-invalid" : ""}`}
+                  onChange={(e) => {
+    e.target.value = e.target.value.replace(/[^0-9]/g, "");
+  }}
               />
               {errors.pinCode && (
                 <div className="invalid-feedback">
@@ -357,7 +368,14 @@ const FrmUserCreation = () => {
   <input
     {...register("firstName", {
       required: "First Name is required",
+        pattern: {
+      value: /^[A-Za-z\s]+$/,
+      message: "Only alphabets allowed",
+    },
     })}
+     onChange={(e) => {
+    e.target.value = e.target.value.replace(/[^A-Za-z\s]/g, "");
+  }}
     className={`form-control ${
       errors.firstName ? "is-invalid" : ""
     }`}
@@ -378,7 +396,14 @@ const FrmUserCreation = () => {
   <input
     {...register("lastName", {
       required: "Last Name is required",
+          pattern: {
+      value: /^[A-Za-z\s]+$/,
+      message: "Only alphabets allowed",
+    },
     })}
+     onChange={(e) => {
+    e.target.value = e.target.value.replace(/[^A-Za-z\s]/g, "");
+  }}
     className={`form-control ${
       errors.lastName ? "is-invalid" : ""
     }`}
@@ -400,6 +425,9 @@ const FrmUserCreation = () => {
     {...register("mobileNumber", {
       required: "Mobile Number is required",
     })}
+       onChange={(e) => {
+    e.target.value = e.target.value.replace(/[^0-9]/g, "");
+  }}
     className={`form-control ${
       errors.mobileNumber ? "is-invalid" : ""
     }`}
