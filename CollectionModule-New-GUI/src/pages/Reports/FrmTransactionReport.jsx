@@ -272,10 +272,11 @@ function FrmTransactionReport() {
       const response = await apiClient.get('/transactionReports/getTransDetails', {
         params,
       })
+      console.log("trans :", response)
 
-      const payload = getPayload(response)
-      const success = payload?.success
-      const apiData = getArray(payload?.data?.data ?? payload?.data)
+      const success = response?.success;
+      const apiData = response?.data
+      console.log("api data")
 
       if (success && apiData && apiData.length > 0) {
         const mappedRows = apiData.map((item) => [
@@ -298,7 +299,7 @@ function FrmTransactionReport() {
           item.MDM_ID || '',
           item.VAR_BANKDATA_DPDBUCKET || '',
           item.VISITSTSTS || '',
-        ])
+      ])
         setRows(mappedRows)
         showSuccess(`Found ${mappedRows.length} records`)
       } else {
@@ -316,7 +317,7 @@ function FrmTransactionReport() {
   }
 
   const columns = [
-    { label: 'User Id', sortable: true },
+    { label: 'User Id', sortable: true, field: "userId" },
     { label: 'Collection Associate', sortable: true },
     { label: 'Transaction Id', sortable: true },
     { label: 'Account Number', sortable: true },
