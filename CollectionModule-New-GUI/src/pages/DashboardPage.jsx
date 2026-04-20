@@ -71,9 +71,7 @@ const DashboardPage = () => {
         <div className="page-header">
           <h1 className="page-title">Sales Dashboard</h1>
           <nav className="breadcrumb">
-            <a href="index.html" className="breadcrumb-item">Home</a>
-            <a href="index.html" className="breadcrumb-item">Dashboards</a>
-            <span className="breadcrumb-item active">Sales</span>
+            <span className="breadcrumb-item active">Dashboard</span>
           </nav>
         </div>
 
@@ -269,19 +267,6 @@ const DashboardPage = () => {
         </div>
       </div>
 
-      <footer className="footer">
-        <div className="footer-content">
-          <div className="footer-links">
-            <a href="#">Docs</a>
-            <a href="#">Privacy</a>
-            <a href="#">Security</a>
-            <a href="#">Support</a>
-          </div>
-          <div className="footer-credits">
-            <div className="footer-copyright">© 2026 <a href="#">FlexAdmin</a></div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };
