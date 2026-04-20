@@ -1,256 +1,322 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
-import ReusableDataGrid from '../../components/ReusableDataGrid'
-import ImageViewer from '../../components/ui/ImageViewer'
-import apiClient from '../../services/apiClient'
-import { useAuth } from '../../context/AuthContext'
-import { useNotification } from '../../context/useNotification'
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import ReusableDataGrid from "../../components/ReusableDataGrid";
+import ImageViewer from "../../components/ui/ImageViewer";
+import apiClient from "../../services/apiClient";
+import { useAuth } from "../../context/AuthContext";
+import { useNotification } from "../../context/useNotification";
 
 const formatDateForAPI = (dateStr) => {
-  if (!dateStr) return ''
-  const [year, month, day] = dateStr.split('-')
-  return `${day}/${month}/${year}`
-}
+  if (!dateStr) return "";
+  const [year, month, day] = dateStr.split("-");
+  return `${day}/${month}/${year}`;
+};
 
-const getPayload = (response) => response?.data ?? response ?? {}
+const getPayload = (response) => response?.data ?? response ?? {};
 const getArray = (value) => {
-  if (Array.isArray(value)) return value
-  return []
-}
+  if (Array.isArray(value)) return value;
+  return [];
+};
 const getDataRows = (response) => {
-  const payload = getPayload(response)
+  const payload = getPayload(response);
 
-  if (Array.isArray(payload)) return payload
-  if (Array.isArray(payload?.data)) return payload.data
-  if (Array.isArray(payload?.data?.data)) return payload.data.data
-  if (Array.isArray(payload?.rows)) return payload.rows
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload?.data?.data)) return payload.data.data;
+  if (Array.isArray(payload?.rows)) return payload.rows;
 
-  return []
-}
+  return [];
+};
 
 function FrmTransactionReport() {
-  const navigate = useNavigate()
-  const { user } = useAuth()
-  const { showError, showSuccess } = useNotification()
-  const brid = user?.brid ?? user?.BRID ?? user?.num_usermst_brid ?? null
-  const brCategory = user?.brCategory ?? user?.brcategory ?? user?.BRCATEGORY ?? null
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { showError, showSuccess } = useNotification();
+  const brid = user?.brid ?? user?.BRID ?? user?.num_usermst_brid ?? null;
+  const brCategory =
+    user?.brCategory ?? user?.brcategory ?? user?.BRCATEGORY ?? null;
 
-  const [fromDate, setFromDate] = useState('')
-  const [toDate, setToDate] = useState('')
-  const [zone, setZone] = useState('')
-  const [region, setRegion] = useState('')
-  const [branch, setBranch] = useState('')
-  const [userId, setUserId] = useState('')
-  const [collectionAssociated, setCollectionAssociated] = useState('')
-  const [transactionType, setTransactionType] = useState('')
-  const [smaType, setSmaType] = useState('')
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [zone, setZone] = useState("");
+  const [region, setRegion] = useState("");
+  const [branch, setBranch] = useState("");
+  const [userId, setUserId] = useState("");
+  const [collectionAssociated, setCollectionAssociated] = useState("");
+  const [transactionType, setTransactionType] = useState("");
+  const [smaType, setSmaType] = useState("");
 
-  const [zoneOptions, setZoneOptions] = useState([])
-  const [regionOptions, setRegionOptions] = useState([])
-  const [branchOptions, setBranchOptions] = useState([])
-  const [collectionOptions, setCollectionOptions] = useState([])
+  const [zoneOptions, setZoneOptions] = useState([]);
+  const [regionOptions, setRegionOptions] = useState([]);
+  const [branchOptions, setBranchOptions] = useState([]);
+  const [collectionOptions, setCollectionOptions] = useState([]);
 
-  const [loadingZones, setLoadingZones] = useState(false)
-  const [loadingRegions, setLoadingRegions] = useState(false)
-  const [loadingBranches, setLoadingBranches] = useState(false)
-  const [loadingCollection, setLoadingCollection] = useState(false)
+  const [loadingZones, setLoadingZones] = useState(false);
+  const [loadingRegions, setLoadingRegions] = useState(false);
+  const [loadingBranches, setLoadingBranches] = useState(false);
+  const [loadingCollection, setLoadingCollection] = useState(false);
 
-  const [rows, setRows] = useState([])
-  const [searching, setSearching] = useState(false)
-  const [error, setError] = useState('')
-  const [searched, setSearched] = useState(false)
+  const [rows, setRows] = useState([]);
+  const [searching, setSearching] = useState(false);
+  const [error, setError] = useState("");
+  const [searched, setSearched] = useState(false);
 
-  const [selectedImageCode, setSelectedImageCode] = useState('')
-  const [showImageViewer, setShowImageViewer] = useState(false)
+  const [selectedImageCode, setSelectedImageCode] = useState("");
+  const [showImageViewer, setShowImageViewer] = useState(false);
 
   const transactionTypeOptions = [
-    { label: 'Collection', value: '1' },
-    { label: 'Feedback', value: '2' },
-  ]
+    { label: "Collection", value: "1" },
+    { label: "Feedback", value: "2" },
+  ];
 
   const smaTypeOptions = [
-    { value: 'SMA1', label: 'SMA1' },
-    { value: 'SMA2', label: 'SMA2' },
-  ]
+    { value: "SMA1", label: "SMA1" },
+    { value: "SMA2", label: "SMA2" },
+  ];
 
   useEffect(() => {
     const fetchZones = async () => {
-      if (brid === null || brCategory === null) return
-      setLoadingZones(true)
+      if (brid === null || brCategory === null) return;
+      setLoadingZones(true);
       try {
-        const res = await apiClient.get('/transactionReports/getZones', {
+        const res = await apiClient.get("/transactionReports/getZones", {
           params: { brid, brcategory: brCategory },
-        })
-        const dataArray = getDataRows(res)
+        });
+        const dataArray = getDataRows(res);
         if (dataArray.length > 0) {
-          const zones = dataArray.map((item) => ({
-            value: String(item.BRID ?? item.brid ?? item.NUM_COMPANYMST_COMPID ?? ''),
-            label: String(item.BRNAME ?? item.brname ?? item.VAR_COMPANYMST_BRANCHNAME ?? ''),
-          })).filter((item) => item.value)
-          setZoneOptions(zones)
+          const zones = dataArray
+            .map((item) => ({
+              value: String(
+                item.BRID ?? item.brid ?? item.NUM_COMPANYMST_COMPID ?? "",
+              ),
+              label: String(
+                item.BRNAME ??
+                  item.brname ??
+                  item.VAR_COMPANYMST_BRANCHNAME ??
+                  "",
+              ),
+            }))
+            .filter((item) => item.value);
+          setZoneOptions(zones);
         } else {
-          setZoneOptions([])
+          setZoneOptions([]);
         }
       } catch (apiError) {
-        setError(apiError?.message || 'Failed to load zones')
+        setError(apiError?.message || "Failed to load zones");
       } finally {
-        setLoadingZones(false)
+        setLoadingZones(false);
       }
-    }
-    fetchZones()
-  }, [brid, brCategory])
+    };
+    fetchZones();
+  }, [brid, brCategory]);
 
   useEffect(() => {
     const fetchRegions = async () => {
       if (!zone || brid === null || brCategory === null) {
-        setRegionOptions([])
-        setBranchOptions([])
-        setCollectionOptions([])
-        setRegion('')
-        setBranch('')
-        setCollectionAssociated('')
-        return
+        setRegionOptions([]);
+        setBranchOptions([]);
+        setCollectionOptions([]);
+        setRegion("");
+        setBranch("");
+        setCollectionAssociated("");
+        return;
       }
-      setLoadingRegions(true)
+      setLoadingRegions(true);
       try {
-        const res = await apiClient.get('/transactionReports/getRegions', {
+        const res = await apiClient.get("/transactionReports/getRegions", {
           params: { zoneId: zone, brid, brcategory: brCategory },
-        })
-        const dataArray = getDataRows(res)
+        });
+        const dataArray = getDataRows(res);
         if (dataArray.length > 0) {
-          const regions = dataArray.map((item) => ({
-            value: String(item.NUM_COMPANYMST_COMPID ?? item.num_companymst_compid ?? item.BRID ?? ''),
-            label: String(item.VAR_COMPANYMST_BRANCHNAME ?? item.var_companymst_branchname ?? item.BRNAME ?? ''),
-          })).filter((item) => item.value)
-          setRegionOptions(regions)
+          const regions = dataArray
+            .map((item) => ({
+              value: String(
+                item.NUM_COMPANYMST_COMPID ??
+                  item.num_companymst_compid ??
+                  item.BRID ??
+                  "",
+              ),
+              label: String(
+                item.VAR_COMPANYMST_BRANCHNAME ??
+                  item.var_companymst_branchname ??
+                  item.BRNAME ??
+                  "",
+              ),
+            }))
+            .filter((item) => item.value);
+          setRegionOptions(regions);
         } else {
-          setRegionOptions([])
+          setRegionOptions([]);
         }
       } catch (apiError) {
-        setError(apiError?.message || 'Failed to load regions')
+        setError(apiError?.message || "Failed to load regions");
       } finally {
-        setLoadingRegions(false)
+        setLoadingRegions(false);
       }
-    }
-    fetchRegions()
-  }, [zone, brid, brCategory])
+    };
+    fetchRegions();
+  }, [zone, brid, brCategory]);
 
   useEffect(() => {
     const fetchBranches = async () => {
       if (!region || brid === null || brCategory === null) {
-        setBranchOptions([])
-        setCollectionOptions([])
-        setBranch('')
-        setCollectionAssociated('')
-        return
+        setBranchOptions([]);
+        setCollectionOptions([]);
+        setBranch("");
+        setCollectionAssociated("");
+        return;
       }
-      setLoadingBranches(true)
+      setLoadingBranches(true);
       try {
-        const res = await apiClient.get('/transactionReports/getBranches', {
+        const res = await apiClient.get("/transactionReports/getBranches", {
           params: { regionId: region, brid, brcategory: brCategory },
-        })
-        const dataArray = getDataRows(res)
+        });
+        const dataArray = getDataRows(res);
         if (dataArray.length > 0) {
-          const branches = dataArray.map((item) => ({
-            value: String(item.NUM_COMPANYMST_COMPID ?? item.num_companymst_compid ?? item.BRID ?? ''),
-            label: String(item.VAR_COMPANYMST_BRANCHNAME ?? item.var_companymst_branchname ?? item.BRNAME ?? ''),
-          })).filter((item) => item.value)
-          setBranchOptions(branches)
+          const branches = dataArray
+            .map((item) => ({
+              value: String(
+                item.NUM_COMPANYMST_COMPID ??
+                  item.num_companymst_compid ??
+                  item.BRID ??
+                  "",
+              ),
+              label: String(
+                item.VAR_COMPANYMST_BRANCHNAME ??
+                  item.var_companymst_branchname ??
+                  item.BRNAME ??
+                  "",
+              ),
+            }))
+            .filter((item) => item.value);
+          setBranchOptions(branches);
         } else {
-          setBranchOptions([])
+          setBranchOptions([]);
         }
       } catch (apiError) {
-        setError(apiError?.message || 'Failed to load branches')
+        setError(apiError?.message || "Failed to load branches");
       } finally {
-        setLoadingBranches(false)
+        setLoadingBranches(false);
       }
-    }
-    fetchBranches()
-  }, [region, brid, brCategory])
+    };
+    fetchBranches();
+  }, [region, brid, brCategory]);
 
   useEffect(() => {
     const fetchCollectionAssociates = async () => {
       if (!zone) {
-        setCollectionOptions([])
-        setCollectionAssociated('')
-        return
+        setCollectionOptions([]);
+        setCollectionAssociated("");
+        return;
       }
-      const bridParam = String(branch || region || zone || '')
+      const bridParam = String(branch || region || zone || "");
 
-      setLoadingCollection(true)
+      setLoadingCollection(true);
       try {
-        const res = await apiClient.get('/transactionReports/getCollAssociate', {
-          params: { brid: bridParam },
-        })
-        const dataArray = getDataRows(res)
+        const res = await apiClient.get(
+          "/transactionReports/getCollAssociate",
+          {
+            params: { brid: bridParam },
+          },
+        );
+        const dataArray = getDataRows(res);
         if (dataArray.length > 0) {
-          const associates = dataArray.map((item) => {
-            const optionValue = item.USER_ID || item.user_id || item.VAR_USERMST_USERID || item.var_usermst_userid || ''
-            const optionLabel = item.VAR_USERMST_USERID || item.var_usermst_userid || optionValue
+          const associates = dataArray
+            .map((item) => {
+              const optionValue =
+                item.USER_ID ||
+                item.user_id ||
+                item.VAR_USERMST_USERID ||
+                item.var_usermst_userid ||
+                "";
+              const optionLabel =
+                item.VAR_USERMST_USERID ||
+                item.var_usermst_userid ||
+                optionValue;
 
-            return {
-              value: String(optionValue),
-              label: String(optionLabel),
-            }
-          }).filter((item) => item.value)
-          setCollectionOptions(associates)
-          setCollectionAssociated((previous) => (
-            associates.some((opt) => opt.value === previous) ? previous : ''
-          ))
+              return {
+                value: String(optionValue),
+                label: String(optionLabel),
+              };
+            })
+            .filter((item) => item.value);
+          setCollectionOptions(associates);
+          setCollectionAssociated((previous) =>
+            associates.some((opt) => opt.value === previous) ? previous : "",
+          );
         } else {
-          setCollectionOptions([])
-          setCollectionAssociated('')
+          setCollectionOptions([]);
+          setCollectionAssociated("");
         }
       } catch (apiError) {
-        setError(apiError?.message || 'Failed to load collection associates')
+        setError(apiError?.message || "Failed to load collection associates");
       } finally {
-        setLoadingCollection(false)
+        setLoadingCollection(false);
       }
-    }
-    fetchCollectionAssociates()
-  }, [zone, region, branch, brid])
+    };
+    fetchCollectionAssociates();
+  }, [zone, region, branch, brid]);
 
   const handleViewClick = (imageCode) => {
     if (!imageCode) {
-      showError('No image available')
-      setError('No image available')
-      return
+      showError("No image available");
+      setError("No image available");
+      return;
     }
-    setSelectedImageCode(imageCode)
-    setShowImageViewer(true)
-  }
+    setSelectedImageCode(imageCode);
+    setShowImageViewer(true);
+  };
 
   const handleLocationClick = (geoLocation) => {
     if (!geoLocation) {
-      showError('No location data')
-      setError('No location data')
-      return
+      showError("No location data");
+      setError("No location data");
+      return;
     }
-    const [lat, lng] = geoLocation.split(',')
-    if (!lat || !lng || Number.isNaN(parseFloat(lat)) || Number.isNaN(parseFloat(lng))) {
-      showError('Invalid coordinates')
-      setError('Invalid coordinates')
-      return
+    const [lat, lng] = geoLocation.split(",");
+    if (
+      !lat ||
+      !lng ||
+      Number.isNaN(parseFloat(lat)) ||
+      Number.isNaN(parseFloat(lng))
+    ) {
+      showError("Invalid coordinates");
+      setError("Invalid coordinates");
+      return;
     }
-    window.open(`/map-view?lat=${lat.trim()}&lng=${lng.trim()}`, '_blank')
-  }
+    window.open(`/map-view?lat=${lat.trim()}&lng=${lng.trim()}`, "_blank");
+  };
+
+  // Handle numeric input only for User ID
+  const handleUserIdChange = (event) => {
+    const numericValue = event.target.value.replace(/\D/g, "");
+    setUserId(numericValue);
+  };
 
   const handleSearch = async (event) => {
-    event.preventDefault()
-    setError('')
-    setSearched(true)
+    event.preventDefault();
+    setError("");
+    setSearched(true);
 
-    const fromDateFormatted = fromDate ? formatDateForAPI(fromDate) : ''
-    const toDateFormatted = toDate ? formatDateForAPI(toDate) : ''
+    const fromDateFormatted = fromDate ? formatDateForAPI(fromDate) : "";
+    const toDateFormatted = toDate ? formatDateForAPI(toDate) : "";
 
     if (!fromDateFormatted || !toDateFormatted) {
-      showError('From Date and To Date are required')
-      setError('From Date and To Date are required')
-      return
+      showError("From Date and To Date are required");
+      setError("From Date and To Date are required");
+      return;
     }
 
-    const zoneName = zoneOptions.find((opt) => opt.value == zone)?.label || ''
-    const regionName = regionOptions.find((opt) => opt.value == region)?.label || ''
+    const trimmedUserId = userId.trim();
+    if (trimmedUserId && !/^\d+$/.test(trimmedUserId)) {
+      showError("User ID must contain only numbers");
+      setError("User ID must contain only numbers");
+      return;
+    }
+
+    const zoneName = zoneOptions.find((opt) => opt.value == zone)?.label || "";
+    const regionName =
+      regionOptions.find((opt) => opt.value == region)?.label || "";
 
     const params = {
       fromDate: fromDateFormatted,
@@ -258,81 +324,92 @@ function FrmTransactionReport() {
       zoneName,
       regionName,
       brid: branch,
-      userId: userId || '',
-      associateId: collectionAssociated || '',
-      transtype: transactionType || '',
-      smaType: smaType || '',
+      userId: trimmedUserId,
+      associateId: collectionAssociated || "",
+      transtype: transactionType || "",
+      smaType: smaType || "",
       userOf: 1,
-    }
+    };
 
-    setSearching(true)
-    setRows([])
+    setSearching(true);
+    setRows([]);
 
     try {
-      const response = await apiClient.get('/transactionReports/getTransDetails', {
-        params,
-      })
-      console.log("trans :", response)
+      const response = await apiClient.get(
+        "/transactionReports/getTransDetails",
+        {
+          params,
+        },
+      );
+      console.log("trans :", response);
 
       const success = response?.success;
-      const apiData = response?.data
-      console.log("api data")
+      const apiData = response?.data;
+      console.log("api data");
 
       if (success && apiData && apiData.length > 0) {
         const mappedRows = apiData.map((item) => [
-          item.USERID || '',
-          item.USERNAME || '',
-          item.TRANSID || '',
-          item.CONTRACTNUM || '',
-          item.DIST_VAR_BANKDATA_MATRIX_DISTANCE || '',
-          item.CUSTNAME || '',
-          item.MOBILENO || '',
-          item.COLLECTAMOUNT || '',
-          item.FEEDBACK || '',
-          item.PAYMODE || '',
-          item.PAIDAMT || '',
-          item.PTPDATE || '',
-          item.TRANS_DATE || '',
-          item.TRANS_TIME || '',
-          item.IMAGECODE || '',
-          item.GOLOCATION || '',
-          item.MDM_ID || '',
-          item.VAR_BANKDATA_DPDBUCKET || '',
-          item.VISITSTSTS || '',
-      ])
-        setRows(mappedRows)
-        showSuccess(`Found ${mappedRows.length} records`)
+          item.USERID || "",
+          item.USERNAME || "",
+          item.TRANSID || "",
+          item.CONTRACTNUM || "",
+          item.DIST_VAR_BANKDATA_MATRIX_DISTANCE || "",
+          item.CUSTNAME || "",
+          item.MOBILENO || "",
+          item.COLLECTAMOUNT || "",
+          item.FEEDBACK || "",
+          item.PAYMODE || "",
+          item.PAIDAMT || "",
+          item.PTPDATE || "",
+          item.TRANS_DATE || "",
+          item.TRANS_TIME || "",
+          item.IMAGECODE || "",
+          item.GOLOCATION || "",
+          item.MDM_ID || "",
+          item.VAR_BANKDATA_DPDBUCKET || "",
+          item.VISITSTSTS || "",
+        ]);
+        setRows(mappedRows);
+        showSuccess(`Found ${mappedRows.length} records`);
       } else {
-        setRows([])
-        showError('No records found')
-        setError('No records found')
+        setRows([]);
+        showError("No records found");
+        setError("No records found");
       }
     } catch (apiError) {
-      setRows([])
-      showError(apiError?.response?.data?.message || apiError?.message || 'Search failed')
-      setError(apiError?.response?.data?.message || apiError?.message || 'Search failed')
+      setRows([]);
+      showError(
+        apiError?.response?.data?.message ||
+          apiError?.message ||
+          "Search failed",
+      );
+      setError(
+        apiError?.response?.data?.message ||
+          apiError?.message ||
+          "Search failed",
+      );
     } finally {
-      setSearching(false)
+      setSearching(false);
     }
-  }
+  };
 
   const columns = [
-    { label: 'User Id', sortable: true, field: "userId" },
-    { label: 'Collection Associate', sortable: true },
-    { label: 'Transaction Id', sortable: true },
-    { label: 'Account Number', sortable: true },
-    { label: 'Distance KM', sortable: true },
-    { label: 'Customer Name', sortable: true },
-    { label: 'Customer RMN', sortable: true },
-    { label: 'OverDue Amount', sortable: true },
-    { label: 'Feedback', sortable: true },
-    { label: 'Payment Mode', sortable: true },
-    { label: 'Amount', sortable: true },
-    { label: 'PTP Date', sortable: true },
-    { label: 'Transaction date', sortable: true },
-    { label: 'Transaction Time', sortable: true },
+    { label: "User Id", sortable: true, field: "userId" },
+    { label: "Collection Associate", sortable: true },
+    { label: "Transaction Id", sortable: true },
+    { label: "Account Number", sortable: true },
+    { label: "Distance KM", sortable: true },
+    { label: "Customer Name", sortable: true },
+    { label: "Customer RMN", sortable: true },
+    { label: "OverDue Amount", sortable: true },
+    { label: "Feedback", sortable: true },
+    { label: "Payment Mode", sortable: true },
+    { label: "Amount", sortable: true },
+    { label: "PTP Date", sortable: true },
+    { label: "Transaction date", sortable: true },
+    { label: "Transaction Time", sortable: true },
     {
-      label: 'View',
+      label: "View",
       sortable: false,
       render: (value) => (
         <button
@@ -345,7 +422,7 @@ function FrmTransactionReport() {
       ),
     },
     {
-      label: 'Geolocation',
+      label: "Geolocation",
       sortable: false,
       render: (value) => (
         <button
@@ -357,10 +434,14 @@ function FrmTransactionReport() {
         </button>
       ),
     },
-    { label: 'MDM ID', sortable: true },
-    { label: 'SMA TYPE', sortable: true },
-    { label: 'Transaction Type', sortable: true },
-  ]
+    { label: "MDM ID", sortable: true },
+    { label: "SMA TYPE", sortable: true },
+    { label: "Transaction Type", sortable: true },
+  ];
+
+  // Validation helper for User ID red border (only after search and non-numeric)
+  const isUserIdInvalid =
+    searched && userId.trim() && !/^\d+$/.test(userId.trim());
 
   return (
     <div className="main-content page-transaction-report">
@@ -389,7 +470,7 @@ function FrmTransactionReport() {
                 <input
                   id="fromDate"
                   type="date"
-                  className={`form-control ${!fromDate && searched ? 'is-invalid' : ''}`}
+                  className={`form-control ${!fromDate && searched ? "is-invalid" : ""}`}
                   value={fromDate}
                   onChange={(event) => setFromDate(event.target.value)}
                 />
@@ -402,7 +483,7 @@ function FrmTransactionReport() {
                 <input
                   id="toDate"
                   type="date"
-                  className={`form-control ${!toDate && searched ? 'is-invalid' : ''}`}
+                  className={`form-control ${!toDate && searched ? "is-invalid" : ""}`}
                   value={toDate}
                   onChange={(event) => setToDate(event.target.value)}
                 />
@@ -475,11 +556,17 @@ function FrmTransactionReport() {
                 <input
                   id="userId"
                   type="text"
-                  className="form-control"
+                  inputMode="numeric"
+                  className={`form-control ${isUserIdInvalid ? "is-invalid" : ""}`}
                   value={userId}
-                  onChange={(event) => setUserId(event.target.value)}
-                  placeholder="Enter User Id"
+                  onChange={handleUserIdChange}
+                  placeholder="Enter User Id (numbers only, optional)"
                 />
+                {isUserIdInvalid && (
+                  <div className="invalid-feedback">
+                    User ID must contain only numbers
+                  </div>
+                )}
               </div>
 
               <div className="col-md-6">
@@ -490,7 +577,9 @@ function FrmTransactionReport() {
                   id="collectionAssociated"
                   className="form-select"
                   value={collectionAssociated}
-                  onChange={(event) => setCollectionAssociated(event.target.value)}
+                  onChange={(event) =>
+                    setCollectionAssociated(event.target.value)
+                  }
                   disabled={!zone || loadingCollection}
                 >
                   <option value="">Select Collection Associate</option>
@@ -542,10 +631,18 @@ function FrmTransactionReport() {
             </div>
 
             <div className="d-flex justify-content-center gap-3 mt-4">
-              <button type="submit" className="btn btn-primary" disabled={searching}>
-                {searching ? 'Searching...' : 'Search'}
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={searching}
+              >
+                {searching ? "Searching..." : "Search"}
               </button>
-              <button type="button" className="btn btn-secondary" onClick={() => navigate('/')}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => navigate("/")}
+              >
                 Close
               </button>
             </div>
@@ -575,7 +672,7 @@ function FrmTransactionReport() {
         />
       )}
     </div>
-  )
+  );
 }
 
-export default FrmTransactionReport
+export default FrmTransactionReport;

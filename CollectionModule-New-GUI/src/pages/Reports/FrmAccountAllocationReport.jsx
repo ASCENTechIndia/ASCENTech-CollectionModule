@@ -58,6 +58,12 @@ function FrmAccountAllocationReport() {
     [rows]
   )
 
+  // Handle numeric input only
+  const handleUserIdChange = (event) => {
+    const numericValue = event.target.value.replace(/\D/g, '')
+    setUserId(numericValue)
+  }
+
   const handleSearch = async (event) => {
     event.preventDefault()
     setError('')
@@ -69,9 +75,15 @@ function FrmAccountAllocationReport() {
       return
     }
 
+    const trimmedUserId = userId.trim()
+    if (trimmedUserId && !/^\d+$/.test(trimmedUserId)) {
+      showError('User ID must contain only numbers')
+      setError('User ID must contain only numbers')
+      return
+    }
+
     const startDateFormatted = formatDateForApi(startDate)
     const endDateFormatted = formatDateForApi(endDate)
-    const trimmedUserId = userId.trim()
 
     const brid = user?.brid || ''
     const branchName = user?.branchName || ''
@@ -120,14 +132,17 @@ function FrmAccountAllocationReport() {
     }
   }
 
+  // Validation helpers (red border only after search)
+  const isStartDateInvalid = searched && !startDate
+  const isEndDateInvalid = searched && !endDate
+  const isUserIdInvalid = searched && userId.trim() && !/^\d+$/.test(userId.trim())
+
   return (
     <div className="main-content page-account-allocation-report">
       <div className="page-header">
         <h1 className="page-title">Account Allocation Report</h1>
         <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">
-            Home
-          </Link>
+          <Link to="/" className="breadcrumb-item">Home</Link>
           <span className="breadcrumb-item">Reports</span>
           <span className="breadcrumb-item active">Account Allocation</span>
         </nav>
@@ -147,10 +162,11 @@ function FrmAccountAllocationReport() {
                 <input
                   id="startDate"
                   type="date"
-                  className={`form-control ${!startDate && searched ? 'is-invalid' : ''}`}
+                  className={`form-control ${isStartDateInvalid ? 'is-invalid' : ''}`}
                   value={startDate}
                   onChange={(event) => setStartDate(event.target.value)}
                 />
+                {isStartDateInvalid && <div className="invalid-feedback">Start Date is required</div>}
               </div>
 
               <div className="col-md-6">
@@ -160,10 +176,11 @@ function FrmAccountAllocationReport() {
                 <input
                   id="endDate"
                   type="date"
-                  className={`form-control ${!endDate && searched ? 'is-invalid' : ''}`}
+                  className={`form-control ${isEndDateInvalid ? 'is-invalid' : ''}`}
                   value={endDate}
                   onChange={(event) => setEndDate(event.target.value)}
                 />
+                {isEndDateInvalid && <div className="invalid-feedback">End Date is required</div>}
               </div>
 
               <div className="col-md-6">
@@ -173,11 +190,15 @@ function FrmAccountAllocationReport() {
                 <input
                   id="userId"
                   type="text"
-                  className="form-control"
+                  inputMode="numeric"
+                  className={`form-control ${isUserIdInvalid ? 'is-invalid' : ''}`}
                   value={userId}
-                  onChange={(event) => setUserId(event.target.value)}
-                  placeholder="Enter User ID (optional)"
+                  onChange={handleUserIdChange}
+                  placeholder="Enter User ID (numbers only, optional)"
                 />
+                {isUserIdInvalid && (
+                  <div className="invalid-feedback">User ID must contain only numbers</div>
+                )}
               </div>
 
               <div className="col-md-6">

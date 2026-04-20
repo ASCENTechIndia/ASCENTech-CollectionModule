@@ -90,6 +90,12 @@ function FrmUserRouteReport() {
 
   const routeUrl = useMemo(() => getRouteUrl(coordinates), [coordinates]);
 
+  // Handle numeric input only for FOS ID
+  const handleFosIdChange = (event) => {
+    const numericValue = event.target.value.replace(/\D/g, "");
+    setFosId(numericValue);
+  };
+
   const handleSearch = async (event) => {
     event.preventDefault();
     setSearched(true);
@@ -101,6 +107,12 @@ function FrmUserRouteReport() {
     if (!trimmedFosId || !formattedDate) {
       showError("Both FOS ID and Date are required");
       setError("Both FOS ID and Date are required");
+      return;
+    }
+
+    if (!/^\d+$/.test(trimmedFosId)) {
+      showError("FOS ID must contain only numbers");
+      setError("FOS ID must contain only numbers");
       return;
     }
 
@@ -144,6 +156,11 @@ function FrmUserRouteReport() {
     }
   };
 
+  // Validation helpers (red border only after submit)
+  const isFosIdInvalid =
+    searched && (!fosId.trim() || !/^\d+$/.test(fosId.trim()));
+  const isDateInvalid = searched && !date;
+
   return (
     <div className="main-content page-user-route-report">
       <div className="page-header">
@@ -171,11 +188,19 @@ function FrmUserRouteReport() {
                 <input
                   id="fosId"
                   type="text"
-                  className={`form-control ${!fosId.trim() && searched ? "is-invalid" : ""}`}
+                  inputMode="numeric"
+                  className={`form-control ${isFosIdInvalid ? "is-invalid" : ""}`}
                   value={fosId}
-                  onChange={(event) => setFosId(event.target.value)}
-                  placeholder="Enter FOS ID"
+                  onChange={handleFosIdChange}
+                  placeholder="Enter FOS ID (numbers only)"
                 />
+                {isFosIdInvalid && (
+                  <div className="invalid-feedback">
+                    {!fosId.trim()
+                      ? "FOS ID is required"
+                      : "FOS ID must contain only numbers"}
+                  </div>
+                )}
               </div>
 
               <div className="col-md-6">
@@ -185,10 +210,13 @@ function FrmUserRouteReport() {
                 <input
                   id="date"
                   type="date"
-                  className={`form-control ${!date && searched ? "is-invalid" : ""}`}
+                  className={`form-control ${isDateInvalid ? "is-invalid" : ""}`}
                   value={date}
                   onChange={(event) => setDate(event.target.value)}
                 />
+                {isDateInvalid && (
+                  <div className="invalid-feedback">Date is required</div>
+                )}
               </div>
 
               <div className="col-12">

@@ -1,95 +1,105 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useMemo, useState } from 'react'
-import apiClient from '../../services/apiClient'
-import { useNotification } from '../../context/useNotification'
+import { Link, useNavigate } from "react-router-dom";
+import { useMemo, useState } from "react";
+import apiClient from "../../services/apiClient";
+import { useNotification } from "../../context/useNotification";
 
 const parseCoordinates = (location) => {
-  const raw = String(location || '').trim()
-  if (!raw.includes(',')) return null
+  const raw = String(location || "").trim();
+  if (!raw.includes(",")) return null;
 
-  const [latText, lngText] = raw.split(',')
-  const lat = Number(latText)
-  const lng = Number(lngText)
+  const [latText, lngText] = raw.split(",");
+  const lat = Number(latText);
+  const lng = Number(lngText);
 
-  if (Number.isNaN(lat) || Number.isNaN(lng)) return null
+  if (Number.isNaN(lat) || Number.isNaN(lng)) return null;
 
-  return { lat, lng }
-}
+  return { lat, lng };
+};
 
 function FrmUserLocationTracking() {
-  const navigate = useNavigate()
-  const { showWarning, showError, showSuccess } = useNotification()
+  const navigate = useNavigate();
+  const { showWarning, showError, showSuccess } = useNotification();
 
-  const [trackingDate, setTrackingDate] = useState('')
-  const [userId, setUserId] = useState('')
-  const [coordinates, setCoordinates] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [searched, setSearched] = useState(false)
+  const [trackingDate, setTrackingDate] = useState("");
+  const [userId, setUserId] = useState("");
+  const [coordinates, setCoordinates] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [searched, setSearched] = useState(false);
 
   const mapUrl = useMemo(() => {
-    if (!coordinates) return ''
+    if (!coordinates) return "";
+    return `https://www.google.com/maps?q=${coordinates.lat},${coordinates.lng}&z=15&output=embed`;
+  }, [coordinates]);
 
-    return `https://www.google.com/maps?q=${coordinates.lat},${coordinates.lng}&z=15&output=embed`
-  }, [coordinates])
+  // Handle numeric input only
+  const handleUserIdChange = (event) => {
+    const numericValue = event.target.value.replace(/\D/g, "");
+    setUserId(numericValue);
+  };
 
   const handleSubmit = async (event) => {
-    event.preventDefault()
-    setSearched(true)
-    setError('')
+    event.preventDefault();
+    setSearched(true);
+    setError("");
 
-    const trimmedUserId = userId.trim()
+    const trimmedUserId = userId.trim();
 
     if (!trackingDate || !trimmedUserId) {
-      const message = 'Tracking Date and User ID are required'
-      showError(message)
-      setError(message)
-      return
+      const message = "Tracking Date and User ID are required";
+      showError(message);
+      setError(message);
+      return;
     }
 
-    if (!/^[A-Za-z0-9]+$/.test(trimmedUserId)) {
-      const message = 'User ID must contain only letters and numbers'
-      showError(message)
-      setError(message)
-      return
+    if (!/^\d+$/.test(trimmedUserId)) {
+      const message = "User ID must contain only numbers";
+      showError(message);
+      setError(message);
+      return;
     }
 
-    setLoading(true)
-    setCoordinates(null)
+    setLoading(true);
+    setCoordinates(null);
 
     try {
-      const response = await apiClient.get('/admin/getLocationTracking', {
+      const response = await apiClient.get("/admin/getLocationTracking", {
         params: {
           userId: trimmedUserId,
           cDate: trackingDate,
         },
-      })
+      });
 
-      const success = response?.success
-      const apiRows = Array.isArray(response?.data) ? response.data : []
-      const locationValue = apiRows[0]?.LOCATION || apiRows[0]?.location || ''
-      const parsed = parseCoordinates(locationValue)
+      const success = response?.success;
+      const apiRows = Array.isArray(response?.data) ? response.data : [];
+      const locationValue = apiRows[0]?.LOCATION || apiRows[0]?.location || "";
+      const parsed = parseCoordinates(locationValue);
 
       if (success && parsed) {
-        setCoordinates(parsed)
-        showSuccess('Location found')
+        setCoordinates(parsed);
+        showSuccess("Location found");
       } else if (success && apiRows.length > 0) {
-        const message = 'The received location data is invalid.'
-        showError(message)
-        setError(message)
+        const message = "The received location data is invalid.";
+        showError(message);
+        setError(message);
       } else {
-        const message = 'No location found for the given user and date.'
-        showWarning(message)
-        setError(message)
+        const message = "No location found for the given user and date.";
+        showWarning(message);
+        setError(message);
       }
     } catch (apiError) {
-      const message = apiError?.message || 'Failed to fetch location.'
-      showError(message)
-      setError(message)
+      const message = apiError?.message || "Failed to fetch location.";
+      showError(message);
+      setError(message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
+  // Validation helpers (only show red border after submit)
+  const isDateInvalid = searched && !trackingDate;
+  const isUserIdInvalid =
+    searched && (!userId.trim() || !/^\d+$/.test(userId.trim()));
 
   return (
     <div className="main-content page-user-location-tracking">
@@ -118,10 +128,15 @@ function FrmUserLocationTracking() {
                 <input
                   id="trackingDate"
                   type="date"
-                  className={`form-control ${!trackingDate && searched ? 'is-invalid' : ''}`}
+                  className={`form-control ${isDateInvalid ? "is-invalid" : ""}`}
                   value={trackingDate}
                   onChange={(event) => setTrackingDate(event.target.value)}
                 />
+                {isDateInvalid && (
+                  <div className="invalid-feedback">
+                    Tracking Date is required
+                  </div>
+                )}
               </div>
 
               <div className="col-md-6">
@@ -131,19 +146,35 @@ function FrmUserLocationTracking() {
                 <input
                   id="userId"
                   type="text"
-                  className={`form-control ${(!userId.trim() || (!/^[A-Za-z0-9]+$/.test(userId.trim()) && searched)) ? 'is-invalid' : ''}`}
+                  inputMode="numeric"
+                  className={`form-control ${isUserIdInvalid ? "is-invalid" : ""}`}
                   value={userId}
-                  onChange={(event) => setUserId(event.target.value)}
-                  placeholder="Enter User ID"
+                  onChange={handleUserIdChange}
+                  placeholder="Enter User ID (numbers only)"
                 />
+                {isUserIdInvalid && (
+                  <div className="invalid-feedback">
+                    {!userId.trim()
+                      ? "User ID is required"
+                      : "User ID must contain only numbers"}
+                  </div>
+                )}
               </div>
             </div>
 
             <div className="d-flex justify-content-center gap-3 mt-4">
-              <button type="submit" className="btn btn-primary" disabled={loading}>
-                {loading ? 'Searching...' : 'Search'}
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={loading}
+              >
+                {loading ? "Searching..." : "Search"}
               </button>
-              <button type="button" className="btn btn-secondary" onClick={() => navigate('/')}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => navigate("/")}
+              >
                 Close
               </button>
             </div>
@@ -187,7 +218,7 @@ function FrmUserLocationTracking() {
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default FrmUserLocationTracking
+export default FrmUserLocationTracking;
