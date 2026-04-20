@@ -24,6 +24,7 @@ import FrmOverallPerformanceSummaryReport from './pages/Reports/FrmOverallPerfor
 import FrmNonVisitDoneSummaryReport from './pages/Reports/FrmNonVisitDoneSummaryReport'
 import FrmVisitDoneSummaryReport from './pages/Reports/FrmVisitDoneSummaryReport'
 import FrmTransactionReport from './pages/Reports/FrmTransactionReport'
+import FrmNewDashboard2 from './pages/Dashboard/FrmNewDashboard2'
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
         <Route path="reports/sma-summary" element={<SMASummaryReport />} />
         {/* Dashboard */}
         <Route path='/Dashboard/FrmActiveAgents' element={<FrmActiveAgents />} />
+        <Route path="Dashboard/FrmNewDashboard2" element={<FrmNewDashboard2 />} />
         <Route path="reports/account-allocation" element={<FrmAccountAllocationReport />} />
         <Route path="reports/daywise-data" element={<RptDaywisedata />} />
         <Route path="reports/inactive-user-pincode-history" element={<FrmInactiveUserPincodeHistory />} />
