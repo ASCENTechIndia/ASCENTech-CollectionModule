@@ -145,6 +145,7 @@ function SMASummaryReport() {
             </div>
           ) : (
             <ReusableGroupedDataGrid
+            title="SMA Summary"
               rows={reportData}
               headers={headers}
               pageSize={10}

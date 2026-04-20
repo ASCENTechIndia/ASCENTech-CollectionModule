@@ -14,7 +14,6 @@ function FrmUnallocatedCasesReport() {
 
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
   const lastFetchKeyRef = useRef('')
 
   const columns = [
@@ -34,12 +33,9 @@ function FrmUnallocatedCasesReport() {
     lastFetchKeyRef.current = fetchKey
 
     const fetchData = async () => {
-      setError('')
-
       if (!brid || !branchName) {
         const message = 'Branch ID or Branch Name missing'
         showError(message)
-        setError(message)
         setRows([])
         setLoading(false)
         return
@@ -57,7 +53,6 @@ function FrmUnallocatedCasesReport() {
         if (!success || !data.length) {
           setRows([])
           showError('No record found')
-          setError('No record found')
           return
         }
 
@@ -73,14 +68,13 @@ function FrmUnallocatedCasesReport() {
         setRows([])
         const message = apiError?.message || 'Failed to fetch unallocated cases'
         showError(message)
-        setError(message)
       } finally {
         setLoading(false)
       }
     }
 
     fetchData()
-  }, [brid, branchName])
+  }, [brid, branchName, showError, showSuccess])
 
   return (
     <div className="main-content page-unallocated-cases-report">
@@ -110,13 +104,6 @@ function FrmUnallocatedCasesReport() {
           )}
         </div>
       </div>
-
-      {error && (
-        <div className="alert alert-danger" role="alert">
-          <i className="bi bi-exclamation-triangle me-2" />
-          {error}
-        </div>
-      )}
 
       {!loading && tableRows.length > 0 && (
         <div className="card">

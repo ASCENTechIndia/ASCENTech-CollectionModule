@@ -16,7 +16,7 @@ function flattenHeaders(headers = []) {
       children.forEach((child) => {
         leafColumns.push({
           ...child,
-          groupName: header.displayName,
+          groupName: header.displayName || header.label || header.field || '',
         })
       })
     } else {
@@ -118,14 +118,46 @@ export function ReusableGroupedDataGrid({
 
   const handleExportCSV = () => {
     try {
-      const header = leafColumns.map((column) => `"${column.displayName || column.field}"`).join(',')
-      const csvRows = sortedRows.map((row) =>
+      const escapeCsv = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`
+
+      const hasGroupedHeaders = headers.some((header) => Array.isArray(header.children) && header.children.length > 0)
+      const leafHeaderValues = leafColumns.map((column) => column.displayName || column.label || column.field || '')
+
+      let headerRowsForCsv = [leafHeaderValues]
+      if (hasGroupedHeaders) {
+        const topHeaderValues = []
+        const secondHeaderValues = []
+
+        headers.forEach((header) => {
+          const children = Array.isArray(header.children) ? header.children : []
+          const headerLabel = header.displayName || header.label || header.field || ''
+
+          if (children.length > 0) {
+            topHeaderValues.push(headerLabel)
+            for (let index = 1; index < children.length; index += 1) {
+              topHeaderValues.push('')
+            }
+
+            children.forEach((child) => {
+              secondHeaderValues.push(child.displayName || child.label || child.field || '')
+            })
+          } else {
+            topHeaderValues.push(headerLabel)
+            secondHeaderValues.push('')
+          }
+        })
+
+        headerRowsForCsv = [topHeaderValues, secondHeaderValues]
+      }
+
+      const csvRows = visibleRows.map((row) =>
         leafColumns
-          .map((column) => `"${getCellText(row?.[column.field]).replace(/"/g, '""')}"`)
+          .map((column) => escapeCsv(getCellText(row?.[column.field])))
           .join(',')
       )
 
-      const csv = [header, ...csvRows].join('\n')
+      const csvHeaderRows = headerRowsForCsv.map((headerRow) => headerRow.map((value) => escapeCsv(value)).join(','))
+      const csv = `\uFEFF${[...csvHeaderRows, ...csvRows].join('\n')}`
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
@@ -139,7 +171,7 @@ export function ReusableGroupedDataGrid({
     }
   }
 
-  const tableClassName = `table table-striped table-hover align-middle ${className}`
+  const tableClassName = `table table-bordered table-striped table-hover align-middle grouped-datagrid-table ${className}`
 
   return (
     <div className="datagrid-wrapper">
@@ -221,7 +253,7 @@ export function ReusableGroupedDataGrid({
                         key={header.displayName || index}
                         colSpan={children.length || 1}
                         rowSpan={children.length ? 1 : 2}
-                        className={`table-secondary ${header.className || ''}`}
+                        className={`table-secondary text-center ${header.className || ''}`}
                       >
                         {header.displayName || header.label || header.field}
                       </th>
@@ -233,13 +265,13 @@ export function ReusableGroupedDataGrid({
                     <th
                       key={column.field || index}
                       onClick={() => handleSort(column.field)}
-                      className={`table-light ${column.className || ''}`}
+                      className={`table-light text-center ${column.className || ''}`}
                       style={{
                         cursor: column.sortable === false ? 'default' : 'pointer',
                         userSelect: 'none',
                       }}
                     >
-                      <div className="d-flex align-items-center gap-2">
+                      <div className="d-flex align-items-center justify-content-center gap-2">
                         <span>{column.displayName || column.label || column.field}</span>
                         {column.sortable !== false && (
                           <span className="ms-1 text-muted small">
@@ -257,13 +289,13 @@ export function ReusableGroupedDataGrid({
                   <th
                     key={column.field || index}
                     onClick={() => handleSort(column.field)}
-                    className={`table-light ${column.className || ''}`}
+                    className={`table-light text-center ${column.className || ''}`}
                     style={{
                       cursor: column.sortable === false ? 'default' : 'pointer',
                       userSelect: 'none',
                     }}
                   >
-                    <div className="d-flex align-items-center gap-2">
+                    <div className="d-flex align-items-center justify-content-center gap-2">
                       <span>{column.displayName || column.label || column.field}</span>
                       {column.sortable !== false && (
                         <span className="ms-1 text-muted small">
