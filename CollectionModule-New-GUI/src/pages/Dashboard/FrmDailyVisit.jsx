@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
-import { AlertCircle, Search } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import apiClient from '../../services/apiClient';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/useNotification';
@@ -29,7 +29,8 @@ const FrmDailyVisit = () => {
         register,
         handleSubmit,
         formState: { errors },
-        watch
+        watch,
+        setValue
     } = useForm({
         defaultValues: {
             fromDate: startOfMonth,
@@ -38,11 +39,17 @@ const FrmDailyVisit = () => {
     });
     const [dashboardData, setDashboardData] = useState(null);
     const fromDateValue = watch('fromDate')
-    const toDateValue = watch('toDate');
+    const toDateValue = watch('toDate')
+
+    useEffect(() => {
+        if (fromDateValue && toDateValue && toDateValue < fromDateValue) {
+            setValue('toDate', fromDateValue, { shouldValidate: true, shouldDirty: true });
+        }
+    }, [fromDateValue, toDateValue, setValue]);
 
     function ChartCard({ title, children, subtitle }) {
         return (
-            <div className="card h-100">
+            <div className="card h-100 shadow border-0">
                 <div className="card-header">
                     <h5 className="card-title mb-1">{title}</h5>
                     {subtitle ? <p className="card-subtitle mb-0">{subtitle}</p> : null}
@@ -92,39 +99,68 @@ const FrmDailyVisit = () => {
         danger: '#ef4444',
     }
 
-    const colors = {
-        accent: '#3b82f6',
-        success: '#22c55e',
-        warning: '#f59e0b',
-        danger: '#ef4444',
-        info: '#06b6d4',
-        border: 'rgba(148, 163, 184, 0.25)',
-        muted: '#64748b',
-    }
-
-    const commonGrid = { left: '3%', right: '4%', bottom: '3%', containLabel: true }
-    const axisStyle = { color: colors.muted }
-
     const totalAccountsData = useChart((context) => new Chart(context, {
         type: 'doughnut',
         data: {
-            labels: ['Allocated', 'Unallocated'], datasets: [{
-                data: [dashboardData?.allocation?.allocatedAccounts || 0,
-                dashboardData?.allocation?.unallocatedAccounts || 0], backgroundColor: [commonColors.success, 'rgba(148,163,184,.2)'], borderWidth: 0
+            labels: ['Allocated', 'Unallocated'],
+            datasets: [{
+                data: [
+                    dashboardData?.allocation?.allocatedAccounts || 0,
+                    dashboardData?.allocation?.unallocatedAccounts || 0
+                ],
+                backgroundColor: [commonColors.success, commonColors.danger],
+                borderWidth: 2,
+                borderColor: '#fff'
             }]
         },
-        options: { responsive: true, cutout: '75%' },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '75%',
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: (context) => `${context.label}: ${context.parsed}`
+                    }
+                },
+                datalabels: {
+                    color: '#000',
+                    font: { weight: 'bold' }
+                }
+            }
+        }
     }));
 
     const totalVisitsData = useChart((context) => new Chart(context, {
         type: 'doughnut',
         data: {
-            labels: ['Visited', 'Not Visited'], datasets: [{
-                data: [dashboardData?.allocation?.visitedAccounts || 0,
-                dashboardData?.allocation?.nonVisitedAccounts || 0], backgroundColor: [commonColors.success, 'rgba(148,163,184,.2)'], borderWidth: 0
+            labels: ['Visited', 'Not Visited'],
+            datasets: [{
+                data: [
+                    dashboardData?.allocation?.visitedAccounts || 0,
+                    dashboardData?.allocation?.nonVisitedAccounts || 0
+                ],
+                backgroundColor: [commonColors.accent, commonColors.warning],
+                borderWidth: 2,
+                borderColor: '#fff'
             }]
         },
-        options: { responsive: true, cutout: '75%' },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '75%',
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: (context) => `${context.label}: ${context.parsed}`
+                    }
+                },
+                datalabels: {
+                    color: '#000',
+                    font: { weight: 'bold' }
+                }
+            }
+        }
     }));
 
     const fosAssignedData = useChart((context) => new Chart(context, {
@@ -135,82 +171,119 @@ const FrmDailyVisit = () => {
                 Math.max(0, 100 - (dashboardData?.allocation?.fosAssignedPercent || 0)),], backgroundColor: [commonColors.accent, commonColors.success, commonColors.warning, commonColors.info]
             }]
         },
-        options: { responsive: true },
+        options: { responsive: true, maintainAspectRatio: false },
     }));
 
     const ptpConversionData = useChart((context) => new Chart(context, {
         type: 'pie',
         data: {
-            labels: ['PTP Conversion Percent', 'Non-PTP Conversion Percent'], datasets: [{
-                data: [dashboardData?.ptp?.ptpConversionPercent || 0,
-                Math.max(0, 100 - (dashboardData?.allocation?.ptpConversionPercent || 0))], backgroundColor: [commonColors.accent, commonColors.warning, commonColors.success, commonColors.info]
+            labels: ['PTP Conversion Percent', 'Non-PTP Conversion Percent'], 
+            datasets: [{
+                data: [
+                    dashboardData?.ptp?.ptpConversionPercent || 0,
+                    Math.max(0, 100 - (dashboardData?.allocation?.ptpConversionPercent || 0))
+                ], 
+                backgroundColor: ['#8b5cf6', 'rgba(139, 92, 246, 0.15)'],
+                borderWidth: 2,
+                borderColor: '#fff'
             }]
         },
-        options: { responsive: true },
+        options: { 
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        font: { size: 13, weight: '500' },
+                        usePointStyle: true
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (context) => {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percent = ((value / total) * 100).toFixed(1);
+                            return `${label}: ${value.toFixed(2)}% (${percent}% of total)`;
+                        }
+                    }
+                }
+            }
+        },
     }));
 
 
-    const sunburst = useEChart(() => ({
-        tooltip: {
-            trigger: 'item',
-            formatter: '{b}: {c}',
-            padding: [2, 6],
-            textStyle: {
-                fontSize: 12,
-                lineHeight: 12
-            },
-            extraCssText: `
-            max-width:120px;
+    const sunburst = useEChart(() => {
+        const width = typeof window !== 'undefined' ? window.innerWidth : 1200;
+        const isMobile = width < 576;
+        const isTablet = width >= 576 && width < 992;
+
+        return {
+            tooltip: {
+                trigger: 'item',
+                formatter: '{b}: {c}',
+                padding: [4, 8],
+                textStyle: {
+                    fontSize: isMobile ? 10 : 12,
+                    lineHeight: isMobile ? 10 : 12
+                },
+                extraCssText: `
+            max-width:${isMobile ? '110px' : '140px'};
         white-space:normal;
         border-radius:4px;
-        max-height: 50px;
+        max-height: ${isMobile ? '42px' : '56px'};
         `
-        },
-        graphic: {
-            type: 'text',
-            left: 'center',
-            top: 'center',
-            style: {
-                text: `Total\n${dashboardData?.dispositionSunburst?.total}`,
-                textAlign: 'center',
-                fill: '#111827',
-                fontSize: 20,
-                fontWeight: 'bold'
-            }
-        },
-        series: [{
-            radius: [0, '90%'],
-            type: 'sunburst',
-            label: {
-                show: true,
-                formatter: '{b}',
-                fontSize: 10,
-                overflow: "break",
-                width: 80
             },
-            labelLayout: {
-                hideOverlap: false
-            },
-            itemStyle: {
-                borderWidth: 1,
-                borderColor: '#fff'
-            },
-            levels: [
-                {},
-                {
-                    label: {
-                        rotate: 0,
-                        align: "center",
-                        verticalAlign: "middle"
-                    },
-                },
-                {
-                    label: {
-                        rotate: "radial"
-                    }
+            graphic: {
+                type: 'text',
+                left: 'center',
+                top: 'center',
+                style: {
+                    text: `Total\n${dashboardData?.dispositionSunburst?.total ?? 0}`,
+                    textAlign: 'center',
+                    fill: '#111827',
+                    fontSize: isMobile ? 14 : isTablet ? 17 : 20,
+                    fontWeight: 'bold'
                 }
-            ],
-            data: [{
+            },
+            series: [{
+                radius: isMobile ? [0, '72%'] : isTablet ? [0, '82%'] : [0, '90%'],
+                type: 'sunburst',
+                label: {
+                    show: true,
+                    formatter: '{b}',
+                    fontSize: isMobile ? 8 : isTablet ? 9 : 10,
+                    overflow: 'truncate',
+                    width: isMobile ? 54 : isTablet ? 66 : 80
+                },
+                labelLayout: {
+                    hideOverlap: true
+                },
+                itemStyle: {
+                    borderWidth: isMobile ? 0.5 : 1,
+                    borderColor: '#fff'
+                },
+                levels: [
+                    {},
+                    {
+                        label: {
+                            rotate: 0,
+                            align: 'center',
+                            verticalAlign: 'middle',
+                            fontSize: isMobile ? 8 : 9
+                        },
+                    },
+                    {
+                        label: {
+                            rotate: isMobile ? 0 : 'radial',
+                            fontSize: isMobile ? 8 : 9
+                        }
+                    }
+                ],
+                data: [{
                 name: "Total",
                 value: dashboardData?.dispositionSunburst?.total,
                 itemStyle: {
@@ -313,11 +386,12 @@ const FrmDailyVisit = () => {
                         ]
                     }
                 ]
-            }]
-        }],
-    }))
+                }]
+            }],
+        }
+    })
 
-    const fetchDailyVisitData = async (values) => {
+    const fetchDailyVisitData = useCallback(async (values) => {
         if (!apiUserId) {
             showError('User ID is not available');
             return;
@@ -344,7 +418,7 @@ const FrmDailyVisit = () => {
             setDashboardData(null);
             showError(error?.response?.data?.message || error?.message || 'Failed to load daily visit data');
         }
-    };
+    }, [apiUserId, showError]);
 
     const onSubmit = async (values) => {
         fetchDailyVisitData(values);
@@ -433,7 +507,7 @@ const FrmDailyVisit = () => {
                 toDate: today,
             });
         }
-    }, [userId]);
+    }, [userId, fetchDailyVisitData, startOfMonth, today]);
     return (
         <div className="main-content">
             <div className="page-header">
@@ -446,7 +520,7 @@ const FrmDailyVisit = () => {
                     <span className="breadcrumb-item active">Daily Visit Report</span>
                 </nav>
             </div>
-            <div className="card p-4">
+            <div className="card p-4 shadow border-0">
                 <h3 className="card-title">Select Date Range</h3>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="row g-3 align-items-center mt-3 pb-4">
@@ -513,6 +587,7 @@ const FrmDailyVisit = () => {
                                             return true;
                                         }
                                     })}
+                                    min={fromDateValue || undefined}
                                     max={today}
                                     className="form-control"
                                 />
@@ -536,112 +611,206 @@ const FrmDailyVisit = () => {
                                 Submit
                             </button>
                         </div>
-                        <div className="card mt-3">
+                        <div className="card mt-3 shadow border-0">
                             <div className="row g-4 my-2">
-                                <div className="col-lg-4">
+                                <div className="col-12 col-md-6 col-xl-4">
                                     <div className="position-relative">
                                         <ChartCard title="Total Accounts">
-                                            <canvas ref={totalAccountsData}></canvas>
+                                            <div style={{ height: 'clamp(220px, 28vw, 300px)', width: '100%' }}>
+                                                <canvas ref={totalAccountsData}></canvas>
+                                            </div>
                                             <div className="chart-center-text">
-                                                <div className="chart-center-value">75%</div>
-                                                <div className="chart-center-label">Complete</div>
+                                                <div className="chart-center-value">
+                                                    {dashboardData?.allocation?.totalAccounts || 0}
+                                                </div>
+                                                <div className="chart-center-label">Total</div>
                                             </div>
                                         </ChartCard>
                                     </div>
                                 </div>
-                                <div className="col-lg-4">
+                                <div className="col-12 col-md-6 col-xl-4">
                                     <div className="position-relative d-flex justify-content-center align-items-center">
                                         <ChartCard title="Visit Details">
-                                            <canvas ref={totalVisitsData}></canvas>
+                                            <div style={{ height: 'clamp(220px, 28vw, 300px)', width: '100%' }}>
+                                                <canvas ref={totalVisitsData}></canvas>
+                                            </div>
                                             <div className="chart-center-text position-absolute top-50 start-50 translate-middle text-center">
-                                                <div className="chart-center-value">75%</div>
-                                                <div className="chart-center-label">Complete</div>
+                                                <div className="chart-center-value">
+                                                    {dashboardData?.allocation?.allocatedAccounts || 0}
+                                                </div>
+                                                <div className="chart-center-label">Allocated</div>
                                             </div>
                                         </ChartCard>
                                     </div>
                                 </div>
-                                <div className="col-lg-4">
+                                <div className="col-12 col-md-6 col-xl-4">
                                     <ChartCard title="FOS Assigned %">
-                                        <canvas ref={fosAssignedData} />
+                                        <div style={{ height: 'clamp(220px, 28vw, 300px)', width: '100%' }}>
+                                            <canvas ref={fosAssignedData} />
+                                        </div>
                                     </ChartCard>
                                 </div>
                             </div>
                             <div className="row g-4 mt-3">
-                                {summaryCards.map(card => (
-                                    <div className="col-md-3 col-12 d-flex">
-                                        <div className="card widget-icon-left-stat h-100">
-                                            <div className="card-body d-flex flex-row">
+                                {summaryCards.map((card, index) => {
+                                    const colors = ['#3b82f6', '#22c55e', '#f59e0b', '#06b6d4', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
+                                    const bgColors = ['#eff6ff', '#f0fdf4', '#fffbeb', '#ecf8fc', '#fef2f2', '#f5f3ff', '#fdf2f8', '#f0fdfa'];
+                                    const color = colors[index % colors.length];
+                                    const bgColor = bgColors[index % bgColors.length];
+                                    const icons = ['bi-graph-up', 'bi-people-fill', 'bi-lightning-fill', 'bi-calendar-check', 'bi-currency-rupee', 'bi-cash-coin', 'bi-percent', 'bi-check-circle-fill'];
+                                    const icon = icons[index % icons.length];
 
-                                                <div className="widget-icon-left-icon primary">
-                                                    <i className="bi bi-person-lines-fill" />
+                                    return (
+                                        <div className="col-12 col-sm-6 col-xl-3 d-flex" key={card.label}>
+                                                <div className="card h-100 w-100 border-0 shadow" style={{ transition: 'all 0.3s ease', cursor: 'pointer' }} 
+                                                 onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+                                                 onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                                            >
+                                                <div className="card-body">
+                                                    <div className="d-flex align-items-start gap-3 mb-2">
+                                                        <div style={{ 
+                                                            width: '48px', 
+                                                            height: '48px', 
+                                                            borderRadius: '8px', 
+                                                            backgroundColor: bgColor,
+                                                            display: 'flex', 
+                                                            alignItems: 'center', 
+                                                            justifyContent: 'center',
+                                                            flexShrink: 0
+                                                        }}>
+                                                            <i className={`bi ${icon}`} style={{ fontSize: '24px', color: color }}></i>
+                                                        </div>
+                                                        <div className="flex-grow-1">
+                                                            <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827', lineHeight: '1.3' }}>
+                                                                {card.value}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <p style={{ fontSize: '12px', color: '#64748b', margin: '0', lineHeight: '1.4' }}>
+                                                        {card.label}
+                                                    </p>
                                                 </div>
-
-                                                <div className="widget-icon-left-content">
-                                                    <span className="widget-icon-left-value">{card.value}</span>
-                                                    <span className="widget-icon-left-label">{card.label}</span>
-                                                </div>
-
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                             <p className="mt-4 fw-semibold fs-6">
                                 {dashboardData?.dateRange?.ptpDateRangeLabel || 'PTP spans from - to -'}
                             </p>
                             <div className="row g-4 align-items-stretch">
 
-                                {/* LEFT SIDE */}
+                                {/* LEFT SIDE - PTP CARDS */}
                                 <div className="col-12 col-md-6 d-flex">
                                     <div className="row g-3 w-100 align-items-stretch">
-                                        {ptpCards.map(item => (
-                                            <div className="col-12 col-md-6 d-flex" key={item.label}>
-                                                <div className="card widget-icon-left-stat h-100 w-100">
-                                                    <div className="card-body">
-                                                        <div className="widget-icon-left-icon primary">
-                                                            <i className="bi bi-person-lines-fill" />
-                                                        </div>
-                                                        <div className="widget-icon-left-content">
-                                                            <span className="widget-icon-left-value">{item.value}</span>
-                                                            <span className="widget-icon-left-label">{item.label}</span>
+                                        {ptpCards.map((item, index) => {
+                                            const colors = ['#8b5cf6', '#ec4899', '#f59e0b', '#ef4444'];
+                                            const bgColors = ['#f5f3ff', '#fdf2f8', '#fffbeb', '#fef2f2'];
+                                            const ptpIcons = ['bi-list-check', 'bi-hourglass-split', 'bi-check-circle-fill', 'bi-x-circle-fill'];
+                                            const color = colors[index % colors.length];
+                                            const bgColor = bgColors[index % bgColors.length];
+                                            const icon = ptpIcons[index % ptpIcons.length];
+
+                                            return (
+                                                <div className="col-12 col-lg-6 d-flex" key={item.label}>
+                                                      <div className="card h-100 w-100 border-0 shadow" style={{ transition: 'all 0.3s ease', cursor: 'pointer' }} 
+                                                         onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+                                                         onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                                                    >
+                                                        <div className="card-body">
+                                                            <div className="d-flex align-items-start gap-3 mb-2">
+                                                                <div style={{ 
+                                                                    width: '44px', 
+                                                                    height: '44px', 
+                                                                    borderRadius: '8px', 
+                                                                    backgroundColor: bgColor,
+                                                                    display: 'flex', 
+                                                                    alignItems: 'center', 
+                                                                    justifyContent: 'center',
+                                                                    flexShrink: 0
+                                                                }}>
+                                                                    <i className={`bi ${icon}`} style={{ fontSize: '22px', color: color }}></i>
+                                                                </div>
+                                                                <div className="flex-grow-1">
+                                                                    <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#111827', lineHeight: '1.3' }}>
+                                                                        {item.value}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <p style={{ fontSize: '12px', color: '#64748b', margin: '0', lineHeight: '1.4' }}>
+                                                                {item.label}
+                                                            </p>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 </div>
 
-                                {/* RIGHT SIDE */}
+                                {/* RIGHT SIDE - PTP CHART */}
                                 <div className="col-12 col-md-6 d-flex">
                                     <ChartCard title="PTP Conversion Percent">
-                                        <canvas ref={ptpConversionData} />
+                                        <div style={{ height: 'clamp(220px, 32vw, 300px)', width: '100%' }}>
+                                            <canvas ref={ptpConversionData} />
+                                        </div>
                                     </ChartCard>
                                 </div>
 
                             </div>
                             <div className="row g-4 mt-3 justify-content-around">
-                                {fullPaymentCards.map(card => (
-                                    <div className="col-md-4 col-12">
-                                        <div className="card widget-icon-left-stat w-100">
-                                            <div key={card.label} className="card-body">
-                                                <div className="widget-icon-left-icon primary">
-                                                    <i className="bi bi-person-lines-fill" />
-                                                </div>
-                                                <div className="widget-icon-left-content">
-                                                    <span className="widget-icon-left-value">{card.value}</span>
-                                                    <span className="widget-icon-left-label">{card.label}</span>
+                                {fullPaymentCards.map((card, index) => {
+                                    const fullPaymentColors = ['#0ea5e9', '#10b981', '#f97316'];
+                                    const fullPaymentBgColors = ['#f0f9ff', '#ecfdf5', '#fff7ed'];
+                                    const fullPaymentIcons = ['bi-person-check-fill', 'bi-cash-stack', 'bi-patch-check-fill'];
+                                    const color = fullPaymentColors[index % fullPaymentColors.length];
+                                    const bgColor = fullPaymentBgColors[index % fullPaymentBgColors.length];
+                                    const icon = fullPaymentIcons[index % fullPaymentIcons.length];
+
+                                    return (
+                                        <div className="col-12 col-md-6 col-xl-4 d-flex" key={card.label}>
+                                            <div
+                                                className="card h-100 w-100 border-0 shadow"
+                                                style={{ transition: 'all 0.3s ease', cursor: 'pointer' }}
+                                                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)' }}
+                                                onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)' }}
+                                            >
+                                                <div className="card-body">
+                                                    <div className="d-flex align-items-start gap-3 mb-2">
+                                                        <div
+                                                            style={{
+                                                                width: '48px',
+                                                                height: '48px',
+                                                                borderRadius: '10px',
+                                                                backgroundColor: bgColor,
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                flexShrink: 0
+                                                            }}
+                                                        >
+                                                            <i className={`bi ${icon}`} style={{ fontSize: '22px', color }} />
+                                                        </div>
+                                                        <div className="flex-grow-1">
+                                                            <div style={{ fontSize: '20px', fontWeight: '700', color: '#111827', lineHeight: '1.3' }}>
+                                                                {card.value}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <p style={{ fontSize: '12px', color: '#64748b', margin: 0, lineHeight: '1.4' }}>
+                                                        {card.label}
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                             <div className="mt-3 p-1">
                                 <ChartCard title="Sunburst Chart">
                                     <div className="echart-container" ref={sunburst} style={{
                                         width: "100%",
-                                        height: "80vh"
+                                        height: "clamp(300px, 55vh, 680px)"
                                     }} />
                                 </ChartCard>
                             </div>

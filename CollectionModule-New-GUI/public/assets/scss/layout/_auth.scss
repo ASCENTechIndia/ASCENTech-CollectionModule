@@ -71,7 +71,7 @@
 
 .fauth-visual-title {
   margin: 0;
-  font-size: 1.7rem;
+  font-size: 1.35rem;
   line-height: 1.2;
   font-weight: 700;
   color: #ffffff;
@@ -127,11 +127,11 @@
   gap: 8px;
   text-decoration: none;
   color: inherit;
-  font-size: 1.06rem;
+  font-size: 1.2rem;
   font-weight: 700;
 
   img {
-    height: 23px;
+    height: 30px;
     width: auto;
   }
 }
@@ -140,9 +140,11 @@
   color: #ffffff;
   position: relative;
   z-index: 1;
+  font-size: 1.3rem;
 
   img {
     filter: brightness(0) invert(1);
+    height: 36px;
   }
 }
 

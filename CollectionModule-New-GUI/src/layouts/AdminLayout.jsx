@@ -12,6 +12,7 @@ function AdminLayout() {
   const [formsMenuManualOpen, setFormsMenuManualOpen] = useState(false)
   const [componentsMenuManualOpen, setComponentsMenuManualOpen] = useState(false)
   const [tablesMenuManualOpen, setTablesMenuManualOpen] = useState(false)
+  const [dashboardMenuManualOpen, setDashboardMenuManualOpen] = useState(false)
   const [chartsMenuManualOpen, setChartsMenuManualOpen] = useState(false)
   const [widgetsMenuManualOpen, setWidgetsMenuManualOpen] = useState(false)
   const [userMgmtMenuOpen, setUserMgmtMenuOpen] = useState(false);
@@ -32,27 +33,6 @@ function AdminLayout() {
     return 'light'
   })
   const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: 'New support ticket',
-      message: 'Acme Corp opened ticket #4921.',
-      time: '2m ago',
-      read: false,
-    },
-    {
-      id: 2,
-      title: 'Monthly report ready',
-      message: 'Sales performance report is available.',
-      time: '14m ago',
-      read: false,
-    },
-    {
-      id: 3,
-      title: 'Deployment completed',
-      message: 'Production deployment finished successfully.',
-      time: '1h ago',
-      read: true,
-    },
   ])
   const searchInputRef = useRef(null)
 
@@ -92,6 +72,7 @@ function AdminLayout() {
   const formsRouteActive = location.pathname.startsWith('/forms')
   const componentsRouteActive = location.pathname.startsWith('/components')
   const tablesRouteActive = location.pathname.startsWith('/tables')
+  const dashboardRouteActive = location.pathname.startsWith('/Dashboard') || location.pathname.startsWith('/dashboard')
   const chartsRouteActive = location.pathname.startsWith('/charts')
   const widgetsRouteActive = location.pathname.startsWith('/widgets')
   const userMgmtRouteActive = location.pathname.startsWith('/user')
@@ -103,6 +84,7 @@ function AdminLayout() {
   const formsMenuOpen = formsRouteActive || formsMenuManualOpen
   const componentsMenuOpen = componentsRouteActive || componentsMenuManualOpen
   const tablesMenuOpen = tablesRouteActive || tablesMenuManualOpen
+  const dashboardMenuOpen = dashboardRouteActive || dashboardMenuManualOpen
   const chartsMenuOpen = chartsRouteActive || chartsMenuManualOpen
   const widgetsMenuOpen = widgetsRouteActive || widgetsMenuManualOpen
   const userMgmtOpen = userMgmtRouteActive || userMgmtMenuOpen
@@ -174,6 +156,7 @@ function AdminLayout() {
         formsMenuOpen={formsMenuOpen}
         componentsMenuOpen={componentsMenuOpen}
         tablesMenuOpen={tablesMenuOpen}
+        dashboardMenuOpen={dashboardMenuOpen}
         chartsMenuOpen={chartsMenuOpen}
         widgetsMenuOpen={widgetsMenuOpen}
         userManagementMenuOpen={userMgmtOpen}
@@ -184,6 +167,7 @@ function AdminLayout() {
         onToggleFormsMenu={() => setFormsMenuManualOpen((value) => !value)}
         onToggleComponentsMenu={() => setComponentsMenuManualOpen((value) => !value)}
         onToggleTablesMenu={() => setTablesMenuManualOpen((value) => !value)}
+        onToggleDashboardMenu={() => setDashboardMenuManualOpen((value) => !value)}
         onToggleChartsMenu={() => setChartsMenuManualOpen((value) => !value)}
         onToggleWidgetsMenu={() => setWidgetsMenuManualOpen((value) => !value)}
         onToggleuserManagementMenu= {() => setUserMgmtMenuOpen((value) => !value)}

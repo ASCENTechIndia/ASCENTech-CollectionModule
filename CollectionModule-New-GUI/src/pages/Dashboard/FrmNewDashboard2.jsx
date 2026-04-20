@@ -140,69 +140,144 @@ const FrmNewDashboard2 = () => {
         return ref
     }
 
-    const gradientArea1 = useEChart(() => ({
-        tooltip: {
-            trigger: 'axis',
-            padding: [2, 6],
-            textStyle: {
-                fontSize: 10,
-                lineHeight: 14
-            },
-            extraCssText: 'max-width:120px; max-height: 80px; white-space:normal;'
-        },
-        grid: commonGrid,
-        legend: {
-            show: true,
-            top: 20,
-            left: 'center',
-            textStyle: {
-                color: colors.muted,
-                fontSize: 12
-            }
-        },
-        xAxis: {
-            type: 'category', name: "Days", nameLocation: "middle", nameGap: 30, boundaryGap: false, data: agentChartData.labels, axisLine: { lineStyle: { color: colors.border } }, axisLabel: axisStyle,
-            nameTextStyle: {
-                color: colors.muted
-            },
-        },
+    const gradientArea1 = useEChart(() => {
+        const width = typeof window !== 'undefined' ? window.innerWidth : 1200;
+        const isMobile = width < 576;
+        const isTablet = width >= 576 && width < 992;
 
-        yAxis: { type: 'value', name: "No. of Agents", nameLocation: "middle", nameRotate: 90, nameGap: 35, axisLine: { show: false }, splitLine: { lineStyle: { color: colors.border, type: 'dashed' } }, axisLabel: axisStyle },
-        series: [{
-            name: 'Unique Agents Adding Disposition', type: 'line', smooth: true, data: agentChartData.datasets, itemStyle: { color: colors.accent }, areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: colors.accent }, { offset: 1, color: 'rgba(59,130,246,0.05)' }]) }
-        }],
-    }))
-
-    const gradientArea2 = useEChart(() => ({
-        tooltip: {
-            trigger: 'axis',
-            padding: [2, 6],
-            textStyle: {
-                fontSize: 10,
-                lineHeight: 14
+        return {
+            tooltip: {
+                trigger: 'axis',
+                padding: [2, 6],
+                textStyle: {
+                    fontSize: 10,
+                    lineHeight: 14
+                },
+                extraCssText: 'max-width:140px; max-height: 90px; white-space:normal;'
             },
-            extraCssText: 'max-width:120px; max-height: 80px; white-space:normal;'
-        },
-        grid: commonGrid,
-        legend: {
-            show: true,
-            top: 20,
-            left: 'center',
-            textStyle: {
-                color: colors.muted,
-                fontSize: 12
-            }
-        },
-        xAxis: { type: 'category', name: "Days", nameLocation: "middle", nameGap: 30, boundaryGap: false, data: dispositionChartData.labels, axisLine: { lineStyle: { color: colors.border } }, axisLabel: axisStyle,
-        nameTextStyle: {
-            color: colors.muted
+            grid: {
+                left: isMobile ? '10%' : commonGrid.left,
+                right: isMobile ? '6%' : commonGrid.right,
+                bottom: isMobile ? '20%' : isTablet ? '16%' : commonGrid.bottom,
+                containLabel: true
+            },
+            legend: {
+                show: true,
+                top: isMobile ? 8 : 14,
+                left: 'center',
+                textStyle: {
+                    color: colors.muted,
+                    fontSize: isMobile ? 10 : 12
+                }
+            },
+            xAxis: {
+                type: 'category',
+                name: "Days",
+                nameLocation: "middle",
+                nameGap: isMobile ? 24 : 30,
+                boundaryGap: false,
+                data: agentChartData.labels,
+                axisLine: { lineStyle: { color: colors.border } },
+                axisLabel: {
+                    ...axisStyle,
+                    fontSize: isMobile ? 10 : 12,
+                    rotate: isMobile ? 35 : 0
+                },
+                nameTextStyle: {
+                    color: colors.muted,
+                    fontSize: isMobile ? 10 : 12
+                },
+            },
+
+            yAxis: {
+                type: 'value',
+                name: "No. of Agents",
+                nameLocation: "middle",
+                nameRotate: 90,
+                nameGap: isMobile ? 48 : 35,
+                axisLine: { show: false },
+                splitLine: { lineStyle: { color: colors.border, type: 'dashed' } },
+                axisLabel: { ...axisStyle, fontSize: isMobile ? 10 : 12 }
+            },
+            series: [{
+                name: 'Unique Agents Adding Disposition',
+                type: 'line',
+                smooth: true,
+                data: agentChartData.datasets,
+                itemStyle: { color: colors.accent },
+                areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: colors.accent }, { offset: 1, color: 'rgba(59,130,246,0.05)' }]) }
+            }],
         }
-    },
-        yAxis: { type: 'value', name: "Count", nameLocation: "middle", nameRotate: 90, nameGap: 30, axisLine: { show: false }, splitLine: { lineStyle: { color: colors.border, type: 'dashed' } }, axisLabel: axisStyle },
-        series: [{
-            name: 'Dispositions Added in a Day', type: 'line', smooth: true, data: dispositionChartData.datasets, itemStyle: { color: colors.warning }, areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: colors.warning }, { offset: 1, color: 'rgba(246, 196, 59, 0.05)' }]) }
-        }],
-    }))
+    })
+
+    const gradientArea2 = useEChart(() => {
+        const width = typeof window !== 'undefined' ? window.innerWidth : 1200;
+        const isMobile = width < 576;
+        const isTablet = width >= 576 && width < 992;
+
+        return {
+            tooltip: {
+                trigger: 'axis',
+                padding: [2, 6],
+                textStyle: {
+                    fontSize: 10,
+                    lineHeight: 14
+                },
+                extraCssText: 'max-width:140px; max-height: 90px; white-space:normal;'
+            },
+            grid: {
+                left: isMobile ? '10%' : commonGrid.left,
+                right: isMobile ? '6%' : commonGrid.right,
+                bottom: isMobile ? '20%' : isTablet ? '16%' : commonGrid.bottom,
+                containLabel: true
+            },
+            legend: {
+                show: true,
+                top: isMobile ? 8 : 14,
+                left: 'center',
+                textStyle: {
+                    color: colors.muted,
+                    fontSize: isMobile ? 10 : 12
+                }
+            },
+            xAxis: {
+                type: 'category',
+                name: "Days",
+                nameLocation: "middle",
+                nameGap: isMobile ? 24 : 30,
+                boundaryGap: false,
+                data: dispositionChartData.labels,
+                axisLine: { lineStyle: { color: colors.border } },
+                axisLabel: {
+                    ...axisStyle,
+                    fontSize: isMobile ? 10 : 12,
+                    rotate: isMobile ? 35 : 0
+                },
+                nameTextStyle: {
+                    color: colors.muted,
+                    fontSize: isMobile ? 10 : 12
+                }
+            },
+            yAxis: {
+                type: 'value',
+                name: "Count",
+                nameLocation: "middle",
+                nameRotate: 90,
+                nameGap: isMobile ? 42 : 30,
+                axisLine: { show: false },
+                splitLine: { lineStyle: { color: colors.border, type: 'dashed' } },
+                axisLabel: { ...axisStyle, fontSize: isMobile ? 10 : 12 }
+            },
+            series: [{
+                name: 'Dispositions Added in a Day',
+                type: 'line',
+                smooth: true,
+                data: dispositionChartData.datasets,
+                itemStyle: { color: colors.warning },
+                areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: colors.warning }, { offset: 1, color: 'rgba(246, 196, 59, 0.05)' }]) }
+            }],
+        }
+    })
 
     const fetchData = async (monthYear) => {
         try {
@@ -264,14 +339,15 @@ const FrmNewDashboard2 = () => {
                     <span className="breadcrumb-item active">Disposition Report</span>
                 </nav>
             </div>
-            <div className="card p-4">
+            <div className="card p-4 shadow border-0">
                 <div className="row align-items-center g-3 ">
-                    <div className="col-12">
+                    <div className="col-12 col-lg-6">
                         <div className="d-flex flex-column flex-md-row align-items-md-center gap-2">
                             <label className="form-label mb-0">
                                 Select Month & Year:
                             </label>
                             <select className="form-select"
+                                style={{ maxWidth: '280px' }}
                                 {...register("monthYear")}
                                 onChange={(e) => {
                                     setShowDetails(false);
@@ -295,15 +371,33 @@ const FrmNewDashboard2 = () => {
                         </div>
                     </div>
                 </div>
-                <div className="card h-100 mt-3 px-2 g-6">
-                    <div className="col-lg-12">
-                        <div className="echart-container" ref={gradientArea1} />
+                <div className="row g-3 mt-1">
+                    <div className="col-12">
+                        <ChartCard
+                            title="Unique Agents Adding Disposition"
+                            subtitle="Daily unique agent activity"
+                        >
+                            <div
+                                className="echart-container"
+                                ref={gradientArea1}
+                                style={{ width: '100%', height: 'clamp(260px, 40vh, 430px)' }}
+                            />
+                        </ChartCard>
                     </div>
-                    <div className="col-lg-12">
-                        <div className="echart-container" ref={gradientArea2} />
+                    <div className="col-12">
+                        <ChartCard
+                            title="Dispositions Added in a Day"
+                            subtitle="Daily disposition volume"
+                        >
+                            <div
+                                className="echart-container"
+                                ref={gradientArea2}
+                                style={{ width: '100%', height: 'clamp(260px, 40vh, 430px)' }}
+                            />
+                        </ChartCard>
                     </div>
                 </div>
-                <div className="mt-3 card">
+                <div className="mt-3 card shadow border-0">
                     <div className="card-body">
                         {loading ? (
                             <div className="text-center py-5">

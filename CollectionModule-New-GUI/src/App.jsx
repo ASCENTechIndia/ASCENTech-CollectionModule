@@ -130,15 +130,15 @@ function App() {
             visual={
               <>
                 <Link to="/" className="fauth-logo">
-                  <img src="/assets/img/logo.webp" alt="FlexAdmin" />
+                  <img src="/assets/img/logo.webp" alt="Collection Module" />
                   <span>Collection Module</span>
                 </Link>
-                <h2 className="fauth-visual-title">Command your operations from one modern control center.</h2>
-                <p className="fauth-visual-text">Track growth, team activity, and operational risk with a dashboard built for fast decisions.</p>
+                <h2 className="fauth-visual-title">Manage collection operations from one unified control center.</h2>
+                <p className="fauth-visual-text">Track field performance, collection efficiency, and risk trends with real-time operational visibility.</p>
                 <div className="fauth-visual-points">
-                  <div className="fauth-point"><i className="bi bi-graph-up-arrow" /> Real-time business insights</div>
-                  <div className="fauth-point"><i className="bi bi-shield-lock" /> Enterprise-grade account protection</div>
-                  <div className="fauth-point"><i className="bi bi-lightning-charge" /> Fast collaboration workflows</div>
+                  <div className="fauth-point"><i className="bi bi-graph-up-arrow" /> Real-time collection insights</div>
+                  <div className="fauth-point"><i className="bi bi-shield-lock" /> Secure user access and controls</div>
+                  <div className="fauth-point"><i className="bi bi-lightning-charge" /> Faster field and branch coordination</div>
                 </div>
               </>
             }

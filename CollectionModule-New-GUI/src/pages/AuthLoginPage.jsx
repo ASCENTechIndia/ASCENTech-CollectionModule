@@ -35,8 +35,8 @@ function AuthLoginPage() {
     <>
       <div className="fauth-card">
         <div className="fauth-card-head">
-          <h1 className="fauth-title">Welcome back</h1>
-          <p className="fauth-subtitle">Sign in to continue to your Collection module.</p>
+          <h1 className="fauth-title">Collection Module Login</h1>
+          <p className="fauth-subtitle">Sign in to continue to your collection dashboard.</p>
         </div>
 
         <form className="fauth-form" onSubmit={handleSubmit}>
@@ -47,7 +47,7 @@ function AuthLoginPage() {
               className="form-control"
               id="userId"
               name="userId"
-              placeholder="Enter user ID"
+              placeholder="Enter Collection User ID"
               value={userId}
               onChange={(event) => setUserId(event.target.value)}
               required
@@ -65,7 +65,7 @@ function AuthLoginPage() {
                 className="form-control"
                 id="password"
                 name="password"
-                placeholder="Enter your password"
+                placeholder="Enter Collection password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 required

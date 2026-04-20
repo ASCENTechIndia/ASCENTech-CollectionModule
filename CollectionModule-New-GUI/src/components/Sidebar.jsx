@@ -2,9 +2,15 @@ import { NavLink } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 const navItems = [
-  { to: '/', label: 'Dashboard', icon: 'ph-light ph-squares-four' },
+  { to: '/', label: 'Home', icon: 'ph-light ph-house' },
   // { to: '/users', label: 'Users', icon: 'ph-light ph-users-three' },
   // { to: '/roles', label: 'Roles', icon: 'ph-light ph-shield' },
+]
+
+const dashboardMenuItems = [
+  { to: '/Dashboard/FrmActiveAgents', label: 'Active Agents Dashboard' },
+  { to: '/Dashboard/FrmNewDashboard2', label: 'Disposition Dashboard' },
+  { to: '/Dashboard/FrmDailyVisit', label: 'Daily Visit Dashboard' },
 ]
 
 const adminMenuItems = [
@@ -89,6 +95,7 @@ const reportsMenuItems = [
 function Sidebar({
   desktopCollapsed,
   mobileOpen,
+  dashboardMenuOpen,
   // authMenuOpen,
   userMenuOpen,
   // formsMenuOpen,
@@ -105,6 +112,7 @@ function Sidebar({
   // onToggleTablesMenu,
   onToggleChartsMenu,
   // onToggleWidgetsMenu,
+  onToggleDashboardMenu,
   onToggleReportsMenu,
   onToggleAdminMenu,
   onCloseMobile,
@@ -137,6 +145,29 @@ function Sidebar({
                 </NavLink>
               </li>
             ))}
+
+            <li className={`nav-item has-submenu ${dashboardMenuOpen ? 'open' : ''}`}>
+              <button
+                type="button"
+                className="nav-link w-100 text-start border-0 bg-transparent"
+                onClick={onToggleDashboardMenu}
+                aria-expanded={dashboardMenuOpen}
+              >
+                <span className="nav-icon"><i className="ph-light ph-squares-four" /></span>
+                <span className="nav-text">Dashboard</span>
+                <span className="nav-badge">{dashboardMenuItems.length}</span>
+                <span className="nav-arrow"><i className="bi bi-chevron-right" /></span>
+              </button>
+              <ul className={`nav-submenu ${dashboardMenuOpen ? 'show' : ''}`} style={{ maxHeight: dashboardMenuOpen ? `${dashboardMenuItems.length * 36 + 20}px` : '0px' }}>
+                {dashboardMenuItems.map((item) => (
+                  <li key={item.to}>
+                    <NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}>
+                      <span className="nav-dot" /> {item.label}
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </li>
 
             {/* Authentication Menu (dropdown) */}
             {/* <li className={`nav-item has-submenu ${authMenuOpen ? 'open' : ''}`}>

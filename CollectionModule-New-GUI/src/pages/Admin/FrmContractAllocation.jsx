@@ -62,7 +62,11 @@ function FrmContractAllocation() {
   }
 
   useEffect(() => {
-    fetchRecordCount()
+    const timer = window.setTimeout(() => {
+      void fetchRecordCount()
+    }, 0)
+
+    return () => window.clearTimeout(timer)
   }, [fetchRecordCount])
 
   return (
