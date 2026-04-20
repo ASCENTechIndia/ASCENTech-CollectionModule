@@ -125,7 +125,7 @@
   --table-stripe-bg: #f7faff;
   /* Forms */
   --input-bg: #ffffff;
-  --input-border: var(--border-color);
+  --input-border: #4b5563;
   --input-focus-border: var(--accent-color);
   --input-focus-ring: rgb(14 165 164 / 0.25);
 }
@@ -186,7 +186,7 @@
   --table-stripe-bg: #142836;
   /* Forms */
   --input-bg: #0c1822;
-  --input-border: var(--border-color);
+  --input-border: #4b5563;
   --input-focus-border: var(--accent-color);
   --input-focus-ring: rgb(34 211 206 / 0.25);
   /* Bootstrap overrides */
