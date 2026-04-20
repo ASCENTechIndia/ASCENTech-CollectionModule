@@ -19,6 +19,7 @@ import AuthResetPasswordPage from './pages/AuthResetPasswordPage'
 import SMASummaryReport from './pages/Reports/SMASummaryReport'
 import FrmUserList from './pages/user/FrmUserList'
 import FrmUserCreation from './pages/user/FrmUserCreation'
+import FrmActiveAgents from './pages/Dashboard/FrmActiveAgents'
 import FrmAccountAllocationReport from './pages/Reports/FrmAccountAllocationReport'
 import RptDaywisedata from './pages/Reports/RptDaywisedata'
 import FrmInactiveUserPincodeHistory from './pages/Reports/FrmInactiveUserPincodeHistory'
@@ -27,6 +28,7 @@ import FrmNonVisitDoneSummaryReport from './pages/Reports/FrmNonVisitDoneSummary
 import FrmVisitDoneSummaryReport from './pages/Reports/FrmVisitDoneSummaryReport'
 import FrmTransactionReport from './pages/Reports/FrmTransactionReport'
 import FrmUserCreationWeb from './pages/user/FrmUserCreationWeb'
+import FrmNewDashboard2 from './pages/Dashboard/FrmNewDashboard2'
 import FrmUserRouteReport from './pages/Reports/FrmUserRouteReport'
 import FrmUnallocatedCasesReport from './pages/Reports/FrmUnallocatedCasesReport'
 import FrmUserLocationTracking from './pages/Admin/FrmUserLocationTracking'
@@ -84,6 +86,9 @@ function App() {
         <Route path="User/FrmUserList" element={<FrmUserList />} />
         <Route path="User/FrmUserCreation" element={<FrmUserCreation />} />
         <Route path="User/FrmUserCreationWeb" element={<FrmUserCreationWeb />} />
+        {/* Dashboard */}
+        <Route path='/Dashboard/FrmActiveAgents' element={<FrmActiveAgents />} />
+        <Route path="Dashboard/FrmNewDashboard2" element={<FrmNewDashboard2 />} />
         
         {/* User */}
         <Route path='/User/FrmUserModification' element={<FrmUserModification/>}/>
@@ -207,6 +212,8 @@ function App() {
       <Route path="/User" element={<Navigate to="/User/FrmUserList" replace />} />
       <Route path="/User" element={<Navigate to="/User/FrmUserCreation" replace />} />
       <Route path="/User" element={<Navigate to="User/FrmUserCreationWeb" replace />} />
+
+
       <Route path="/404" element={<Error404Page />} />
       <Route path="*" element={<Navigate to="/404" replace />} />
     </Routes>
