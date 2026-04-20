@@ -98,7 +98,7 @@ const FrmActiveAgents = () => {
     // }))
 
     // ECharts
-    const commonGrid = { left: '3%', right: '4%', bottom: '3%', containLabel: true }
+    const commonGrid = { left: '5%', right: '4%', bottom: '12%', containLabel: true }
     const axisStyle = { color: colors.muted }
     function useEChart(optionFactory) {
         const ref = useRef(null)
@@ -138,8 +138,12 @@ const FrmActiveAgents = () => {
                 fontSize: 12
             }
         },
-        xAxis: { type: 'category', boundaryGap: false, data: chartData.labels, axisLine: { lineStyle: { color: colors.border } }, axisLabel: axisStyle },
-        yAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: colors.border, type: 'dashed' } }, axisLabel: axisStyle },
+        xAxis: {
+            type: 'category', name: "Days", nameLocation: "middle", nameGap: 30, boundaryGap: false, data: chartData.labels, axisLine: { lineStyle: { color: colors.border } }, axisLabel: axisStyle, nameTextStyle: {
+                color: colors.muted
+            }
+        },
+        yAxis: { type: 'value', name: "Count", nameLocation: "middle", nameRotate: 90, nameGap: 35, axisLine: { show: false }, splitLine: { lineStyle: { color: colors.border, type: 'dashed' } }, axisLabel: axisStyle },
         series: [{
             name: 'Unique Collection Associate using the app on a day', type: 'line', smooth: true, data: chartData.datasets, itemStyle: { color: colors.accent }, areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: colors.accent }, { offset: 1, color: 'rgba(59,130,246,0.05)' }]) }
         }],
@@ -316,7 +320,7 @@ const FrmActiveAgents = () => {
                     </div>
                 </div>
 
-                <div className="card h-100 mt-3">
+                <div className="card h-100 mt-3 px-2">
                     <div className="echart-container" ref={gradientArea} />
                 </div>
 

@@ -12,12 +12,28 @@ const formatDateForAPI = (dateStr) => {
   return `${day}/${month}/${year}`
 }
 
+const getPayload = (response) => response?.data ?? response ?? {}
+const getArray = (value) => {
+  if (Array.isArray(value)) return value
+  return []
+}
+const getDataRows = (response) => {
+  const payload = getPayload(response)
+
+  if (Array.isArray(payload)) return payload
+  if (Array.isArray(payload?.data)) return payload.data
+  if (Array.isArray(payload?.data?.data)) return payload.data.data
+  if (Array.isArray(payload?.rows)) return payload.rows
+
+  return []
+}
+
 function FrmTransactionReport() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { showError, showSuccess } = useNotification()
-  const brid = user?.brid
-  const brCategory = user?.brCategory
+  const brid = user?.brid ?? user?.BRID ?? user?.num_usermst_brid ?? null
+  const brCategory = user?.brCategory ?? user?.brcategory ?? user?.BRCATEGORY ?? null
 
   const [fromDate, setFromDate] = useState('')
   const [toDate, setToDate] = useState('')
@@ -59,18 +75,18 @@ function FrmTransactionReport() {
 
   useEffect(() => {
     const fetchZones = async () => {
-      if (!brid || !brCategory) return
+      if (brid === null || brCategory === null) return
       setLoadingZones(true)
       try {
         const res = await apiClient.get('/transactionReports/getZones', {
           params: { brid, brcategory: brCategory },
         })
-        const dataArray = res?.data?.data?.data || []
-        if (res?.data?.success && dataArray.length > 0) {
+        const dataArray = getDataRows(res)
+        if (dataArray.length > 0) {
           const zones = dataArray.map((item) => ({
-            value: item.BRID,
-            label: item.BRNAME,
-          }))
+            value: String(item.BRID ?? item.brid ?? item.NUM_COMPANYMST_COMPID ?? ''),
+            label: String(item.BRNAME ?? item.brname ?? item.VAR_COMPANYMST_BRANCHNAME ?? ''),
+          })).filter((item) => item.value)
           setZoneOptions(zones)
         } else {
           setZoneOptions([])
@@ -86,8 +102,10 @@ function FrmTransactionReport() {
 
   useEffect(() => {
     const fetchRegions = async () => {
-      if (!zone || !brid || !brCategory) {
+      if (!zone || brid === null || brCategory === null) {
         setRegionOptions([])
+        setBranchOptions([])
+        setCollectionOptions([])
         setRegion('')
         setBranch('')
         setCollectionAssociated('')
@@ -98,12 +116,12 @@ function FrmTransactionReport() {
         const res = await apiClient.get('/transactionReports/getRegions', {
           params: { zoneId: zone, brid, brcategory: brCategory },
         })
-        const dataArray = res?.data?.data || []
-        if (res?.data?.success && dataArray.length > 0) {
+        const dataArray = getDataRows(res)
+        if (dataArray.length > 0) {
           const regions = dataArray.map((item) => ({
-            value: item.NUM_COMPANYMST_COMPID,
-            label: item.VAR_COMPANYMST_BRANCHNAME,
-          }))
+            value: String(item.NUM_COMPANYMST_COMPID ?? item.num_companymst_compid ?? item.BRID ?? ''),
+            label: String(item.VAR_COMPANYMST_BRANCHNAME ?? item.var_companymst_branchname ?? item.BRNAME ?? ''),
+          })).filter((item) => item.value)
           setRegionOptions(regions)
         } else {
           setRegionOptions([])
@@ -119,8 +137,9 @@ function FrmTransactionReport() {
 
   useEffect(() => {
     const fetchBranches = async () => {
-      if (!region || !brid || !brCategory) {
+      if (!region || brid === null || brCategory === null) {
         setBranchOptions([])
+        setCollectionOptions([])
         setBranch('')
         setCollectionAssociated('')
         return
@@ -130,12 +149,12 @@ function FrmTransactionReport() {
         const res = await apiClient.get('/transactionReports/getBranches', {
           params: { regionId: region, brid, brcategory: brCategory },
         })
-        const dataArray = res?.data?.data || []
-        if (res?.data?.success && dataArray.length > 0) {
+        const dataArray = getDataRows(res)
+        if (dataArray.length > 0) {
           const branches = dataArray.map((item) => ({
-            value: item.NUM_COMPANYMST_COMPID,
-            label: item.VAR_COMPANYMST_BRANCHNAME,
-          }))
+            value: String(item.NUM_COMPANYMST_COMPID ?? item.num_companymst_compid ?? item.BRID ?? ''),
+            label: String(item.VAR_COMPANYMST_BRANCHNAME ?? item.var_companymst_branchname ?? item.BRNAME ?? ''),
+          })).filter((item) => item.value)
           setBranchOptions(branches)
         } else {
           setBranchOptions([])
@@ -151,30 +170,36 @@ function FrmTransactionReport() {
 
   useEffect(() => {
     const fetchCollectionAssociates = async () => {
-      let bridParam = ''
-      if (branch) bridParam = branch
-      else if (region) bridParam = region
-      else if (zone) bridParam = zone
-      else {
+      if (!zone) {
         setCollectionOptions([])
         setCollectionAssociated('')
         return
       }
+      const bridParam = String(branch || region || zone || '')
 
       setLoadingCollection(true)
       try {
         const res = await apiClient.get('/transactionReports/getCollAssociate', {
           params: { brid: bridParam },
         })
-        const dataArray = res?.data?.data || []
-        if (res?.data?.success && dataArray.length > 0) {
-          const associates = dataArray.map((item) => ({
-            value: item.USER_ID || item.VAR_USERMST_USERID,
-            label: item.VAR_USERMST_USERID,
-          }))
+        const dataArray = getDataRows(res)
+        if (dataArray.length > 0) {
+          const associates = dataArray.map((item) => {
+            const optionValue = item.USER_ID || item.user_id || item.VAR_USERMST_USERID || item.var_usermst_userid || ''
+            const optionLabel = item.VAR_USERMST_USERID || item.var_usermst_userid || optionValue
+
+            return {
+              value: String(optionValue),
+              label: String(optionLabel),
+            }
+          }).filter((item) => item.value)
           setCollectionOptions(associates)
+          setCollectionAssociated((previous) => (
+            associates.some((opt) => opt.value === previous) ? previous : ''
+          ))
         } else {
           setCollectionOptions([])
+          setCollectionAssociated('')
         }
       } catch (apiError) {
         setError(apiError?.message || 'Failed to load collection associates')
@@ -183,7 +208,7 @@ function FrmTransactionReport() {
       }
     }
     fetchCollectionAssociates()
-  }, [zone, region, branch])
+  }, [zone, region, branch, brid])
 
   const handleViewClick = (imageCode) => {
     if (!imageCode) {
@@ -248,7 +273,9 @@ function FrmTransactionReport() {
         params,
       })
 
-      const { success, data: apiData } = response.data
+      const payload = getPayload(response)
+      const success = payload?.success
+      const apiData = getArray(payload?.data?.data ?? payload?.data)
 
       if (success && apiData && apiData.length > 0) {
         const mappedRows = apiData.map((item) => [

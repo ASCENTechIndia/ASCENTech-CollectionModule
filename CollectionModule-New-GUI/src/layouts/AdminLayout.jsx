@@ -15,6 +15,8 @@ function AdminLayout() {
   const [chartsMenuManualOpen, setChartsMenuManualOpen] = useState(false)
   const [widgetsMenuManualOpen, setWidgetsMenuManualOpen] = useState(false)
   const [reportsMenuManualOpen, setReportsMenuManualOpen] = useState(false)
+  const [adminMenuManualOpen, setAdminMenuManualOpen] = useState(false)
+  const [userMenuManualOpen, setUserMenuManualOpen] = useState(false)
   const [theme, setTheme] = useState(() => {
     const savedTheme = localStorage.getItem('theme')
 
@@ -92,6 +94,8 @@ function AdminLayout() {
   const chartsRouteActive = location.pathname.startsWith('/charts')
   const widgetsRouteActive = location.pathname.startsWith('/widgets')
   const reportsRouteActive = location.pathname.startsWith('/reports')
+  const adminRouteActive = location.pathname.startsWith('/admin')
+  const userRouteActive = location.pathname.startsWith('/user')
 
   const authMenuOpen = authRouteActive || authMenuManualOpen
   const formsMenuOpen = formsRouteActive || formsMenuManualOpen
@@ -100,6 +104,8 @@ function AdminLayout() {
   const chartsMenuOpen = chartsRouteActive || chartsMenuManualOpen
   const widgetsMenuOpen = widgetsRouteActive || widgetsMenuManualOpen
   const reportsMenuOpen = reportsRouteActive || reportsMenuManualOpen
+  const adminMenuOpen = adminRouteActive || adminMenuManualOpen
+  const userMenuOpen = userRouteActive || userMenuManualOpen
 
   const toggleSidebar = () => {
     // Debounce toggle to prevent rapid state changes during animations
@@ -168,6 +174,8 @@ function AdminLayout() {
         chartsMenuOpen={chartsMenuOpen}
         widgetsMenuOpen={widgetsMenuOpen}
         reportsMenuOpen={reportsMenuOpen}
+        adminMenuOpen={adminMenuOpen}
+        userMenuOpen={userMenuOpen}
         onToggleAuthMenu={() => setAuthMenuManualOpen((value) => !value)}
         onToggleFormsMenu={() => setFormsMenuManualOpen((value) => !value)}
         onToggleComponentsMenu={() => setComponentsMenuManualOpen((value) => !value)}
@@ -175,6 +183,8 @@ function AdminLayout() {
         onToggleChartsMenu={() => setChartsMenuManualOpen((value) => !value)}
         onToggleWidgetsMenu={() => setWidgetsMenuManualOpen((value) => !value)}
         onToggleReportsMenu={() => setReportsMenuManualOpen((value) => !value)}
+        onToggleAdminMenu={() => setAdminMenuManualOpen((value) => !value)}
+        onToggleUserMenu={() => setUserMenuManualOpen((value) => !value)}
         onCloseMobile={() => setMobileOpen(false)}
       />
 

@@ -1,18 +1,17 @@
 import { Link } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import ReusableGroupedDataGrid from '../../components/ReusableGroupedDataGrid'
 import apiClient from '../../services/apiClient'
-import { useNotification } from '../../context/useNotification'
 
 /**
  * SMA Summary Report Page
  * Features: Built-in searching, sorting, pagination, and CSV export
  */
 function SMASummaryReport() {
-  const { showError, showSuccess } = useNotification()
   const [reportData, setReportData] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const hasFetchedRef = useRef(false)
 
   const formatNumber = (value) => Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })
   const formatAmount = (value) =>
@@ -91,16 +90,17 @@ function SMASummaryReport() {
   ]
 
   useEffect(() => {
+    if (hasFetchedRef.current) return
+    hasFetchedRef.current = true
+
     const fetchReportData = async () => {
       setLoading(true)
       setError(null)
       try {
         const response = await apiClient.get('/reports/smaSummary')
         setReportData(response.data || [])
-        showSuccess('SMA report loaded')
       } catch (err) {
         console.error('Failed to fetch report:', err)
-        showError('Failed to load report data')
         setError('Failed to load report data')
       } finally {
         setLoading(false)
@@ -108,7 +108,7 @@ function SMASummaryReport() {
     }
 
     void fetchReportData()
-  }, [showError, showSuccess])
+  }, [])
 
   return (
     <div className="main-content page-sma-summary-report">
