@@ -41,7 +41,7 @@ function ImageViewer({ imageCode, onClose }) {
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title">Image Preview</h5>
-            <button type="button" className="btn-close" onClick={onClose} aria-label="Close" />
+            <button type="button" className="btn-close" onClick={() => window.location.assign('/')} aria-label="Close" />
           </div>
           <div className="modal-body text-center">
             {loading ? (
