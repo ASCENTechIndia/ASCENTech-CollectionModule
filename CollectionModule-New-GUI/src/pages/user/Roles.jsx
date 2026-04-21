@@ -20,10 +20,11 @@ export default function Roles() {
   const location = useLocation();
   const webUserId = user?.userId;
   const { employeeId } = location.state || "";
+  console.log("employeeId",employeeId);
   const { showSuccess, showError, showWarning } = useNotification();
   const [userStatusDetails, setUserStatusDetails] = useState({})
   const [userPageDetails, setUserPageDetails] = useState({});
-  const [userID, setUserId] = useState("100011");
+  const [userID, setUserId] = useState(employeeId);
   // const [userID, setUserId] = useState(employeeId);
   const [selectedRole, setSelectedRole] = useState(roles[0]);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -220,10 +221,10 @@ export default function Roles() {
     <div className="page-roles p-4">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Roles & Permissions</h1>
+          <h1 className="page-title">User Edit</h1>
           <nav className="breadcrumb">
             <a href="/" className="breadcrumb-item">Home</a>
-            <span className="breadcrumb-item active">Roles & Permissions</span>
+            <span className="breadcrumb-item active">User Edit</span>
           </nav>
         </div>
         <div className="page-header-actions">
@@ -307,7 +308,7 @@ export default function Roles() {
             </div>
           </div>
 
-          <div className="card">
+          {/* <div className="card">
             <div className="card-header">
               <h5 className="card-title">Roles</h5>
             </div>
@@ -333,7 +334,7 @@ export default function Roles() {
                 ))}
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Permissions & Users */}
@@ -488,7 +489,7 @@ export default function Roles() {
           </div>
 
           {/* Users with this role */}
-          <div className="card">
+          {/* <div className="card">
             <div className="card-header d-flex align-items-center justify-content-between">
               <h5 className="card-title mb-0">Users with {selectedRole.name} Role</h5>
               <span className="roles-user-count">{selectedRole.users} users</span>
@@ -511,11 +512,11 @@ export default function Roles() {
                 ))}
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 
-      {showAddModal && (
+      {/* {showAddModal && (
         <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
           <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
             <div className="modal-content">
@@ -558,7 +559,7 @@ export default function Roles() {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }

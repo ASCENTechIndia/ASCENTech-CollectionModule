@@ -37,6 +37,15 @@ export default function UsersList() {
   const [selectedUsers, setSelectedUsers] = useState(new Set());
   const [showAddModal, setShowAddModal] = useState(false);
 
+  const [page, setPage] = useState(1);
+const [limit, setLimit] = useState(10);
+const [totalPages, setTotalPages] = useState(1);
+const [counts, setCounts] = useState({
+  total: 0,
+  active: 0,
+  inactive: 0
+});
+
   const dropdownStyle = {
     padding: "0.375rem 2rem 0.375rem 0.75rem",
     fontSize: "0.875rem",
@@ -77,36 +86,61 @@ export default function UsersList() {
   };
 
   // Fetch agents (users) when branchId changes
-  const fetchAgents = async (brid) => {
-    if (!brid) return;
-    setLoading(true);
-    try {
-      const res = await apiClient.get(`/users/getAgents/?brid=${brid}`);
-      console.log("resss :", res);
-      if (res.success) {
-        // Map API response to the format expected by the table
-        const userList = res.data.map((agent, i) => ({
-          id: agent.USERID,
-          name: agent.EMPNAME,
-          email: agent.EMAIL,
-          mobile: agent.MOBNO,
-          role: mapRole(agent.VAR_USERROLE_NAME),
-          status: "active", // Default status; adjust if API provides
-          lastActive: "Recently",
-          joined: new Date().toLocaleDateString(),
-          avatar: `avatar-${i}.webp`, // Placeholder
-        }));
-        setUsers(userList);
-      } else {
-        setUsers([]);
-      }
-    } catch (err) {
-      setUsers([]);
-      console.error("Error fetching agents:", err);
-    } finally {
-      setLoading(false);
+ const fetchAgents = async () => {
+
+  setLoading(true);
+  try {
+    const params = new URLSearchParams();
+
+    // 🔹 Optional params
+    if (branchId) params.append("brid", branchId);
+    if (filterStatus !== "all") {
+      params.append("status", filterStatus === "active" ? "A" : "I");
     }
-  };
+    if (filterRole !== "all") {
+      params.append("roleId", filterRole);
+    }
+
+    params.append("page", page);
+    params.append("limit", limit);
+
+    const res = await apiClient.get(
+      `/users/getAgentsNew?${params.toString()}`
+    );
+
+    if (res.success) {
+      const apiData = res.data;
+
+      // 🔹 Map users
+      const userList = apiData.data.map((agent, i) => ({
+        id: agent.USERID,
+        name: agent.EMPNAME,
+        email: agent.EMAIL,
+        mobile: agent.MOBNO?.toString(),
+        role: mapRole(agent.VAR_USERROLE_NAME),
+        status: agent.VAR_USERMST_STATUS === "A" ? "active" : "inactive",lastActive: "Recently",
+        joined: new Date().toLocaleDateString(),
+        avatar: `avatar-${i}.webp`,
+      }));
+
+      setUsers(userList);
+
+      // 🔹 Pagination
+      setTotalPages(apiData.pagination.totalPages);
+
+      // 🔹 Counts
+      setCounts(apiData.counts);
+
+    } else {
+      setUsers([]);
+    }
+  } catch (err) {
+    console.error("Error fetching agents:", err);
+    setUsers([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   // Helper to map backend role names to frontend role keys
   const mapRole = (roleName) => {
@@ -120,18 +154,17 @@ export default function UsersList() {
   };
 
   // Clear users when branch changes
-  useEffect(() => {
-    if (branchId) {
-      fetchAgents(branchId);
-    } else {
-      setUsers([]);
-    }
-  }, [branchId]);
+useEffect(() => {
+    fetchAgents();
+}, [branchId, filterRole, filterStatus, page]);
+
+useEffect(() => {
+  setPage(1);
+}, [branchId, filterRole, filterStatus]);
 
   // Reset branch options when userLevel changes
   useEffect(() => {
     setBranchId("");
-    setUsers([]);
     if (userLevel) {
       fetchBranches(userLevel);
     } else {
@@ -186,9 +219,8 @@ export default function UsersList() {
     const statuses = {
       active: { class: "active", label: "Active" },
       inactive: { class: "inactive", label: "Inactive" },
-      pending: { class: "pending", label: "Pending" },
     };
-    return statuses[status] || statuses.inactive;
+    return statuses[status] || statuses.active;
   };
 
   return (
@@ -222,32 +254,21 @@ export default function UsersList() {
           <div className="users-insight users-insight-total">
             <span className="users-insight-icon">👥</span>
             <span className="users-insight-label">Total Users</span>
-            <span className="users-insight-value">{users.length}</span>
-            <span className="users-insight-meta">+18 this month</span>
+            <span className="users-insight-value">{counts.total}</span>
           </div>
           <div className="users-insight users-insight-active">
             <span className="users-insight-icon">✓</span>
             <span className="users-insight-label">Active</span>
             <span className="users-insight-value">
-              {users.filter((u) => u.status === "active").length}
+              {counts.active}
             </span>
-            <span className="users-insight-meta">75% engagement</span>
-          </div>
-          <div className="users-insight users-insight-pending">
-            <span className="users-insight-icon">⏳</span>
-            <span className="users-insight-label">Pending</span>
-            <span className="users-insight-value">
-              {users.filter((u) => u.status === "pending").length}
-            </span>
-            <span className="users-insight-meta">Needs onboarding</span>
           </div>
           <div className="users-insight users-insight-inactive">
             <span className="users-insight-icon">✗</span>
             <span className="users-insight-label">Inactive</span>
             <span className="users-insight-value">
-              {users.filter((u) => u.status === "inactive").length}
+              {counts.inactive}
             </span>
-            <span className="users-insight-meta">Follow-up required</span>
           </div>
         </div>
 
@@ -267,16 +288,7 @@ export default function UsersList() {
                 >
                   Active{" "}
                   <span className="users-filter-count">
-                    {users.filter((u) => u.status === "active").length}
-                  </span>
-                </button>
-                <button
-                  className={`users-filter-tab ${filterStatus === "pending" ? "active" : ""}`}
-                  onClick={() => setFilterStatus("pending")}
-                >
-                  Pending{" "}
-                  <span className="users-filter-count">
-                    {users.filter((u) => u.status === "pending").length}
+                    {users.filter((u) => u.status === "A").length}
                   </span>
                 </button>
                 <button
@@ -298,7 +310,7 @@ export default function UsersList() {
                   type="text"
                   placeholder="Search users, email, mobile..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  // onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
 
@@ -374,7 +386,7 @@ export default function UsersList() {
                 <tbody>
                   {filteredUsers.map((userItem) => {
                     const role = getRoleBadge(userItem.role);
-                    const status = getStatusBadge(userItem.status);
+                    const status = getStatusBadge(userItem.VAR_USERMST_STATUS);
                     return (
                       <tr key={userItem.id}>
                         <td>
@@ -389,12 +401,12 @@ export default function UsersList() {
                           <div className="users-user">
                             <div className="users-avatar-wrap">
                               <img
-                                src={`/assets/img/avatars/${userItem.avatar}`}
+                                src={`/assets/img/profile-img.jpg`}
                                 alt=""
                                 className="users-avatar"
                               />
                               <span
-                                className={`users-avatar-status ${userItem.status}`}
+                                className={`users-avatar-status online`}
                               ></span>
                             </div>
                             <div className="users-user-info">
@@ -438,43 +450,13 @@ export default function UsersList() {
                               <Eye size={16} />
                             </Link>
                             <Link
-                              to={`/users/${userItem.id}/edit`}
+                               to="/user/roles"
+                               state={{ employeeId: userItem.id }}
                               className="users-action-btn"
                               title="Edit"
                             >
                               <Edit size={16} />
                             </Link>
-                            <div className="dropdown">
-                              <button className="users-action-btn dropdown-toggle">
-                                <MoreVertical size={16} />
-                              </button>
-                              <ul className="dropdown-menu dropdown-menu-end">
-                                <li>
-                                  <a className="dropdown-item" href="#">
-                                    <Mail className="inline mr-2" size={14} />{" "}
-                                    Send Email
-                                  </a>
-                                </li>
-                                <li>
-                                  <a className="dropdown-item" href="#">
-                                    <Key className="inline mr-2" size={14} />{" "}
-                                    Reset Password
-                                  </a>
-                                </li>
-                                <li>
-                                  <hr className="dropdown-divider" />
-                                </li>
-                                <li>
-                                  <button
-                                    className="dropdown-item text-danger"
-                                    onClick={() => deleteUser(userItem.id)}
-                                  >
-                                    <Trash2 className="inline mr-2" size={14} />{" "}
-                                    Delete
-                                  </button>
-                                </li>
-                              </ul>
-                            </div>
                           </div>
                         </td>
                       </tr>
@@ -485,41 +467,44 @@ export default function UsersList() {
             )}
           </div>
 
-          <div className="users-pagination">
-            <div className="users-pagination-info">
-              Showing <strong>1-{filteredUsers.length}</strong> of{" "}
-              <strong>{users.length}</strong> users
-            </div>
-            <nav>
-              <ul className="pagination pagination-sm mb-0">
-                <li className="page-item disabled">
-                  <a className="page-link" href="#">
-                    ←
-                  </a>
-                </li>
-                <li className="page-item active">
-                  <a className="page-link" href="#">
-                    1
-                  </a>
-                </li>
-                <li className="page-item">
-                  <a className="page-link" href="#">
-                    2
-                  </a>
-                </li>
-                <li className="page-item">
-                  <a className="page-link" href="#">
-                    3
-                  </a>
-                </li>
-                <li className="page-item">
-                  <a className="page-link" href="#">
-                    →
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          </div>
+         <div className="users-pagination">
+  <div className="users-pagination-info">
+    Showing{" "}
+    <strong>
+      {counts.total === 0 ? 0 : (page - 1) * limit + 1} -{" "}
+      {Math.min(page * limit, counts.total)}
+    </strong>{" "}
+    of <strong>{counts.total}</strong> users
+  </div>
+
+  <nav>
+    <ul className="pagination pagination-sm mb-0">
+
+      {/* PREVIOUS */}
+      <li className={`page-item ${page === 1 ? "disabled" : ""}`}>
+        <button
+          className="page-link"
+          onClick={() => setPage((prev) => prev - 1)}
+          disabled={page === 1}
+        >
+          ← Previous
+        </button>
+      </li>
+
+      {/* NEXT */}
+      <li className={`page-item ${page === totalPages || totalPages === 0 ? "disabled" : ""}`}>
+        <button
+          className="page-link"
+          onClick={() => setPage((prev) => prev + 1)}
+          disabled={page === totalPages || totalPages === 0}
+        >
+          Next →
+        </button>
+      </li>
+
+    </ul>
+  </nav>
+</div>
         </div>
 
         {showAddModal && (

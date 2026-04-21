@@ -22,6 +22,7 @@ const adminMenuItems = [
 ]
 
 const userMenuItems = [
+  { to: "/user/user-list", label: "Users" },
   { to: "/user/FrmUserList", label: "User List" },
   { to: "/user/FrmUserModification", label: "User Modification" },
   { to: "/user/FrmPincodeMstrInserion", label: "Pincode Master" },
