@@ -405,7 +405,7 @@ const FrmDailyVisit = () => {
                     toDate: values.toDate,
                 },
             });
-            console.log(response.data);
+
             if (response?.success && response?.data) {
                 setDashboardData(response.data);
                 return;
