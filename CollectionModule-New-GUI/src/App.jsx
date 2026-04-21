@@ -60,6 +60,7 @@ import FrmInactiveUserAcs from './pages/user/FrmInactiveUserAcs'
 import MapViewPage from './components/ui/MapViewPage'
 import FrmDailyVisit from './pages/Dashboard/FrmDailyVisit'
 import UsersList from './pages/user/Userlist'
+import Roles from './pages/user/Roles'
 
 function App() {
   return (
@@ -122,6 +123,7 @@ function App() {
         <Route path="user/reset-password" element={<FrmResetPassword />} />
         <Route path="user/change-password" element={<FrmChangePassword />} />
         <Route path="user/user-list" element={<UsersList />} />
+        <Route path="user/roles" element={<Roles />} />
       </Route>
       <Route path="/map-view" element={<MapViewPage />} />
       <Route
@@ -206,6 +208,7 @@ function App() {
       <Route path="/Admin/FrmContractAllocation" element={<Navigate to="/admin/contract-allocation" replace />} />
       <Route path="/Admin/FrmDistanceMatrix" element={<Navigate to="/admin/distance-matrix" replace />} />
    <Route path="/User/Userlist" element={<Navigate to="/user/user-list" replace />} />
+    <Route path="/User/Roles" element={<Navigate to="/user/roles" replace />} />
 
 
 
