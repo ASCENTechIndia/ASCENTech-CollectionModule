@@ -195,8 +195,9 @@ const FrmUserModification = () => {
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title">Modify Status</h5>
-              <button type="button" className="btn-close" onClick={() => setOpenModifyStatusModal(false)}></button>
+              <button type="button" className="btn-close" onClick={() => navigate('/')} />
             </div>
+            
             <div className="modal-body">
               <div className="row mb-3">
                 <div className="col-6">

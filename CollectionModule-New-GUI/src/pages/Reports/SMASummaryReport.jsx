@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import ReusableGroupedDataGrid from '../../components/ReusableGroupedDataGrid'
 import apiClient from '../../services/apiClient'
@@ -8,6 +8,7 @@ import apiClient from '../../services/apiClient'
  * Features: Built-in searching, sorting, pagination, and CSV export
  */
 function SMASummaryReport() {
+  const navigate = useNavigate();
   const [reportData, setReportData] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -129,7 +130,7 @@ function SMASummaryReport() {
         <div className="alert alert-danger alert-dismissible fade show" role="alert">
           <i className="bi bi-exclamation-triangle me-2" />
           {error}
-          <button type="button" className="btn-close" onClick={() => setError(null)} />
+          <button type="button" className="btn-close" onClick={() => navigate('/')} />
         </div>
       )}
 

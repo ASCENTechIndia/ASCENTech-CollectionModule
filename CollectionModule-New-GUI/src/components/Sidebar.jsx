@@ -33,11 +33,11 @@ const userMenuItems = [
 
 // const tablesMenuItems = [{ to: '/tables/datatables', label: 'DataTables' }]
 
-const chartsMenuItems = [
-  { to: '/charts/apexcharts', label: 'ApexCharts' },
-  { to: '/charts/chartjs', label: 'Chart.js' },
-  { to: '/charts/echarts', label: 'ECharts' },
-]
+// const chartsMenuItems = [
+//   { to: '/charts/apexcharts', label: 'ApexCharts' },
+//   { to: '/charts/chartjs', label: 'Chart.js' },
+//   { to: '/charts/echarts', label: 'ECharts' },
+// ]
 
 const reportsMenuItems = [
   { to: '/reports/account-allocation', label: 'Account Allocation Report' },
@@ -305,7 +305,7 @@ function Sidebar({
             </li>
 
              {/* Charts Menu */}
-            <li className={`nav-item has-submenu ${chartsMenuOpen ? 'open' : ''}`}>
+            {/* <li className={`nav-item has-submenu ${chartsMenuOpen ? 'open' : ''}`}>
               <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleChartsMenu}>
                 <span className="nav-icon"><i className="ph-light ph-chart-line-up" /></span>
                 <span className="nav-text">Charts</span>
@@ -317,7 +317,7 @@ function Sidebar({
                   <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
                 ))}
               </ul>
-            </li>
+            </li> */}
           </ul>
         </nav>
 
