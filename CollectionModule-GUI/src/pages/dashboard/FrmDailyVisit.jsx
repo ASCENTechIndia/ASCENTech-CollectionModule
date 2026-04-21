@@ -474,7 +474,6 @@ function FrmDailyVisit() {
                                             }}
                                         />
 
-                                        {/* 🔥 Center Text Overlay */}
                                         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[-12px] md:mt-[0px]">
                                             <span className="text-xs text-gray-500">
                                                 Total

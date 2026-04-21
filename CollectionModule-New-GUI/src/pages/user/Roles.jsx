@@ -1,6 +1,11 @@
 // src/pages/Roles.jsx
-import { useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Plus, Edit, Trash2, Users } from 'lucide-react';
+import { useNotification } from '../../context/useNotification';
+import apiClient from '../../services/apiClient';
+import { useAuth } from '../../context/AuthContext';
+import { useLocation, useNavigate } from 'react-router-dom';
+// import { fetchLayoutMode } from 'echarts/types/src/util/layout.js';
 
 export default function Roles() {
   const [roles, setRoles] = useState([
@@ -11,34 +16,30 @@ export default function Roles() {
     { id: 5, name: 'Viewer', icon: '👁️', color: 'muted', users: 45, description: 'Read-only access to the system.' }
   ]);
 
+  const { user } = useAuth();
+  const location = useLocation();
+  const webUserId = user?.userId;
+  const { employeeId } = location.state || "";
+  const { showSuccess, showError, showWarning } = useNotification();
+  const [userStatusDetails, setUserStatusDetails] = useState({})
+  const [userPageDetails, setUserPageDetails] = useState({});
+  const [userID, setUserId] = useState("100011");
+  // const [userID, setUserId] = useState(employeeId);
   const [selectedRole, setSelectedRole] = useState(roles[0]);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [permissions, setPermissions] = useState({
-    dashboard: { view: true, create: false, edit: false, delete: false },
-    reports: { view: true, create: true, edit: true, delete: true },
-    users: { view: true, create: true, edit: true, delete: true },
-    roles: { view: true, create: true, edit: true, delete: true },
-    teams: { view: true, create: true, edit: true, delete: true },
-    pages: { view: true, create: true, edit: true, delete: true },
-    blog: { view: true, create: true, edit: true, delete: true },
-    media: { view: true, create: true, edit: true, delete: true },
-    products: { view: true, create: true, edit: true, delete: true },
-    orders: { view: true, create: true, edit: true, delete: true },
-    customers: { view: true, create: true, edit: true, delete: true },
-    coupons: { view: true, create: true, edit: true, delete: true },
-    settings: { view: true, create: false, edit: true, delete: false },
-    email: { view: true, create: true, edit: true, delete: true },
-    api: { view: true, create: true, edit: true, delete: true },
-    backup: { view: true, create: true, edit: false, delete: true }
-  });
+  const [newStatus, setNewStatus] = useState("");
+  const [permissions, setPermissions] = useState({});
 
-  const modules = [
-    { group: '📊 Dashboard', items: ['dashboard', 'reports'] },
-    { group: '👥 User Management', items: ['users', 'roles', 'teams'] },
-    { group: '📄 Content Management', items: ['pages', 'blog', 'media'] },
-    { group: '🛒 E-commerce', items: ['products', 'orders', 'customers', 'coupons'] },
-    { group: '⚙️ System Settings', items: ['settings', 'email', 'api', 'backup'] }
-  ];
+  // const modules = [
+  //   {
+  //     group: '📊 Dashboard', items: [
+  //       "Active Agent Dashboard", "Disposition Dashborad", 'Daily Visit Dashboard']
+  //   },
+  //   { group: '👥 User Management', items: ["User Creation", 'User Modification', 'User Web Create', 'Reset Password', 'Change Password', 'Unassigned Cases by Pincode', 'User Block Status'] },
+  //   { group: '📄 Reports', items: ['SMA Summary', 'Visit Done Summary', 'Users Account History', 'Overall Performance Summary', 'Daily Uploaded Data', 'Insert / Update Summary Reports', 'Unassigned Cases by Pincode', 'User Tracking Report', 'Non Visit Done Summary', 'Current Months Unallocated Accounts', "Transaction Details"] },
+  //   { group: '🛒 Agency', items: ['Agency Management', 'Agency Creation'] },
+  //   { group: '⚙️ Admin', items: ["Contract Allocation Details"] }
+  // ];
 
   const roleUsers = [
     { id: 1, name: 'Sarah Johnson', email: 'sarah.johnson@example.com', avatar: 'avatar-1.webp', status: 'active', joined: 'Jan 15, 2024' },
@@ -46,32 +47,177 @@ export default function Roles() {
     { id: 9, name: 'Kevin Anderson', email: 'k.anderson@example.com', avatar: 'profile-img.webp', status: 'active', joined: 'Jan 1, 2024' }
   ];
 
-  const handlePermissionChange = (module, action) => {
+  const handleSearch = async (userId) => {
+    if (!userId) {
+      showWarning('Enter User ID')
+      return
+    }
+    try {
+      const response = await apiClient.get(`/users/search-by-userid?userId=${userId}`)
+      // console.log(response);
+      if (response?.success) {
+        setUserStatusDetails(response?.data);
+        //   console.log("hearch res :", response)
+        //   setUserDetails(response.data)
+        //   setValue('userName', response.data.userName)
+        //   setValue('userCurrentStatus', response.data.currentStatus)
+      }
+      else {
+        setUserDetails({})
+        //   setValue('userName', "")
+        //   setValue('userCurrentStatus', "")
+        showWarning(response?.message || 'No user found for this User ID')
+      }
+    } catch (error) {
+      console.error(error)
+      showError(error?.response?.data?.message || error?.message || 'Failed to fetch user details')
+    }
+  }
+
+  const fetchPageAccessDetails = async () => {
+    try {
+      const response = await apiClient.get(
+        `/users/get-page-access?userId=${userID}`
+      );
+      // ✅ correct API response check
+      if (response.success) {
+        setUserPageDetails(response?.data);
+
+        const mappedPermissions = {};
+
+        response.data.pages.forEach(page => {
+          mappedPermissions[page.menuName] = {
+            menuId: page.menuId,
+            view: page.selected,
+            create: page.selected,
+            edit: page.selected,
+            delete: page.selected,
+            menuSelected: page.selected
+          };
+        });
+
+        setPermissions(mappedPermissions);
+      }
+      // if (response.success) {
+      //   const data = response.data;
+      //   setUserPageAccessDetails(data);
+      //   setValue("userId", data.userId);
+
+      //   const userOfObj = userOfOptions.find((item) => item.label === data.userOf);
+      //   const userOfValue = userOfObj ? userOfObj.value : "";
+      //   setValue("userOf", userOfValue);
+
+      //   setPageAccessList(data.pages);
+
+      //   const selectedPages = data.pages
+      //     .filter((page) => page.selected)
+      //     .map((page) => page.menuId);
+      //   setValue("accessPages", selectedPages);
+      // } 
+      else {
+        showError(response?.message || "Failed to fetch page access details");
+      }
+    } catch (error) {
+      console.error(error);
+      showError(error?.response.message || error?.message || "Failed to fetch page access details");
+    }
+  }
+
+  const getSelectedMenuIds = () => {
+    // console.log(Object.values(permissions)
+    //   .filter(p => p.menuSelected)
+    //   .map(p => Number(p.menuId)));
+
+    return Object.values(permissions)
+      .filter(p => p.menuSelected)
+      .map(p => Number(p.menuId));
+  };
+
+  const handleModifyStatus = async () => {
+    try {
+      if (!newStatus.trim().length) {
+        // alert("Please select the status");
+        showWarning('Please select the status');
+        return;
+      }
+      const payload = {
+        "userId": userStatusDetails?.userId,
+        "newStatus": newStatus,
+        "insBy": webUserId
+      };
+      const response = await apiClient.post("/users/modify-status-submit", payload);
+      if (response.success && response.data.out_ErrorCode === -100) {
+        showSuccess(response.data.out_ErrorMsg || 'User status updated successfully');
+        // setOpenModifyStatusModal(false);
+        setNewStatus("");
+        handleSearch(userStatusDetails?.userId);
+      }
+    } catch (error) {
+      console.error(error);
+      showError(error?.response?.data?.message || error?.message || 'Failed to update user status');
+    }
+  }
+
+  const handlePageAccess = async () => {
+    try {
+      const payload = {
+        "userId": userPageDetails?.userId,
+        "menuIds": getSelectedMenuIds()
+      }
+      // console.log(payload);
+      // return;
+      const response = await apiClient.post(`/users/update-page-access`, payload);
+      if (response.success && response.data.out_ErrorCode === "9999") {
+        showSuccess("Page Access Updated Successfully");
+        // reset({
+        //   userOf: "",
+        //   userId: "",
+        //   userName: "",
+        //   accessPages: []
+        // });
+        // navigate("/User/FrmUserModification");
+        handleSearch(userID);
+    fetchPageAccessDetails();
+      }
+    } catch (error) {
+      console.error(error);
+      showError(error?.response?.data?.message || error?.message || 'Failed to update page access');
+    }
+  }
+  // console.log(permissions);
+  // const handlePermissionChange = (module, action) => {
+  //   setPermissions(prev => ({
+  //     ...prev,
+  //     [module]: {
+  //       ...prev[module],
+  //       [action]: !prev[module][action]
+  //     }
+  //   }));
+  // };
+
+  const handleSelectAll = (module) => {
+    const isSelected = permissions[module]?.menuSelected;
+
     setPermissions(prev => ({
       ...prev,
       [module]: {
         ...prev[module],
-        [action]: !prev[module][action]
+        view: !isSelected,
+        create: !isSelected,
+        edit: !isSelected,
+        delete: !isSelected,
+        menuSelected: !isSelected
       }
     }));
   };
 
-  const handleSelectAll = (module) => {
-    const allSelected = permissions[module].view && permissions[module].create && 
-                        permissions[module].edit && permissions[module].delete;
-    setPermissions(prev => ({
-      ...prev,
-      [module]: {
-        view: !allSelected,
-        create: !allSelected,
-        edit: !allSelected,
-        delete: !allSelected
-      }
-    }));
-  };
+  useEffect(() => {
+    handleSearch(userID);
+    fetchPageAccessDetails();
+  }, [userID]);
 
   return (
-    <div className="page-roles">
+    <div className="page-roles p-4">
       <div className="page-header">
         <div>
           <h1 className="page-title">Roles & Permissions</h1>
@@ -81,7 +227,7 @@ export default function Roles() {
           </nav>
         </div>
         <div className="page-header-actions">
-          <button 
+          <button
             className="btn btn-primary btn-sm"
             onClick={() => setShowAddModal(true)}
           >
@@ -93,14 +239,82 @@ export default function Roles() {
       <div className="row g-4">
         {/* Roles List */}
         <div className="col-xl-4 col-lg-5">
+          {/* Role Info */}
           <div className="card mb-4">
+            <div className="card-header">
+              <h5 className="card-title">Role Details</h5>
+            </div>
+            <div className="card-body">
+              <div className="roles-detail-list">
+                <div className="roles-detail">
+                  <span className="roles-detail-label">Name</span>
+                  <span className="roles-detail-value">{userPageDetails?.userName}</span>
+                </div>
+                <div className="roles-detail">
+                  <span className="roles-detail-label">User Code</span>
+                  <span className="roles-detail-value">{userPageDetails?.userId}</span>
+                </div>
+                <div className="roles-detail">
+                  <span className="roles-detail-label">User Of</span>
+                  <span className="roles-detail-value">{userPageDetails?.userOf}</span>
+                </div>
+                {/* <div className="roles-detail">
+                  <span className="roles-detail-label">Last Modified</span>
+                  <span className="roles-detail-value">May 15, 2024</span>
+                </div> */}
+              </div>
+            </div>
+          </div>
+
+          <div className="card mb-4">
+            <div className="card-header">
+              <div className='d-flex justify-content-between align-items-center'>
+                <h5 className="card-title">Status</h5>
+                <button
+                  type='button'
+                  className="btn btn-primary btn-sm"
+                  onClick={() => {
+                    handleModifyStatus();
+                  }}
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+            <div className="card-body">
+              <p>
+                <strong>Current Status: </strong>
+                {userStatusDetails?.currentStatus}
+              </p>
+              <div>
+                <p>
+                  <strong>New Status:</strong>
+                </p>
+                <select
+                  className="form-select"
+                  value={newStatus}
+                  onChange={(e) => setNewStatus(e.target.value)}
+                >
+                  <option value="">-- Select Status --</option>
+                  <option value="A"
+                    disabled={userStatusDetails?.currentStatus === 'Active'}
+                  >Active</option>
+                  <option value="I"
+                    disabled={userStatusDetails?.currentStatus === 'Inactive'}
+                  >Inactive</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="card">
             <div className="card-header">
               <h5 className="card-title">Roles</h5>
             </div>
             <div className="card-body p-0">
               <div className="roles-list">
                 {roles.map(role => (
-                  <div 
+                  <div
                     key={role.id}
                     className={`roles-item ${selectedRole.id === role.id ? 'active' : ''}`}
                     onClick={() => setSelectedRole(role)}
@@ -120,33 +334,6 @@ export default function Roles() {
               </div>
             </div>
           </div>
-
-          {/* Role Info */}
-          <div className="card">
-            <div className="card-header">
-              <h5 className="card-title">Role Details</h5>
-            </div>
-            <div className="card-body">
-              <div className="roles-detail-list">
-                <div className="roles-detail">
-                  <span className="roles-detail-label">Name</span>
-                  <span className="roles-detail-value">{selectedRole.name}</span>
-                </div>
-                <div className="roles-detail">
-                  <span className="roles-detail-label">Description</span>
-                  <span className="roles-detail-value">{selectedRole.description}</span>
-                </div>
-                <div className="roles-detail">
-                  <span className="roles-detail-label">Created</span>
-                  <span className="roles-detail-value">January 1, 2024</span>
-                </div>
-                <div className="roles-detail">
-                  <span className="roles-detail-label">Last Modified</span>
-                  <span className="roles-detail-value">May 15, 2024</span>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Permissions & Users */}
@@ -158,7 +345,9 @@ export default function Roles() {
                 <h5 className="card-title mb-0">Permissions Matrix</h5>
                 <span className="roles-subtitle">Configure access for {selectedRole.name} role</span>
               </div>
-              <button className="btn btn-primary btn-sm">
+              <button type='button' onClick={() => {
+                handlePageAccess();
+              }} className="btn btn-primary btn-sm">
                 <span>✓</span> Save Changes
               </button>
             </div>
@@ -176,7 +365,7 @@ export default function Roles() {
                     </tr>
                   </thead>
                   <tbody>
-                    {modules.map((moduleGroup, gidx) => (
+                    {/* {modules.map((moduleGroup, gidx) => (
                       <React.Fragment key={gidx}>
                         <tr className="roles-perm-group">
                           <td colSpan="6">{moduleGroup.group}</td>
@@ -187,53 +376,110 @@ export default function Roles() {
                               {module.charAt(0).toUpperCase() + module.slice(1)}
                             </td>
                             <td className="text-center">
-                              <input 
-                                type="checkbox" 
+                              <input
+                                type="checkbox"
+                                disabled
                                 className="form-check-input"
                                 checked={permissions[module]?.view || false}
                                 onChange={() => handlePermissionChange(module, 'view')}
                               />
                             </td>
                             <td className="text-center">
-                              <input 
-                                type="checkbox" 
+                              <input
+                                type="checkbox"
+                                disabled
                                 className="form-check-input"
                                 checked={permissions[module]?.create || false}
                                 onChange={() => handlePermissionChange(module, 'create')}
                               />
                             </td>
                             <td className="text-center">
-                              <input 
-                                type="checkbox" 
+                              <input
+                                type="checkbox"
+                                disabled
                                 className="form-check-input"
                                 checked={permissions[module]?.edit || false}
                                 onChange={() => handlePermissionChange(module, 'edit')}
                               />
                             </td>
                             <td className="text-center">
-                              <input 
-                                type="checkbox" 
+                              <input
+                                type="checkbox"
+                                disabled
                                 className="form-check-input"
                                 checked={permissions[module]?.delete || false}
                                 onChange={() => handlePermissionChange(module, 'delete')}
                               />
                             </td>
                             <td className="text-center">
-                              <input 
-                                type="checkbox" 
+                              <input
+                                type="checkbox"
                                 className="form-check-input"
-                                checked={
-                                  permissions[module]?.view && 
-                                  permissions[module]?.create && 
-                                  permissions[module]?.edit && 
-                                  permissions[module]?.delete
-                                }
+                                // checked={
+                                //   permissions[module]?.view &&
+                                //   permissions[module]?.create &&
+                                //   permissions[module]?.edit &&
+                                //   permissions[module]?.delete
+                                // }
+                                checked={permissions[module]?.menuSelected || false}
                                 onChange={() => handleSelectAll(module)}
                               />
                             </td>
                           </tr>
                         ))}
                       </React.Fragment>
+                    ))} */}
+                    {Object.keys(permissions).map((module) => (
+                      <tr key={module}>
+                        <td className="roles-perm-module">
+                          {module}
+                        </td>
+
+                        <td className="text-center">
+                          <input
+                            type="checkbox"
+                            disabled
+                            className="form-check-input"
+                            checked={permissions[module]?.view || false}
+                          />
+                        </td>
+
+                        <td className="text-center">
+                          <input
+                            type="checkbox"
+                            disabled
+                            className="form-check-input"
+                            checked={permissions[module]?.create || false}
+                          />
+                        </td>
+
+                        <td className="text-center">
+                          <input
+                            type="checkbox"
+                            disabled
+                            className="form-check-input"
+                            checked={permissions[module]?.edit || false}
+                          />
+                        </td>
+
+                        <td className="text-center">
+                          <input
+                            type="checkbox"
+                            disabled
+                            className="form-check-input"
+                            checked={permissions[module]?.delete || false}
+                          />
+                        </td>
+
+                        <td className="text-center">
+                          <input
+                            type="checkbox"
+                            className="form-check-input"
+                            checked={permissions[module]?.menuSelected || false}
+                            onChange={() => handleSelectAll(module)}
+                          />
+                        </td>
+                      </tr>
                     ))}
                   </tbody>
                 </table>
@@ -275,8 +521,8 @@ export default function Roles() {
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Add New Role</h5>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className="btn-close"
                   onClick={() => setShowAddModal(false)}
                 ></button>

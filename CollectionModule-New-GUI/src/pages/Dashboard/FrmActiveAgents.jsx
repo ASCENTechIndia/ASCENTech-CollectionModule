@@ -5,6 +5,7 @@ import ReusableDataGrid from '../../components/ReusableDataGrid'
 import apiClient from "../../services/apiClient";
 import { useAuth } from '../../context/AuthContext';
 import { useForm } from "react-hook-form";
+import { useNotification } from "../../context/useNotification";
 
 const ChartCard = ({ title, children, subtitle }) => {
     return (
@@ -21,6 +22,7 @@ const ChartCard = ({ title, children, subtitle }) => {
 const FrmActiveAgents = () => {
     const { user } = useAuth();
     const userId = user?.userId;
+    const { showError } = useNotification();
     const {
         register,
     } = useForm({
@@ -224,7 +226,7 @@ const FrmActiveAgents = () => {
             const userNo = userId.split("E")[1];
 
             const response = await apiClient.get(`/active-agents/dashboard?userId=${userNo}&month=${month}&year=${year}`, {});
-            console.log(response);
+
             if (response.success) {
                 setSummaryDetails(response.data.summary);
                 setChartData({
