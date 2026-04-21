@@ -4,6 +4,7 @@ import { Plus, Edit, Trash2, Users } from 'lucide-react';
 import { useNotification } from '../../context/useNotification';
 import apiClient from '../../services/apiClient';
 import { useAuth } from '../../context/AuthContext';
+import { useLocation, useNavigate } from 'react-router-dom';
 // import { fetchLayoutMode } from 'echarts/types/src/util/layout.js';
 
 export default function Roles() {
@@ -16,11 +17,14 @@ export default function Roles() {
   ]);
 
   const { user } = useAuth();
+  const location = useLocation();
   const webUserId = user?.userId;
+  const { employeeId } = location.state || "";
   const { showSuccess, showError, showWarning } = useNotification();
   const [userStatusDetails, setUserStatusDetails] = useState({})
   const [userPageDetails, setUserPageDetails] = useState({});
   const [userID, setUserId] = useState("100011");
+  // const [userID, setUserId] = useState(employeeId);
   const [selectedRole, setSelectedRole] = useState(roles[0]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newStatus, setNewStatus] = useState("");
