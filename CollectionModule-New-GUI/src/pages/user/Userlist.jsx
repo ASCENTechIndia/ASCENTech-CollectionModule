@@ -125,18 +125,18 @@ export default function UsersList() {
 
   const getRoleBadge = (role) => {
     const roles = {
-      admin: { icon: '🛡️', label: 'Admin', class: 'role-admin' },
-      manager: { icon: '⚙️', label: 'Manager', class: 'role-manager' },
-      user: { icon: '👤', label: 'User', class: 'role-user' }
+      admin: { icon: '🛡️', label: 'Admin', class: 'admin' },
+      manager: { icon: '⚙️', label: 'Manager', class: 'manager' },
+      user: { icon: '👤', label: 'User', class: 'user' }
     };
     return roles[role] || roles.user;
   };
 
   const getStatusBadge = (status) => {
     const statuses = {
-      active: { class: 'status-active', label: 'Active' },
-      inactive: { class: 'status-inactive', label: 'Inactive' },
-      pending: { class: 'status-pending', label: 'Pending' }
+      active: { class: 'active', label: 'Active' },
+      inactive: { class: 'inactive', label: 'Inactive' },
+      pending: { class: 'pending', label: 'Pending' }
     };
     return statuses[status] || statuses.inactive;
   };
@@ -288,7 +288,7 @@ export default function UsersList() {
                       </div>
                     </td>
                     <td>
-                      <span className={`users-role ${role.class}`}>
+                      <span className={`users-role ${ role.class}`}>
                         {role.icon} {role.label}
                       </span>
                     </td>
