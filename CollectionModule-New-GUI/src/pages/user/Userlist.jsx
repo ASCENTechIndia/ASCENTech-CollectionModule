@@ -1,20 +1,6 @@
-// src/pages/Users/UsersList.jsx
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  Eye,
-  Edit,
-  Trash2,
-  Mail,
-  Key,
-  MoreVertical,
-  Download,
-  Plus,
-  Search,
-  Sliders,
-  Monitor,
-  Smartphone,
-} from "lucide-react";
+import { Eye, Edit, Search, Monitor, Smartphone } from "lucide-react";
 import apiClient from "../../services/apiClient";
 import { useAuth } from "../../context/AuthContext";
 
@@ -30,21 +16,16 @@ export default function UsersList() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Filter states (frontend filters)
+  // Filter states
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRole, setFilterRole] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [selectedUsers, setSelectedUsers] = useState(new Set());
-  const [showAddModal, setShowAddModal] = useState(false);
 
+  // Pagination
   const [page, setPage] = useState(1);
-const [limit, setLimit] = useState(10);
-const [totalPages, setTotalPages] = useState(1);
-const [counts, setCounts] = useState({
-  total: 0,
-  active: 0,
-  inactive: 0
-});
+  const limit = 10; // fixed limit
+  const [totalPages, setTotalPages] = useState(1);
+  const [counts, setCounts] = useState({ total: 0, active: 0, inactive: 0 });
 
   const dropdownStyle = {
     padding: "0.375rem 2rem 0.375rem 0.75rem",
@@ -63,12 +44,12 @@ const [counts, setCounts] = useState({
     transition: "border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out",
   };
 
-  // Fetch branches when userLevel changes
+  // Fetch branches
   const fetchBranches = async (level) => {
     if (!level || !brCategory) return;
     try {
       const res = await apiClient.get(
-        `/users/getBranches/?brcategory=${brCategory}&userLevel=${level}`,
+        `/users/getBranches/?brcategory=${brCategory}&userLevel=${level}`
       );
       if (res.success) {
         const options = res.data.map((i) => ({
@@ -85,84 +66,70 @@ const [counts, setCounts] = useState({
     }
   };
 
-  // Fetch agents (users) when branchId changes
- const fetchAgents = async () => {
+  // Fetch agents
+  const fetchAgents = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (branchId) params.append("brid", branchId);
+      if (filterStatus !== "all") {
+        params.append("status", filterStatus === "active" ? "A" : "I");
+      }
+      if (filterRole !== "all") {
+        params.append("roleId", filterRole);
+      }
+      params.append("page", page);
+      params.append("limit", limit);
 
-  setLoading(true);
-  try {
-    const params = new URLSearchParams();
-
-    // 🔹 Optional params
-    if (branchId) params.append("brid", branchId);
-    if (filterStatus !== "all") {
-      params.append("status", filterStatus === "active" ? "A" : "I");
-    }
-    if (filterRole !== "all") {
-      params.append("roleId", filterRole);
-    }
-
-    params.append("page", page);
-    params.append("limit", limit);
-
-    const res = await apiClient.get(
-      `/users/getAgentsNew?${params.toString()}`
-    );
-
-    if (res.success) {
-      const apiData = res.data;
-
-      // 🔹 Map users
-      const userList = apiData.data.map((agent, i) => ({
-        id: agent.USERID,
-        name: agent.EMPNAME,
-        email: agent.EMAIL,
-        mobile: agent.MOBNO?.toString(),
-        role: mapRole(agent.VAR_USERROLE_NAME),
-        status: agent.VAR_USERMST_STATUS === "A" ? "active" : "inactive",lastActive: "Recently",
-        joined: new Date().toLocaleDateString(),
-        avatar: `avatar-${i}.webp`,
-      }));
-
-      setUsers(userList);
-
-      // 🔹 Pagination
-      setTotalPages(apiData.pagination.totalPages);
-
-      // 🔹 Counts
-      setCounts(apiData.counts);
-
-    } else {
+      const res = await apiClient.get(`/users/getAgentsNew?${params.toString()}`);
+      if (res.success) {
+        const apiData = res.data;
+        const userList = apiData.data.map((agent, i) => ({
+          id: agent.USERID,
+          name: agent.EMPNAME,
+          email: agent.EMAIL,
+          mobile: agent.MOBNO?.toString(),
+          role: mapRole(agent.VAR_USERROLE_NAME),
+          status: agent.VAR_USERMST_STATUS === "A" ? "active" : "inactive",
+          lastActive: "Recently",
+          joined: new Date().toLocaleDateString(),
+          avatar: `avatar-${i}.webp`,
+        }));
+        setUsers(userList);
+        setTotalPages(apiData.pagination.totalPages);
+        setCounts(apiData.counts);
+      } else {
+        setUsers([]);
+      }
+    } catch (err) {
+      console.error("Error fetching agents:", err);
       setUsers([]);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error("Error fetching agents:", err);
-    setUsers([]);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
-  // Helper to map backend role names to frontend role keys
   const mapRole = (roleName) => {
     const roleMap = {
       Admin: "admin",
       Manager: "manager",
       User: "user",
-      // Add more mappings as needed
+      FOS: "1",
+      "Generic View": "5",
     };
     return roleMap[roleName] || "user";
   };
 
-  // Clear users when branch changes
-useEffect(() => {
+  // Trigger API when filters change
+  useEffect(() => {
     fetchAgents();
-}, [branchId, filterRole, filterStatus, page]);
+  }, [branchId, filterRole, filterStatus, page]);
 
-useEffect(() => {
-  setPage(1);
-}, [branchId, filterRole, filterStatus]);
+  useEffect(() => {
+    setPage(1);
+  }, [branchId, filterRole, filterStatus]);
 
-  // Reset branch options when userLevel changes
+  // Reset branch when userLevel changes
   useEffect(() => {
     setBranchId("");
     if (userLevel) {
@@ -172,45 +139,23 @@ useEffect(() => {
     }
   }, [userLevel]);
 
-  // Filter users (frontend)
+  // Frontend filter: only search and status (role already filtered by API)
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.mobile?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = filterRole === "all" || user.role === filterRole;
-    const matchesStatus =
-      filterStatus === "all" || user.status === filterStatus;
-    return matchesSearch && matchesRole && matchesStatus;
+      (user.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (user.email?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (user.mobile?.toLowerCase() || "").includes(searchTerm.toLowerCase());
+    const matchesStatus = filterStatus === "all" || user.status === filterStatus;
+    return matchesSearch && matchesStatus;
   });
-
-  const handleSelectAll = () => {
-    if (selectedUsers.size === filteredUsers.length) {
-      setSelectedUsers(new Set());
-    } else {
-      setSelectedUsers(new Set(filteredUsers.map((u) => u.id)));
-    }
-  };
-
-  const toggleUserSelection = (userId) => {
-    const newSelected = new Set(selectedUsers);
-    if (newSelected.has(userId)) {
-      newSelected.delete(userId);
-    } else {
-      newSelected.add(userId);
-    }
-    setSelectedUsers(newSelected);
-  };
-
-  const deleteUser = (userId) => {
-    setUsers(users.filter((u) => u.id !== userId));
-  };
 
   const getRoleBadge = (role) => {
     const roles = {
       admin: { icon: "🛡️", label: "Admin", class: "admin" },
       manager: { icon: "⚙️", label: "Manager", class: "manager" },
       user: { icon: "👤", label: "User", class: "user" },
+      1: { icon: "📱", label: "FOS", class: "fos" },
+      5: { icon: "👁️", label: "Generic View", class: "generic" },
     };
     return roles[role] || roles.user;
   };
@@ -230,8 +175,7 @@ useEffect(() => {
           <div>
             <h1 className="page-title">User List</h1>
             <p className="users-page-subtitle">
-              Centralized user operations, access status, and lifecycle
-              management.
+              Centralized user operations, access status, and lifecycle management.
             </p>
           </div>
           <div className="page-header-actions">
@@ -259,16 +203,12 @@ useEffect(() => {
           <div className="users-insight users-insight-active">
             <span className="users-insight-icon">✓</span>
             <span className="users-insight-label">Active</span>
-            <span className="users-insight-value">
-              {counts.active}
-            </span>
+            <span className="users-insight-value">{counts.active}</span>
           </div>
           <div className="users-insight users-insight-inactive">
             <span className="users-insight-icon">✗</span>
             <span className="users-insight-label">Inactive</span>
-            <span className="users-insight-value">
-              {counts.inactive}
-            </span>
+            <span className="users-insight-value">{counts.inactive}</span>
           </div>
         </div>
 
@@ -288,7 +228,7 @@ useEffect(() => {
                 >
                   Active{" "}
                   <span className="users-filter-count">
-                    {users.filter((u) => u.status === "A").length}
+                    {users.filter((u) => u.status === "active").length}
                   </span>
                 </button>
                 <button
@@ -310,17 +250,15 @@ useEffect(() => {
                   type="text"
                   placeholder="Search users, email, mobile..."
                   value={searchTerm}
-                  // onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setPage(1);
+                  }}
                 />
               </div>
 
               <div className="d-flex gap-2">
-                <select
-                  className=""
-                  style={dropdownStyle}
-                  value={userLevel}
-                  onChange={(e) => setUserLevel(e.target.value)}
-                >
+                <select style={dropdownStyle} value={userLevel} onChange={(e) => setUserLevel(e.target.value)}>
                   <option value="">Select User Level</option>
                   <option value="Zone">Zone</option>
                   <option value="Region">Region</option>
@@ -328,9 +266,8 @@ useEffect(() => {
                 </select>
 
                 <select
-                  className=""
-                  value={branchId}
                   style={dropdownStyle}
+                  value={branchId}
                   onChange={(e) => setBranchId(e.target.value)}
                   disabled={!userLevel}
                 >
@@ -343,15 +280,13 @@ useEffect(() => {
                 </select>
 
                 <select
-                  className=""
-                  value={filterRole}
                   style={dropdownStyle}
+                  value={filterRole}
                   onChange={(e) => setFilterRole(e.target.value)}
                 >
                   <option value="all">All roles</option>
                   <option value="5">Generic</option>
                   <option value="1">FOS</option>
-                  
                 </select>
               </div>
             </div>
@@ -364,17 +299,6 @@ useEffect(() => {
               <table className="table table-hover align-middle mb-0">
                 <thead>
                   <tr>
-                    <th className="users-th-check">
-                      <input
-                        type="checkbox"
-                        className="form-check-input"
-                        onChange={handleSelectAll}
-                        checked={
-                          selectedUsers.size === filteredUsers.length &&
-                          filteredUsers.length > 0
-                        }
-                      />
-                    </th>
                     <th>User</th>
                     <th>Role</th>
                     <th>Status</th>
@@ -386,44 +310,21 @@ useEffect(() => {
                 <tbody>
                   {filteredUsers.map((userItem) => {
                     const role = getRoleBadge(userItem.role);
-                    const status = getStatusBadge(userItem.VAR_USERMST_STATUS);
+                    const status = getStatusBadge(userItem.status);
                     return (
                       <tr key={userItem.id}>
                         <td>
-                          <input
-                            type="checkbox"
-                            className="form-check-input"
-                            checked={selectedUsers.has(userItem.id)}
-                            onChange={() => toggleUserSelection(userItem.id)}
-                          />
-                        </td>
-                        <td>
                           <div className="users-user">
                             <div className="users-avatar-wrap">
-                              <img
-                                src={`/assets/img/profile-img.jpg`}
-                                alt=""
-                                className="users-avatar"
-                              />
-                              <span
-                                className={`users-avatar-status online`}
-                              ></span>
+                              <img src={`/assets/img/profile-img.jpg`} alt="" className="users-avatar" />
+                              <span className="users-avatar-status online"></span>
                             </div>
                             <div className="users-user-info">
-                              <Link
-                                to={`/users/${userItem.id}`}
-                                className="users-user-name"
-                              >
+                              <Link to={`/users/${userItem.id}`} className="users-user-name">
                                 {userItem.name}
                               </Link>
-                              <span className="users-user-email">
-                                {userItem.email}
-                              </span>
-                              {userItem.mobile && (
-                                <span className="users-user-mobile">
-                                  {userItem.mobile}
-                                </span>
-                              )}
+                              <span className="users-user-email">{userItem.email}</span>
+                              {userItem.mobile && <span className="users-user-mobile">{userItem.mobile}</span>}
                             </div>
                           </div>
                         </td>
@@ -434,27 +335,17 @@ useEffect(() => {
                         </td>
                         <td>
                           <span className={`users-status ${status.class}`}>
-                            <span className="users-status-dot"></span>{" "}
-                            {status.label}
+                            <span className="users-status-dot"></span> {status.label}
                           </span>
                         </td>
                         <td className="users-meta">{userItem.lastActive}</td>
                         <td className="users-meta">{userItem.joined}</td>
                         <td>
                           <div className="users-actions">
-                            <Link
-                              to={`/users/${userItem.id}`}
-                              className="users-action-btn"
-                              title="View"
-                            >
+                            <Link to={`/users/${userItem.id}`} className="users-action-btn" title="View">
                               <Eye size={16} />
                             </Link>
-                            <Link
-                               to="/user/roles"
-                               state={{ employeeId: userItem.id }}
-                              className="users-action-btn"
-                              title="Edit"
-                            >
+                            <Link to="/user/roles" state={{ employeeId: userItem.id }} className="users-action-btn" title="Edit">
                               <Edit size={16} />
                             </Link>
                           </div>
@@ -467,145 +358,35 @@ useEffect(() => {
             )}
           </div>
 
-         <div className="users-pagination">
-  <div className="users-pagination-info">
-    Showing{" "}
-    <strong>
-      {counts.total === 0 ? 0 : (page - 1) * limit + 1} -{" "}
-      {Math.min(page * limit, counts.total)}
-    </strong>{" "}
-    of <strong>{counts.total}</strong> users
-  </div>
-
-  <nav>
-    <ul className="pagination pagination-sm mb-0">
-
-      {/* PREVIOUS */}
-      <li className={`page-item ${page === 1 ? "disabled" : ""}`}>
-        <button
-          className="page-link"
-          onClick={() => setPage((prev) => prev - 1)}
-          disabled={page === 1}
-        >
-          ← Previous
-        </button>
-      </li>
-
-      {/* NEXT */}
-      <li className={`page-item ${page === totalPages || totalPages === 0 ? "disabled" : ""}`}>
-        <button
-          className="page-link"
-          onClick={() => setPage((prev) => prev + 1)}
-          disabled={page === totalPages || totalPages === 0}
-        >
-          Next →
-        </button>
-      </li>
-
-    </ul>
-  </nav>
-</div>
-        </div>
-
-        {showAddModal && (
-          <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
-            <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">Add New User</h5>
-                  <button
-                    type="button"
-                    className="btn-close"
-                    onClick={() => setShowAddModal(false)}
-                  ></button>
-                </div>
-                <div className="modal-body">
-                  <form>
-                    <div className="row g-3">
-                      <div className="col-sm-6">
-                        <label className="form-label">First Name</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Enter first name"
-                        />
-                      </div>
-                      <div className="col-sm-6">
-                        <label className="form-label">Last Name</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Enter last name"
-                        />
-                      </div>
-                      <div className="col-12">
-                        <label className="form-label">Email Address</label>
-                        <input
-                          type="email"
-                          className="form-control"
-                          placeholder="Enter email address"
-                        />
-                      </div>
-                      <div className="col-12">
-                        <label className="form-label">Role</label>
-                        <select className="form-select">
-                          <option value="">Select role...</option>
-                          <option value="admin">Admin</option>
-                          <option value="manager">Manager</option>
-                          <option value="user">User</option>
-                        </select>
-                      </div>
-                      <div className="col-sm-6">
-                        <label className="form-label">Password</label>
-                        <input
-                          type="password"
-                          className="form-control"
-                          placeholder="Enter password"
-                        />
-                      </div>
-                      <div className="col-sm-6">
-                        <label className="form-label">Confirm Password</label>
-                        <input
-                          type="password"
-                          className="form-control"
-                          placeholder="Confirm password"
-                        />
-                      </div>
-                      <div className="col-12">
-                        <div className="form-check">
-                          <input
-                            className="form-check-input"
-                            type="checkbox"
-                            id="sendInvite"
-                            defaultChecked
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor="sendInvite"
-                          >
-                            Send welcome email with login details
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                  </form>
-                </div>
-                <div className="modal-footer">
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => setShowAddModal(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button type="button" className="btn btn-primary">
-                    Add User
-                  </button>
-                </div>
-              </div>
+          <div className="users-pagination">
+            <div className="users-pagination-info">
+              Showing{" "}
+              <strong>
+                {counts.total === 0 ? 0 : (page - 1) * limit + 1} -{" "}
+                {Math.min(page * limit, counts.total)}
+              </strong>{" "}
+              of <strong>{counts.total}</strong> users
             </div>
+            <nav>
+              <ul className="pagination pagination-sm mb-0">
+                <li className={`page-item ${page === 1 ? "disabled" : ""}`}>
+                  <button className="page-link" onClick={() => setPage((prev) => prev - 1)} disabled={page === 1}>
+                    ← Previous
+                  </button>
+                </li>
+                <li className={`page-item ${page === totalPages || totalPages === 0 ? "disabled" : ""}`}>
+                  <button
+                    className="page-link"
+                    onClick={() => setPage((prev) => prev + 1)}
+                    disabled={page === totalPages || totalPages === 0}
+                  >
+                    Next →
+                  </button>
+                </li>
+              </ul>
+            </nav>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
