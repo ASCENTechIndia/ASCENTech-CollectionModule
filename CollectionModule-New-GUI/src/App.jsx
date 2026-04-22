@@ -62,6 +62,7 @@ import FrmDailyVisit from './pages/Dashboard/FrmDailyVisit'
 import UsersList from './pages/user/Userlist'
 import Roles from './pages/user/Roles'
 import FrmActiveAgentsNew from './pages/Dashboard/FrmActiveAgentsNew'
+import FrmNewDashboard2New from './pages/Dashboard/FrmNewDashboard2New'
 
 function App() {
   return (
@@ -95,6 +96,7 @@ function App() {
         <Route path="Dashboard/FrmNewDashboard2" element={<FrmNewDashboard2 />} />
         <Route path='Dashboard/FrmDailyVisit' element={<FrmDailyVisit />} />
         <Route path='/Dashboard/FrmActiveAgentsNew' element={<FrmActiveAgentsNew />} />
+        <Route path="Dashboard/FrmNewDashboard2New" element={<FrmNewDashboard2New />} />
         
         {/* User */}
         <Route path='/User/FrmUserModification' element={<FrmUserModification/>}/>
