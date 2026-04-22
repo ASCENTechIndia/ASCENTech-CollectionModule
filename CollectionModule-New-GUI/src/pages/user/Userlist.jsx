@@ -176,12 +176,12 @@ export default function UsersList() {
           <span className="users-insight-value">{users.filter(u => u.status === 'active').length}</span>
           <span className="users-insight-meta">75% engagement</span>
         </div>
-        <div className="users-insight users-insight-pending">
+        {/* <div className="users-insight users-insight-pending">
           <span className="users-insight-icon">⏳</span>
           <span className="users-insight-label">Pending</span>
           <span className="users-insight-value">{users.filter(u => u.status === 'pending').length}</span>
           <span className="users-insight-meta">Needs onboarding</span>
-        </div>
+        </div> */}
         <div className="users-insight users-insight-inactive">
           <span className="users-insight-icon">✗</span>
           <span className="users-insight-label">Inactive</span>
