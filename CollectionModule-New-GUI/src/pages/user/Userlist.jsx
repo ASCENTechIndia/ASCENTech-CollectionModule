@@ -194,7 +194,7 @@ export default function UsersList() {
           </div>
         </div>
 
-        {/* <div className="users-insight-row mb-3">
+         {/* <div className="users-insight-row mb-3">
           <div className="users-insight users-insight-total">
             <span className="users-insight-icon">👥</span>
             <span className="users-insight-label">Total Users</span>
@@ -213,7 +213,7 @@ export default function UsersList() {
               {counts.inactive}
             </span>
           </div>
-        </div>
+        </div> */}
 
         <div className="card users-list-card">
           <div className="users-toolbar">
