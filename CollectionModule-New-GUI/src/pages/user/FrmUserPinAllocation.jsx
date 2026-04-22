@@ -41,7 +41,7 @@ function FrmUserPinAllocation() {
     }
 
     fetchPincodes()
-  }, [showError])
+  }, [])
 
   const handleSearchUser = async () => {
     const trimmedUserId = userId.trim()

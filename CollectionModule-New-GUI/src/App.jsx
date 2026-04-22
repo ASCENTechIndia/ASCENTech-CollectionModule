@@ -62,6 +62,7 @@ import FrmDailyVisit from './pages/Dashboard/FrmDailyVisit'
 import UsersList from './pages/user/Userlist'
 import Roles from './pages/user/Roles'
 import UserPinAllocation from './pages/user/UserPinAllocation'
+import UnAssignedPincode from './pages/user/UnAssignedPincode'
 import FrmActiveAgentsNew from './pages/Dashboard/FrmActiveAgentsNew'
 import DailyVisitNew from './pages/Dashboard/DailyVisitNew'
 
@@ -131,6 +132,7 @@ function App() {
         <Route path="user/user-list" element={<UsersList />} />
         <Route path="user/roles" element={<Roles />} />
         <Route path="user/pincode-allocation" element={<UserPinAllocation />} />
+        <Route path="user/unassigned-Pincode" element={<UnAssignedPincode />} />
       </Route>
       <Route path="/map-view" element={<MapViewPage />} />
       <Route
