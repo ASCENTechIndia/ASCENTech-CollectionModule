@@ -61,6 +61,7 @@ import MapViewPage from './components/ui/MapViewPage'
 import FrmDailyVisit from './pages/Dashboard/FrmDailyVisit'
 import UsersList from './pages/user/Userlist'
 import Roles from './pages/user/Roles'
+import FrmActiveAgentsNew from './pages/Dashboard/FrmActiveAgentsNew'
 
 function App() {
   return (
@@ -93,6 +94,7 @@ function App() {
         <Route path='/Dashboard/FrmActiveAgents' element={<FrmActiveAgents />} />
         <Route path="Dashboard/FrmNewDashboard2" element={<FrmNewDashboard2 />} />
         <Route path='Dashboard/FrmDailyVisit' element={<FrmDailyVisit />} />
+        <Route path='/Dashboard/FrmActiveAgentsNew' element={<FrmActiveAgentsNew />} />
         
         {/* User */}
         <Route path='/User/FrmUserModification' element={<FrmUserModification/>}/>
