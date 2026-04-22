@@ -9,13 +9,85 @@ import { useNotification } from "../../context/useNotification";
 import Chart from 'chart.js/auto'
 
 const FrmActiveAgentsNew = () => {
-
+    const { user } = useAuth();
+    const userId = user?.userId;
+    const { showError } = useNotification();
+    const [loading, setLoading] = useState(false);
+    const [summaryDetails, setSummaryDetails] = useState({});
+    const [chartData, setChartData] = useState({
+        labels: [],
+        datasets: []
+    });
+    const [tableData, setTableData] = useState([]);
+    const columns = [
+        { label: 'Zone Name', sortable: false },
+        { label: 'Region Name', sortable: false },
+        { label: 'Branch Name', sortable: false },
+        {
+            label: 'Collection Associate ID',
+            sortable: true,
+        },
+        {
+            label: 'Collection Associate',
+            sortable: false,
+        },
+        {
+            label: 'Login Date',
+            sortable: true,
+        },
+        {
+            label: 'First Login of the Day',
+            sortable: true,
+        },
+        {
+            label: 'Last Logout of the Day',
+            sortable: true,
+        },
+        {
+            label: 'MDM ID',
+            sortable: true,
+        },
+    ]
+    const {
+        register,
+    } = useForm({
+        defaultValues: {
+            monthYear: getCurrentMonthYear()
+        }
+    });
     const commonColors = {
         accent: '#3b82f6',
         success: '#22c55e',
         warning: '#f59e0b',
         info: '#06b6d4',
         danger: '#ef4444',
+    }
+
+    function getCurrentMonthYear(padded = false) {
+        const now = new Date();
+
+        let month = now.getMonth() + 1; // 0-based → 1-based
+        const year = now.getFullYear();
+
+        if (padded) {
+            month = String(month).padStart(2, '0');
+        }
+
+        return `${month}-${year}`;
+    }
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+
+        const day = String(date.getDate()).padStart(2, '0');
+
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        const month = months[date.getMonth()];
+        const year = date.getFullYear();
+
+        return `${day}-${month}-${year}`;
     }
 
     function ChartCard({ title, children, subtitle }) {
@@ -47,21 +119,21 @@ const FrmActiveAgentsNew = () => {
     const summaryCards = [
         {
             label: 'No. of Onboarded and Active Collection Associate',
-            value: 0,
+            value: summaryDetails?.onboardedActiveAssociates ?? 0,
             icon: 'bi bi-people',
             accent: '#3b82f6',
             bg: '#eff6ff'
         },
         {
             label: 'Collection Associate having Accounts Assigned',
-            value: 0,
+            value: summaryDetails?.accountsAssigned ?? 0,
             icon: 'bi bi-cash-stack',
             accent: '#10b981',
             bg: '#ecfdf5'
         },
         {
             label: 'Total No. of Unique Logins',
-            value: 0,
+            value: summaryDetails?.uniqueLogins ?? 0,
             icon: 'bi bi-box-arrow-in-right',
             accent: '#f59e0b',
             bg: '#fffbeb'
@@ -70,9 +142,54 @@ const FrmActiveAgentsNew = () => {
 
     const bar1 = useChart((context) => new Chart(context, {
         type: 'bar',
-        data: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], datasets: [{ label: 'Sales', data: [12, 19, 15, 25, 22, 30], backgroundColor: commonColors.accent }] },
+        data: { labels: chartData.labels, datasets: [{ label: 'Sales', data: chartData.datasets, backgroundColor: commonColors.accent }] },
         options: { responsive: true },
     }))
+
+    const fetchData = useCallback(async (monthYear) => {
+        setLoading(true);
+        try {
+            const [month, year] = monthYear.split("-");
+            const userNo = userId.split("E")[1];
+
+            const response = await apiClient.get(`/active-agents/dashboard?userId=${userNo}&month=${month}&year=${year}`, {});
+
+            if (response.success) {
+                setSummaryDetails(response.data.summary);
+                setChartData({
+                    labels: response?.data?.chart?.labels,
+                    datasets: response?.data?.chart?.data
+                });
+
+                const formattedGridData = response.data.grid.map(item => ([
+                    item.GRANDPARENT_BRANCH_NAME,
+                    item.PARENT_BRANCH_NAME,
+                    item.CURRENT_BRANCH_NAME,
+                    item.USERID,
+                    item.VAR_USERMST_USERFULLNAME,
+                    item?.LOGIN_DATE ? formatDate(item.LOGIN_DATE) : "",
+                    item?.MIN_LOGIN ? formatDate(item.MIN_LOGIN) : "",
+                    item?.MAX_LOGOUT ? formatDate(item.MAX_LOGOUT) : "",
+                    item.MDM_ID
+                ]))
+                setTableData(formattedGridData);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    }, [userId])
+
+    useEffect(() => {
+        if (userId) {
+            const monthYearStr = getCurrentMonthYear();
+            const timeoutId = window.setTimeout(() => {
+                fetchData(monthYearStr);
+            }, 0);
+            return () => window.clearTimeout(timeoutId);
+        }
+    }, [userId, fetchData]);
 
 
     return (
@@ -94,10 +211,10 @@ const FrmActiveAgentsNew = () => {
                             </label> */}
                             <select className="form-select"
                                 style={{ maxWidth: '280px' }}
-                            // {...register("monthYear")}
-                            // onChange={(e) => {
-                            //     fetchData(e.target.value);
-                            // }}
+                                {...register("monthYear")}
+                                onChange={(e) => {
+                                    fetchData(e.target.value);
+                                }}
                             >
                                 <option value="4-2025">April 2025</option>
                                 <option value="5-2025">May 2025</option>
@@ -186,37 +303,34 @@ const FrmActiveAgentsNew = () => {
                                             <table className="table table-hover align-middle mb-0">
                                                 <thead>
                                                     <tr>
-                                                        <th>Sales Rep</th>
-                                                        <th>Deals Closed</th>
-                                                        <th>Revenue</th>
-                                                        <th>Win Rate</th>
-                                                        <th>Progress</th>
-                                                        <th>Target</th>
+                                                        <th>Zone Name</th>
+                                                        <th>Region Name</th>
+                                                        <th>Branch Name</th>
+                                                        <th>Collection Associate ID</th>
+                                                        <th>Collection Associate</th>
+                                                        <th>Login Date</th>
+                                                        <th>First Login of the Day</th>
+                                                        <th>Last Logout of the Day</th>
+                                                        <th>MDM ID</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr>
-                                                        <td>
-                                                            <div className="d-flex align-items-center gap-2">
-                                                                <img src="assets/img/avatars/avatar-5.webp" alt="" className="rounded-circle" width="36" height="36" />
-                                                                <div>
-                                                                    <div className="fw-medium">Alex Johnson</div>
-                                                                    <small className="text-muted">Senior Sales</small>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>24</td>
-                                                        <td className="fw-semibold">$156,400</td>
-                                                        <td><span className="text-success">78%</span></td>
-                                                        <td style={{ width: "200px" }}>
-                                                            <div className="progress" style={{ height: "6px" }}>
-                                                                <div className="progress-bar bg-success" style={{ width: "92%" }}></div>
-                                                            </div>
-                                                            <small className="text-muted">92% of target</small>
-                                                        </td>
-                                                        <td>$170,000</td>
-                                                    </tr>
-                                                    <tr>
+                                                    {tableData.length > 0 &&
+                                                        tableData.map((rec, index) => (
+                                                            <tr key={index}>
+                                                                <td>{rec[0]}</td>
+                                                                <td>{rec[1]}</td>
+                                                                <td className="fw-semibold">{rec[2]}</td>
+                                                                <td><span className="text-success">{rec[3]}</span></td>
+                                                                <td className="flex flex-row g-2" style={{ width: "200px" }}><i class="bi bi-people-fill"></i><span>{rec[4]}</span></td>
+                                                                <td>{rec[5]}</td>
+                                                                <td>{rec[6]}</td>
+                                                                <td>{rec[7]}</td>
+                                                                <td>{rec[8]}</td>
+                                                            </tr>
+                                                        ))
+                                                    }
+                                                    {/* <tr>
                                                         <td>
                                                             <div className="d-flex align-items-center gap-2">
                                                                 <img src="assets/img/avatars/avatar-6.webp" alt="" className="rounded-circle" width="36" height="36" />
@@ -299,7 +413,8 @@ const FrmActiveAgentsNew = () => {
                                                             <small className="text-muted">62% of target</small>
                                                         </td>
                                                         <td>$90,000</td>
-                                                    </tr>
+                                                    </tr> */}
+                                                    {console.log(tableData)}
                                                 </tbody>
                                             </table>
                                         </div>
