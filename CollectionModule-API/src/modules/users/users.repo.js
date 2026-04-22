@@ -567,6 +567,113 @@ async function agentDetailsbyBrid(brid) {
   return result.rows || [];
 }
 
+async function agentDetailsbyBridNew(payload) {
+  const {
+    brid,
+    status,
+    roleId,
+    page = 1,
+    limit = 10
+  } = payload;
+
+  let conditions = [];
+  let binds = {};
+
+  // 🔹 Filters
+  if (brid) {
+    conditions.push("num_usermst_brid = :brid");
+    binds.brid = Number(brid);
+  }
+
+  if (status) {
+    conditions.push("VAR_USERMST_STATUS = :status");
+    binds.status = status;
+  }
+
+  if (roleId) {
+    conditions.push("NUM_USERMST_ROLEID = :roleId");
+    binds.roleId = Number(roleId);
+  }
+
+  let whereClause = conditions.length
+    ? "WHERE " + conditions.join(" AND ")
+    : "";
+
+  const offset = (Number(page) - 1) * Number(limit);
+
+  // =========================
+  // 🔥 DATA QUERY
+  // =========================
+  let dataSql = `
+    SELECT 
+      REPLACE(var_usermst_userid,'E','') username,
+      var_usermst_userid userid,
+      var_usermst_userfullname empname,
+      var_usermst_empcode empcode,
+      num_usermst_mobileno mobno,
+      num_usermst_email email,
+      var_designation_designation desg,
+      var_userrole_name,
+      var_usermst_status
+    FROM etech.aoup_usermst_def a
+    LEFT JOIN etech.aoup_designation_def 
+      ON num_designation_id = num_usermst_desgid
+    LEFT JOIN etech.aoup_userrole_mas 
+      ON num_userrole_id = num_usermst_roleid
+    ${whereClause}
+    ORDER BY var_usermst_userid
+    OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
+  `;
+
+  // =========================
+  // 🔥 PAGINATION COUNT (IMPORTANT)
+  // =========================
+  let totalSql = `
+    SELECT COUNT(*) AS total_records
+    FROM etech.aoup_usermst_def a
+    ${whereClause}
+  `;
+
+  // =========================
+  // 🔥 STATUS COUNTS
+  // =========================
+  let countSql = `
+    SELECT 
+      SUM(CASE WHEN VAR_USERMST_STATUS = 'A' THEN 1 ELSE 0 END) AS active_count,
+      SUM(CASE WHEN VAR_USERMST_STATUS = 'I' THEN 1 ELSE 0 END) AS inactive_count
+    FROM etech.aoup_usermst_def a
+    ${whereClause}
+  `;
+
+  // 🔹 Execute
+  const [dataResult, totalResult, countResult] = await Promise.all([
+    executeQuery(dataSql, { ...binds, offset, limit: Number(limit) }),
+    executeQuery(totalSql, binds),
+    executeQuery(countSql, binds)
+  ]);
+
+  const totalRecords = totalResult.rows?.[0]?.TOTAL_RECORDS || 0;
+  const active = countResult.rows?.[0]?.ACTIVE_COUNT || 0;
+  const inactive = countResult.rows?.[0]?.INACTIVE_COUNT || 0;
+
+  const totalPages = Math.ceil(totalRecords / Number(limit));
+
+  return {
+    data: dataResult.rows || [],
+    pagination: {
+      page: Number(page),
+      limit: Number(limit),
+      totalRecords,
+      totalPages
+    },
+    counts: {
+      total: totalRecords,
+      active,
+      inactive
+    }
+  };
+}
+
 async function getBranchusercreation(filters) {
   let sql = "";
   const binds = {};
@@ -837,4 +944,5 @@ module.exports = {
   getUserDevice, callUserWebIns , findUserByUserId,
   getPageAccessByUserId,
   updatePageAccessByUserId,
+  agentDetailsbyBridNew
 };

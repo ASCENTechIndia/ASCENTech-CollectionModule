@@ -89,6 +89,14 @@ const agentSchema = z.object({
   brid:z.string().trim().min(1)
 })
 
+const agentSchemaNew = z.object({
+  brid: z.string().optional(),
+  status: z.enum(['A', 'I']).optional(),   // Active / Inactive
+  roleId: z.string().optional(),
+  page: z.string().optional(),
+  limit: z.string().optional()
+});
+
 const numericString = z.string().trim().regex(/^\d+$/, 'Only numeric value allowed');
 
 const mobileUserSubmitSchema = z.object({
@@ -186,4 +194,5 @@ module.exports = {
   userModifyStatusSubmitSchema,
   pageAccessQuerySchema,
   pageAccessUpdateSchema,
+  agentSchemaNew
 };

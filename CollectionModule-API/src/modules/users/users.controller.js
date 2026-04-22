@@ -17,6 +17,7 @@ const {
   submitUserStatusChange,
   getPageAccess,
   updatePageAccess,
+  agentListNew
 } = require('./users.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -217,6 +218,21 @@ async function agentListHandler(req, res, next) {
     const rows = await agentList(brid);
     logApiSuccess(req, 200, { count: rows?.length || 0 }, `Agent list retrieved`);
     return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Agent list error');
+    return next(error);
+  }
+}
+
+async function agentListHandlerNew(req, res, next) {
+  try {
+    const payload = req.query;
+
+    const rows = await agentListNew(payload);
+
+    logApiSuccess(req, 200, { count: rows?.length || 0 }, `Agent list retrieved`);
+    return res.ok(rows);
+
   } catch (error) {
     logApiError(req, 500, error.message, 'Agent list error');
     return next(error);
@@ -459,4 +475,5 @@ module.exports = {
   submitUserModifyStatusHandler,
   getPageAccessHandler,
   updatePageAccessHandler,
+  agentListHandlerNew
 };
