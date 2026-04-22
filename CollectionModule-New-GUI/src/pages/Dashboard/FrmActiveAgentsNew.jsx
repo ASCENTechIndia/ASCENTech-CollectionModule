@@ -11,6 +11,7 @@ import Chart from 'chart.js/auto'
 const FrmActiveAgentsNew = () => {
     const { user } = useAuth();
     const userId = user?.userId;
+    console.log("User ID:", userId);
     const { showError } = useNotification();
     const [loading, setLoading] = useState(false);
     const [summaryDetails, setSummaryDetails] = useState({});
@@ -193,8 +194,7 @@ const FrmActiveAgentsNew = () => {
 
 
     return (
-        <div className="main">
-            <div className="main-content page-users-view">
+       <div className="page-roles p-4">
                 <div className="page-users-view">
                     <div className="page-header uv-page-header">
                         <div>
@@ -286,17 +286,6 @@ const FrmActiveAgentsNew = () => {
                                 <div className="card">
                                     <div className="card-header d-flex justify-content-between align-items-center">
                                         <h5 className="card-title mb-0">Team Performance</h5>
-                                        <div className="dropdown">
-                                            <button className="btn btn-sm btn-light" data-bs-toggle="dropdown">
-                                                This Month <i className="bi bi-chevron-down ms-1"></i>
-                                            </button>
-                                            <ul className="dropdown-menu dropdown-menu-end">
-                                                <li><a className="dropdown-item" href="#">This Week</a></li>
-                                                <li><a className="dropdown-item active" href="#">This Month</a></li>
-                                                <li><a className="dropdown-item" href="#">This Quarter</a></li>
-                                                <li><a className="dropdown-item" href="#">This Year</a></li>
-                                            </ul>
-                                        </div>
                                     </div>
                                     <div className="card-body p-0">
                                         <div className="table-responsive">
@@ -322,7 +311,7 @@ const FrmActiveAgentsNew = () => {
                                                                 <td>{rec[1]}</td>
                                                                 <td className="fw-semibold">{rec[2]}</td>
                                                                 <td><span className="text-success">{rec[3]}</span></td>
-                                                                <td className="flex flex-row g-2" style={{ width: "200px" }}><i class="bi bi-people-fill"></i><span>{rec[4]}</span></td>
+                                                                <td>{rec[4]}</td>
                                                                 <td>{rec[5]}</td>
                                                                 <td>{rec[6]}</td>
                                                                 <td>{rec[7]}</td>
@@ -424,8 +413,8 @@ const FrmActiveAgentsNew = () => {
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+                </div>
+           
     )
 };
 
