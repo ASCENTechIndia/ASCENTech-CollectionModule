@@ -414,7 +414,6 @@ const FrmActiveAgentsNew = () => {
                                                         </td>
                                                         <td>$90,000</td>
                                                     </tr> */}
-                                                    {console.log(tableData)}
                                                 </tbody>
                                             </table>
                                         </div>

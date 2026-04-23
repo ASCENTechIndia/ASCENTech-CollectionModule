@@ -328,7 +328,7 @@ const FrmNewDashboard2 = () => {
         }
     }, [userId, brCategory, userOf])
     return (
-        <div className="main-content">
+        <div className="page-roles">
             <div className="page-header">
                 <h1 className="page-title">Disposition Report</h1>
                 <nav className="breadcrumb">
