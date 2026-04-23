@@ -168,83 +168,84 @@ const FrmNewDashboard2New = () => {
         }
     }, [userId, brCategory, userOf])
     return (
-        <div className="main">
-            <div className="main-content page-users-view">
-                <div className="page-users-view">
-                    <div className="page-header uv-page-header">
-                        <div>
-                            <h1 className="page-title">Disposition Report</h1>
-                            <nav className="breadcrumb">
-                                <span className="breadcrumb-item">Home</span>
-                                <span className="breadcrumb-item">Dashboard</span>
-                                <span className="breadcrumb-item active">Disposition Dashboard</span>
-                            </nav>
-                        </div>
-                        <div className="d-flex flex-column align-items-md-center">
-                            {/* <label className="form-label mb-0">
+        // <div className="main">
+        //     <div className="main-content page-users-view">
+        <div className="page-roles p-4">
+            <div className="page-users-view">
+                <div className="page-header uv-page-header">
+                    <div>
+                        <h1 className="page-title">Disposition Report</h1>
+                        <nav className="breadcrumb">
+                            <span className="breadcrumb-item">Home</span>
+                            <span className="breadcrumb-item">Dashboard</span>
+                            <span className="breadcrumb-item active">Disposition Dashboard</span>
+                        </nav>
+                    </div>
+                    <div className="d-flex flex-column align-items-md-center">
+                        {/* <label className="form-label mb-0">
                                 Select Month & Year:
                             </label> */}
-                            <select className="form-select"
-                                style={{ maxWidth: '280px' }}
-                                {...register("monthYear")}
-                                onChange={(e) => {
-                                    fetchData(e.target.value);
-                                }}
-                            >
-                                <option value="4-2025">April 2025</option>
-                                <option value="5-2025">May 2025</option>
-                                <option value="6-2025">June 2025</option>
-                                <option value="7-2025">July 2025</option>
-                                <option value="8-2025">August 2025</option>
-                                <option value="9-2025">September 2025</option>
-                                <option value="10-2025">October 2025</option>
-                                <option value="11-2025">November 2025</option>
-                                <option value="12-2025">December 2025</option>
-                                <option value="1-2026">January 2026</option>
-                                <option value="2-2026">February 2026</option>
-                                <option value="3-2026">March 2026</option>
-                                <option value="4-2026">April 2026</option>
-                            </select>
-                        </div>
+                        <select className="form-select"
+                            style={{ maxWidth: '280px' }}
+                            {...register("monthYear")}
+                            onChange={(e) => {
+                                fetchData(e.target.value);
+                            }}
+                        >
+                            <option value="4-2025">April 2025</option>
+                            <option value="5-2025">May 2025</option>
+                            <option value="6-2025">June 2025</option>
+                            <option value="7-2025">July 2025</option>
+                            <option value="8-2025">August 2025</option>
+                            <option value="9-2025">September 2025</option>
+                            <option value="10-2025">October 2025</option>
+                            <option value="11-2025">November 2025</option>
+                            <option value="12-2025">December 2025</option>
+                            <option value="1-2026">January 2026</option>
+                            <option value="2-2026">February 2026</option>
+                            <option value="3-2026">March 2026</option>
+                            <option value="4-2026">April 2026</option>
+                        </select>
                     </div>
-                    <div className="card p-4 shadow border-0">
-                        <div className="mt-3 w-100">
-                            <ChartCard
-                                title="Disposition Graph"
-                                subtitle="Dispositions Done"
-                            >
-                                <canvas ref={bar4} />
-                            </ChartCard>
-                        </div>
-                        <div className="card mt-3">
-                            <div className="card-header">
-                                <h5 className="card-title">Top Selling Products</h5>
-                                <div className="card-actions">
-                                    <a href="#" className="btn btn-sm btn-outline-primary">View All</a>
-                                </div>
+                </div>
+                <div className="card p-4 shadow border-0">
+                    <div className="mt-3 w-100">
+                        <ChartCard
+                            title="Disposition Graph"
+                            subtitle="Dispositions Done"
+                        >
+                            <canvas ref={bar4} />
+                        </ChartCard>
+                    </div>
+                    <div className="card mt-3">
+                        <div className="card-header">
+                            <h5 className="card-title">Top Selling Products</h5>
+                            <div className="card-actions">
+                                <a href="#" className="btn btn-sm btn-outline-primary">View All</a>
                             </div>
-                            <div className="card-body p-0">
-                                <div className="table-responsive">
-                                    <table className="table">
-                                        <thead>
-                                            <tr>
-                                                <th>Disposition Date</th>
-                                                <th>MDM ID</th>
-                                                <th>Branch Name</th>
-                                                <th>Account Number</th>
-                                                <th>Customer Name</th>
-                                                <th>Customer Address</th>
-                                                <th>Product Type</th>
-                                                <th>Disposition Code</th>
-                                                <th>Sub Disposition Code</th>
-                                                <th>Collection Associate Name</th>
-                                                <th>Employee ID</th>
-                                                <th>Latitude</th>
-                                                <th>Longitude</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
+                        </div>
+                        <div className="card-body p-0">
+                            <div className="table-responsive">
+                                <table className="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Disposition Date</th>
+                                            <th>MDM ID</th>
+                                            <th>Branch Name</th>
+                                            <th>Account Number</th>
+                                            <th>Customer Name</th>
+                                            <th>Customer Address</th>
+                                            <th>Product Type</th>
+                                            <th>Disposition Code</th>
+                                            <th>Sub Disposition Code</th>
+                                            <th>Collection Associate Name</th>
+                                            <th>Employee ID</th>
+                                            <th>Latitude</th>
+                                            <th>Longitude</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {/* <tr>
                                                 <td>
                                                     <div className="d-flex align-items-center gap-3">
                                                         <div className="product-img bg-primary-light rounded" style={{ width: "40px", height: "40px", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -260,25 +261,47 @@ const FrmNewDashboard2New = () => {
                                                 <td>142</td>
                                                 <td>$283,858</td>
                                                 <td><span className="badge badge-soft-success"><i className="bi bi-arrow-up"></i> 12%</span></td>
-                                            </tr>
-                                            {tableData.length > 0 && 
-                                                    tableData.map((rec, index) => (
-                                                        <tr key={index}>
-                                                            <td>{rec[0]}</td>
-                                                        </tr>
-                                                    ))
-                                                }
-                                        </tbody>
-                                    </table>
-                                </div>
+                                            </tr> */}
+                                        {console.log(tableData)}
+                                        {tableData.length > 0 &&
+                                            tableData.map((rec, index) => (
+                                                <tr key={index}>
+                                                    <td>{rec[0]}</td>
+                                                    <td>{rec[1]}</td>
+                                                    <td>{rec[2]}</td>
+                                                    <td>{rec[3]}</td>
+                                                    <td>{rec[4]}</td>
+                                                    <td>{rec[5]}</td>
+                                                    <td>
+                                                        <div className="d-flex align-items-center gap-4">
+                                                            <div className="product-img bg-primary-light rounded" style={{ width: "40px", height: "40px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                                                <i className="bi bi-file-earmark text-primary"></i>
+                                                            </div>
+                                                            <div>
+                                                                {rec[6]}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>{rec[7]}</td>
+                                                    <td>{rec[8]}</td>
+                                                    <td>{rec[9]}</td>
+                                                    <td>{rec[10]}</td>
+                                                    <td>{rec[11]}</td>
+                                                    <td>{rec[12]}</td>
+                                                </tr>
+                                            ))
+                                        }
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
-
-
                 </div>
+
+
             </div>
         </div>
+        // </div>
     )
 };
 
