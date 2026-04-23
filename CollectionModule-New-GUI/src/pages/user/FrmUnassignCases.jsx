@@ -19,6 +19,7 @@ function FrmUnassignCases() {
       const success = response?.success
       const rows = Array.isArray(response?.data) ? response.data : []
 
+      console.log("response :", response)
       if (success && rows.length) {
         setUsers(rows)
 
