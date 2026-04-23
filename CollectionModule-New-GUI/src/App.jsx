@@ -63,6 +63,8 @@ import UsersList from './pages/user/Userlist'
 import Roles from './pages/user/Roles'
 import UserPinAllocation from './pages/user/UserPinAllocation'
 import UnAssignedPincode from './pages/user/UnAssignedPincode'
+import FrmActiveAgentsNew from './pages/Dashboard/FrmActiveAgentsNew'
+import DailyVisitNew from './pages/Dashboard/DailyVisitNew'
 
 function App() {
   return (
@@ -96,6 +98,8 @@ function App() {
         <Route path='/Dashboard/FrmActiveAgents' element={<FrmActiveAgents />} />
         <Route path="Dashboard/FrmNewDashboard2" element={<FrmNewDashboard2 />} />
         <Route path='Dashboard/FrmDailyVisit' element={<FrmDailyVisit />} />
+        <Route path='/Dashboard/FrmActiveAgentsNew' element={<FrmActiveAgentsNew />} />
+         <Route path='/Dashboard/DailyVisitNew' element={<DailyVisitNew />} />
         
         {/* User */}
         <Route path='/User/FrmUserModification' element={<FrmUserModification/>}/>

@@ -194,11 +194,12 @@ export default function UsersList() {
           </div>
         </div>
 
-        <div className="users-insight-row mb-3">
+         {/* <div className="users-insight-row mb-3">
           <div className="users-insight users-insight-total">
             <span className="users-insight-icon">👥</span>
             <span className="users-insight-label">Total Users</span>
             <span className="users-insight-value">{counts.total}</span>
+            <span className="users-insight-meta">All registered users</span>
           </div>
           <div className="users-insight users-insight-active">
             <span className="users-insight-icon">✓</span>
@@ -208,9 +209,11 @@ export default function UsersList() {
           <div className="users-insight users-insight-inactive">
             <span className="users-insight-icon">✗</span>
             <span className="users-insight-label">Inactive</span>
-            <span className="users-insight-value">{counts.inactive}</span>
+            <span className="users-insight-value">
+              {counts.inactive}
+            </span>
           </div>
-        </div>
+        </div> */}
 
         <div className="card users-list-card">
           <div className="users-toolbar">
