@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useForm } from "react-hook-form";
 import { useNotification } from "../../context/useNotification";
 import Chart from 'chart.js/auto'
+import DataTable from "../../components/Datatable";
 
 const FrmActiveAgentsNew = () => {
     const { user } = useAuth();
@@ -192,6 +193,56 @@ const FrmActiveAgentsNew = () => {
         }
     }, [userId, fetchData]);
 
+    const data = tableData.map((rec, index) => ({
+  id:                    index,
+  zone:                  rec[0],
+  branchName:            rec[1],   // shown as subtitle under zone
+  collectionAssociateId: rec[2],
+  collectionAssociate:   rec[3],
+  loginDate:             rec[4],
+  firstLogin:            rec[5],
+  lastLogout:            rec[6],
+  mdmId:                 rec[7],
+  // rec[8] from original — add if needed:
+  // extraField:         rec[8],
+}));
+
+const columns1 = [
+  {
+    key: "zone",
+    label: "Zone / Region",
+    minWidth: "200px",
+    render: (val, row) => (
+      <div className="d-flex align-items-center gap-3">
+        <div
+          className="product-img bg-primary-light rounded"
+          style={{ width: "40px", height: "40px", display: "flex", alignItems: "center", justifyContent: "center" }}
+        >
+          <i className="bi bi-geo-alt text-primary"></i>
+        </div>
+        <div>
+          <div className="fw-medium">{val}</div>
+          <small className="text-muted">{row.branchName}</small>
+        </div>
+      </div>
+    ),
+  },
+  {
+    key: "collectionAssociateId",
+    label: "Collection Associate ID",
+    render: (val) => <span className="fw-semibold">{val}</span>,
+  },
+  {
+    key: "collectionAssociate",
+    label: "Collection Associate",
+    render: (val) => <span className="text-success">{val}</span>,
+  },
+  { key: "loginDate",       label: "Login Date",              minWidth: "150px" },
+  { key: "firstLogin",      label: "First Login of the Day",  minWidth: "120px" },
+  { key: "lastLogout",      label: "Last Logout of the Day",  minWidth: "120px" },
+  { key: "mdmId",           label: "MDM ID",                  minWidth: "120px" },
+];
+
 
     return (
        <div className="page-roles p-4">
@@ -281,138 +332,18 @@ const FrmActiveAgentsNew = () => {
                             </ChartCard>
                         </div>
 
-                        <div className="row g-4 mt-3">
-                            <div className="col-12">
-                                <div className="card">
-                                    <div className="card-header d-flex justify-content-between align-items-center">
-                                        <h5 className="card-title mb-0">Team Performance</h5>
-                                    </div>
-                                    <div className="card-body p-0">
-                                        <div className="table-responsive">
-                                            <table className="table table-hover align-middle mb-0">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Zone Name</th>
-                                                        <th>Region Name</th>
-                                                        <th>Branch Name</th>
-                                                        <th>Collection Associate ID</th>
-                                                        <th>Collection Associate</th>
-                                                        <th>Login Date</th>
-                                                        <th>First Login of the Day</th>
-                                                        <th>Last Logout of the Day</th>
-                                                        <th>MDM ID</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {tableData.length > 0 &&
-                                                        tableData.map((rec, index) => (
-                                                            <tr key={index}>
-                                                                <td>{rec[0]}</td>
-                                                                <td>{rec[1]}</td>
-                                                                <td className="fw-semibold">{rec[2]}</td>
-                                                                <td><span className="text-success">{rec[3]}</span></td>
-                                                                <td>{rec[4]}</td>
-                                                                <td>{rec[5]}</td>
-                                                                <td>{rec[6]}</td>
-                                                                <td>{rec[7]}</td>
-                                                                <td>{rec[8]}</td>
-                                                            </tr>
-                                                        ))
-                                                    }
-                                                    {/* <tr>
-                                                        <td>
-                                                            <div className="d-flex align-items-center gap-2">
-                                                                <img src="assets/img/avatars/avatar-6.webp" alt="" className="rounded-circle" width="36" height="36" />
-                                                                <div>
-                                                                    <div className="fw-medium">Sarah Williams</div>
-                                                                    <small className="text-muted">Sales Manager</small>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>31</td>
-                                                        <td className="fw-semibold">$198,200</td>
-                                                        <td><span className="text-success">82%</span></td>
-                                                        <td style={{ width: "200px" }}>
-                                                            <div className="progress" style={{ height: "6px" }}>
-                                                                <div className="progress-bar bg-success" style={{ width: "99%" }}></div>
-                                                            </div>
-                                                            <small className="text-muted">99% of target</small>
-                                                        </td>
-                                                        <td>$200,000</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>
-                                                            <div className="d-flex align-items-center gap-2">
-                                                                <img src="assets/img/avatars/avatar-7.webp" alt="" className="rounded-circle" width="36" height="36" />
-                                                                <div>
-                                                                    <div className="fw-medium">Mike Thompson</div>
-                                                                    <small className="text-muted">Sales Rep</small>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>18</td>
-                                                        <td className="fw-semibold">$89,600</td>
-                                                        <td><span className="text-warning">65%</span></td>
-                                                        <td style={{ width: "200px" }}>
-                                                            <div className="progress" style={{ height: "6px" }}>
-                                                                <div className="progress-bar bg-warning" style={{ width: "75%" }}></div>
-                                                            </div>
-                                                            <small className="text-muted">75% of target</small>
-                                                        </td>
-                                                        <td>$120,000</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>
-                                                            <div className="d-flex align-items-center gap-2">
-                                                                <img src="assets/img/avatars/avatar-8.webp" alt="" className="rounded-circle" width="36" height="36" />
-                                                                <div>
-                                                                    <div className="fw-medium">Emily Davis</div>
-                                                                    <small className="text-muted">Sales Rep</small>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>22</td>
-                                                        <td className="fw-semibold">$134,800</td>
-                                                        <td><span className="text-success">71%</span></td>
-                                                        <td style={{ width: "200px" }}>
-                                                            <div className="progress" style={{ height: "6px" }}>
-                                                                <div className="progress-bar bg-primary" style={{ width: "84%" }}></div>
-                                                            </div>
-                                                            <small className="text-muted">84% of target</small>
-                                                        </td>
-                                                        <td>$160,000</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>
-                                                            <div className="d-flex align-items-center gap-2">
-                                                                <img src="assets/img/avatars/avatar-9.webp" alt="" className="rounded-circle" width="36" height="36" />
-                                                                <div>
-                                                                    <div className="fw-medium">Chris Lee</div>
-                                                                    <small className="text-muted">Junior Sales</small>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>12</td>
-                                                        <td className="fw-semibold">$56,200</td>
-                                                        <td><span className="text-danger">58%</span></td>
-                                                        <td style={{ width: "200px" }}>
-                                                            <div className="progress" style={{ height: "6px" }}>
-                                                                <div className="progress-bar bg-danger" style={{ width: "62%" }}></div>
-                                                            </div>
-                                                            <small className="text-muted">62% of target</small>
-                                                        </td>
-                                                        <td>$90,000</td>
-                                                    </tr> */}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
+
+                                <DataTable
+  title="Collection Associate Login Report"
+  subtitle="Daily login and logout tracking"
+  columns={columns1}
+  data={data}
+  perPage={10}
+  csvFilename="login_report.csv"
+/>
                             </div>
                         </div>
                     </div>
-                </div>
-                </div>
            
     )
 };

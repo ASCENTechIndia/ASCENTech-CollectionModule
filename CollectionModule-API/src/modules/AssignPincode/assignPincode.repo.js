@@ -28,10 +28,10 @@ async function getUsernamebyId(userId) {
    select a.var_usermst_userfullname,b.var_userlevelmst_status,a.VAR_USERMST_USERID from etech.aoup_usermst_def a
                 left outer join etech.aoup_userlevelmst_def b on b.var_userlevelmst_id=a.var_usermst_status  
                 inner join etech.branchlist c on c.brid=a.num_usermst_brid  
-                 where a.var_usermst_userid=   'E' ||  :userId and  VAR_USERMST_STATUS != 'I'
+                 where a.var_usermst_userid= :userId and  VAR_USERMST_STATUS != 'I'
   `;
 
-  const binds = { userId: Number(userId) };
+  const binds = { userId: userId };
   const result = await executeQuery(sql, binds);
   return result.rows || [];
 }
