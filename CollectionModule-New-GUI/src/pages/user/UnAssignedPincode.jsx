@@ -15,7 +15,6 @@ export default function UnAssignedPincode() {
 
   // UI states
   const [searchTerm, setSearchTerm] = useState("");
-  const [pincodeSearchTerm, setPincodeSearchTerm] = useState("");
   const [selectedUserId, setSelectedUserId] = useState(null);
 
   // Fetch users and pincodes from API
@@ -56,34 +55,30 @@ export default function UnAssignedPincode() {
   const filteredUsers = useMemo(() => {
     if (!searchTerm.trim()) return users;
     return users.filter((user) =>
-      String(user.userId).includes(searchTerm.trim()),
+      String(user.userId).includes(searchTerm.trim())
     );
   }, [users, searchTerm]);
 
-  // Filter pincodes for selected user
-  const filteredPincodes = useMemo(() => {
+  // No pincode filter anymore – show all pincodes for selected user
+  const currentUserPincodes = useMemo(() => {
     const selectedUserData = users.find(
-      (u) => String(u.userId) === selectedUserId,
+      (u) => String(u.userId) === selectedUserId
     );
-    const pincodes = selectedUserData?.pincodes || [];
-    if (!pincodeSearchTerm.trim()) return pincodes;
-    return pincodes.filter((pin) =>
-      String(pin).includes(pincodeSearchTerm.trim()),
-    );
-  }, [users, selectedUserId, pincodeSearchTerm]);
+    return selectedUserData?.pincodes || [];
+  }, [users, selectedUserId]);
 
-  const handleUserCheckChange = (userId) => {
+  // Handler for user-level checkbox removed (no per-user checkbox)
+  // Instead, we'll have a "Select All Pincodes" checkbox for the selected user
+  const handleSelectAllPincodesForUser = (userId, checked) => {
     setSelectedCases((prev) => {
       const next = { ...prev };
-      const currentAllSelected = next[userId]?.allSelected || false;
-      const newAllSelected = !currentAllSelected;
       const userPincodes = next[userId]?.pincodes || {};
       const updatedPincodes = {};
       Object.keys(userPincodes).forEach((pin) => {
-        updatedPincodes[pin] = newAllSelected;
+        updatedPincodes[pin] = checked;
       });
       next[userId] = {
-        allSelected: newAllSelected,
+        allSelected: checked,
         pincodes: updatedPincodes,
       };
       return next;
@@ -141,7 +136,6 @@ export default function UnAssignedPincode() {
         showSuccess(response?.data?.message || "Cases unassigned successfully");
         await fetchUsers();
         setSelectedUserId(null);
-        setPincodeSearchTerm("");
       } else {
         showError(response?.message || "Failed to unassign cases");
       }
@@ -152,14 +146,13 @@ export default function UnAssignedPincode() {
     }
   };
 
-  const selectedUserData = users.find(
-    (u) => String(u.userId) === selectedUserId,
-  );
   const selectedUserSelections = selectedCases[selectedUserId]?.pincodes || {};
+  const areAllSelectedForCurrentUser =
+    selectedUserId &&
+    currentUserPincodes.length > 0 &&
+    currentUserPincodes.every((pin) => selectedUserSelections[String(pin)]);
 
-  // Helper to toggle pincode on card click
   const togglePincode = (userId, pincode, e) => {
-    // Prevent triggering if the click originated from the checkbox itself
     if (e.target.type !== "checkbox") {
       handlePincodeCheckChange(userId, pincode);
     }
@@ -221,6 +214,20 @@ export default function UnAssignedPincode() {
             font-size: 0.7rem;
             color: #64748b;
           }
+          .select-all-checkbox {
+            background: #f8fafc;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: background 0.2s;
+          }
+          .select-all-checkbox:hover {
+            background: #f1f5f9;
+          }
         `}
       </style>
 
@@ -228,9 +235,7 @@ export default function UnAssignedPincode() {
         <div>
           <h1 className="page-title">Unassign Cases For Users</h1>
           <nav className="breadcrumb">
-            <Link to="/" className="breadcrumb-item">
-              Home
-            </Link>
+            <Link to="/" className="breadcrumb-item">Home</Link>
             <span className="breadcrumb-item">User</span>
             <span className="breadcrumb-item active">Unassign Cases</span>
           </nav>
@@ -238,7 +243,7 @@ export default function UnAssignedPincode() {
       </div>
 
       <div className="responsive-split">
-        {/* Left Panel: Users - 25% width */}
+        {/* Left Panel: Users - 25% width (no checkboxes per user) */}
         <div className="users-panel card m-0">
           <div className="card-header">
             <div className="support-search">
@@ -254,7 +259,7 @@ export default function UnAssignedPincode() {
           </div>
           <div
             className="card-body p-0"
-            style={{ maxHeight: "calc(100vh - 250px)", overflowY: "auto" }}
+            style={{ maxHeight: "calc(100vh - 350px)", overflowY: "auto" }}
           >
             {loading ? (
               <div className="text-muted p-2">Loading users...</div>
@@ -265,7 +270,7 @@ export default function UnAssignedPincode() {
                 const uid = String(user.userId);
                 const pincodeCount = user.pincodes?.length || 0;
                 const selectedForUser = Object.values(
-                  selectedCases[uid]?.pincodes || {},
+                  selectedCases[uid]?.pincodes || {}
                 ).filter(Boolean).length;
                 return (
                   <div
@@ -288,16 +293,6 @@ export default function UnAssignedPincode() {
                         gap: "0.75rem",
                       }}
                     >
-                      <input
-                        type="checkbox"
-                        className="form-check-input"
-                        checked={selectedCases[uid]?.allSelected || false}
-                        onChange={(e) => {
-                          e.stopPropagation();
-                          handleUserCheckChange(uid);
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                      />
                       <i className="bi bi-person"></i>
                       <span>{uid}</span>
                     </div>
@@ -317,15 +312,21 @@ export default function UnAssignedPincode() {
         {/* Right Panel: Pincodes - 75% width */}
         <div className="pincodes-panel card">
           <div className="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <div className="support-search flex-grow-1">
-              <i className="bi bi-search"></i>
+            {/* Replace search bar with Select All checkbox for current user */}
+            <div className="select-all-checkbox">
               <input
-                type="text"
-                className="form-control"
-                placeholder="Filter pincodes..."
-                value={pincodeSearchTerm}
-                onChange={(e) => setPincodeSearchTerm(e.target.value)}
+                type="checkbox"
+                className="form-check-input"
+                id="selectAllPincodes"
+                checked={areAllSelectedForCurrentUser}
+                disabled={!selectedUserId || currentUserPincodes.length === 0}
+                onChange={(e) =>
+                  handleSelectAllPincodesForUser(selectedUserId, e.target.checked)
+                }
               />
+              <label htmlFor="selectAllPincodes" className="form-check-label mb-0">
+                Select All Pincodes
+              </label>
             </div>
             {selectedCount > 0 && (
               <div className="alert alert-info py-1 px-3 m-0">
@@ -336,21 +337,19 @@ export default function UnAssignedPincode() {
 
           <div
             className="card-body"
-            style={{ maxHeight: "calc(100vh - 250px)", overflowY: "auto" }}
+            style={{ maxHeight: "calc(100vh - 350px)", overflowY: "auto" }}
           >
             {selectedUserId ? (
-              filteredPincodes.length > 0 ? (
+              currentUserPincodes.length > 0 ? (
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
-                  {filteredPincodes.map((pincode, idx) => {
+                  {currentUserPincodes.map((pincode, idx) => {
                     const isChecked =
                       selectedUserSelections[String(pincode)] || false;
                     return (
                       <div
                         className="act-session-item"
                         key={idx}
-                        onClick={(e) =>
-                          togglePincode(selectedUserId, String(pincode), e)
-                        }
+                        onClick={(e) => togglePincode(selectedUserId, String(pincode), e)}
                       >
                         <span className="act-session-icon">
                           <input
@@ -358,10 +357,7 @@ export default function UnAssignedPincode() {
                             className="form-check-input"
                             checked={isChecked}
                             onChange={() =>
-                              handlePincodeCheckChange(
-                                selectedUserId,
-                                String(pincode),
-                              )
+                              handlePincodeCheckChange(selectedUserId, String(pincode))
                             }
                             onClick={(e) => e.stopPropagation()}
                           />
@@ -380,9 +376,7 @@ export default function UnAssignedPincode() {
                 </div>
               ) : (
                 <div className="text-center p-4">
-                  {pincodeSearchTerm
-                    ? "No matching pincodes found."
-                    : "No pincodes assigned for this user."}
+                  No pincodes assigned for this user.
                 </div>
               )
             ) : (
