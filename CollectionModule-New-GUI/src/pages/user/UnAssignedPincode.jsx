@@ -17,6 +17,10 @@ export default function UnAssignedPincode() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUserId, setSelectedUserId] = useState(null);
 
+  // ── Confirmation modal state ────────────────────────────────
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [pendingSelections, setPendingSelections] = useState([]);
+
   // Fetch users and pincodes from API
   const fetchUsers = async () => {
     try {
@@ -26,7 +30,6 @@ export default function UnAssignedPincode() {
         const usersData = response.data;
         setUsers(usersData);
 
-        // Initially all pincodes are checked (true)
         const initialSelected = {};
         usersData.forEach((user) => {
           const uid = String(user.userId);
@@ -52,17 +55,16 @@ export default function UnAssignedPincode() {
     fetchUsers();
   }, []);
 
-  // Filter users by search term
   const filteredUsers = useMemo(() => {
     if (!searchTerm.trim()) return users;
     return users.filter((user) =>
-      String(user.userId).includes(searchTerm.trim())
+      String(user.userId).includes(searchTerm.trim()),
     );
   }, [users, searchTerm]);
 
   const currentUserPincodes = useMemo(() => {
     const selectedUserData = users.find(
-      (u) => String(u.userId) === selectedUserId
+      (u) => String(u.userId) === selectedUserId,
     );
     return selectedUserData?.pincodes || [];
   }, [users, selectedUserId]);
@@ -75,10 +77,7 @@ export default function UnAssignedPincode() {
       Object.keys(userPincodes).forEach((pin) => {
         updatedPincodes[pin] = checked;
       });
-      next[userId] = {
-        allSelected: checked,
-        pincodes: updatedPincodes,
-      };
+      next[userId] = { allSelected: checked, pincodes: updatedPincodes };
       return next;
     });
   };
@@ -88,30 +87,25 @@ export default function UnAssignedPincode() {
       const next = { ...prev };
       const currentPincodes = next[userId]?.pincodes || {};
       const newValue = !currentPincodes[pincode];
-      const updatedPincodes = {
-        ...currentPincodes,
-        [pincode]: newValue,
-      };
+      const updatedPincodes = { ...currentPincodes, [pincode]: newValue };
       const allSelected = Object.values(updatedPincodes).every(Boolean);
-      next[userId] = {
-        allSelected,
-        pincodes: updatedPincodes,
-      };
+      next[userId] = { allSelected, pincodes: updatedPincodes };
       return next;
     });
   };
 
-  // Count unchecked pincodes (these will be unassigned)
   const unassignedCount = useMemo(() => {
     let count = 0;
     Object.values(selectedCases).forEach((userSel) => {
-      count += Object.values(userSel.pincodes || {}).filter(checked => !checked).length;
+      count += Object.values(userSel.pincodes || {}).filter(
+        (checked) => !checked,
+      ).length;
     });
     return count;
   }, [selectedCases]);
 
-  // Submit: send UNCHECKED pincodes (the ones user wants to unassign)
-  const handleSubmit = async () => {
+  // ── Step 1: Build selections and open modal ─────────────────
+  const handleSubmit = () => {
     const selections = [];
     Object.entries(selectedCases).forEach(([userId, userSelection]) => {
       const unselectedPincodes = Object.entries(userSelection.pincodes || {})
@@ -127,20 +121,22 @@ export default function UnAssignedPincode() {
       return;
     }
 
-    // 🔁 CONFIRMATION ALERT
-    const confirmMessage = "Are you sure you want to unassign these cases?";
-    if (!window.confirm(confirmMessage)) {
-      return;   // User cancelled – do nothing, selection state remains unchanged
-    }
+    // Store selections and show modal instead of window.confirm
+    setPendingSelections(selections);
+    setShowConfirmModal(true);
+  };
 
+  // ── Step 2: User confirmed — run the API ────────────────────
+  const handleConfirmSubmit = async () => {
+    setShowConfirmModal(false);
     setSubmitting(true);
     try {
       const response = await apiClient.post("/admin/unassign-cases", {
-        selections,
+        selections: pendingSelections,
       });
       if (response?.success) {
         showSuccess(response?.data?.message || "Cases unassigned successfully");
-        await fetchUsers();   // refresh data (resets all to checked)
+        await fetchUsers();
         setSelectedUserId(null);
       } else {
         showError(response?.message || "Failed to unassign cases");
@@ -149,14 +145,23 @@ export default function UnAssignedPincode() {
       showError(err?.message || "Failed to unassign cases");
     } finally {
       setSubmitting(false);
+      setPendingSelections([]);
     }
+  };
+
+  // ── Step 2 (cancel): close modal, keep state intact ─────────
+  const handleCancelModal = () => {
+    setShowConfirmModal(false);
+    setPendingSelections([]);
   };
 
   const selectedUserSelections = selectedCases[selectedUserId]?.pincodes || {};
   const areAllSelectedForCurrentUser =
     selectedUserId &&
     currentUserPincodes.length > 0 &&
-    currentUserPincodes.every((pin) => selectedUserSelections[String(pin)] === true);
+    currentUserPincodes.every(
+      (pin) => selectedUserSelections[String(pin)] === true,
+    );
 
   const togglePincode = (userId, pincode, e) => {
     if (e.target.type !== "checkbox") {
@@ -164,83 +169,66 @@ export default function UnAssignedPincode() {
     }
   };
 
+  // Count total pincodes across all pending selections (for modal summary)
+  const pendingPincodeCount = pendingSelections.reduce(
+    (sum, s) => sum + s.pincodes.length,
+    0,
+  );
+
   return (
     <div className="page-users-edit p-4">
-      <style>
-        {`
-          .responsive-split {
-            display: flex;
-            flex-direction: row;
-            gap: 1.5rem;
-          }
-          .users-panel {
-            flex: 1;
-            min-width: 280px;
-          }
-          .pincodes-panel {
-            flex: 3;
-          }
-          @media (max-width: 768px) {
-            .responsive-split {
-              flex-direction: column;
-            }
-            .users-panel, .pincodes-panel {
-              width: 100%;
-              flex: auto;
-            }
-          }
+      {/* ── Confirmation Modal ── */}
+      {showConfirmModal && (
+        <div className="confirm-modal-backdrop" onClick={handleCancelModal}>
+          <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="confirm-modal-icon">⚠️</div>
+            <div className="confirm-modal-title">Confirm Unassignment</div>
+            <div className="confirm-modal-body">
+              You are about to unassign{" "}
+              <strong>{pendingPincodeCount} pincode(s)</strong> across{" "}
+              <strong>{pendingSelections.length} user(s)</strong>. This action
+              cannot be undone.
+            </div>
 
-          .act-session-item {
-            background: #fff;
-            border-radius: 0.75rem;
-            border: 1px solid #e2e8f0;
-            padding: 0.75rem 1rem;
-            transition: all 0.2s ease-in-out;
-            cursor: pointer;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-          }
-          .act-session-item:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 20px -10px rgba(0, 0, 0, 0.15);
-            border-color: #cbd5e1;
-          }
-          .act-session-icon {
-            display: inline-flex;
-            margin-right: 0.75rem;
-          }
-          .act-session-copy {
-            flex: 1;
-          }
-          .act-session-name {
-            font-weight: 500;
-            color: #1e293b;
-          }
-          .act-session-meta {
-            font-size: 0.7rem;
-            color: #64748b;
-          }
-          .select-all-checkbox {
-            background: #f8fafc;
-            padding: 0.5rem 1rem;
-            border-radius: 2rem;
-            font-size: 0.875rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            transition: background 0.2s;
-          }
-          .select-all-checkbox:hover {
-            background: #f1f5f9;
-          }
-        `}
-      </style>
+            {/* Summary of who loses which pincodes */}
+            <div className="confirm-modal-summary">
+              {pendingSelections.map((s) => (
+                <div className="confirm-modal-summary-row" key={s.userId}>
+                  <span style={{ fontWeight: 500 }}>{s.userId}</span>
+                  <span style={{ color: "#ef4444" }}>
+                    {s.pincodes.length} pincode(s) removed
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="confirm-modal-actions">
+              <button
+                className="btn btn-outline-secondary"
+                onClick={handleCancelModal}
+                disabled={submitting}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-danger"
+                onClick={handleConfirmSubmit}
+                disabled={submitting}
+              >
+                {submitting ? "Processing..." : "Yes, Unassign"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="page-header">
         <div>
           <h1 className="page-title">Unassign Cases For Users</h1>
           <nav className="breadcrumb">
-            <Link to="/" className="breadcrumb-item">Home</Link>
+            <Link to="/" className="breadcrumb-item">
+              Home
+            </Link>
             <span className="breadcrumb-item">User</span>
             <span className="breadcrumb-item active">Unassign Cases</span>
           </nav>
@@ -275,7 +263,7 @@ export default function UnAssignedPincode() {
                 const uid = String(user.userId);
                 const pincodeCount = user.pincodes?.length || 0;
                 const selectedForUser = Object.values(
-                  selectedCases[uid]?.pincodes || {}
+                  selectedCases[uid]?.pincodes || {},
                 ).filter(Boolean).length;
                 return (
                   <div
@@ -325,10 +313,16 @@ export default function UnAssignedPincode() {
                 checked={areAllSelectedForCurrentUser}
                 disabled={!selectedUserId || currentUserPincodes.length === 0}
                 onChange={(e) =>
-                  handleSelectAllPincodesForUser(selectedUserId, e.target.checked)
+                  handleSelectAllPincodesForUser(
+                    selectedUserId,
+                    e.target.checked,
+                  )
                 }
               />
-              <label htmlFor="selectAllPincodes" className="form-check-label mb-0">
+              <label
+                htmlFor="selectAllPincodes"
+                className="form-check-label mb-0"
+              >
                 Select All Pincodes
               </label>
             </div>
@@ -347,12 +341,15 @@ export default function UnAssignedPincode() {
               currentUserPincodes.length > 0 ? (
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
                   {currentUserPincodes.map((pincode, idx) => {
-                    const isChecked = selectedUserSelections[String(pincode)] || false;
+                    const isChecked =
+                      selectedUserSelections[String(pincode)] || false;
                     return (
                       <div
                         className="act-session-item"
                         key={idx}
-                        onClick={(e) => togglePincode(selectedUserId, String(pincode), e)}
+                        onClick={(e) =>
+                          togglePincode(selectedUserId, String(pincode), e)
+                        }
                       >
                         <span className="act-session-icon">
                           <input
@@ -360,7 +357,10 @@ export default function UnAssignedPincode() {
                             className="form-check-input"
                             checked={isChecked}
                             onChange={() =>
-                              handlePincodeCheckChange(selectedUserId, String(pincode))
+                              handlePincodeCheckChange(
+                                selectedUserId,
+                                String(pincode),
+                              )
                             }
                             onClick={(e) => e.stopPropagation()}
                           />
@@ -378,7 +378,9 @@ export default function UnAssignedPincode() {
                   })}
                 </div>
               ) : (
-                <div className="text-center p-4">No pincodes assigned for this user.</div>
+                <div className="text-center p-4">
+                  No pincodes assigned for this user.
+                </div>
               )
             ) : (
               <div className="text-center p-4">
@@ -386,6 +388,7 @@ export default function UnAssignedPincode() {
               </div>
             )}
           </div>
+
           <div className="card-footer">
             <button
               type="button"
