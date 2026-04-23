@@ -143,7 +143,7 @@ const FrmActiveAgentsNew = () => {
 
     const bar1 = useChart((context) => new Chart(context, {
         type: 'bar',
-        data: { labels: chartData.labels, datasets: [{ label: 'Sales', data: chartData.datasets, backgroundColor: commonColors.accent }] },
+        data: { labels: chartData.labels, datasets: [{ label: 'Unique Collection Assoiciate using the app on a day', data: chartData.datasets, backgroundColor: commonColors.accent }] },
         options: { responsive: true },
     }))
 
@@ -403,7 +403,6 @@ const FrmActiveAgentsNew = () => {
                                                         </td>
                                                         <td>$90,000</td>
                                                     </tr> */}
-                                                    {console.log(tableData)}
                                                 </tbody>
                                             </table>
                                         </div>
@@ -418,4 +417,4 @@ const FrmActiveAgentsNew = () => {
     )
 };
 
-export default FrmActiveAgentsNew;
+export default FrmActiveAgentsNew;  
