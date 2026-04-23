@@ -9,7 +9,6 @@ import { useNotification } from "../../context/useNotification";
 // import Chart from 'chart.js/auto'
 import Chart from "react-apexcharts";
 
-
 const DailyVisitNew = () => {
     const { user } = useAuth();
     const userId = user?.userId;
@@ -812,18 +811,30 @@ const DailyVisitNew = () => {
                         </div>
                     </div>
                 </div>
-                <div class="row g-3 mb-3">
-                    <div class="col-sm-6 col-xl-3">
-                        <div class="card fx-mini-stat h-100">
-                            <div class="card-body">
-                                <span class="fx-mini-icon revenue"><i class="bi bi-currency-dollar"></i></span>
-                                <span class="fx-mini-label">MRR</span>
-                                <span class="fx-mini-value">$128.4K</span>
-                                <span class="fx-mini-meta positive"><i class="bi bi-arrow-up"></i> 7.1%</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-xl-3">
+                <div className="card mt-3 p-4">
+                    <div className="page-dashboard row g-3 mb-3">
+                        {summaryCards.map((card, index) => {
+                            const colors = ['#3b82f6', '#22c55e', '#f59e0b', '#06b6d4', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
+                            const bgColors = ['#eff6ff', '#f0fdf4', '#fffbeb', '#ecf8fc', '#fef2f2', '#f5f3ff', '#fdf2f8', '#f0fdfa'];
+                            const color = colors[index % colors.length];
+                            const bgColor = bgColors[index % bgColors.length];
+                            const icons = ['bi-graph-up', 'bi-people-fill', 'bi-lightning-fill', 'bi-calendar-check', 'bi-currency-rupee', 'bi-cash-coin', 'bi-percent', 'bi-check-circle-fill'];
+                            const icon = icons[index % icons.length];
+                            return (
+                                <div class="col-sm-6 col-xl-3 col-12 d-flex">
+                                    <div class="card fx-mini-stat h-100" style={{ transition: 'all 0.3s ease', cursor: 'pointer' }}
+                                        onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+                                        <div class="card-body">
+                                            <span class="fx-mini-icon revenue"><i class={`bi ${icon}`} style={{ fontSize: '24px', color: color }}></i></span>
+                                            <span class="fx-mini-label">{card.label}</span>
+                                            <span class="fx-mini-value">{card.value}</span>
+                                            {/* <span class="fx-mini-meta positive"><i class="bi bi-arrow-up"></i> 7.1%</span> */}
+                                        </div>
+                                    </div>
+                                </div>)
+                        })}
+                        {/* <div class="col-sm-6 col-xl-3">
                         <div class="card fx-mini-stat h-100">
                             <div class="card-body">
                                 <span class="fx-mini-icon churn"><i class="bi bi-exclamation-triangle"></i></span>
@@ -852,10 +863,132 @@ const DailyVisitNew = () => {
                                 <span class="fx-mini-meta positive"><i class="bi bi-arrow-down"></i> -0.2%</span>
                             </div>
                         </div>
+                    </div> */}
+                    </div>
+                </div>
+                <div className="card mt-3 p-4">
+                    <div className="row g-3">
+                        <div className="col-12 col-md-6">
+                            <div className="card h-100">
+                                <div className="card-header d-flex justify-content-between align-items-center">
+                                    <h5 className="card-title mb-0">{dashboardData?.dateRange?.ptpDateRangeLabel || 'PTP spans from - to -'}</h5>
+                                    {/* <a href="#" class="btn btn-sm btn-link">View All</a> */}
+                                </div>
+                                <div className="card-body p-0">
+                                    <div className="deal-list">
+                                        {ptpCards.map((item, index) => {
+                                            const colors = ['#8b5cf6', '#ec4899', '#f59e0b', '#ef4444'];
+                                            const bgColors = ['#f5f3ff', '#fdf2f8', '#fffbeb', '#fef2f2'];
+                                            const ptpIcons = ['bi-list-check', 'bi-hourglass-split', 'bi-check-circle-fill', 'bi-x-circle-fill'];
+                                            const color = colors[index % colors.length];
+                                            const bgColor = bgColors[index % bgColors.length];
+                                            // const icon = ptpIcons[index % ptpIcons.length];
+                                            return (
+                                                <div className="deal-item" key={item.label} style={{ transition: 'all 0.3s ease', cursor: 'pointer', backgroundColor: bgColor }}
+                                                    onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+                                                    onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+                                                    <div className="deal-info" >
+                                                        <div className="deal-company" style={{ color: color }}>{item.label}</div>
+                                                        {/* <div class="deal-contact">John Smith</div> */}
+                                                    </div>
+                                                    <div className="deal-meta">
+                                                        <span className="deal-amount" style={{ color: color }}>{item.value}</span>
+                                                        {/* <span class="badge bg-success-subtle text-success">Won</span> */}
+                                                    </div>
+                                                </div>)
+                                        })}
+                                        {/* <div class="deal-item">
+                                            <div class="deal-info">
+                                                <div class="deal-company">Global Solutions</div>
+                                                <div class="deal-contact">Sarah Johnson</div>
+                                            </div>
+                                            <div class="deal-meta">
+                                                <span class="deal-amount">$32,500</span>
+                                                <span class="badge bg-warning-subtle text-warning">Pending</span>
+                                            </div>
+                                        </div>
+                                        <div class="deal-item">
+                                            <div class="deal-info">
+                                                <div class="deal-company">StartupXYZ</div>
+                                                <div class="deal-contact">Mike Davis</div>
+                                            </div>
+                                            <div class="deal-meta">
+                                                <span class="deal-amount">$18,750</span>
+                                                <span class="badge bg-info-subtle text-info">Proposal</span>
+                                            </div>
+                                        </div>
+                                        <div class="deal-item">
+                                            <div class="deal-info">
+                                                <div class="deal-company">Enterprise Co.</div>
+                                                <div class="deal-contact">Emily Brown</div>
+                                            </div>
+                                            <div class="deal-meta">
+                                                <span class="deal-amount">$67,200</span>
+                                                <span class="badge bg-primary-subtle text-primary">Negotiation</span>
+                                            </div>
+                                        </div>
+                                        <div class="deal-item">
+                                            <div class="deal-info">
+                                                <div class="deal-company">DataFlow Ltd.</div>
+                                                <div class="deal-contact">Chris Wilson</div>
+                                            </div>
+                                            <div class="deal-meta">
+                                                <span class="deal-amount">$24,800</span>
+                                                <span class="badge bg-danger-subtle text-danger">Lost</span>
+                                            </div>
+                                        </div> */}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {/* <div className="col-12 col-md-6">
+                            <div className="col-12 col-md-6 d-flex">
+                                <ChartCard title="PTP Conversion Percent">
+                                    <div style={{ height: 'clamp(220px, 32vw, 300px)', width: '100%' }}>
+                                        <canvas ref={ptpConversionData} />
+                                    </div>
+                                </ChartCard>
+                            </div>
+                        </div> */}
+                    </div>
+                </div>
+                <div className="card page-dashboard mt-3 p-3">
+                    <div class="row px-2">
+                        {fullPaymentCards.map((card, index) => {
+                            const fullPaymentColors = ['#0ea5e9', '#10b981', '#f97316'];
+                            const fullPaymentBgColors = ['#f0f9ff', '#ecfdf5', '#fff7ed'];
+                            const fullPaymentIcons = ['bi-person-check-fill', 'bi-cash-stack', 'bi-patch-check-fill'];
+                            const color = fullPaymentColors[index % fullPaymentColors.length];
+                            const bgColor = fullPaymentBgColors[index % fullPaymentBgColors.length];
+                            const icon = fullPaymentIcons[index % fullPaymentIcons.length];
+
+                            return (
+                                <div class="fx-kpi-item col-12 col-md-4" key={card.label}>
+                                    <span class="fx-kpi-label">{card.label}</span>
+                                    <span class="fx-kpi-value">{card.value}</span>
+                                    {/* <span class="fx-kpi-trend positive">+12.5%</span> */}
+                                </div>
+                            )
+                        })}
+                        {/* <div class="fx-kpi-item col-12 col-md-4">
+                            <span class="fx-kpi-label">Active Users</span>
+                            <span class="fx-kpi-value">5,432</span>
+                            <span class="fx-kpi-trend positive">+5.8%</span>
+                        </div>
+                        <div class="fx-kpi-item col-12 col-md-4">
+                            <span class="fx-kpi-label">Orders</span>
+                            <span class="fx-kpi-value">1,248</span>
+                            <span class="fx-kpi-trend negative">-3.1%</span>
+                        </div>
+                        <div class="fx-kpi-item">
+                            <span class="fx-kpi-label">Conversion</span>
+                            <span class="fx-kpi-value">3.24%</span>
+                            <span class="fx-kpi-trend positive">+1.2%</span>
+                        </div> */}
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
 
     )
 };
