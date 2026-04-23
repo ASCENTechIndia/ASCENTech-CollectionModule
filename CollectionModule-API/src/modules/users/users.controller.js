@@ -17,7 +17,8 @@ const {
   submitUserStatusChange,
   getPageAccess,
   updatePageAccess,
-  agentListNew
+  agentListNew,
+  searchByUserNameIdService
 } = require('./users.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -455,6 +456,31 @@ async function updatePageAccessHandler(req, res, next) {
   }
 }
 
+async function searchByUserNameId(req, res, next) {
+  try {
+    const row = await searchByUserNameIdService(req.query.search);
+
+    if (!row) {
+      logApiError(req, 404, 'User not found', 'User lookup failed');
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+        data: null,
+      });
+    }
+
+    const response = {
+      data: row,
+    };
+
+    logApiSuccess(req, 200, { row }, 'User lookup completed');
+    return res.ok(response.data);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'User lookup error');
+    return next(error);
+  }
+}
+
 module.exports = {
   createUserHandler,
   updateUserHandler,
@@ -475,5 +501,6 @@ module.exports = {
   submitUserModifyStatusHandler,
   getPageAccessHandler,
   updatePageAccessHandler,
-  agentListHandlerNew
+  agentListHandlerNew,
+  searchByUserNameId
 };

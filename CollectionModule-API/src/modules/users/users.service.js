@@ -13,7 +13,8 @@ const {
   findUserByUserId,
   getPageAccessByUserId,
   updatePageAccessByUserId,
-  agentDetailsbyBridNew
+  agentDetailsbyBridNew,
+  findUserByNameId
 } = require('./users.repo');
 
 async function createUser(payload) {
@@ -182,6 +183,10 @@ async function updatePageAccess(payload) {
   return updatePageAccessByUserId(payload);
 }
 
+async function searchByUserNameIdService(search) {
+  return findUserByNameId(search);
+}
+
 module.exports = {
   createUser,
   createWebUser,
@@ -202,5 +207,6 @@ module.exports = {
   submitUserStatusChange,
   getPageAccess,
   updatePageAccess,
-  agentListNew
+  agentListNew,
+  searchByUserNameIdService
 };
