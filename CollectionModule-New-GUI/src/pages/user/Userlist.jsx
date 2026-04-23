@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, Edit, Search, Monitor, Smartphone } from "lucide-react";
+import { Eye, Edit, Search, Monitor, Smartphone , ListTodo } from "lucide-react";
 import apiClient from "../../services/apiClient";
 import { useAuth } from "../../context/AuthContext";
 
@@ -154,8 +154,8 @@ export default function UsersList() {
       admin: { icon: "🛡️", label: "Admin", class: "admin" },
       manager: { icon: "⚙️", label: "Manager", class: "manager" },
       user: { icon: "👤", label: "User", class: "user" },
-      1: { icon: "📱", label: "FOS", class: "fos" },
-      5: { icon: "👁️", label: "Generic View", class: "generic" },
+      1: { icon: "📱", label: "FOS", class: "admin" },
+      5: { icon: "👁️", label: "Generic View", class: "manager" },
     };
     return roles[role] || roles.user;
   };
@@ -194,26 +194,6 @@ export default function UsersList() {
           </div>
         </div>
 
-         {/* <div className="users-insight-row mb-3">
-          <div className="users-insight users-insight-total">
-            <span className="users-insight-icon">👥</span>
-            <span className="users-insight-label">Total Users</span>
-            <span className="users-insight-value">{counts.total}</span>
-            <span className="users-insight-meta">All registered users</span>
-          </div>
-          <div className="users-insight users-insight-active">
-            <span className="users-insight-icon">✓</span>
-            <span className="users-insight-label">Active</span>
-            <span className="users-insight-value">{counts.active}</span>
-          </div>
-          <div className="users-insight users-insight-inactive">
-            <span className="users-insight-icon">✗</span>
-            <span className="users-insight-label">Inactive</span>
-            <span className="users-insight-value">
-              {counts.inactive}
-            </span>
-          </div>
-        </div> */}
         <div className="row g-4 mb-3">
             <div className="col-lg-4 col-md-6">
               <div className="card widget-stat-progress">
@@ -389,11 +369,11 @@ export default function UsersList() {
                         <td className="users-meta">{userItem.joined}</td>
                         <td>
                           <div className="users-actions">
-                            <Link to={`/users/${userItem.id}`} className="users-action-btn" title="View">
-                              <Eye size={16} />
-                            </Link>
                             <Link to="/user/roles" state={{ employeeId: userItem.id }} className="users-action-btn" title="Edit">
                               <Edit size={16} />
+                            </Link>
+                            <Link to="/user/pincode-allocation" state={{ employeeId: userItem.id }} className="users-action-btn" title="Pin Allocation">
+                              <ListTodo size={16} />
                             </Link>
                           </div>
                         </td>

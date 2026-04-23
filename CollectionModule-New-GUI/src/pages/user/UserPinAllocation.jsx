@@ -10,7 +10,7 @@ export default function UserPinAllocation() {
   const { showSuccess, showError, showWarning } = useNotification();
 
   // Get employeeId from navigation state
-  const employeeId = location.state?.employeeId || "10001100070";
+  const employeeId = location.state?.employeeId;
 
   // State for all pincodes (independent of employeeId)
   const [allPincodes, setAllPincodes] = useState([]);
@@ -219,7 +219,7 @@ export default function UserPinAllocation() {
 
       <div className="row g-3">
         {/* Left: Pincode Table */}
-        <div className="col-xxl-8">
+        <div className="col-xl-6">
           <div className="card">
             <div className="card-header">
               <div>
@@ -305,7 +305,7 @@ export default function UserPinAllocation() {
         </div>
 
         {/* Right: Selected Pincodes */}
-        <div className="col-xl-4">
+        <div className="col-xl-6">
           <div className="card mb-3">
             <div className="card-header">
               <h5 className="card-title">Selected Pincodes</h5>
