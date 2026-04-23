@@ -32929,7 +32929,7 @@ textarea.form-control {
   font-size: 1.05rem;
 }
 
-.page-dashboard .fx-mini-icon.revenue {
+.page-dashboard .fx-mini-icon .revenue {
   background: color-mix(in srgb, var(--success-color), transparent 86%);
   color: var(--success-color);
 }

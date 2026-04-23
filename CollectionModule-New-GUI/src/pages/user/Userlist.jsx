@@ -214,6 +214,50 @@ export default function UsersList() {
             </span>
           </div>
         </div> */}
+        <div className="row g-4 mb-3">
+            <div className="col-lg-4 col-md-6">
+              <div className="card widget-stat-progress">
+                <div className="card-body">
+                  <div className="widget-stat-icon primary">
+                    <i class="bi bi-people"></i>
+                  </div>
+                  <div className="widget-stat-content">
+                    <span className="widget-stat-label">Total Users</span>
+                    <span className="widget-stat-value">{counts.total}</span>
+                  </div>
+                  <div className="widget-stat-bar primary" />
+                </div>
+              </div>
+            </div>
+            <div className="col-lg-4 col-md-6">
+              <div className="card widget-stat-progress">
+                <div className="card-body">
+                  <div className="widget-stat-icon warning">
+                    <i class="bi bi-person-check"></i>
+                  </div>
+                  <div className="widget-stat-content">
+                    <span className="widget-stat-label">Active Users</span>
+                    <span className="widget-stat-value">{counts.active}</span>
+                  </div>
+                  <div className="widget-stat-bar warning" />
+                </div>
+              </div>
+            </div>
+            <div className="col-lg-4 col-md-6">
+              <div className="card widget-stat-progress">
+                <div className="card-body">
+                  <div className="widget-stat-icon danger">
+                    <i class="bi bi-person-fill-x"></i>
+                  </div>
+                  <div className="widget-stat-content">
+                    <span className="widget-stat-label">Inactive Users</span>
+                    <span className="widget-stat-value">{counts.inactive}</span>
+                  </div>
+                  <div className="widget-stat-bar danger" />
+                </div>
+              </div>
+            </div>
+            </div>
 
         <div className="card users-list-card">
           <div className="users-toolbar">
