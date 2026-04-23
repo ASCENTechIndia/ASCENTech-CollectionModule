@@ -8115,6 +8115,8 @@ textarea.form-control {
   flex-direction: column;
   gap: var(--spacing-md);
   padding: var(--spacing-md) 0;
+  /* justify-content: center;
+  height: 100%; */
 }
 
 .funnel-stage {
@@ -32744,13 +32746,17 @@ textarea.form-control {
 }
 
 .page-dashboard .fx-kpi-item {
-  padding: 11px 12px;
+  padding: 14px 16px;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-color);
   background: color-mix(in srgb, var(--card-bg), var(--background-color) 26%);
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+.page-dashboard .fx-kpi-item:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
 .page-dashboard .fx-kpi-label {
@@ -32907,7 +32913,7 @@ textarea.form-control {
 }
 
 .page-dashboard .fx-mini-stat .card-body {
-  padding: 0.95rem 1rem;
+  padding: 0.95rem 3rem 0.95rem 1rem;
   position: relative;
 }
 
@@ -32956,6 +32962,7 @@ textarea.form-control {
   letter-spacing: 0.08em;
   color: var(--muted-color);
   font-weight: 700;
+  word-break: break-word;
 }
 
 .page-dashboard .fx-mini-value {
@@ -32965,6 +32972,7 @@ textarea.form-control {
   line-height: 1.2;
   color: var(--heading-color);
   font-weight: 700;
+  word-break: break-word;
 }
 
 .page-dashboard .fx-mini-meta {
@@ -35894,6 +35902,7 @@ textarea.form-control {
     font-size: 0.625rem;
   }
 }
+
 .act-session-item {
   display: flex;
   align-items: center;
@@ -35903,6 +35912,7 @@ textarea.form-control {
   background: var(--surface-color);
   padding: 9px;
 }
+
 .act-session-icon {
   width: 34px;
   height: 34px;
@@ -35914,11 +35924,13 @@ textarea.form-control {
   justify-content: center;
   flex-shrink: 0;
 }
+
 .act-session-name {
   font-size: 0.78rem;
   font-weight: 700;
   color: var(--heading-color);
 }
+
 .act-session-meta {
   margin-top: 1px;
   font-size: 0.71rem;
