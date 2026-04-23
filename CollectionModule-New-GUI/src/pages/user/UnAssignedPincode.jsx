@@ -26,15 +26,16 @@ export default function UnAssignedPincode() {
         const usersData = response.data;
         setUsers(usersData);
 
+        // Initially all pincodes are checked (true)
         const initialSelected = {};
         usersData.forEach((user) => {
           const uid = String(user.userId);
           const pincodes = user.pincodes || [];
           const pincodeObj = {};
           pincodes.forEach((pin) => {
-            pincodeObj[String(pin)] = false;
+            pincodeObj[String(pin)] = true;
           });
-          initialSelected[uid] = { allSelected: false, pincodes: pincodeObj };
+          initialSelected[uid] = { allSelected: true, pincodes: pincodeObj };
         });
         setSelectedCases(initialSelected);
       } else {
@@ -59,7 +60,6 @@ export default function UnAssignedPincode() {
     );
   }, [users, searchTerm]);
 
-  // No pincode filter anymore – show all pincodes for selected user
   const currentUserPincodes = useMemo(() => {
     const selectedUserData = users.find(
       (u) => String(u.userId) === selectedUserId
@@ -67,8 +67,6 @@ export default function UnAssignedPincode() {
     return selectedUserData?.pincodes || [];
   }, [users, selectedUserId]);
 
-  // Handler for user-level checkbox removed (no per-user checkbox)
-  // Instead, we'll have a "Select All Pincodes" checkbox for the selected user
   const handleSelectAllPincodesForUser = (userId, checked) => {
     setSelectedCases((prev) => {
       const next = { ...prev };
@@ -103,28 +101,36 @@ export default function UnAssignedPincode() {
     });
   };
 
-  const selectedCount = useMemo(() => {
+  // Count unchecked pincodes (these will be unassigned)
+  const unassignedCount = useMemo(() => {
     let count = 0;
     Object.values(selectedCases).forEach((userSel) => {
-      count += Object.values(userSel.pincodes || {}).filter(Boolean).length;
+      count += Object.values(userSel.pincodes || {}).filter(checked => !checked).length;
     });
     return count;
   }, [selectedCases]);
 
+  // Submit: send UNCHECKED pincodes (the ones user wants to unassign)
   const handleSubmit = async () => {
     const selections = [];
     Object.entries(selectedCases).forEach(([userId, userSelection]) => {
-      const selectedPincodes = Object.entries(userSelection.pincodes || {})
-        .filter(([, isSelected]) => isSelected)
+      const unselectedPincodes = Object.entries(userSelection.pincodes || {})
+        .filter(([, isChecked]) => !isChecked)
         .map(([pincode]) => pincode);
-      if (selectedPincodes.length > 0) {
-        selections.push({ userId, pincodes: selectedPincodes });
+      if (unselectedPincodes.length > 0) {
+        selections.push({ userId, pincodes: unselectedPincodes });
       }
     });
 
     if (selections.length === 0) {
-      showError("Please select at least one case to unassign");
+      showError("Please uncheck at least one pincode to unassign.");
       return;
+    }
+
+    // 🔁 CONFIRMATION ALERT
+    const confirmMessage = "Are you sure you want to unassign these cases?";
+    if (!window.confirm(confirmMessage)) {
+      return;   // User cancelled – do nothing, selection state remains unchanged
     }
 
     setSubmitting(true);
@@ -134,7 +140,7 @@ export default function UnAssignedPincode() {
       });
       if (response?.success) {
         showSuccess(response?.data?.message || "Cases unassigned successfully");
-        await fetchUsers();
+        await fetchUsers();   // refresh data (resets all to checked)
         setSelectedUserId(null);
       } else {
         showError(response?.message || "Failed to unassign cases");
@@ -150,7 +156,7 @@ export default function UnAssignedPincode() {
   const areAllSelectedForCurrentUser =
     selectedUserId &&
     currentUserPincodes.length > 0 &&
-    currentUserPincodes.every((pin) => selectedUserSelections[String(pin)]);
+    currentUserPincodes.every((pin) => selectedUserSelections[String(pin)] === true);
 
   const togglePincode = (userId, pincode, e) => {
     if (e.target.type !== "checkbox") {
@@ -184,7 +190,6 @@ export default function UnAssignedPincode() {
             }
           }
 
-          /* Enhanced card style */
           .act-session-item {
             background: #fff;
             border-radius: 0.75rem;
@@ -243,7 +248,7 @@ export default function UnAssignedPincode() {
       </div>
 
       <div className="responsive-split">
-        {/* Left Panel: Users - 25% width (no checkboxes per user) */}
+        {/* Left Panel: Users */}
         <div className="users-panel card m-0">
           <div className="card-header">
             <div className="support-search">
@@ -309,10 +314,9 @@ export default function UnAssignedPincode() {
           </div>
         </div>
 
-        {/* Right Panel: Pincodes - 75% width */}
+        {/* Right Panel: Pincodes */}
         <div className="pincodes-panel card">
           <div className="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-            {/* Replace search bar with Select All checkbox for current user */}
             <div className="select-all-checkbox">
               <input
                 type="checkbox"
@@ -328,9 +332,9 @@ export default function UnAssignedPincode() {
                 Select All Pincodes
               </label>
             </div>
-            {selectedCount > 0 && (
+            {unassignedCount > 0 && (
               <div className="alert alert-info py-1 px-3 m-0">
-                {selectedCount} case(s) selected
+                {unassignedCount} pincode(s) will be unassigned
               </div>
             )}
           </div>
@@ -343,8 +347,7 @@ export default function UnAssignedPincode() {
               currentUserPincodes.length > 0 ? (
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
                   {currentUserPincodes.map((pincode, idx) => {
-                    const isChecked =
-                      selectedUserSelections[String(pincode)] || false;
+                    const isChecked = selectedUserSelections[String(pincode)] || false;
                     return (
                       <div
                         className="act-session-item"
@@ -375,9 +378,7 @@ export default function UnAssignedPincode() {
                   })}
                 </div>
               ) : (
-                <div className="text-center p-4">
-                  No pincodes assigned for this user.
-                </div>
+                <div className="text-center p-4">No pincodes assigned for this user.</div>
               )
             ) : (
               <div className="text-center p-4">
@@ -389,7 +390,7 @@ export default function UnAssignedPincode() {
             <button
               type="button"
               className="btn btn-primary"
-              disabled={submitting || selectedCount === 0}
+              disabled={submitting || unassignedCount === 0}
               onClick={handleSubmit}
             >
               {submitting ? "Processing..." : "Unassign Selected Users Cases"}
