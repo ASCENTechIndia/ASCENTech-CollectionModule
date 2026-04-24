@@ -5,14 +5,17 @@ import App from './App.jsx'
 import { BrowserRouter } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { NotificationProvider } from './context/NotificationContext'
+import { ConfirmModalProvider } from './context/ConfirmModalContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
+        <ConfirmModalProvider>
         <NotificationProvider>
           <App />
         </NotificationProvider>
+        </ConfirmModalProvider>
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>,
