@@ -8,9 +8,9 @@ const navItems = [
 ]
 
 const dashboardMenuItems = [
-  { to: '/Dashboard/FrmActiveAgents', label: 'Active Agents Dashboard' },
-  { to: '/Dashboard/FrmNewDashboard2', label: 'Disposition Dashboard' },
-  { to: '/Dashboard/FrmDailyVisit', label: 'Daily Visit Dashboard' },
+  { to: '/Dashboard/FrmActiveAgentsNew', label: 'Active Agents Dashboard' },
+  { to: '/Dashboard/FrmNewDashboard2New', label: 'Disposition Dashboard' },
+  { to: '/Dashboard/DailyVisitNew', label: 'Daily Visit Dashboard' },
 ]
 
 const adminMenuItems = [
@@ -23,11 +23,7 @@ const adminMenuItems = [
 
 const userMenuItems = [
   { to: "/user/user-list", label: "Users" },
-  { to: "/user/FrmUserList", label: "User List" },
-  { to: "/user/FrmUserModification", label: "User Modification" },
-  { to: "/user/FrmPincodeMstrInserion", label: "Pincode Master" },
-  { to: '/user/pin-allocation', label: 'Assigned Pincode FOS' },
-  { to: '/user/unassign-cases', label: 'Unassigned Cases' },
+  { to: '/user/unassigned-Pincode', label: 'Unassigned Cases' },
   { to: '/user/reset-password', label: 'Reset Password' },
   { to: '/user/change-password', label: 'Change Password' },
 ]

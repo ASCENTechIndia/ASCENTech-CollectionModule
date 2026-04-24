@@ -208,6 +208,7 @@ const columns1 = [
   {
     key: "dispositionDate",
     label: "Disposition Date / Code",
+     minWidth: "200px",
     render: (val, row) => (
       <div className="d-flex align-items-center gap-3">
         <div
@@ -236,7 +237,7 @@ const columns1 = [
     ),
   },
   { key: "customerName",    label: "Customer Name" },
-  { key: "customerAddress", label: "Customer Address" },
+  { key: "customerAddress", label: "Customer Address" , minWidth: "300px",},
   { key: "subDispositionCode",       label: "Sub Disposition Code" },
   { key: "collectionAssociateName",  label: "Collection Associate Name", cellClass: "text-nowrap" },
   { key: "employeeId",               label: "Employee ID",               cellClass: "text-nowrap" },

@@ -334,13 +334,13 @@ const columns1 = [
 
 
                                 <DataTable
-  title="Collection Associate Login Report"
-  subtitle="Daily login and logout tracking"
-  columns={columns1}
-  data={data}
-  perPage={10}
-  csvFilename="login_report.csv"
-/>
+                                title="Collection Associate Login Report"
+                                subtitle="Daily login and logout tracking"
+                                columns={columns1}
+                                data={data}
+                                perPage={10}
+                                csvFilename="login_report.csv"
+                                />
                             </div>
                         </div>
                     </div>
