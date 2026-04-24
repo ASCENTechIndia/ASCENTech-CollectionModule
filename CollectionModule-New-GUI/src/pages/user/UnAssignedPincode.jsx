@@ -117,7 +117,7 @@ export default function UnAssignedPincode() {
     }
 
     const agreed = await confirm(
-      `Are you sure you want to unassign`,
+      `Are you sure you want to unassign ${selections.reduce((sum, s) => sum + s.pincodes.length, 0)} pincode(s) across ${selections.length} user(s)? This action cannot be undone.`,
     );
     if (!agreed) return;
 
@@ -157,7 +157,6 @@ export default function UnAssignedPincode() {
   return (
     <div className="page-users-edit p-4">
       <div className="page-header">
-        <div>
           <h1 className="page-title">Unassign Cases For Users</h1>
           <nav className="breadcrumb">
             <Link to="/" className="breadcrumb-item">
@@ -166,7 +165,6 @@ export default function UnAssignedPincode() {
             <span className="breadcrumb-item">User</span>
             <span className="breadcrumb-item active">Unassign Cases</span>
           </nav>
-        </div>
       </div>
 
       <div className="responsive-split">

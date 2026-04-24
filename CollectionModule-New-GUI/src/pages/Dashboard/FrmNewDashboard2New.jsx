@@ -311,7 +311,10 @@ const columns1 = [
         <div className="card p-4 shadow border-0">
           <div className="mt-3 w-100">
             <ChartCard title="Disposition Graph" subtitle="Dispositions Done">
-              <canvas ref={bar4} />
+              <div style={{ width: "80%", margin: "0 auto" }}>
+                <canvas ref={bar4} />
+              </div>
+             
             </ChartCard>
           </div>
 

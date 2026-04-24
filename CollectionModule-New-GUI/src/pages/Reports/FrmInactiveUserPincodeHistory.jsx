@@ -4,6 +4,31 @@ import { useForm } from "react-hook-form";
 import ReusableDataGrid from "../../components/ReusableDataGrid";
 import apiClient from "../../services/apiClient";
 import { useNotification } from "../../context/useNotification";
+import DataTable from "../../components/Datatable";
+
+const MilestoneDate = ({ date }) => {
+  if (!date) return null;
+
+  const [day, month, year] = date.split("-");
+  const parsedDate = new Date(`${year}-${month}-${day}`);
+
+  if (isNaN(parsedDate)) return <span>-</span>;
+
+  const d = parsedDate.getDate();
+  const m = parsedDate.toLocaleString("default", { month: "short" });
+  const y = parsedDate.getFullYear();
+
+  return (
+    <div className="milestone-date-horizontal">
+      <span className="milestone-day-big">{d}</span>
+
+      <div className="milestone-right">
+        <span className="milestone-month">{m}</span>
+        <span className="milestone-year">{y}</span>
+      </div>
+    </div>
+  );
+};
 
 // Debounce utility
 function debounce(fn, delay) {
@@ -68,21 +93,56 @@ function FrmInactiveUserPincodeHistory() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState("");
 
-  const columns = [
-    { label: "Inactive Date", sortable: true },
-    { label: "User ID", sortable: true },
-    { label: "Pincode", sortable: true },
-  ];
-
   const tableRows = useMemo(
     () =>
       rows.map((item) => [
         item.inactiveDate || "",
         item.userId || "",
         item.pincode || "",
+        item.username || "",
       ]),
     [rows],
   );
+
+  const columns2 = [
+  {
+  key: "inactiveDate", // keep main key (or rename if you want)
+  label: "Inactive Date",
+  render: (val, row) => 
+      <MilestoneDate date={row.inactiveDate} userId={row.userId} />
+},
+{
+  key: "username",
+  label: "Username & UserId",
+  minWidth: "120px",
+  render: (val,row) => (
+    <div class="workload-item">
+                  <img src="/assets/img/profile-img.jpg" alt="" class="workload-avatar"/>
+                  <div class="workload-info">
+                    <div class="workload-name">{val}</div>
+                    <div class="workload-role">{row.userId}</div>
+                  </div></div>
+  ),
+},
+  {
+    key: "pincode",
+    label: "Pincode",
+    minWidth: "120px",
+    render: (val) => (
+     <span className="badge bg-success text-white">
+  {val}
+</span>
+    ),
+  },
+];
+
+const tableData2 = rows.map((item, index) => ({
+  id: index,
+  inactiveDate: item.inactiveDate || "",
+  userId: item.userId || "",
+  pincode: item.pincode || "",
+  username: item.username || "",
+}));
 
   // Debounced search function
   const doSearch = debounce(async (term) => {
@@ -166,6 +226,7 @@ function FrmInactiveUserPincodeHistory() {
         inactiveDate: item.INACTIVE_DATE || "",
         userId: item.VAR_USER_USERID || "",
         pincode: item.VAR_USER_PINCODE || "",
+        username: item.VAR_USERMST_USERFULLNAME || "",
       }));
 
       setRows(formattedData);
@@ -349,15 +410,15 @@ function FrmInactiveUserPincodeHistory() {
       </div>
 
       {tableRows.length > 0 && (
-        <div className="card">
-          <div className="card-body">
-            <ReusableDataGrid
-              rows={tableRows}
-              columns={columns}
-              pageSize={10}
-            />
-          </div>
-        </div>
+
+        <DataTable
+  title="Inactive Users Report"
+  subtitle="Users who have been inactive"
+  columns={columns2}
+  data={tableData2}
+  perPage={5}
+  csvFilename="inactive_users.csv"
+/>
       )}
     </div>
   );

@@ -58,7 +58,7 @@ const FrmActiveAgentsNew = () => {
         }
     });
     const commonColors = {
-        accent: '#3b82f6',
+        accent: '#0ea5a4',
         success: '#22c55e',
         warning: '#f59e0b',
         info: '#06b6d4',
@@ -328,7 +328,10 @@ const columns1 = [
                                 title="Unique Collection Associate Trend"
                                 subtitle="Daily active app usage"
                             >
-                                <canvas ref={bar1} />
+                                <div style={{ width: "80%", margin: "0 auto" }}>
+                                   <canvas ref={bar1} />
+                                </div>
+                                
                             </ChartCard>
                         </div>
 

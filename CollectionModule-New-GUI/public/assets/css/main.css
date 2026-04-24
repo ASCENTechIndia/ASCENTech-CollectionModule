@@ -10329,7 +10329,7 @@ textarea.form-control {
 # User View - FlexAdmin
 --------------------------------------------------------------*/
 .page-users-view .uv-page-header {
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
 }
 
 .page-users-view .uv-identity-card {
@@ -36538,4 +36538,47 @@ textarea.form-control {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* Container box */
+.milestone-date-horizontal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 6px 10px; /* reduced */
+  border-radius: 8px;
+
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+
+  width: fit-content;
+}
+
+/* Big Day */
+.milestone-day-big {
+  font-size: 20px; /* reduced */
+  font-weight: 700;
+  line-height: 1;
+  color: #dc2626;
+}
+
+/* Right side */
+.milestone-right {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+/* Month */
+.milestone-month {
+  font-size: 11px;
+  color: #64748b;
+}
+
+/* Year */
+.milestone-year {
+  font-size: 10px;
+  color: #94a3b8;
 }

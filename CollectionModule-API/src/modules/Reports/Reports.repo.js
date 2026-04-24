@@ -292,10 +292,16 @@ async function getDailyUploadedReport(filters) {
 }
 async function getpincodeHistoryReport(filters) {
   let sql = `
-  select var_user_userid, var_user_pincode, TO_CHAR(inactive_date, 'DD-MM-YYYY') as inactive_date from atbss.aoup_user_pincode_map_history_maintain a 
-    WHERE TRUNC(a.INACTIVE_DATE) BETWEEN TO_DATE(:startDate, 'DD-Mon-YYYY') 
-         AND TO_DATE(:endDate, 'DD-Mon-YYYY')
-  `;
+  SELECT 
+    a.var_user_userid,
+    u.VAR_USERMST_USERFULLNAME,
+    a.var_user_pincode,
+    TO_CHAR(a.inactive_date, 'DD-MM-YYYY') AS inactive_date
+FROM atbss.aoup_user_pincode_map_history_maintain a
+LEFT JOIN etech.AOUP_USERMST_DEF u
+    ON u.VAR_USERMST_USERID = 'E' || a.var_user_userid
+WHERE a.INACTIVE_DATE >= TO_DATE(:startDate, 'DD-Mon-YYYY')
+  AND a.INACTIVE_DATE <  TO_DATE(:endDate, 'DD-Mon-YYYY') + 1`;
   const binds = {
     startDate: filters.startDate,
     endDate: filters.endDate

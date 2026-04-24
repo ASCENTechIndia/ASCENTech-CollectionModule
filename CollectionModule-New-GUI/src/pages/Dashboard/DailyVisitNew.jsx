@@ -990,28 +990,30 @@ const DailyVisitNew = () => {
                         <div className="col-12 col-md-6">
                             <div className="card h-100">
                                 <div className="card-header d-flex justify-content-between align-items-center">
-                                    <h5 className="card-title mb-0">{dashboardData?.dateRange?.ptpDateRangeLabel || 'PTP spans from - to -'}</h5>
+                                    <h5 className="card-title mb-0">{dashboardData?.dateRange?.ptpDateRangeLabel}</h5>
                                     {/* <a href="#" class="btn btn-sm btn-link">View All</a> */}
                                 </div>
                                 <div className="card-body p-0">
                                     <div className="deal-list">
-                                        {/* {ptpCards.map((item, index) => {
-                                            const colors = ['#8b5cf6', '#ec4899', '#f59e0b', '#ef4444'];
-                                            const bgColors = ['#f5f3ff', '#fdf2f8', '#fffbeb', '#fef2f2'];
-                                            const ptpIcons = ['bi-list-check', 'bi-hourglass-split', 'bi-check-circle-fill', 'bi-x-circle-fill'];
-                                            const color = colors[index % colors.length];
-                                            const bgColor = bgColors[index % bgColors.length];
-                                            // const icon = ptpIcons[index % ptpIcons.length];
-                                            return (
-                                                )
-                                        })} */}
                                         <div className="deal-item" style={{ transition: 'all 0.3s ease', cursor: 'pointer' }}
                                             onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
                                             onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
-                                            <div className="deal-info" >
-                                                <div className="deal-company">Total</div>
-                                                <div class="deal-contact">PTP Count</div>
-                                            </div>
+
+                                            <div className="d-flex align-items-center gap-3 deal-info">
+                          <div className="product-img bg-primary-light rounded" style={{
+                            width: "40px",
+                            height: "40px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                            }}>
+                           <i className="bi bi-bar-chart text-primary"></i>
+                          </div>
+                          <div>
+                            <div className="fw-medium">Total</div>
+                            <small className="text-muted">PTP Count</small>
+                          </div>
+                        </div>
                                             <div className="deal-meta">
                                                 <span className="deal-amount">{formatNumber(dashboardData?.ptp?.totalPtpCount)}</span>
                                                 {/* <span class="badge bg-success-subtle text-success">Won</span> */}
@@ -1020,10 +1022,21 @@ const DailyVisitNew = () => {
                                         <div className="deal-item" style={{ transition: 'all 0.3s ease', cursor: 'pointer' }}
                                             onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
                                             onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
-                                            <div className="deal-info" >
-                                                <div className="deal-company">Pending</div>
-                                                <div class="deal-contact">PTP Count</div>
-                                            </div>
+                                            <div className="d-flex align-items-center gap-3 deal-info">
+                          <div className="product-img bg-primary-light rounded" style={{
+                            width: "40px",
+                            height: "40px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                            }}>
+                            <i className="bi bi-hourglass-split text-warning"></i>
+                          </div>
+                          <div>
+                            <div className="fw-medium">Pending</div>
+                            <small className="text-muted">PTP Count</small>
+                          </div>
+                        </div>
                                             <div className="deal-meta">
                                                 <span className="deal-amount">{formatNumber(dashboardData?.ptp?.pendingPtpCount)}</span>
                                                 {/* <span class="badge bg-success-subtle text-success">Won</span> */}
@@ -1032,10 +1045,21 @@ const DailyVisitNew = () => {
                                         <div className="deal-item" style={{ transition: 'all 0.3s ease', cursor: 'pointer' }}
                                             onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
                                             onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
-                                            <div className="deal-info" >
-                                                <div className="deal-company">Paid</div>
-                                                <div class="deal-contact">PTP Count</div>
-                                            </div>
+                                             <div className="d-flex align-items-center gap-3 deal-info">
+                          <div className="product-img bg-primary-light rounded" style={{
+                            width: "40px",
+                            height: "40px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                            }}>
+                            <i className="bi bi-check-circle text-success"></i>
+                          </div>
+                          <div>
+                            <div className="fw-medium">Paid</div>
+                            <small className="text-muted">PTP Count</small>
+                          </div>
+                        </div>
                                             <div className="deal-meta">
                                                 <span className="deal-amount">{formatNumber(dashboardData?.ptp?.paidPtpCount)}</span>
                                                 {/* <span class="badge bg-success-subtle text-success">Won</span> */}
@@ -1044,10 +1068,21 @@ const DailyVisitNew = () => {
                                         <div className="deal-item" style={{ transition: 'all 0.3s ease', cursor: 'pointer' }}
                                             onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
                                             onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
-                                            <div className="deal-info" >
-                                                <div className="deal-company">Broken</div>
-                                                <div class="deal-contact">PTP Count</div>
-                                            </div>
+                                            <div className="d-flex align-items-center gap-3 deal-info">
+                          <div className="product-img bg-primary-light rounded" style={{
+                            width: "40px",
+                            height: "40px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                            }}>
+                            <i className="bi bi-x-circle text-danger"></i>
+                          </div>
+                          <div>
+                            <div className="fw-medium">Broken</div>
+                            <small className="text-muted">PTP Count</small>
+                          </div>
+                        </div>
                                             <div className="deal-meta">
                                                 <span className="deal-amount">{formatNumber(dashboardData?.ptp?.brokenPtpCount)}</span>
                                                 {/* <span class="badge bg-success-subtle text-success">Won</span> */}
