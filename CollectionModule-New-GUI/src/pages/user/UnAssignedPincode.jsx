@@ -2,10 +2,11 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import apiClient from "../../services/apiClient";
 import { useNotification } from "../../context/useNotification";
-import ConfirmModal from "../../components/ConfirmModal";
+import { useConfirm } from "../../context/ConfirmModalContext";
 
 export default function UnAssignedPincode() {
   const { showSuccess, showError } = useNotification();
+  const confirm = useConfirm();
 
   // Data states
   const [users, setUsers] = useState([]);
@@ -17,11 +18,6 @@ export default function UnAssignedPincode() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUserId, setSelectedUserId] = useState(null);
 
-  // Modal state
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [pendingSelections, setPendingSelections] = useState([]);
-
-  // Fetch users and pincodes from API
   const fetchUsers = async () => {
     try {
       setLoading(true);
@@ -104,8 +100,7 @@ export default function UnAssignedPincode() {
     return count;
   }, [selectedCases]);
 
-  // Prepare selections and open modal
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const selections = [];
     Object.entries(selectedCases).forEach(([userId, userSelection]) => {
       const unselectedPincodes = Object.entries(userSelection.pincodes || {})
@@ -121,16 +116,15 @@ export default function UnAssignedPincode() {
       return;
     }
 
-    setPendingSelections(selections);
-    setShowConfirmModal(true);
-  };
+    const agreed = await confirm(
+      `Are you sure you want to unassign`,
+    );
+    if (!agreed) return;
 
-  const handleConfirmSubmit = async () => {
-    setShowConfirmModal(false);
     setSubmitting(true);
     try {
       const response = await apiClient.post("/admin/unassign-cases", {
-        selections: pendingSelections,
+        selections,
       });
       if (response?.success) {
         showSuccess(response?.data?.message || "Cases unassigned successfully");
@@ -143,13 +137,7 @@ export default function UnAssignedPincode() {
       showError(err?.message || "Failed to unassign cases");
     } finally {
       setSubmitting(false);
-      setPendingSelections([]);
     }
-  };
-
-  const handleCancelModal = () => {
-    setShowConfirmModal(false);
-    setPendingSelections([]);
   };
 
   const selectedUserSelections = selectedCases[selectedUserId]?.pincodes || {};
@@ -168,18 +156,6 @@ export default function UnAssignedPincode() {
 
   return (
     <div className="page-users-edit p-4">
-      {/* Confirm Modal */}
-      <ConfirmModal
-        show={showConfirmModal}
-        onConfirm={handleConfirmSubmit}
-        onCancel={handleCancelModal}
-        message={`Are you sure you want to unassign ${pendingSelections.reduce(
-          (sum, s) => sum + s.pincodes.length,
-          0,
-        )} pincode(s) across ${pendingSelections.length} user(s)? This action cannot be undone.`}
-        disabled={submitting}
-      />
-
       <div className="page-header">
         <div>
           <h1 className="page-title">Unassign Cases For Users</h1>

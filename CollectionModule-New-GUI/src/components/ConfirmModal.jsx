@@ -1,3 +1,4 @@
+// components/ConfirmModal.jsx
 import React from "react";
 
 const ConfirmModal = ({
@@ -12,25 +13,37 @@ const ConfirmModal = ({
   return (
     <div className="confirm-modal-backdrop" onClick={onCancel}>
       <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="confirm-modal-icon">⚠️</div>
-        <div className="confirm-modal-title">Confirm</div>
+
+        <div className="confirm-modal-icon-wrap">⚠️</div>
+
+        <div className="confirm-modal-title">Are you sure?</div>
+
         <div className="confirm-modal-body">{message}</div>
+
         <div className="confirm-modal-actions">
           <button
-            className="btn btn-outline-secondary"
+            className="btn-cancel"
             onClick={onCancel}
             disabled={disabled}
           >
             Cancel
           </button>
           <button
-            className="btn btn-danger"
+            className="btn-confirm"
             onClick={onConfirm}
             disabled={disabled}
           >
-            {disabled ? "Processing..." : "Confirm"}
+            {disabled ? (
+              <>
+                <span className="confirm-spinner" />
+                Processing...
+              </>
+            ) : (
+              "Confirm"
+            )}
           </button>
         </div>
+
       </div>
     </div>
   );
