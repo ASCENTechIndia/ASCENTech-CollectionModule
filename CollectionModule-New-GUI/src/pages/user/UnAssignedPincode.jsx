@@ -1,8 +1,8 @@
-// src/pages/UnAssignedPincode.jsx
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import apiClient from "../../services/apiClient";
 import { useNotification } from "../../context/useNotification";
+import ConfirmModal from "../../components/ConfirmModal";
 
 export default function UnAssignedPincode() {
   const { showSuccess, showError } = useNotification();
@@ -17,7 +17,7 @@ export default function UnAssignedPincode() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUserId, setSelectedUserId] = useState(null);
 
-  // ── Confirmation modal state ────────────────────────────────
+  // Modal state
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingSelections, setPendingSelections] = useState([]);
 
@@ -104,7 +104,7 @@ export default function UnAssignedPincode() {
     return count;
   }, [selectedCases]);
 
-  // ── Step 1: Build selections and open modal ─────────────────
+  // Prepare selections and open modal
   const handleSubmit = () => {
     const selections = [];
     Object.entries(selectedCases).forEach(([userId, userSelection]) => {
@@ -121,12 +121,10 @@ export default function UnAssignedPincode() {
       return;
     }
 
-    // Store selections and show modal instead of window.confirm
     setPendingSelections(selections);
     setShowConfirmModal(true);
   };
 
-  // ── Step 2: User confirmed — run the API ────────────────────
   const handleConfirmSubmit = async () => {
     setShowConfirmModal(false);
     setSubmitting(true);
@@ -149,7 +147,6 @@ export default function UnAssignedPincode() {
     }
   };
 
-  // ── Step 2 (cancel): close modal, keep state intact ─────────
   const handleCancelModal = () => {
     setShowConfirmModal(false);
     setPendingSelections([]);
@@ -169,58 +166,19 @@ export default function UnAssignedPincode() {
     }
   };
 
-  // Count total pincodes across all pending selections (for modal summary)
-  const pendingPincodeCount = pendingSelections.reduce(
-    (sum, s) => sum + s.pincodes.length,
-    0,
-  );
-
   return (
     <div className="page-users-edit p-4">
-      {/* ── Confirmation Modal ── */}
-      {showConfirmModal && (
-        <div className="confirm-modal-backdrop" onClick={handleCancelModal}>
-          <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="confirm-modal-icon">⚠️</div>
-            <div className="confirm-modal-title">Confirm Unassignment</div>
-            <div className="confirm-modal-body">
-              You are about to unassign{" "}
-              <strong>{pendingPincodeCount} pincode(s)</strong> across{" "}
-              <strong>{pendingSelections.length} user(s)</strong>. This action
-              cannot be undone.
-            </div>
-
-            {/* Summary of who loses which pincodes */}
-            <div className="confirm-modal-summary">
-              {pendingSelections.map((s) => (
-                <div className="confirm-modal-summary-row" key={s.userId}>
-                  <span style={{ fontWeight: 500 }}>{s.userId}</span>
-                  <span style={{ color: "#ef4444" }}>
-                    {s.pincodes.length} pincode(s) removed
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <div className="confirm-modal-actions">
-              <button
-                className="btn btn-outline-secondary"
-                onClick={handleCancelModal}
-                disabled={submitting}
-              >
-                Cancel
-              </button>
-              <button
-                className="btn btn-danger"
-                onClick={handleConfirmSubmit}
-                disabled={submitting}
-              >
-                {submitting ? "Processing..." : "Yes, Unassign"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Confirm Modal */}
+      <ConfirmModal
+        show={showConfirmModal}
+        onConfirm={handleConfirmSubmit}
+        onCancel={handleCancelModal}
+        message={`Are you sure you want to unassign ${pendingSelections.reduce(
+          (sum, s) => sum + s.pincodes.length,
+          0,
+        )} pincode(s) across ${pendingSelections.length} user(s)? This action cannot be undone.`}
+        disabled={submitting}
+      />
 
       <div className="page-header">
         <div>
