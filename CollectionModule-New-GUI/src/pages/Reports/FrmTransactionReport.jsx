@@ -1,255 +1,380 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import ReusableDataGrid from '../../components/ReusableDataGrid'
-import ImageViewer from '../../components/ui/ImageViewer'
-import apiClient from '../../services/apiClient'
-import { useAuth } from '../../context/AuthContext'
-import { useNotification } from '../../context/useNotification'
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import ReusableDataGrid from "../../components/ReusableDataGrid";
+import ImageViewer from "../../components/ui/ImageViewer";
+import apiClient from "../../services/apiClient";
+import { useAuth } from "../../context/AuthContext";
+import { useNotification } from "../../context/useNotification";
+
+// Debounce utility
+function debounce(fn, delay) {
+  let timer = null;
+  return (...args) => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}
 
 const formatDateForAPI = (dateStr) => {
-  if (!dateStr) return ''
-  const [year, month, day] = dateStr.split('-')
-  return `${day}/${month}/${year}`
-}
+  if (!dateStr) return "";
+  const [year, month, day] = dateStr.split("-");
+  return `${day}/${month}/${year}`;
+};
 
-const getPayload = (response) => response?.data ?? response ?? {}
+const getPayload = (response) => response?.data ?? response ?? {};
 const getDataRows = (response) => {
-  const payload = getPayload(response)
-
-  if (Array.isArray(payload)) return payload
-  if (Array.isArray(payload?.data)) return payload.data
-  if (Array.isArray(payload?.data?.data)) return payload.data.data
-  if (Array.isArray(payload?.rows)) return payload.rows
-
-  return []
-}
+  const payload = getPayload(response);
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload?.data?.data)) return payload.data.data;
+  if (Array.isArray(payload?.rows)) return payload.rows;
+  return [];
+};
 
 function FrmTransactionReport() {
-  const navigate = useNavigate()
-  const { user } = useAuth()
-  const { showError, showSuccess, showWarning } = useNotification()
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { showError, showSuccess, showWarning } = useNotification();
   const {
     register,
     handleSubmit: handleFormSubmit,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
-      fromDate: '',
-      toDate: '',
-      userId: '',
+      fromDate: "",
+      toDate: "",
+      userId: "",
     },
-  })
-  const brid = user?.brid ?? user?.BRID ?? user?.num_usermst_brid ?? null
-  const brCategory = user?.brCategory ?? user?.brcategory ?? user?.BRCATEGORY ?? null
+  });
+  const brid = user?.brid ?? user?.BRID ?? user?.num_usermst_brid ?? null;
+  const brCategory =
+    user?.brCategory ?? user?.brcategory ?? user?.BRCATEGORY ?? null;
 
-  const [fromDate, setFromDate] = useState('')
-  const [toDate, setToDate] = useState('')
-  const [zone, setZone] = useState('')
-  const [region, setRegion] = useState('')
-  const [branch, setBranch] = useState('')
-  const [userId, setUserId] = useState('')
-  const [collectionAssociated, setCollectionAssociated] = useState('')
-  const [transactionType, setTransactionType] = useState('')
-  const [smaType, setSmaType] = useState('')
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [zone, setZone] = useState("");
+  const [region, setRegion] = useState("");
+  const [branch, setBranch] = useState("");
+  const [userId, setUserId] = useState("");
+  const [collectionAssociated, setCollectionAssociated] = useState("");
+  const [transactionType, setTransactionType] = useState("");
+  const [smaType, setSmaType] = useState("");
 
-  const [zoneOptions, setZoneOptions] = useState([])
-  const [regionOptions, setRegionOptions] = useState([])
-  const [branchOptions, setBranchOptions] = useState([])
-  const [collectionOptions, setCollectionOptions] = useState([])
+  const [zoneOptions, setZoneOptions] = useState([]);
+  const [regionOptions, setRegionOptions] = useState([]);
+  const [branchOptions, setBranchOptions] = useState([]);
+  const [collectionOptions, setCollectionOptions] = useState([]);
 
-  const [loadingZones, setLoadingZones] = useState(false)
-  const [loadingRegions, setLoadingRegions] = useState(false)
-  const [loadingBranches, setLoadingBranches] = useState(false)
-  const [loadingCollection, setLoadingCollection] = useState(false)
+  const [loadingZones, setLoadingZones] = useState(false);
+  const [loadingRegions, setLoadingRegions] = useState(false);
+  const [loadingBranches, setLoadingBranches] = useState(false);
+  const [loadingCollection, setLoadingCollection] = useState(false);
 
-  const [rows, setRows] = useState([])
-  const [searching, setSearching] = useState(false)
-  const [error, setError] = useState('')
+  const [rows, setRows] = useState([]);
+  const [searching, setSearching] = useState(false);
+  const [error, setError] = useState("");
 
-  const [selectedImageCode, setSelectedImageCode] = useState('')
-  const [showImageViewer, setShowImageViewer] = useState(false)
+  const [selectedImageCode, setSelectedImageCode] = useState("");
+  const [showImageViewer, setShowImageViewer] = useState(false);
+
+  // 🔍 Search state for user name/id
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState("");
 
   const transactionTypeOptions = [
-    { label: 'Collection', value: '1' },
-    { label: 'Feedback', value: '2' },
-  ]
+    { label: "Collection", value: "1" },
+    { label: "Feedback", value: "2" },
+  ];
 
   const smaTypeOptions = [
-    { value: 'SMA1', label: 'SMA1' },
-    { value: 'SMA2', label: 'SMA2' },
-  ]
+    { value: "SMA1", label: "SMA1" },
+    { value: "SMA2", label: "SMA2" },
+  ];
 
+  // ---------- User search debounced API ----------
+  const doSearch = debounce(async (term) => {
+    if (!term) {
+      setSearchResults([]);
+      setSearchError("");
+      setSearchLoading(false);
+      return;
+    }
+    setSearchLoading(true);
+    setSearchError("");
+    try {
+      const response = await apiClient.get("/users/search-user-by-name-id", {
+        params: { search: term },
+      });
+      if (response?.success && Array.isArray(response.data)) {
+        setSearchResults(response.data);
+      } else {
+        setSearchResults([]);
+        setSearchError("No results found");
+      }
+    } catch {
+      setSearchResults([]);
+      setSearchError("Search failed");
+    } finally {
+      setSearchLoading(false);
+    }
+  }, 400);
+
+  const handleSearchInput = (e) => {
+    const val = e.target.value;
+    setSearchTerm(val);
+    doSearch(val);
+  };
+
+  const handleSelectUser = (selectedUser) => {
+    setSearchTerm(selectedUser.VAR_USERMST_USERFULLNAME);
+    setSearchResults([]);
+    // Remove leading "E" if present
+    const cleanId = String(selectedUser.VAR_USERMST_USERID).replace(/^E/i, "");
+    setUserId(cleanId);
+    setValue("userId", cleanId);
+    setSearchError("");
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setSearchResults([]);
+    setSearchError("");
+    setUserId("");
+    setValue("userId", "");
+  };
+
+  // ---------- Existing dropdown fetches (unchanged) ----------
   useEffect(() => {
     const fetchZones = async () => {
-      if (brid === null || brCategory === null) return
-      setLoadingZones(true)
+      if (brid === null || brCategory === null) return;
+      setLoadingZones(true);
       try {
-        const res = await apiClient.get('/transactionReports/getZones', {
+        const res = await apiClient.get("/transactionReports/getZones", {
           params: { brid, brcategory: brCategory },
-        })
-        const dataArray = getDataRows(res)
+        });
+        const dataArray = getDataRows(res);
         if (dataArray.length > 0) {
-          const zones = dataArray.map((item) => ({
-            value: String(item.BRID ?? item.brid ?? item.NUM_COMPANYMST_COMPID ?? ''),
-            label: String(item.BRNAME ?? item.brname ?? item.VAR_COMPANYMST_BRANCHNAME ?? ''),
-          })).filter((item) => item.value)
-          setZoneOptions(zones)
+          const zones = dataArray
+            .map((item) => ({
+              value: String(
+                item.BRID ?? item.brid ?? item.NUM_COMPANYMST_COMPID ?? "",
+              ),
+              label: String(
+                item.BRNAME ??
+                  item.brname ??
+                  item.VAR_COMPANYMST_BRANCHNAME ??
+                  "",
+              ),
+            }))
+            .filter((item) => item.value);
+          setZoneOptions(zones);
         } else {
-          setZoneOptions([])
+          setZoneOptions([]);
         }
       } catch (apiError) {
-        setError(apiError?.message || 'Failed to load zones')
+        setError(apiError?.message || "Failed to load zones");
       } finally {
-        setLoadingZones(false)
+        setLoadingZones(false);
       }
-    }
-    fetchZones()
-  }, [brid, brCategory])
+    };
+    fetchZones();
+  }, [brid, brCategory]);
 
   useEffect(() => {
     const fetchRegions = async () => {
       if (!zone || brid === null || brCategory === null) {
-        setRegionOptions([])
-        setBranchOptions([])
-        setCollectionOptions([])
-        setRegion('')
-        setBranch('')
-        setCollectionAssociated('')
-        return
+        setRegionOptions([]);
+        setBranchOptions([]);
+        setCollectionOptions([]);
+        setRegion("");
+        setBranch("");
+        setCollectionAssociated("");
+        return;
       }
-      setLoadingRegions(true)
+      setLoadingRegions(true);
       try {
-        const res = await apiClient.get('/transactionReports/getRegions', {
+        const res = await apiClient.get("/transactionReports/getRegions", {
           params: { zoneId: zone, brid, brcategory: brCategory },
-        })
-        const dataArray = getDataRows(res)
+        });
+        const dataArray = getDataRows(res);
         if (dataArray.length > 0) {
-          const regions = dataArray.map((item) => ({
-            value: String(item.NUM_COMPANYMST_COMPID ?? item.num_companymst_compid ?? item.BRID ?? ''),
-            label: String(item.VAR_COMPANYMST_BRANCHNAME ?? item.var_companymst_branchname ?? item.BRNAME ?? ''),
-          })).filter((item) => item.value)
-          setRegionOptions(regions)
+          const regions = dataArray
+            .map((item) => ({
+              value: String(
+                item.NUM_COMPANYMST_COMPID ??
+                  item.num_companymst_compid ??
+                  item.BRID ??
+                  "",
+              ),
+              label: String(
+                item.VAR_COMPANYMST_BRANCHNAME ??
+                  item.var_companymst_branchname ??
+                  item.BRNAME ??
+                  "",
+              ),
+            }))
+            .filter((item) => item.value);
+          setRegionOptions(regions);
         } else {
-          setRegionOptions([])
+          setRegionOptions([]);
         }
       } catch (apiError) {
-        setError(apiError?.message || 'Failed to load regions')
+        setError(apiError?.message || "Failed to load regions");
       } finally {
-        setLoadingRegions(false)
+        setLoadingRegions(false);
       }
-    }
-    fetchRegions()
-  }, [zone, brid, brCategory])
+    };
+    fetchRegions();
+  }, [zone, brid, brCategory]);
 
   useEffect(() => {
     const fetchBranches = async () => {
       if (!region || brid === null || brCategory === null) {
-        setBranchOptions([])
-        setCollectionOptions([])
-        setBranch('')
-        setCollectionAssociated('')
-        return
+        setBranchOptions([]);
+        setCollectionOptions([]);
+        setBranch("");
+        setCollectionAssociated("");
+        return;
       }
-      setLoadingBranches(true)
+      setLoadingBranches(true);
       try {
-        const res = await apiClient.get('/transactionReports/getBranches', {
+        const res = await apiClient.get("/transactionReports/getBranches", {
           params: { regionId: region, brid, brcategory: brCategory },
-        })
-        const dataArray = getDataRows(res)
+        });
+        const dataArray = getDataRows(res);
         if (dataArray.length > 0) {
-          const branches = dataArray.map((item) => ({
-            value: String(item.NUM_COMPANYMST_COMPID ?? item.num_companymst_compid ?? item.BRID ?? ''),
-            label: String(item.VAR_COMPANYMST_BRANCHNAME ?? item.var_companymst_branchname ?? item.BRNAME ?? ''),
-          })).filter((item) => item.value)
-          setBranchOptions(branches)
+          const branches = dataArray
+            .map((item) => ({
+              value: String(
+                item.NUM_COMPANYMST_COMPID ??
+                  item.num_companymst_compid ??
+                  item.BRID ??
+                  "",
+              ),
+              label: String(
+                item.VAR_COMPANYMST_BRANCHNAME ??
+                  item.var_companymst_branchname ??
+                  item.BRNAME ??
+                  "",
+              ),
+            }))
+            .filter((item) => item.value);
+          setBranchOptions(branches);
         } else {
-          setBranchOptions([])
+          setBranchOptions([]);
         }
       } catch (apiError) {
-        setError(apiError?.message || 'Failed to load branches')
+        setError(apiError?.message || "Failed to load branches");
       } finally {
-        setLoadingBranches(false)
+        setLoadingBranches(false);
       }
-    }
-    fetchBranches()
-  }, [region, brid, brCategory])
+    };
+    fetchBranches();
+  }, [region, brid, brCategory]);
 
   useEffect(() => {
     const fetchCollectionAssociates = async () => {
       if (!zone) {
-        setCollectionOptions([])
-        setCollectionAssociated('')
-        return
+        setCollectionOptions([]);
+        setCollectionAssociated("");
+        return;
       }
-      const bridParam = String(branch || region || zone || '')
-
-      setLoadingCollection(true)
+      const bridParam = String(branch || region || zone || "");
+      setLoadingCollection(true);
       try {
-        const res = await apiClient.get('/transactionReports/getCollAssociate', {
-          params: { brid: bridParam },
-        })
-        const dataArray = getDataRows(res)
+        const res = await apiClient.get(
+          "/transactionReports/getCollAssociate",
+          {
+            params: { brid: bridParam },
+          },
+        );
+        const dataArray = getDataRows(res);
         if (dataArray.length > 0) {
-          const associates = dataArray.map((item) => {
-            const optionValue = item.USER_ID || item.user_id || item.VAR_USERMST_USERID || item.var_usermst_userid || ''
-            const optionLabel = item.VAR_USERMST_USERID || item.var_usermst_userid || optionValue
-
-            return {
-              value: String(optionValue),
-              label: String(optionLabel),
-            }
-          }).filter((item) => item.value)
-          setCollectionOptions(associates)
-          setCollectionAssociated((previous) => (
-            associates.some((opt) => opt.value === previous) ? previous : ''
-          ))
+          const associates = dataArray
+            .map((item) => {
+              const optionValue =
+                item.USER_ID ||
+                item.user_id ||
+                item.VAR_USERMST_USERID ||
+                item.var_usermst_userid ||
+                "";
+              const optionLabel =
+                item.VAR_USERMST_USERID ||
+                item.var_usermst_userid ||
+                optionValue;
+              return {
+                value: String(optionValue),
+                label: String(optionLabel),
+              };
+            })
+            .filter((item) => item.value);
+          setCollectionOptions(associates);
+          setCollectionAssociated((previous) =>
+            associates.some((opt) => opt.value === previous) ? previous : "",
+          );
         } else {
-          setCollectionOptions([])
-          setCollectionAssociated('')
+          setCollectionOptions([]);
+          setCollectionAssociated("");
         }
       } catch (apiError) {
-        setError(apiError?.message || 'Failed to load collection associates')
+        setError(apiError?.message || "Failed to load collection associates");
       } finally {
-        setLoadingCollection(false)
+        setLoadingCollection(false);
       }
-    }
-    fetchCollectionAssociates()
-  }, [zone, region, branch, brid])
+    };
+    fetchCollectionAssociates();
+  }, [zone, region, branch, brid]);
 
+  // ---------- Image & location handlers (unchanged) ----------
   const handleViewClick = (imageCode) => {
     if (!imageCode) {
-      showError('No image available')
-      setError('No image available')
-      return
+      showError("No image available");
+      setError("No image available");
+      return;
     }
-    setSelectedImageCode(imageCode)
-    setShowImageViewer(true)
-  }
+    setSelectedImageCode(imageCode);
+    setShowImageViewer(true);
+  };
 
   const handleLocationClick = (geoLocation) => {
     if (!geoLocation) {
-      showError('No location data')
-      setError('No location data')
-      return
+      showError("No location data");
+      setError("No location data");
+      return;
     }
-    const [lat, lng] = geoLocation.split(',')
-    if (!lat || !lng || Number.isNaN(parseFloat(lat)) || Number.isNaN(parseFloat(lng))) {
-      showError('Invalid coordinates')
-      setError('Invalid coordinates')
-      return
+    const [lat, lng] = geoLocation.split(",");
+    if (
+      !lat ||
+      !lng ||
+      Number.isNaN(parseFloat(lat)) ||
+      Number.isNaN(parseFloat(lng))
+    ) {
+      showError("Invalid coordinates");
+      setError("Invalid coordinates");
+      return;
     }
-    window.open(`/map-view?lat=${lat.trim()}&lng=${lng.trim()}`, '_blank')
-  }
+    window.open(`/map-view?lat=${lat.trim()}&lng=${lng.trim()}`, "_blank");
+  };
 
+  // ---------- Main search (transaction report) ----------
   const handleSearch = async () => {
-    setError('')
+    setError("");
+    const fromDateFormatted = fromDate ? formatDateForAPI(fromDate) : "";
+    const toDateFormatted = toDate ? formatDateForAPI(toDate) : "";
 
-    const fromDateFormatted = fromDate ? formatDateForAPI(fromDate) : ''
-    const toDateFormatted = toDate ? formatDateForAPI(toDate) : ''
+    if (!fromDateFormatted || !toDateFormatted) {
+      showError("From Date and To Date are required");
+      setError("From Date and To Date are required");
+      return;
+    }
 
-    const zoneName = zoneOptions.find((opt) => opt.value == zone)?.label || ''
-    const regionName = regionOptions.find((opt) => opt.value == region)?.label || ''
+    const zoneName = zoneOptions.find((opt) => opt.value == zone)?.label || "";
+    const regionName =
+      regionOptions.find((opt) => opt.value == region)?.label || "";
 
     const params = {
       fromDate: fromDateFormatted,
@@ -257,81 +382,87 @@ function FrmTransactionReport() {
       zoneName,
       regionName,
       brid: branch,
-      userId: userId || '',
-      associateId: collectionAssociated || '',
-      transtype: transactionType || '',
-      smaType: smaType || '',
+      userId: userId.trim(),
+      associateId: collectionAssociated || "",
+      transtype: transactionType || "",
+      smaType: smaType || "",
       userOf: 1,
-    }
+    };
 
-    setSearching(true)
-    setRows([])
+    setSearching(true);
+    setRows([]);
 
     try {
-      const response = await apiClient.get('/transactionReports/getTransDetails', {
-        params,
-      })
-      console.log("trans :", response)
-
+      const response = await apiClient.get(
+        "/transactionReports/getTransDetails",
+        { params },
+      );
       const success = response?.success;
-      const apiData = response?.data
-      console.log("api data")
+      const apiData = response?.data;
 
       if (success && apiData && apiData.length > 0) {
         const mappedRows = apiData.map((item) => [
-          item.USERID || '',
-          item.USERNAME || '',
-          item.TRANSID || '',
-          item.CONTRACTNUM || '',
-          item.DIST_VAR_BANKDATA_MATRIX_DISTANCE || '',
-          item.CUSTNAME || '',
-          item.MOBILENO || '',
-          item.COLLECTAMOUNT || '',
-          item.FEEDBACK || '',
-          item.PAYMODE || '',
-          item.PAIDAMT || '',
-          item.PTPDATE || '',
-          item.TRANS_DATE || '',
-          item.TRANS_TIME || '',
-          item.IMAGECODE || '',
-          item.GOLOCATION || '',
-          item.MDM_ID || '',
-          item.VAR_BANKDATA_DPDBUCKET || '',
-          item.VISITSTSTS || '',
-      ])
-        setRows(mappedRows)
-        showSuccess(`Found ${mappedRows.length} records`)
+          item.USERID || "",
+          item.USERNAME || "",
+          item.TRANSID || "",
+          item.CONTRACTNUM || "",
+          item.DIST_VAR_BANKDATA_MATRIX_DISTANCE || "",
+          item.CUSTNAME || "",
+          item.MOBILENO || "",
+          item.COLLECTAMOUNT || "",
+          item.FEEDBACK || "",
+          item.PAYMODE || "",
+          item.PAIDAMT || "",
+          item.PTPDATE || "",
+          item.TRANS_DATE || "",
+          item.TRANS_TIME || "",
+          item.IMAGECODE || "",
+          item.GOLOCATION || "",
+          item.MDM_ID || "",
+          item.VAR_BANKDATA_DPDBUCKET || "",
+          item.VISITSTSTS || "",
+        ]);
+        setRows(mappedRows);
+        showSuccess(`Found ${mappedRows.length} records`);
       } else {
-        setRows([])
-        showWarning('No records found')
-        setError('No records found')
+        setRows([]);
+        showWarning("No records found");
+        setError("No records found");
       }
     } catch (apiError) {
-      setRows([])
-      showError(apiError?.response?.data?.message || apiError?.message || 'Search failed')
-      setError(apiError?.response?.data?.message || apiError?.message || 'Search failed')
+      setRows([]);
+      showError(
+        apiError?.response?.data?.message ||
+          apiError?.message ||
+          "Search failed",
+      );
+      setError(
+        apiError?.response?.data?.message ||
+          apiError?.message ||
+          "Search failed",
+      );
     } finally {
-      setSearching(false)
+      setSearching(false);
     }
-  }
+  };
 
   const columns = [
-    { label: 'User Id', sortable: true, field: "userId" },
-    { label: 'Collection Associate', sortable: true },
-    { label: 'Transaction Id', sortable: true },
-    { label: 'Account Number', sortable: true },
-    { label: 'Distance KM', sortable: true },
-    { label: 'Customer Name', sortable: true },
-    { label: 'Customer RMN', sortable: true },
-    { label: 'OverDue Amount', sortable: true },
-    { label: 'Feedback', sortable: true },
-    { label: 'Payment Mode', sortable: true },
-    { label: 'Amount', sortable: true },
-    { label: 'PTP Date', sortable: true },
-    { label: 'Transaction date', sortable: true },
-    { label: 'Transaction Time', sortable: true },
+    { label: "User Id", sortable: true, field: "userId" },
+    { label: "Collection Associate", sortable: true },
+    { label: "Transaction Id", sortable: true },
+    { label: "Account Number", sortable: true },
+    { label: "Distance KM", sortable: true },
+    { label: "Customer Name", sortable: true },
+    { label: "Customer RMN", sortable: true },
+    { label: "OverDue Amount", sortable: true },
+    { label: "Feedback", sortable: true },
+    { label: "Payment Mode", sortable: true },
+    { label: "Amount", sortable: true },
+    { label: "PTP Date", sortable: true },
+    { label: "Transaction date", sortable: true },
+    { label: "Transaction Time", sortable: true },
     {
-      label: 'View',
+      label: "View",
       sortable: false,
       render: (value) => (
         <button
@@ -344,7 +475,7 @@ function FrmTransactionReport() {
       ),
     },
     {
-      label: 'Geolocation',
+      label: "Geolocation",
       sortable: false,
       render: (value) => (
         <button
@@ -356,10 +487,10 @@ function FrmTransactionReport() {
         </button>
       ),
     },
-    { label: 'MDM ID', sortable: true },
-    { label: 'SMA TYPE', sortable: true },
-    { label: 'Transaction Type', sortable: true },
-  ]
+    { label: "MDM ID", sortable: true },
+    { label: "SMA TYPE", sortable: true },
+    { label: "Transaction Type", sortable: true },
+  ];
 
   return (
     <div className="main-content page-transaction-report">
@@ -375,9 +506,73 @@ function FrmTransactionReport() {
       </div>
 
       <div className="card mb-4">
-        <div className="card-header">
+        <div className="card-header d-flex justify-content-between align-items-center gap-3 flex-wrap">
           <h5 className="card-title mb-0">Search Filters</h5>
+
+          {/* 🔍 User search input (name or ID) */}
+          <div
+            className="position-relative"
+            style={{ minWidth: "280px", maxWidth: "350px", width: "100%" }}
+          >
+            <div className="input-group position-relative">
+              <span className="input-group-text bg-white border-end-0">
+                <i className="bi bi-search text-muted"></i>
+              </span>
+              <input
+                type="text"
+                className="form-control border-start-0 pe-5"
+                placeholder="Type name or user ID..."
+                value={searchTerm}
+                onChange={handleSearchInput}
+                autoComplete="off"
+              />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 p-0"
+                >
+                  <i className="bi bi-x-circle text-muted"></i>
+                </button>
+              )}
+            </div>
+
+            {searchLoading && (
+              <div className="spinner-border spinner-border-sm position-absolute end-0 top-50 translate-middle-y me-2" />
+            )}
+
+            {searchResults.length > 0 && (
+              <ul
+                className="list-group position-absolute w-100 shadow z-3"
+                style={{ maxHeight: 180, overflowY: "auto", top: "100%" }}
+              >
+                {searchResults.map((userItem, idx) => (
+                  <li
+                    key={userItem.VAR_USERMST_USERID || idx}
+                    className="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-2 px-2"
+                    style={{ cursor: "pointer", fontSize: "13px" }}
+                    onClick={() => handleSelectUser(userItem)}
+                  >
+                    <div className="d-flex flex-column">
+                      <span className="fw-medium">
+                        {userItem.VAR_USERMST_USERFULLNAME}
+                      </span>
+                      <small className="text-muted">
+                        {userItem.VAR_USERMST_USERID}
+                      </small>
+                    </div>
+                    <i className="bi bi-person text-primary"></i>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {searchError && (
+              <div className="text-danger small mt-1">{searchError}</div>
+            )}
+          </div>
         </div>
+
         <div className="card-body">
           <form onSubmit={handleFormSubmit(handleSearch)}>
             <div className="row g-3">
@@ -388,14 +583,18 @@ function FrmTransactionReport() {
                 <input
                   id="fromDate"
                   type="date"
-                  className={`form-control ${errors.fromDate ? 'is-invalid' : ''}`}
+                  className={`form-control ${errors.fromDate ? "is-invalid" : ""}`}
                   value={fromDate}
-                  {...register('fromDate', {
-                    required: 'From Date is required',
+                  {...register("fromDate", {
+                    required: "From Date is required",
                     onChange: (event) => setFromDate(event.target.value),
                   })}
                 />
-                {errors.fromDate && <div className="invalid-feedback">{errors.fromDate.message}</div>}
+                {errors.fromDate && (
+                  <div className="invalid-feedback">
+                    {errors.fromDate.message}
+                  </div>
+                )}
               </div>
 
               <div className="col-md-6">
@@ -405,14 +604,18 @@ function FrmTransactionReport() {
                 <input
                   id="toDate"
                   type="date"
-                  className={`form-control ${errors.toDate ? 'is-invalid' : ''}`}
+                  className={`form-control ${errors.toDate ? "is-invalid" : ""}`}
                   value={toDate}
-                  {...register('toDate', {
-                    required: 'To Date is required',
+                  {...register("toDate", {
+                    required: "To Date is required",
                     onChange: (event) => setToDate(event.target.value),
                   })}
                 />
-                {errors.toDate && <div className="invalid-feedback">{errors.toDate.message}</div>}
+                {errors.toDate && (
+                  <div className="invalid-feedback">
+                    {errors.toDate.message}
+                  </div>
+                )}
               </div>
 
               <div className="col-md-6">
@@ -475,6 +678,7 @@ function FrmTransactionReport() {
                 </select>
               </div>
 
+              {/* User ID field – now readOnly, populated via search dropdown */}
               <div className="col-md-6">
                 <label htmlFor="userId" className="form-label">
                   User Id
@@ -482,17 +686,17 @@ function FrmTransactionReport() {
                 <input
                   id="userId"
                   type="text"
-                  className={`form-control ${errors.userId ? 'is-invalid' : ''}`}
+                  className={`form-control ${errors.userId ? "is-invalid" : ""}`}
                   value={userId}
-                  placeholder="Enter User Id"
-                  inputMode="numeric"
-                  maxLength={20}
-                  {...register('userId', {
-                    validate: (value) => !value || /^\d+$/.test(value) || 'User ID must contain numbers only',
-                    onChange: (event) => setUserId(event.target.value.replace(/\D/g, '')),
-                  })}
+                  placeholder="Select from search"
+                  readOnly
+                  {...register("userId")}
                 />
-                {errors.userId && <div className="invalid-feedback">{errors.userId.message}</div>}
+                {errors.userId && (
+                  <div className="invalid-feedback">
+                    {errors.userId.message}
+                  </div>
+                )}
               </div>
 
               <div className="col-md-6">
@@ -503,7 +707,9 @@ function FrmTransactionReport() {
                   id="collectionAssociated"
                   className="form-select"
                   value={collectionAssociated}
-                  onChange={(event) => setCollectionAssociated(event.target.value)}
+                  onChange={(event) =>
+                    setCollectionAssociated(event.target.value)
+                  }
                   disabled={!zone || loadingCollection}
                 >
                   <option value="">Select Collection Associate</option>
@@ -555,10 +761,18 @@ function FrmTransactionReport() {
             </div>
 
             <div className="d-flex justify-content-center gap-3 mt-4">
-              <button type="submit" className="btn btn-primary" disabled={searching}>
-                {searching ? 'Searching...' : 'Search'}
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={searching}
+              >
+                {searching ? "Searching..." : "Search"}
               </button>
-              <button type="button" className="btn btn-secondary" onClick={() => navigate('/')}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => navigate("/")}
+              >
                 Close
               </button>
             </div>
@@ -568,8 +782,7 @@ function FrmTransactionReport() {
 
       {error && (
         <div className="alert alert-danger" role="alert">
-          <i className="bi bi-exclamation-triangle me-2" />
-          {error}
+          <i className="bi bi-exclamation-triangle me-2" /> {error}
         </div>
       )}
 
@@ -588,7 +801,7 @@ function FrmTransactionReport() {
         />
       )}
     </div>
-  )
+  );
 }
 
-export default FrmTransactionReport
+export default FrmTransactionReport;
