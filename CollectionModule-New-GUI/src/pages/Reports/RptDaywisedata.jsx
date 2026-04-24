@@ -4,6 +4,37 @@ import { useForm } from 'react-hook-form'
 import ReusableDataGrid from '../../components/ReusableDataGrid'
 import apiClient from '../../services/apiClient'
 import { useNotification } from '../../context/useNotification'
+import DataTable from '../../components/Datatable'
+
+const MilestoneDate = ({ date }) => {
+  if (!date) return <span>-</span>;
+
+  let parsedDate;
+
+  // Handle DD/MM/YYYY
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(date)) {
+    const [day, month, year] = date.split("/");
+    parsedDate = new Date(`${year}-${month}-${day}`); // convert to ISO
+  } else {
+    parsedDate = new Date(date); // fallback
+  }
+
+  if (isNaN(parsedDate)) return <span>-</span>;
+
+  const d = parsedDate.getDate();
+  const m = parsedDate.toLocaleString("default", { month: "short" });
+  const y = parsedDate.getFullYear();
+
+  return (
+    <div className="milestone-date-horizontal">
+      <span className="milestone-day-big">{d}</span>
+      <div className="milestone-right">
+        <span className="milestone-month">{m}</span>
+        <span className="milestone-year">{y}</span>
+      </div>
+    </div>
+  );
+};
 
 const formatDateForApi = (value) => {
   if (!value) return ''
@@ -65,6 +96,71 @@ function RptDaywisedata() {
       render: (value) => Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 2 }),
     },
     { label: 'SMA Type', sortable: true },
+  ]
+
+  const columns2 = [
+    {
+      key: "uploadDate",
+      label: "Contract Upload Date",
+      render: (val, row) =>
+        <MilestoneDate date={val} />
+    },
+    {
+      key: "accountType",
+      label: "Account Type",
+      render: (val) => (
+        val === "CCOD" ? (<span className="badge bg-primary text-white">
+          {val}
+        </span>) : val === "DLTL" ? (<span className="badge bg-info text-white">
+          {val}
+        </span>) : (<span className="badge bg-secondary text-white">
+          {val}
+        </span>)
+      )
+    },
+    {
+      key: "emiAmount",
+      label: "EMI Amount",
+      render: (val) => (
+        <span>₹ {val}</span>
+      )
+    },
+    {
+      key: "diffInt",
+      label: "Diff In Int Credit",
+      render: (val) => (
+        <span>₹ {val}</span>
+      )
+    },
+    {
+      key: "capUnpd",
+      label: "Cap UNPD INT",
+      render: (val) => (
+        <span>₹ {val}</span>
+      )
+    },
+    {
+      key: "collectable",
+      label: "Collectable Amount",
+      render: (val) => (
+        <span>₹ {val}</span>
+      )
+    },
+    {
+      key: "sma",
+      label: "SMA Type",
+      render: (val) => 
+        ( val === "SMA0" ? (
+          <span className="badge bg-success text-white">
+          {val}
+        </span> ): val === "SMA1" ? (
+          <span className="badge bg-warning text-black">
+          {val}
+        </span>) : (<span className="badge bg-danger text-white">
+          {val}
+        </span>)
+        )
+    }
   ]
 
   const tableRows = useMemo(
@@ -250,8 +346,16 @@ function RptDaywisedata() {
       {rows.length > 0 && (
         <div className="card">
           <div className="card-body">
-            <p className="text-muted mb-3">No Of Allocations: {rows.length}</p>
-            <ReusableDataGrid rows={tableRows} columns={columns} pageSize={10} />
+            {/* <p className="text-muted mb-3">No Of Allocations: {rows.length}</p> */}
+            {/* <ReusableDataGrid rows={tableRows} columns={columns} pageSize={10} /> */}
+            <DataTable
+              title='Daily Data Report'
+              subtitle={`Number of Allocations: ${rows.length}`}
+              columns={columns2}
+              data={rows}
+              perPage={5}
+              csvFilename='daily_uploaded_data_report.csv'
+            />
           </div>
         </div>
       )}
