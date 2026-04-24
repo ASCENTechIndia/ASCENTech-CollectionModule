@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { ReusableGroupedDataGrid } from '../../components/ReusableGroupedDataGrid'
 import apiClient from '../../services/apiClient'
 import { useNotification } from '../../context/useNotification'
+import {DataTableGrouped} from '../../components/DataTableGrouped'
 
 function FrmOverallPerformanceSummaryReport() {
   const { showError, showSuccess } = useNotification()
@@ -110,6 +111,266 @@ function FrmOverallPerformanceSummaryReport() {
     void fetchData()
   }, [])
 
+const columnGroups = [
+  {
+    label: "In Count",
+    headerClass: "text-center bg-light fw-semibold",
+    columns: [
+      {
+  key: "zone",
+  label: "Zone",
+  minWidth: "180px",
+  render: (v) => {
+    const value = String(v || "").trim();
+    const isTotal = value.toLowerCase() === "total";
+
+    return (
+      <div className="d-flex align-items-center gap-2">
+
+        {/* Icon badge */}
+        <div
+          style={{
+            width: 22,
+            height: 22,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: "6px",
+            background: isTotal ? "#fff7ed" : "#eff6ff",
+            border: `1px solid ${isTotal ? "#fed7aa" : "#bfdbfe"}`,
+          }}
+        >
+          <i
+            className={`bi ${
+              isTotal ? "bi-calculator" : "bi-geo-alt"
+            }`}
+            style={{
+              fontSize: "12px",
+              color: isTotal ? "#ea580c" : "#2563eb",
+            }}
+          />
+        </div>
+
+        {/* Text */}
+        <span
+          style={{
+            fontWeight: isTotal ? 700 : 500,
+            color: isTotal ? "#111827" : "#1e293b",
+            letterSpacing: isTotal ? "0.3px" : "normal",
+          }}
+        >
+          {isTotal ? "TOTAL" : value}
+        </span>
+      </div>
+    );
+  },
+},
+      {
+        key: "allocation",
+        label: "Allocation",
+        render: (v) => Number(v).toLocaleString(),
+        cellClass: "text-center",
+      },
+      {
+        key: "weightage",
+        label: "Weightage",
+        render: (v) => `${v}%`,
+        cellClass: "text-center text-muted",
+      },
+      {
+        key: "paid",
+        label: "Paid",
+        render: (v) => (
+          <span className="badge bg-success-subtle text-success">
+            {Number(v).toLocaleString()}
+          </span>
+        ),
+        cellClass: "text-center",
+      },
+      {
+        key: "paidPercent",
+        label: "Paid (%)",
+         minWidth: "140px",
+        render: (v) => (
+          <span className={`fw-semibold ${v > 70 ? "text-success" : "text-warning"}`}>
+            {v}%
+          </span>
+        ),
+        cellClass: "text-center",
+      },
+      {
+        key: "fullyPaid",
+        label: "Fully Paid",
+         minWidth: "140px",
+        render: (v) => Number(v).toLocaleString(),
+        cellClass: "text-center",
+      },
+      {
+        key: "fullyPaidPercent",
+        label: "Fully Paid (%)",
+         minWidth: "150px",
+        render: (v) => (
+          <span className={`fw-semibold ${v > 50 ? "text-success" : "text-danger"}`}>
+            {v}%
+          </span>
+        ),
+        cellClass: "text-center",
+      },
+      {
+        key: "partialPaid",
+        label: "Partial Paid",
+         minWidth: "150px",
+        render: (v) => Number(v).toLocaleString(),
+        cellClass: "text-center",
+      },
+      {
+        key: "partialPaidPercent",
+        label: "Partial Paid (%)",
+         minWidth: "170px",
+        render: (v) => <span className="text-warning fw-semibold">{v}%</span>,
+        cellClass: "text-center",
+      },
+      {
+        key: "unpaid",
+        label: "Unpaid",
+        minWidth: "150px",
+        render: (v) => (
+          <span className="badge bg-danger-subtle text-danger">
+            {Number(v).toLocaleString()}
+          </span>
+        ),
+        cellClass: "text-center",
+      },
+      {
+        key: "unpaidPercent",
+        label: "Unpaid (%)",
+        minWidth: "150px",
+        render: (v) => <span className="text-danger fw-semibold">{v}%</span>,
+        cellClass: "text-center",
+      },
+      {
+        key: "npa",
+        label: "NPA",
+        minWidth: "150px",
+        render: (v) => (
+          <span className="badge bg-dark-subtle text-dark">
+            {Number(v).toLocaleString()}
+          </span>
+        ),
+        cellClass: "text-center",
+      },
+      {
+        key: "npaPercent",
+        label: "NPA (%)",
+        minWidth: "150px",
+        render: (v) => <span className="text-dark fw-semibold">{v}%</span>,
+        cellClass: "text-center",
+      },
+    ],
+  },
+
+  {
+    label: "In Value",
+    headerClass: "text-center bg-light fw-semibold",
+    columns: [
+      {
+        key: "valueAllocation",
+        label: "Allocation",
+        render: (v) => `₹ ${Number(v).toLocaleString()}`,
+        cellClass: "text-center",
+      },
+      {
+        key: "valueWeightage",
+        label: "Weightage",
+        render: (v) => `${v}%`,
+        cellClass: "text-center text-muted",
+      },
+      {
+        key: "valuePaid",
+        label: "Paid",
+        render: (v) => (
+          <span className="badge bg-success-subtle text-success">
+            ₹ {Number(v).toLocaleString()}
+          </span>
+        ),
+        cellClass: "text-center",
+      },
+      {
+        key: "valuePaidPercent",
+        label: "Paid (%)",
+        minWidth: "150px",
+        render: (v) => (
+          <span className={`fw-semibold ${v > 70 ? "text-success" : "text-warning"}`}>
+            {v}%
+          </span>
+        ),
+        cellClass: "text-center",
+      },
+      {
+        key: "valueFullyPaid",
+        label: "Fully Paid",
+        minWidth: "150px",
+        render: (v) => `₹ ${Number(v).toLocaleString()}`,
+        cellClass: "text-center",
+      },
+      {
+        key: "valueFullyPaidPercent",
+        label: "Full Paid (%)",
+        minWidth: "150px",
+        render: (v) => <span className="text-success fw-semibold">{v}%</span>,
+        cellClass: "text-center",
+      },
+      {
+        key: "valuePartialPaid",
+        label: "Partial Paid",
+        minWidth: "150px",
+        render: (v) => `₹ ${Number(v).toLocaleString()}`,
+        cellClass: "text-center",
+      },
+      {
+        key: "valuePartialPaidPercent",
+        label: "Partial Paid (%)",
+        minWidth: "170px",
+        render: (v) => <span className="text-warning fw-semibold">{v}%</span>,
+        cellClass: "text-center",
+      },
+      {
+        key: "valueUnpaid",
+        label: "Unpaid",
+        minWidth: "150px",
+        render: (v) => (
+          <span className="badge bg-danger-subtle text-danger">
+            ₹ {Number(v).toLocaleString()}
+          </span>
+        ),
+        cellClass: "text-center",
+      },
+      {
+        key: "valueUnpaidPercent",
+        label: "Unpaid (%)",
+        minWidth: "150px",
+        render: (v) => <span className="text-danger fw-semibold">{v}%</span>,
+        cellClass: "text-center",
+      },
+      {
+        key: "valueNpa",
+        label: "NPA",
+        render: (v) => `₹ ${Number(v).toLocaleString()}`,
+        cellClass: "text-center",
+      },
+      {
+        key: "valueNpaPercent",
+        label: "NPA (%)",
+        minWidth: "150px",
+        render: (v) => <span className="text-dark fw-semibold">{v}%</span>,
+        cellClass: "text-center",
+      },
+    ],
+  },
+];
+
+
+
   return (
     <div className="main-content page-overall-performance-summary-report">
       <div className="page-header">
@@ -123,34 +384,17 @@ function FrmOverallPerformanceSummaryReport() {
         </nav>
       </div>
 
-      {error && (
-        <div className="alert alert-danger" role="alert">
-          <i className="bi bi-exclamation-triangle me-2" />
-          {error}
-        </div>
-      )}
+         <DataTableGrouped
+      columnGroups={columnGroups}
+      data={rows}
+      csvFilename="agent-performance.csv"
+      defaultPerPage={5}
+      fontSize="0.80rem"
+  compactCells={false}
+    />
 
-      <div className="card">
-        <div className="card-body">
-          {loading ? (
-            <div className="text-center py-5">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
-              <p className="mt-2 text-muted">Loading report...</p>
-            </div>
-          ) : rows.length > 0 ? (
-            <ReusableGroupedDataGrid
-              title="Performance Summary"
-              headers={headers}
-              rows={rows}
-              pageSize={10}
-            />
-          ) : (
-            <div className="text-center text-muted py-4">No records found</div>
-          )}
-        </div>
-      </div>
+      
+  
     </div>
   )
 }
