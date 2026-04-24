@@ -933,6 +933,41 @@ async function updatePageAccessByUserId(payload) {
   return result.outBinds;
 }
 
+async function findUserByNameId(input) {
+  try {
+    let sql = `
+      SELECT 
+        VAR_USERMST_USERID,
+        VAR_USERMST_USERFULLNAME
+      FROM etech.aoup_usermst_def
+      WHERE 
+    `;
+
+    let params = {};
+
+    // 👉 Check if input is numeric / ID type
+    if (/^E?\d+$/.test(input)) {
+      // ID search (LIKE)
+      const cleanId = input.replace(/^E/i, ""); // remove E if exists
+
+      sql += ` REPLACE(VAR_USERMST_USERID, 'E', '') LIKE '%' || :userId || '%' `;
+      params.userId = cleanId;
+
+    } else {
+      // Name search (LIKE)
+      sql += ` LOWER(VAR_USERMST_USERFULLNAME) LIKE LOWER('%' || :userName || '%') `;
+      params.userName = input;
+    }
+
+    const result = await executeQuery(sql, params);
+    return result.rows || [];
+
+  } catch (error) {
+    console.error("Error in findUser:", error);
+    throw error;
+  }
+}
+
 module.exports = {
   callUserInsNew,
   callUserIns,
@@ -944,5 +979,6 @@ module.exports = {
   getUserDevice, callUserWebIns , findUserByUserId,
   getPageAccessByUserId,
   updatePageAccessByUserId,
-  agentDetailsbyBridNew
+  agentDetailsbyBridNew,
+  findUserByNameId
 };

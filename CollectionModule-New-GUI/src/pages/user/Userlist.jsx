@@ -174,9 +174,6 @@ export default function UsersList() {
         <div className="page-header users-page-header">
           <div>
             <h1 className="page-title">User List</h1>
-            <p className="users-page-subtitle">
-              Centralized user operations, access status, and lifecycle management.
-            </p>
           </div>
           <div className="page-header-actions">
             <button
