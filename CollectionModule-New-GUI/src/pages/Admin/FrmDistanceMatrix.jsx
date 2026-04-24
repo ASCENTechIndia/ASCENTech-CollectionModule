@@ -2,13 +2,21 @@ import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import apiClient from '../../services/apiClient'
 import { useNotification } from '../../context/useNotification'
+import { useConfirm } from '../../context/ConfirmModalContext'
 
 function FrmDistanceMatrix() {
   const { showSuccess, showError } = useNotification()
+  const confirm = useConfirm();
   const [loading, setLoading] = useState(false)
 
   const handleMatrixInsertion = async () => {
     setLoading(true)
+
+    const agreed = await confirm("Do you want to insert distance matrix?");
+    if (!agreed) {
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await apiClient.post('/admin/matrix-distance-insertion')

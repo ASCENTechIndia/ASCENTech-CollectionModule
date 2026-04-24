@@ -3,10 +3,12 @@ import React, { useEffect, useState, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useNotification } from "../../context/useNotification";
 import apiClient from "../../services/apiClient";
+import { useConfirm } from "../../context/ConfirmModalContext";
 
 export default function UserPinAllocation() {
   const location = useLocation();
   const navigate = useNavigate();
+  const confirm = useConfirm();
   const { showSuccess, showError, showWarning } = useNotification();
 
   // Get employeeId from navigation state
@@ -143,6 +145,10 @@ export default function UserPinAllocation() {
       showWarning("Please select at least one pincode to allocate.");
       return;
     }
+
+    const agreed = await confirm(`${selectedPincodes.length === 1 ? "Do you want to assign this pincode?" : "Do you want to assign these pincodes?"}`);
+
+    if (!agreed) return;
 
     setSubmitting(true);
     try {
