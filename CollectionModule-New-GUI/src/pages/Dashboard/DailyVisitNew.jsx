@@ -9,7 +9,6 @@ import { useNotification } from "../../context/useNotification";
 // import Chart from 'chart.js/auto'
 import Chart from "react-apexcharts";
 
-
 const DailyVisitNew = () => {
     const { user } = useAuth();
     const userId = user?.userId;
@@ -34,6 +33,8 @@ const DailyVisitNew = () => {
         setValue
     } = useForm({
         defaultValues: {
+            mode: "onblur",
+            reValidateMode: "onblur",
             fromDate: startOfMonth,
             toDate: today
         }
@@ -182,7 +183,7 @@ const DailyVisitNew = () => {
             datasets: [{
                 data: [
                     dashboardData?.ptp?.ptpConversionPercent || 0,
-                    Math.max(0, 100 - (dashboardData?.allocation?.ptpConversionPercent || 0))
+                    Math.max(0, 100 - (dashboardData?.ptp?.ptpConversionPercent || 0))
                 ],
                 backgroundColor: ['#8b5cf6', 'rgba(139, 92, 246, 0.15)'],
                 borderWidth: 2,
@@ -215,6 +216,48 @@ const DailyVisitNew = () => {
             }
         },
     }));
+
+    const dealSourcesOptions = {
+        series: [dashboardData?.ptp?.ptpConversionPercent || 0,
+        Math.max(0, 100 - (dashboardData?.ptp?.ptpConversionPercent || 0))],
+        chart: {
+            type: 'donut',
+            height: 240
+        },
+        labels: ['PTP Conversion Percent', 'Non-PTP Conversion Percent'],
+        colors: [
+            'var(--accent-color)',
+            'var(--success-color)',
+            // 'var(--warning-color)',
+            // 'var(--info-color)'
+        ],
+        plotOptions: {
+            pie: {
+                donut: {
+                    size: '70%',
+                    labels: {
+                        show: true,
+                        total: {
+                            show: true,
+                            label: 'Total',
+                            formatter: function () {
+                                return '100%';
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        dataLabels: {
+            enabled: false
+        },
+        legend: {
+            show: false
+        },
+        stroke: {
+            width: 0
+        }
+    };
 
 
     const sunburst = useEChart(() => {
@@ -502,15 +545,91 @@ const DailyVisitNew = () => {
         },
     ]
 
-    useEffect(() => {
-        if (userId) {
-            fetchDailyVisitData({
-                fromDate: startOfMonth,
-                toDate: today,
-            });
-        }
-    }, [userId, fetchDailyVisitData, startOfMonth, today]);
+    // useEffect(() => {
+    //     if (userId) {
+    //         fetchDailyVisitData({
+    //             fromDate: startOfMonth,
+    //             toDate: today,
+    //         });
+    //     }
+    // }, [userId, fetchDailyVisitData, startOfMonth, today]);
 
+    //  useEffect(() => {
+    //     if (!fromDateValue || !toDateValue) return;
+
+    //     const from = new Date(fromDateValue);
+    //     const to = new Date(toDateValue);
+    //     const todayDate = new Date(today);
+
+    //     const diffDays = (to - from) / (1000 * 60 * 60 * 24);
+
+    //     // ❌ Only show errors AFTER both selected
+    //     if (to > todayDate) {
+    //         showError("To Date: Future dates are not allowed");
+    //         return;
+    //     }
+
+    //     if (from > todayDate) {
+    //         showError("From Date: Future dates are not allowed");
+    //         return;
+    //     }
+
+    //     if (diffDays < 0) {
+    //         showError("To Date cannot be before From Date");
+    //         return;
+    //     }
+
+    //     if (diffDays > 30) {
+    //         showError("Date range cannot exceed 30 days");
+    //         return;
+    //     }
+
+    //     fetchDailyVisitData({
+    //     fromDate: toInputDate(from),
+    //     toDate: toInputDate(to)
+    // });
+
+    // }, [fromDateValue, toDateValue]);
+
+    useEffect(() => {
+        if (!fromDateValue || !toDateValue) return;
+
+        const from = new Date(fromDateValue);
+        const to = new Date(toDateValue);
+        const todayDate = new Date(today);
+
+        const diffDays = (to - from) / (1000 * 60 * 60 * 24);
+
+        // if (to > todayDate || from > todayDate || diffDays < 0 || diffDays > 30) {
+        //     return; // stop invalid calls
+        // }
+
+        if (to > todayDate) {
+            showError("To Date: Future dates are not allowed");
+            return;
+        }
+
+        if (from > todayDate) {
+            showError("From Date: Future dates are not allowed");
+            return;
+        }
+
+        if (diffDays < 0) {
+            showError("To Date cannot be before From Date");
+            return;
+        }
+
+        if (diffDays > 30) {
+            showError("Date range cannot exceed 30 days");
+            return;
+        }
+
+        fetchDailyVisitData({
+            fromDate: fromDateValue, // already correct format
+            toDate: toDateValue
+        });
+
+    }, [fromDateValue, toDateValue]);
     const chart1Options = {
         chart: {
             type: "donut",
@@ -518,9 +637,7 @@ const DailyVisitNew = () => {
         labels: ["Allocated", "Unallocated"],
         colors: [
             "var(--accent-color)",
-            "#00f8e3",
-            // "var(--warning-color)",
-            // "var(--info-color)",
+            "var(--success-color)",
         ],
         plotOptions: {
             pie: {
@@ -558,10 +675,8 @@ const DailyVisitNew = () => {
         },
         labels: ["Visited", "Not Visited"],
         colors: [
-            // "var(--accent-color)",
-            // "var(--success-color)",
-            "var(--danger-color)",
-            "#74f800",
+            "var(--warning-color)",
+            "var(--info-color)",
         ],
         plotOptions: {
             pie: {
@@ -592,7 +707,26 @@ const DailyVisitNew = () => {
     };
 
     const chart2Series = [dashboardData?.allocation?.visitedAccounts || 0, dashboardData?.allocation?.nonVisitedAccounts || 0];
+    const ptpOptions = {
+        chart: {
+            type: 'pie',
+            height: 280,
+            fontFamily: 'inherit'
+        },
+        labels: ['PTP Conversion', 'Non-PTP Conversion'],
+        colors: ['#8b5cf6', '#e5e7eb'],
+        legend: {
+            position: 'bottom'
+        },
+        stroke: {
+            width: 0
+        }
+    };
 
+    const ptpSeries = [
+        dashboardData?.ptp?.ptpConversionPercent || 0,
+        Math.max(0, 100 - (dashboardData?.ptp?.ptpConversionPercent || 0))
+    ];
     return (
         <div className="page-roles p-4">
             <div className="page-users-view">
@@ -605,183 +739,197 @@ const DailyVisitNew = () => {
                             <span className="breadcrumb-item active">Daily Visit</span>
                         </nav>
                     </div>
-                    <div className="d-flex flex-column align-items-md-center">
-                        {/* <label className="form-label mb-0">
-                                Select Month & Year:
-                            </label> */}
-                        <select className="form-select"
-                            style={{ maxWidth: '280px' }}
-                        // {...register("monthYear")}
-                        // onChange={(e) => {
-                        //     fetchData(e.target.value);
-                        // }}
-                        >
-                            <option value="4-2025">April 2025</option>
-                            <option value="5-2025">May 2025</option>
-                            <option value="6-2025">June 2025</option>
-                            <option value="7-2025">July 2025</option>
-                            <option value="8-2025">August 2025</option>
-                            <option value="9-2025">September 2025</option>
-                            <option value="10-2025">October 2025</option>
-                            <option value="11-2025">November 2025</option>
-                            <option value="12-2025">December 2025</option>
-                            <option value="1-2026">January 2026</option>
-                            <option value="2-2026">February 2026</option>
-                            <option value="3-2026">March 2026</option>
-                            <option value="4-2026">April 2026</option>
-                        </select>
+                    <div className="d-flex gap-2">
+                        <div className="d-flex flex-column align-items-md-center">
+                            <label className="form-label mb-0">
+                                From Date:
+                            </label>
+                            <input
+                                type="date"
+                                {...register('fromDate', {
+                                    required: 'From Date is required',
+                                    validate: (value) => {
+                                        if (!value) return true;
+                                        if (value > today) {
+                                            return 'Future dates are not allowed';
+
+                                        }
+                                        return true;
+                                    }
+                                })}
+                                max={today}
+                                className="form-control"
+                            // onChange={(e) => {
+                            //     setValue("fromDate", e);
+                            // }}
+                            />
+                        </div>
+                        <div className="d-flex flex-column align-items-md-center">
+                            <label className="form-label mb-0 fw-medium">
+                                To Date:
+                            </label>
+
+                            <input
+                                type="date"
+                                {...register('toDate', {
+                                    required: 'To Date is required',
+                                    validate: (value) => {
+                                        if (!value) return true;
+
+                                        if (value > today) {
+                                            return 'Future dates are not allowed';
+                                            // showError("Future dates are not allowed");
+                                            // return;
+                                        }
+
+                                        if (!fromDateValue) return true;
+
+                                        const from = new Date(fromDateValue);
+                                        const to = new Date(value);
+
+                                        const diffDays = (to - from) / (1000 * 60 * 60 * 24);
+
+                                        if (diffDays < 0) {
+                                            return 'To Date cannot be before From Date';
+                                        }
+
+                                        if (diffDays > 30) {
+                                            return 'To Date cannot be more than 30 days after From Date';
+                                        }
+
+                                        return true;
+                                    }
+                                })}
+                                min={fromDateValue || undefined}
+                                max={today}
+                                className="form-control"
+                            />
+                        </div>
+                        {/* {errors.toDate && <div className="col-12 col-md-3">
+                            {errors.toDate && (
+                                <p className="text-danger small mt-1 d-flex align-items-center gap-1">
+                                    {errors.toDate.message}
+                                </p>
+                            )}
+                        </div>} */}
+                        {/* <div className="d-flex align-items-end">
+                            <button type="submit" className="btn btn-primary">
+                                Search
+                            </button>
+                        </div> */}
                     </div>
+
+
                 </div>
-                <div className="card p-4 shadow border-0 flex flex-col flex-md-row gap-2">
-                    <div className="card">
-                        <div className="card-header">
-                            <h5 className="card-title">Total Visits</h5>
-                        </div>
+                {/* <div className="card p-4 shadow border-0 d-flex flex-column flex-md-row gap-3 align-items-stretch"> */}
+                <div className="row g-3">
+                    <div className="col-12 col-md-4 d-flex">
+                        <div className="card w-100 h-100">
+                            <div className="card-header">
+                                <h5 className="card-title">Total Visits</h5>
+                            </div>
 
-                        <div className="card-body">
-                            {/* ✅ REAL CHART */}
-                            <Chart
-                                options={chart1Options}
-                                series={chart1Series}
-                                type="donut"
-                                height={220}
-                            />
+                            <div className="card-body">
+                                {/* ✅ REAL CHART */}
+                                <Chart
+                                    options={chart1Options}
+                                    series={chart1Series}
+                                    type="donut"
+                                    height={220}
+                                />
 
-                            <div className="mt-4">
-                                {/* Electronics */}
-                                <div className="d-flex justify-content-between align-items-center mb-3">
-                                    <div className="d-flex align-items-center gap-2">
-                                        <span
-                                            className="badge-dot"
-                                            style={{ backgroundColor: "var(--accent-color)" }}
-                                        ></span>
-                                        <span>Allocated Account</span>
+                                <div className="mt-4">
+
+                                    <div className="d-flex justify-content-between align-items-center mb-3">
+                                        <div className="d-flex align-items-center gap-2">
+                                            <span
+                                                className="badge-dot"
+                                                style={{ backgroundColor: "var(--accent-color)" }}
+                                            ></span>
+                                            <span>Allocated Account</span>
+                                        </div>
+                                        <span className="fw-medium">{dashboardData?.allocation?.allocatedAccounts || 0}</span>
                                     </div>
-                                    <span className="fw-medium">{dashboardData?.allocation?.allocatedAccounts || 0}</span>
+
+                                    {/* Audio */}
+                                    <div className="d-flex justify-content-between align-items-center mb-3">
+                                        <div className="d-flex align-items-center gap-2">
+                                            <span
+                                                className="badge-dot"
+                                                style={{ backgroundColor: "var(--success-color)" }}
+                                            ></span>
+                                            <span>Unallocated Account</span>
+                                        </div>
+                                        <span className="fw-medium">{dashboardData?.allocation?.unallocatedAccounts || 0}</span>
+                                    </div>
                                 </div>
-
-                                {/* Audio */}
-                                <div className="d-flex justify-content-between align-items-center mb-3">
-                                    <div className="d-flex align-items-center gap-2">
-                                        <span
-                                            className="badge-dot"
-                                            style={{ backgroundColor: "#00f8e3" }}
-                                        ></span>
-                                        <span>Unallocated Account</span>
-                                    </div>
-                                    <span className="fw-medium">{dashboardData?.allocation?.unallocatedAccounts || 0}</span>
-                                </div>
-
-                                {/* Wearables */}
-                                {/* <div className="d-flex justify-content-between align-items-center mb-3">
-                                    <div className="d-flex align-items-center gap-2">
-                                        <span
-                                            className="badge-dot"
-                                            style={{ backgroundColor: "var(--warning-color)" }}
-                                        ></span>
-                                        <span>Wearables</span>
-                                    </div>
-                                    <span className="fw-medium">$74,214</span>
-                                </div> */}
-
-                                {/* Accessories */}
-                                {/* <div className="d-flex justify-content-between align-items-center">
-                                    <div className="d-flex align-items-center gap-2">
-                                        <span
-                                            className="badge-dot"
-                                            style={{ backgroundColor: "var(--info-color)" }}
-                                        ></span>
-                                        <span>Accessories</span>
-                                    </div>
-                                    <span className="fw-medium">$29,302</span>
-                                </div> */}
                             </div>
                         </div>
                     </div>
-                    <div className="card">
-                        <div className="card-header">
-                            <h5 className="card-title">Visits Details</h5>
-                        </div>
+                    <div className="col-12 col-md-4 d-flex">
+                        <div className="card w-100 h-100">
+                            <div className="card-header">
+                                <h5 className="card-title">Visits Details</h5>
+                            </div>
 
-                        <div className="card-body">
-                            {/* ✅ REAL CHART */}
-                            <Chart
-                                options={chart2Options}
-                                series={chart2Series}
-                                type="donut"
-                                height={220}
-                            />
+                            <div className="card-body d-flex flex-column flex-grow-1">
+                                {/* ✅ REAL CHART */}
+                                <Chart
+                                    options={chart2Options}
+                                    series={chart2Series}
+                                    type="donut"
+                                    height={220}
+                                />
 
-                            <div className="mt-4">
-                                {/* Electronics */}
-                                <div className="d-flex justify-content-between align-items-center mb-3">
-                                    <div className="d-flex align-items-center gap-2">
-                                        <span
-                                            className="badge-dot"
-                                            style={{ backgroundColor: "var(--danger-color)" }}
-                                        ></span>
-                                        <span>Visited</span>
+                                <div className="mt-4">
+                                    {/* Electronics */}
+                                    <div className="d-flex justify-content-between align-items-center mb-3">
+                                        <div className="d-flex align-items-center gap-2">
+                                            <span
+                                                className="badge-dot"
+                                                style={{ backgroundColor: "var(--warning-color)" }}
+                                            ></span>
+                                            <span>Visited</span>
+                                        </div>
+                                        <span className="fw-medium">{dashboardData?.allocation?.visitedAccounts || 0}</span>
                                     </div>
-                                    <span className="fw-medium">{dashboardData?.allocation?.visitedAccounts || 0}</span>
+
+                                    {/* Audio */}
+                                    <div className="d-flex justify-content-between align-items-center mb-3">
+                                        <div className="d-flex align-items-center gap-2">
+                                            <span
+                                                className="badge-dot"
+                                                style={{ backgroundColor: "var(--info-color)" }}
+                                            ></span>
+                                            <span>Not Visited</span>
+                                        </div>
+                                        <span className="fw-medium">{dashboardData?.allocation?.nonVisitedAccounts || 0}</span>
+                                    </div>
                                 </div>
-
-                                {/* Audio */}
-                                <div className="d-flex justify-content-between align-items-center mb-3">
-                                    <div className="d-flex align-items-center gap-2">
-                                        <span
-                                            className="badge-dot"
-                                            style={{ backgroundColor: "#74f800" }}
-                                        ></span>
-                                        <span>Not Visited</span>
-                                    </div>
-                                    <span className="fw-medium">{dashboardData?.allocation?.nonVisitedAccounts || 0}</span>
-                                </div>
-
-                                {/* Wearables */}
-                                {/* <div className="d-flex justify-content-between align-items-center mb-3">
-                                    <div className="d-flex align-items-center gap-2">
-                                        <span
-                                            className="badge-dot"
-                                            style={{ backgroundColor: "var(--warning-color)" }}
-                                        ></span>
-                                        <span>Wearables</span>
-                                    </div>
-                                    <span className="fw-medium">$74,214</span>
-                                </div> */}
-
-                                {/* Accessories */}
-                                {/* <div className="d-flex justify-content-between align-items-center">
-                                    <div className="d-flex align-items-center gap-y-2">
-                                        <span
-                                            className="badge-dot"
-                                            style={{ backgroundColor: "var(--info-color)" }}
-                                        ></span>
-                                        <span>Accessories</span>
-                                    </div>
-                                    <span className="fw-medium">$29,302</span>
-                                </div> */}
                             </div>
                         </div>
                     </div>
-                    <div className="card h-100">
-                        <div className="card-header">
-                            <h5 className="card-title mb-0">FOS Assigned %</h5>
-                        </div>
-                        <div className="card-body">
-                            <div className="funnel-chart">
-                                <div className="funnel-stage" style={{ "--funnel-width": `${dashboardData?.allocation?.fosAssignedPercent || 0}%` }}>
-                                    <div className="funnel-bar primary"></div>
-                                    <div className="funnel-info">
-                                        <span className="funnel-name">Allocated %</span>
-                                        <span className="funnel-value">{dashboardData?.allocation?.fosAssignedPercent || 0}%</span>
+                    <div className="col-12 col-md-4 d-flex">
+                        <div className="card w-100 h-100">
+                            <div className="card-header">
+                                <h5 className="card-title mb-0">FOS Assigned %</h5>
+                            </div>
+                            <div className="card-body d-flex flex-column flex-grow-1">
+                                <div className="funnel-chart justify-content-center">
+                                    <div className="funnel-stage" style={{ "--funnel-width": `${dashboardData?.allocation?.fosAssignedPercent || 0}%` }}>
+                                        <div className="funnel-bar primary"></div>
+                                        <div className="funnel-info">
+                                            <span className="funnel-name">Allocated %</span>
+                                            <span className="funnel-value">{dashboardData?.allocation?.fosAssignedPercent || 0}%</span>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="funnel-stage" style={{ "--funnel-width": `${Math.max(0, 100 - (dashboardData?.allocation?.fosAssignedPercent || 0))}%` }}>
-                                    <div className="funnel-bar info"></div>
-                                    <div className="funnel-info">
-                                        <span className="funnel-name">Unallocated %</span>
-                                        <span className="funnel-value">{`${Math.max(0, 100 - (dashboardData?.allocation?.fosAssignedPercent || 0))}%`}</span>
-                                        {/* <span className="funnel-rate">65%</span> */}
+                                    <div className="funnel-stage" style={{ "--funnel-width": `${Math.max(0, 100 - (dashboardData?.allocation?.fosAssignedPercent || 0))}%` }}>
+                                        <div className="funnel-bar info"></div>
+                                        <div className="funnel-info">
+                                            <span className="funnel-name">Unallocated %</span>
+                                            <span className="funnel-value">{`${Math.max(0, 100 - (dashboardData?.allocation?.fosAssignedPercent || 0))}%`}</span>
+                                            {/* <span className="funnel-rate">65%</span> */}
+                                        </div>
                                     </div>
                                 </div>
                                 {/* <div className="funnel-stage" style={{ "--funnel-width": "35%" }}>
@@ -812,50 +960,194 @@ const DailyVisitNew = () => {
                         </div>
                     </div>
                 </div>
-                <div class="row g-3 mb-3">
-                    <div class="col-sm-6 col-xl-3">
-                        <div class="card fx-mini-stat h-100">
-                            <div class="card-body">
-                                <span class="fx-mini-icon revenue"><i class="bi bi-currency-dollar"></i></span>
-                                <span class="fx-mini-label">MRR</span>
-                                <span class="fx-mini-value">$128.4K</span>
-                                <span class="fx-mini-meta positive"><i class="bi bi-arrow-up"></i> 7.1%</span>
+                <div className="card mt-3 p-4">
+                    <div className="page-dashboard row g-3 mb-3">
+                        {summaryCards.map((card, index) => {
+                            const colors = ['#3b82f6', '#22c55e', '#f59e0b', '#06b6d4', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
+                            const bgColors = ['#eff6ff', '#f0fdf4', '#fffbeb', '#ecf8fc', '#fef2f2', '#f5f3ff', '#fdf2f8', '#f0fdfa'];
+                            const color = colors[index % colors.length];
+                            const bgColor = bgColors[index % bgColors.length];
+                            const icons = ['bi-graph-up', 'bi-people-fill', 'bi-lightning-fill', 'bi-calendar-check', 'bi-currency-rupee', 'bi-cash-coin', 'bi-percent', 'bi-check-circle-fill'];
+                            const icon = icons[index % icons.length];
+                            return (
+                                <div class="col-md-3 col-12 d-flex">
+                                    <div class="card fx-mini-stat h-100" style={{ transition: 'all 0.3s ease', cursor: 'pointer' }}
+                                        onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+                                        <div class="card-body">
+                                            <span class="fx-mini-icon revenue"><i class={`bi ${icon}`} style={{ fontSize: '24px', color: color }}></i></span>
+                                            <span class="fx-mini-label">{card.label}</span>
+                                            <span class="fx-mini-value">{card.value}</span>
+                                            {/* <span class="fx-mini-meta positive"><i class="bi bi-arrow-up"></i> 7.1%</span> */}
+                                        </div>
+                                    </div>
+                                </div>)
+                        })}
+                    </div>
+                </div>
+                <div className="card mt-3 p-4">
+                    <div className="row g-3">
+                        <div className="col-12 col-md-6">
+                            <div className="card h-100">
+                                <div className="card-header d-flex justify-content-between align-items-center">
+                                    <h5 className="card-title mb-0">{dashboardData?.dateRange?.ptpDateRangeLabel || 'PTP spans from - to -'}</h5>
+                                    {/* <a href="#" class="btn btn-sm btn-link">View All</a> */}
+                                </div>
+                                <div className="card-body p-0">
+                                    <div className="deal-list">
+                                        {/* {ptpCards.map((item, index) => {
+                                            const colors = ['#8b5cf6', '#ec4899', '#f59e0b', '#ef4444'];
+                                            const bgColors = ['#f5f3ff', '#fdf2f8', '#fffbeb', '#fef2f2'];
+                                            const ptpIcons = ['bi-list-check', 'bi-hourglass-split', 'bi-check-circle-fill', 'bi-x-circle-fill'];
+                                            const color = colors[index % colors.length];
+                                            const bgColor = bgColors[index % bgColors.length];
+                                            // const icon = ptpIcons[index % ptpIcons.length];
+                                            return (
+                                                )
+                                        })} */}
+                                        <div className="deal-item" style={{ transition: 'all 0.3s ease', cursor: 'pointer' }}
+                                            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+                                            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+                                            <div className="deal-info" >
+                                                <div className="deal-company">Total</div>
+                                                <div class="deal-contact">PTP Count</div>
+                                            </div>
+                                            <div className="deal-meta">
+                                                <span className="deal-amount">{formatNumber(dashboardData?.ptp?.totalPtpCount)}</span>
+                                                {/* <span class="badge bg-success-subtle text-success">Won</span> */}
+                                            </div>
+                                        </div>
+                                        <div className="deal-item" style={{ transition: 'all 0.3s ease', cursor: 'pointer' }}
+                                            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+                                            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+                                            <div className="deal-info" >
+                                                <div className="deal-company">Pending</div>
+                                                <div class="deal-contact">PTP Count</div>
+                                            </div>
+                                            <div className="deal-meta">
+                                                <span className="deal-amount">{formatNumber(dashboardData?.ptp?.pendingPtpCount)}</span>
+                                                {/* <span class="badge bg-success-subtle text-success">Won</span> */}
+                                            </div>
+                                        </div>
+                                        <div className="deal-item" style={{ transition: 'all 0.3s ease', cursor: 'pointer' }}
+                                            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+                                            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+                                            <div className="deal-info" >
+                                                <div className="deal-company">Paid</div>
+                                                <div class="deal-contact">PTP Count</div>
+                                            </div>
+                                            <div className="deal-meta">
+                                                <span className="deal-amount">{formatNumber(dashboardData?.ptp?.paidPtpCount)}</span>
+                                                {/* <span class="badge bg-success-subtle text-success">Won</span> */}
+                                            </div>
+                                        </div>
+                                        <div className="deal-item" style={{ transition: 'all 0.3s ease', cursor: 'pointer' }}
+                                            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+                                            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+                                            <div className="deal-info" >
+                                                <div className="deal-company">Broken</div>
+                                                <div class="deal-contact">PTP Count</div>
+                                            </div>
+                                            <div className="deal-meta">
+                                                <span className="deal-amount">{formatNumber(dashboardData?.ptp?.brokenPtpCount)}</span>
+                                                {/* <span class="badge bg-success-subtle text-success">Won</span> */}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-sm-6 col-xl-3">
-                        <div class="card fx-mini-stat h-100">
-                            <div class="card-body">
-                                <span class="fx-mini-icon churn"><i class="bi bi-exclamation-triangle"></i></span>
-                                <span class="fx-mini-label">Churn Risk</span>
-                                <span class="fx-mini-value">2.8%</span>
-                                <span class="fx-mini-meta"><i class="bi bi-dash"></i> Stable</span>
+                        {/* <div className="col-12 col-md-6">
+                            <div className="col-12 col-md-6 d-flex">
+                                <ChartCard title="PTP Conversion Percent">
+                                    <div style={{ height: 'clamp(220px, 32vw, 300px)', width: '100%' }}>
+                                        <canvas ref={ptpConversionData} />
+                                    </div>
+                                </ChartCard>
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-xl-3">
-                        <div class="card fx-mini-stat h-100">
-                            <div class="card-body">
-                                <span class="fx-mini-icon nps"><i class="bi bi-emoji-smile"></i></span>
-                                <span class="fx-mini-label">NPS Score</span>
-                                <span class="fx-mini-value">58</span>
-                                <span class="fx-mini-meta positive"><i class="bi bi-arrow-up"></i> +4</span>
+                        </div> */}
+                        {/* <div className="col-md-6 col-12">
+                            <div className="card h-100">
+                                <div className="card-header">
+                                    <h5 className="card-title">PTP Conversion</h5>
+                                </div>
+                                <div className="card-body">
+                                    <Chart
+                                        options={ptpOptions}
+                                        series={ptpSeries}
+                                        type="pie"
+                                        height={280}
+                                    />
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-xl-3">
-                        <div class="card fx-mini-stat h-100">
-                            <div class="card-body">
-                                <span class="fx-mini-icon refund"><i class="bi bi-arrow-counterclockwise"></i></span>
-                                <span class="fx-mini-label">Refund Rate</span>
-                                <span class="fx-mini-value">0.9%</span>
-                                <span class="fx-mini-meta positive"><i class="bi bi-arrow-down"></i> -0.2%</span>
+                        </div> */}
+                        <div className="col-12 col-md-6">
+                            <div className="card h-100">
+                                <div className="card-header">
+                                    <h5 className="card-title mb-0">PTP Conversion Percent</h5>
+                                </div>
+                                <div className="card-body">
+                                    <Chart
+                                        options={dealSourcesOptions}
+                                        series={dealSourcesOptions.series}
+                                        type="donut"
+                                        height={240}
+                                    />
+                                    <div className="chart-legend mt-3">
+                                        <div className="chart-legend-item">
+                                            <span className="legend-dot" style={{ backgroundColor: "var(--accent-color)" }}></span>
+                                            <span className="legend-label">PTP Conversion</span>
+                                            <span className="legend-value">{`${dashboardData?.ptp?.ptpConversionPercent || 0}`}%</span>
+                                        </div>
+                                        <div className="chart-legend-item">
+                                            <span className="legend-dot" style={{ backgroundColor: "var(--success-color)" }}></span>
+                                            <span className="legend-label">Non-PTP Conversion</span>
+                                            <span className="legend-value">{`${Math.max(0, 100 - (dashboardData?.ptp?.ptpConversionPercent || 0))}`}%</span>
+                                        </div>
+                                        {/* <div className="legend-item">
+                                            <span className="legend-dot" style={{ backgroundColor: "var(--warning-color)" }}></span>
+                                            <span className="legend-label">Website</span>
+                                            <span className="legend-value">22%</span>
+                                        </div>
+                                        <div className="legend-item">
+                                            <span className="legend-dot" style={{ backgroundColor: "var(--info-color)" }}></span>
+                                            <span className="legend-label">Social</span>
+                                            <span className="legend-value">15%</span>
+                                        </div> */}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <div className="card page-dashboard mt-3 p-3">
+                    <div className="row g-3"> {/* 👈 use gutters */}
+                        {fullPaymentCards.map((card, index) => (
+                            <div className="col-12 col-md-4 d-flex" key={card.label}>
+                                <div
+                                    className="fx-kpi-item w-100 h-100"
+                                    style={{ transition: 'all 0.3s ease', cursor: 'pointer' }}
+                                    onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-4px)')}
+                                    onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
+                                >
+                                    <span className="fx-kpi-label">{card.label}</span>
+                                    <span className="fx-kpi-value">{card.value}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="mt-3 p-1">
+                        <ChartCard title="Sunburst Chart">
+                            <div className="echart-container" ref={sunburst} style={{
+                                width: "100%",
+                                height: "clamp(300px, 55vh, 680px)"
+                            }} />
+                        </ChartCard>
+                    </div>
+                </div>
             </div>
-        </div>
+        </div >
 
     )
 };

@@ -17,7 +17,8 @@ const {
   userIdLookupSchema,
   pageAccessQuerySchema,
   pageAccessUpdateSchema,
-  agentSchemaNew
+  agentSchemaNew,
+  userLookupSchema
 } = require('./users.validation');
 const {
   createUserHandler,
@@ -38,7 +39,8 @@ const {
   searchByUserIdHandler,
   getPageAccessHandler,
   updatePageAccessHandler,
-  agentListHandlerNew
+  agentListHandlerNew,
+  searchByUserNameId
 } = require('./users.controller');
 
 const router = express.Router();
@@ -63,6 +65,7 @@ router.post('/modify-status-submit', validate(userModifyStatusSubmitSchema), sub
 router.get('/get-page-access', validate(pageAccessQuerySchema, { source: 'query' }), getPageAccessHandler);
 router.post('/update-page-access', validate(pageAccessUpdateSchema), updatePageAccessHandler);
 router.get('/getAgentsNew', validate(agentSchemaNew, { source: 'query' }), agentListHandlerNew);
+router.get('/search-user-by-name-id', validate(userLookupSchema, { source: 'query' }), searchByUserNameId);
 
 module.exports = router;
 

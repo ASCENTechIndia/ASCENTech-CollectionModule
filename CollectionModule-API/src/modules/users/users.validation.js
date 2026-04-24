@@ -175,6 +175,14 @@ const pageAccessUpdateSchema = z.object({
   menuIds: z.array(z.union([z.coerce.number().int(), z.string().trim().min(1)])).default([]),
 });
 
+const userLookupSchema = z.object({
+  search: z
+    .string()
+    .trim()
+    .min(1, "Search value is required")
+    .max(50, "Too long input"),
+});
+
 module.exports = {
   createUserSchema,
   createWebUserSchema,
@@ -194,5 +202,6 @@ module.exports = {
   userModifyStatusSubmitSchema,
   pageAccessQuerySchema,
   pageAccessUpdateSchema,
-  agentSchemaNew
+  agentSchemaNew,
+  userLookupSchema
 };
