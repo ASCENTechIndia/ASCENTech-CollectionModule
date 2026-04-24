@@ -5,6 +5,7 @@ import { useNotification } from '../../context/useNotification';
 import apiClient from '../../services/apiClient';
 import { useAuth } from '../../context/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useConfirm } from '../../context/ConfirmModalContext';
 // import { fetchLayoutMode } from 'echarts/types/src/util/layout.js';
 
 export default function Roles() {
@@ -18,6 +19,7 @@ export default function Roles() {
 
   const { user } = useAuth();
   const location = useLocation();
+  const confirm = useConfirm();
   const webUserId = user?.userId;
   const { employeeId } = location.state || "";
   console.log("employeeId",employeeId);
@@ -141,6 +143,11 @@ export default function Roles() {
         showWarning('Please select the status');
         return;
       }
+
+      const agreed = await confirm("Do you want to modify status?");
+
+      if (!agreed) return;
+
       const payload = {
         "userId": userStatusDetails?.userId,
         "newStatus": newStatus,
@@ -161,6 +168,11 @@ export default function Roles() {
 
   const handlePageAccess = async () => {
     try {
+
+      const agreed = await confirm("Do you want to give page access?");
+
+      if (!agreed) return;
+
       const payload = {
         "userId": userPageDetails?.userId,
         "menuIds": getSelectedMenuIds()

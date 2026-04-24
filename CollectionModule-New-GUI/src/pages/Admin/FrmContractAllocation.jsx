@@ -2,9 +2,11 @@ import { Link } from 'react-router-dom'
 import { useCallback, useEffect, useState } from 'react'
 import apiClient from '../../services/apiClient'
 import { useNotification } from '../../context/useNotification'
+import { useConfirm } from '../../context/ConfirmModalContext'
 
 function FrmContractAllocation() {
   const { showError, showSuccess } = useNotification()
+  const confirm = useConfirm();
   const [isChecked, setIsChecked] = useState(false)
   const [count, setCount] = useState('')
   const [message, setMessage] = useState('')
@@ -35,6 +37,12 @@ function FrmContractAllocation() {
   const handleAllocateAccounts = async () => {
     setAllocating(true)
     setMessage('')
+
+    const agreed = await confirm("Do you want to allocate accounts?");
+    if (!agreed) {
+      setAllocating(false);
+      return;
+    }
 
     try {
       const response = await apiClient.post('/admin/allocateAccount', {

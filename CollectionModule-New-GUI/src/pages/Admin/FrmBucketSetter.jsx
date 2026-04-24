@@ -2,10 +2,12 @@ import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import apiClient from '../../services/apiClient'
-import { useNotification } from '../../context/useNotification'
+import { useNotification } from '../../context/useNotification';
+import { useConfirm } from '../../context/ConfirmModalContext';
 
 function FrmBucketSetter() {
   const { showSuccess, showError } = useNotification()
+  const confirm = useConfirm();
   const { handleSubmit } = useForm()
   const [loading, setLoading] = useState(false)
   const [firstMessage, setFirstMessage] = useState('')
@@ -15,6 +17,12 @@ function FrmBucketSetter() {
     setLoading(true)
     setFirstMessage('')
     setSecondMessage('')
+    const agreed = await confirm("Do you want to set the buckets?");
+
+    if (!agreed) {
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await apiClient.post('/admin/bucketsetter')
