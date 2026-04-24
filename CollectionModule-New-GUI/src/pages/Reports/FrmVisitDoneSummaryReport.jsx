@@ -1,75 +1,344 @@
-import { Link } from 'react-router-dom'
-import { useEffect, useRef, useState } from 'react'
-import { ReusableGroupedDataGrid } from '../../components/ReusableGroupedDataGrid'
-import apiClient from '../../services/apiClient'
-import { useNotification } from '../../context/useNotification'
+import { Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { DataTableGrouped } from "../../components/DataTableGrouped";
+import apiClient from "../../services/apiClient";
+import { useNotification } from "../../context/useNotification";
+
+// ── Smart percentage cell ─────────────────────────────────────────────────────
+const PctCell = ({ v, highIsGood = true }) => {
+  const num = parseFloat(v) || 0;
+  let color;
+  if (highIsGood)
+    color = num >= 70 ? "#198754" : num >= 40 ? "#fd7e14" : "#dc3545";
+  else color = num <= 30 ? "#198754" : num <= 60 ? "#fd7e14" : "#dc3545";
+  return (
+    <span style={{ fontWeight: 600, color, fontSize: "0.78rem" }}>{num}%</span>
+  );
+};
+
+// ── Zone cell (shared between both groups) ────────────────────────────────────
+const ZoneCell = ({ v }) => {
+  const value = String(v || "").trim();
+  const isTotal = value.toLowerCase() === "total";
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+      <span
+        style={{
+          width: 22,
+          height: 22,
+          borderRadius: "6px",
+          flexShrink: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: isTotal ? "#fff7ed" : "#eff6ff",
+          border: `1px solid ${isTotal ? "#fed7aa" : "#bfdbfe"}`,
+        }}
+      >
+        <i
+          className={`bi ${isTotal ? "bi-calculator" : "bi-geo-alt"}`}
+          style={{ fontSize: "11px", color: isTotal ? "#ea580c" : "#2563eb" }}
+        />
+      </span>
+      <span
+        style={{
+          fontWeight: isTotal ? 700 : 500,
+          color: isTotal ? "#111827" : "#1e293b",
+          fontSize: "0.80rem",
+        }}
+      >
+        {isTotal ? "TOTAL" : value}
+      </span>
+    </div>
+  );
+};
+
+// ── Column groups ─────────────────────────────────────────────────────────────
+const columnGroups = [
+  {
+    label: "In Count",
+    headerClass: "text-center",
+    columns: [
+      {
+        key: "zone",
+        label: "Zone",
+        minWidth: "140px",
+        render: (v) => <ZoneCell v={v} />,
+      },
+      {
+        key: "visitDone",
+        label: "Visit Done",
+        minWidth: "120px",
+        cellClass: "text-center",
+        render: (v) => (
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
+              background: "#eff6ff",
+              color: "#1d4ed8",
+              padding: "2px 10px",
+              borderRadius: "20px",
+              fontSize: "0.75rem",
+              fontWeight: 600,
+              border: "1px solid #bfdbfe",
+            }}
+          >
+            <i className="bi bi-person-check" style={{ fontSize: "0.7rem" }} />
+            {Number(v).toLocaleString()}
+          </span>
+        ),
+      },
+      {
+        key: "visitDonePercent",
+        label: "Visit Done %",
+        minWidth: "140px",
+        cellClass: "text-center",
+        render: (v) => <PctCell v={v} highIsGood={true} />,
+      },
+      {
+        key: "paid",
+        label: "Paid",
+        minWidth: "90px",
+        cellClass: "text-center",
+        render: (v) => (
+          <span className="badge bg-success-subtle text-success">
+            {Number(v).toLocaleString()}
+          </span>
+        ),
+      },
+      {
+        key: "paidPercent",
+        label: "Paid %",
+        minWidth: "100px",
+        cellClass: "text-center",
+        render: (v) => <PctCell v={v} highIsGood={true} />,
+      },
+      {
+        key: "fullyPaid",
+        label: "Fully Paid",
+        minWidth: "120px",
+        cellClass: "text-center",
+        render: (v) => (
+          <span
+            style={{ color: "#0f5132", fontWeight: 500, fontSize: "0.78rem" }}
+          >
+            {Number(v).toLocaleString()}
+          </span>
+        ),
+      },
+      {
+        key: "fullyPaidPercent",
+        label: "Fully Paid %",
+        minWidth: "140px",
+        cellClass: "text-center",
+        render: (v) => <PctCell v={v} highIsGood={true} />,
+      },
+      {
+        key: "partialPaid",
+        label: "Partial Paid",
+        minWidth: "140px",
+        cellClass: "text-center",
+        render: (v) => (
+          <span className="badge bg-warning-subtle text-warning">
+            {Number(v).toLocaleString()}
+          </span>
+        ),
+      },
+      {
+        key: "partialPaidPercent",
+        label: "Partial Paid %",
+        cellClass: "text-center",
+        minWidth: "150px",
+        render: (v) => <PctCell v={v} highIsGood={false} />,
+      },
+      {
+        key: "unpaid",
+        label: "Unpaid",
+        minWidth: "110px",
+        cellClass: "text-center",
+        render: (v) => (
+          <span className="badge bg-danger-subtle text-danger">
+            {Number(v).toLocaleString()}
+          </span>
+        ),
+      },
+      {
+        key: "unpaidPercent",
+        label: "Unpaid %",
+        minWidth: "120px",
+        cellClass: "text-center",
+        render: (v) => <PctCell v={v} highIsGood={false} />,
+      },
+      {
+        key: "npa",
+        label: "NPA",
+        minWidth: "90px",
+        cellClass: "text-center",
+        render: (v) => (
+          <span className="badge bg-dark-subtle text-dark">
+            {Number(v).toLocaleString()}
+          </span>
+        ),
+      },
+      {
+        key: "npaPercent",
+        label: "NPA %",
+        minWidth: "90px",
+        cellClass: "text-center",
+        render: (v) => <PctCell v={v} highIsGood={false} />,
+      },
+    ],
+  },
+  {
+    label: "In Value",
+    headerClass: "text-center",
+    columns: [
+      {
+        key: "valueAllocation",
+        label: "Allocation",
+        minWidth: "120px",
+        cellClass: "text-center",
+        render: (v) => (
+          <span
+            style={{ fontWeight: 500, color: "#1e293b", fontSize: "0.78rem" }}
+          >
+            ₹ {Number(v).toLocaleString()}
+          </span>
+        ),
+      },
+      {
+        key: "valueVisitDonePercent",
+        label: "Visit Done %",
+        minWidth: "140px",
+        cellClass: "text-center",
+        render: (v) => <PctCell v={v} highIsGood={true} />,
+      },
+      {
+        key: "paidAmount",
+        label: "Paid Amt",
+        minWidth: "120px",
+        cellClass: "text-center",
+        render: (v) => (
+          <span className="badge bg-success-subtle text-success">
+            ₹ {Number(v).toLocaleString()}
+          </span>
+        ),
+      },
+      {
+        key: "valuePaidPercent",
+        label: "Paid %",
+        minWidth: "110px",
+        cellClass: "text-center",
+        render: (v) => <PctCell v={v} highIsGood={true} />,
+      },
+      {
+        key: "valueFullyPaidAmount",
+        label: "Fully Paid Amt",
+        cellClass: "text-center",
+        minWidth: "150px",
+        render: (v) => (
+          <span
+            style={{ color: "#0f5132", fontWeight: 500, fontSize: "0.78rem" }}
+          >
+            ₹ {Number(v).toLocaleString()}
+          </span>
+        ),
+      },
+      {
+        key: "valueFullyPaidPercent",
+        label: "Fully Paid %",
+        minWidth: "140px",
+        cellClass: "text-center",
+        render: (v) => <PctCell v={v} highIsGood={true} />,
+      },
+      {
+        key: "valuePartialPaidAmount",
+        label: "Partial Amt",
+        minWidth: "140px",
+        cellClass: "text-center",
+        render: (v) => (
+          <span className="badge bg-warning-subtle text-warning">
+            ₹ {Number(v).toLocaleString()}
+          </span>
+        ),
+      },
+      {
+        key: "valuePartialPaidPercent",
+        label: "Partial Paid %",
+        cellClass: "text-center",
+        minWidth: "150px",
+        render: (v) => <PctCell v={v} highIsGood={false} />,
+      },
+      {
+        key: "valueUnpaidAmount",
+        label: "Unpaid Amt",
+        minWidth: "130px",
+        cellClass: "text-center",
+        render: (v) => (
+          <span className="badge bg-danger-subtle text-danger">
+            ₹ {Number(v).toLocaleString()}
+          </span>
+        ),
+      },
+      {
+        key: "valueUnpaidPercent",
+        label: "Unpaid %",
+        minWidth: "120px",
+        cellClass: "text-center",
+        render: (v) => <PctCell v={v} highIsGood={false} />,
+      },
+      {
+        key: "valueNpaAmount",
+        label: "NPA Amt",
+        minWidth: "120px",
+        cellClass: "text-center",
+        render: (v) => (
+          <span className="badge bg-dark-subtle text-dark">
+            ₹ {Number(v).toLocaleString()}
+          </span>
+        ),
+      },
+      {
+        key: "valueNpaPercent",
+        label: "NPA %",
+        minWidth: "120px",
+        cellClass: "text-center",
+        render: (v) => <PctCell v={v} highIsGood={false} />,
+      },
+    ],
+  },
+];
 
 function FrmVisitDoneSummaryReport() {
-  const { showError, showSuccess } = useNotification()
-  const [rows, setRows] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const hasFetchedRef = useRef(false)
-
-  const headers = [
-    {
-      displayName: 'In Count',
-      children: [
-        { displayName: 'Zone', field: 'zone' },
-        { displayName: 'Visit Done', field: 'visitDone' },
-        { displayName: 'Visit Done(%)', field: 'visitDonePercent' },
-        { displayName: 'Paid', field: 'paid' },
-        { displayName: 'Paid (%)', field: 'paidPercent' },
-        { displayName: 'Fully Paid', field: 'fullyPaid' },
-        { displayName: 'Fully Paid (%)', field: 'fullyPaidPercent' },
-        { displayName: 'Partial Paid', field: 'partialPaid' },
-        { displayName: 'Partial Paid (%)', field: 'partialPaidPercent' },
-        { displayName: 'Unpaid', field: 'unpaid' },
-        { displayName: 'Unpaid (%)', field: 'unpaidPercent' },
-        { displayName: 'NPA', field: 'npa' },
-        { displayName: 'NPA (%)', field: 'npaPercent' },
-      ],
-    },
-    {
-      displayName: 'In Value',
-      children: [
-        { displayName: 'Allocation', field: 'valueAllocation' },
-        { displayName: 'Visit Done(%)', field: 'valueVisitDonePercent' },
-        { displayName: 'Paid Amount', field: 'paidAmount' },
-        { displayName: 'Paid(%)', field: 'valuePaidPercent' },
-        { displayName: 'Fully Paid Amount', field: 'valueFullyPaidAmount' },
-        { displayName: 'Full Paid(%)', field: 'valueFullyPaidPercent' },
-        { displayName: 'Partial Paid Amount', field: 'valuePartialPaidAmount' },
-        { displayName: 'Partial Paid (%)', field: 'valuePartialPaidPercent' },
-        { displayName: 'Unpaid Amount', field: 'valueUnpaidAmount' },
-        { displayName: 'Unpaid(%)', field: 'valueUnpaidPercent' },
-        { displayName: 'NPA Amount', field: 'valueNpaAmount' },
-        { displayName: 'NPA(%)', field: 'valueNpaPercent' },
-      ],
-    },
-  ]
+  const { showError, showSuccess } = useNotification();
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const hasFetchedRef = useRef(false);
 
   useEffect(() => {
-    if (hasFetchedRef.current) return
-    hasFetchedRef.current = true
+    if (hasFetchedRef.current) return;
+    hasFetchedRef.current = true;
 
     const fetchData = async () => {
-      setLoading(true)
-      setError('')
+      setLoading(true);
+      setError("");
       try {
-        const response = await apiClient.get('/reports/visitDoneSummary')
-        const success = response?.success
-        const data = Array.isArray(response?.data) ? response.data : []
+        const response = await apiClient.get("/reports/visitDoneSummary");
+        const success = response?.success;
+        const data = Array.isArray(response?.data) ? response.data : [];
 
         if (!success || !data.length) {
-          setRows([])
-          showError('No record found')
-          setError('No record found')
-          return
+          setRows([]);
+          showError("No record found");
+          setError("No record found");
+          return;
         }
 
         const transformed = data.map((item) => ({
-          zone: item.VAR_COMPANYMST_BRANCHNAME || '',
+          zone: item.VAR_COMPANYMST_BRANCHNAME || "",
           visitDone: item.TOTAL_VISITS ?? 0,
           visitDonePercent: item.TOTAL_VISITS_PERS ?? 0,
           paid: item.PAID_COUNT ?? 0,
@@ -94,21 +363,21 @@ function FrmVisitDoneSummaryReport() {
           valueUnpaidPercent: item.UNPAID_PERCENT ?? 0,
           valueNpaAmount: item.NPA_AMT ?? 0,
           valueNpaPercent: item.NPA_PERCENT ?? 0,
-        }))
+        }));
 
-        setRows(transformed)
-        showSuccess(`Loaded ${transformed.length} records`)
+        setRows(transformed);
+        showSuccess(`Loaded ${transformed.length} records`);
       } catch (apiError) {
-        setRows([])
-        showError(apiError.message || 'Failed to load report')
-        setError(apiError.message || 'Failed to load report')
+        setRows([]);
+        showError(apiError.message || "Failed to load report");
+        setError(apiError.message || "Failed to load report");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    void fetchData()
-  }, [])
+    void fetchData();
+  }, []);
 
   return (
     <div className="main-content page-visit-done-summary-report">
@@ -130,29 +399,25 @@ function FrmVisitDoneSummaryReport() {
         </div>
       )}
 
-      <div className="card">
-        <div className="card-body">
-          {loading ? (
-            <div className="text-center py-5">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
-              <p className="mt-2 text-muted">Loading report...</p>
-            </div>
-          ) : rows.length > 0 ? (
-            <ReusableGroupedDataGrid
-              title="Visit Done Summary"
-              headers={headers}
-              rows={rows}
-              pageSize={10}
-            />
-          ) : (
-            <div className="text-center text-muted py-4">No records found</div>
-          )}
+      {loading ? (
+        <div className="text-center py-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-2 text-muted">Loading report...</p>
         </div>
-      </div>
+      ) : (
+        <DataTableGrouped
+          columnGroups={columnGroups}
+          data={rows}
+          csvFilename="visit-done-summary.csv"
+          defaultPerPage={10}
+          fontSize="0.80rem"
+          compactCells={false}
+        />
+      )}
     </div>
-  )
+  );
 }
 
-export default FrmVisitDoneSummaryReport
+export default FrmVisitDoneSummaryReport;
