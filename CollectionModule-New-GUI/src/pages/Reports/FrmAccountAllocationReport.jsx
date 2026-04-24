@@ -1,12 +1,19 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import ReusableDataGrid from "../../components/ReusableDataGrid";
+import DataTable from "../../components/Datatable";
 import apiClient from "../../services/apiClient";
 import { useAuth } from "../../context/AuthContext";
 import { useNotification } from "../../context/useNotification";
 
-// Debounce utility
+// SMA badge color map 
+const smaBadgeColor = {
+  SMA0: { bg: "#fff3cd", color: "#856404", border: "#ffc107" },
+  SMA1: { bg: "#fff0e6", color: "#c45000", border: "#fd7e14" },
+  SMA2: { bg: "#fde8e8", color: "#b02a37", border: "#dc3545" },
+};
+
+// Debounce utility 
 function debounce(fn, delay) {
   let timer = null;
   return (...args) => {
@@ -17,10 +24,8 @@ function debounce(fn, delay) {
 
 const formatDateForApi = (value) => {
   if (!value) return "";
-
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
-
   const months = [
     "JAN",
     "FEB",
@@ -38,29 +43,204 @@ const formatDateForApi = (value) => {
   const day = String(date.getDate()).padStart(2, "0");
   const month = months[date.getMonth()];
   const year = date.getFullYear();
-
   return `${day}-${month}-${year}`;
 };
+
+// Column definitions 
+const columns = [
+  {
+    key: "collectionAssosId",
+    label: "Collection Associate",
+    sortable: true,
+    render: (val) =>
+      val ? (
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <span
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: "50%",
+              background: "#e8f0fe",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <i
+              className="bi bi-person-fill"
+              style={{ color: "#1a73e8", fontSize: "0.85rem" }}
+            />
+          </span>
+          <span
+            style={{ fontSize: "0.82rem", fontWeight: 500, color: "#1e293b" }}
+          >
+            {val}
+          </span>
+        </div>
+      ) : (
+        <span className="text-muted">—</span>
+      ),
+  },
+  {
+    key: "zone",
+    label: "Zone",
+    sortable: true,
+    render: (val) =>
+      val ? (
+        <span
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "5px",
+            color: "#0f5132",
+            fontSize: "0.82rem",
+          }}
+        >
+          <i className="bi bi-geo-alt-fill" style={{ color: "#198754" }} />
+          {val}
+        </span>
+      ) : (
+        <span className="text-muted">—</span>
+      ),
+  },
+  {
+    // ── PLAIN TEXT ──
+    key: "region",
+    label: "Region",
+    sortable: true,
+    render: (val) =>
+      val ? (
+        <span style={{ fontSize: "0.82rem", color: "#1e293b" }}>{val}</span>
+      ) : (
+        <span className="text-muted">—</span>
+      ),
+  },
+  {
+    key: "branch",
+    label: "Branch",
+    sortable: true,
+    render: (val) =>
+      val ? (
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "5px",
+            background: "#f0f4ff",
+            color: "#3d5a99",
+            padding: "3px 10px",
+            borderRadius: "20px",
+            fontSize: "0.78rem",
+            fontWeight: 500,
+            border: "1px solid #c5d3f0",
+          }}
+        >
+          <i className="bi bi-bank" />
+          {val}
+        </span>
+      ) : (
+        <span className="text-muted">—</span>
+      ),
+  },
+  {
+    // PLAIN TEXT 
+    key: "allocationDate",
+    label: "Allocation Date",
+    sortable: true,
+    render: (val) =>
+      val ? (
+        <span style={{ fontSize: "0.82rem", color: "#1e293b" }}>{val}</span>
+      ) : (
+        <span className="text-muted">—</span>
+      ),
+  },
+  {
+    key: "contractNo",
+    label: "Contract No.",
+    sortable: true,
+    render: (val) =>
+      val ? (
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "5px",
+            background: "#f8f9fa",
+            color: "#495057",
+            padding: "3px 10px",
+            borderRadius: "6px",
+            fontSize: "0.78rem",
+            fontFamily: "monospace",
+            border: "1px solid #dee2e6",
+            letterSpacing: "0.03em",
+          }}
+        >
+          <i className="bi bi-file-earmark-text" style={{ color: "#6c757d" }} />
+          {val}
+        </span>
+      ) : (
+        <span className="text-muted">—</span>
+      ),
+  },
+  {
+    // PLAIN TEXT 
+    key: "dispositionDate",
+    label: "Disposition Date",
+    sortable: true,
+    render: (val) =>
+      val ? (
+        <span style={{ fontSize: "0.82rem", color: "#1e293b" }}>{val}</span>
+      ) : (
+        <span className="text-muted">—</span>
+      ),
+  },
+  {
+    key: "smaType",
+    label: "SMA Type",
+    sortable: true,
+    render: (val) => {
+      if (!val) return <span className="text-muted">—</span>;
+      const style = smaBadgeColor[val] || {
+        bg: "#e9ecef",
+        color: "#495057",
+        border: "#ced4da",
+      };
+      return (
+        <span
+          style={{
+            display: "inline-block",
+            padding: "3px 12px",
+            borderRadius: "20px",
+            fontSize: "0.75rem",
+            fontWeight: 600,
+            background: style.bg,
+            color: style.color,
+            border: `1px solid ${style.border}`,
+            letterSpacing: "0.04em",
+          }}
+        >
+          {val}
+        </span>
+      );
+    },
+  },
+];
 
 function FrmAccountAllocationReport() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { showError, showSuccess, showWarning } = useNotification();
+
   const {
     register,
     handleSubmit: handleFormSubmit,
     setValue,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      startDate: "",
-      endDate: "",
-      userId: "",
-      smaType: "",
-    },
+    defaultValues: { startDate: "", endDate: "", userId: "", smaType: "" },
   });
 
-  // Form fields state (synced with react-hook-form)
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [userId, setUserId] = useState("");
@@ -74,34 +254,7 @@ function FrmAccountAllocationReport() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState("");
 
-  // Table columns & rows
-  const columns = [
-    { label: "Collection Associate ID", sortable: true },
-    { label: "Zone", sortable: true },
-    { label: "Region", sortable: true },
-    { label: "Branch", sortable: true },
-    { label: "Allocation Date", sortable: true },
-    { label: "Contract Number", sortable: true },
-    { label: "Disposition Date", sortable: true },
-    { label: "SMA Type", sortable: true },
-  ];
-
-  const tableRows = useMemo(
-    () =>
-      rows.map((item) => [
-        item.collectionAssosId || "",
-        item.zone || "",
-        item.region || "",
-        item.branch || "",
-        item.allocationDate || "",
-        item.contractNo || "",
-        item.dispositionDate || "",
-        item.smaType || "",
-      ]),
-    [rows],
-  );
-
-  // Debounced search function
+  // User search 
   const doSearch = debounce(async (term) => {
     if (!term) {
       setSearchResults([]);
@@ -109,15 +262,12 @@ function FrmAccountAllocationReport() {
       setSearchLoading(false);
       return;
     }
-
     setSearchLoading(true);
     setSearchError("");
-
     try {
       const response = await apiClient.get("/users/search-user-by-name-id", {
         params: { search: term },
       });
-
       if (response?.success && Array.isArray(response.data)) {
         setSearchResults(response.data);
       } else {
@@ -133,15 +283,13 @@ function FrmAccountAllocationReport() {
   }, 400);
 
   const handleSearchInput = (e) => {
-    const val = e.target.value;
-    setSearchTerm(val);
-    doSearch(val);
+    setSearchTerm(e.target.value);
+    doSearch(e.target.value);
   };
 
   const handleSelectUser = (selectedUser) => {
     setSearchTerm(selectedUser.VAR_USERMST_USERFULLNAME);
     setSearchResults([]);
-    // Remove leading "E" if present
     const cleanId = String(selectedUser.VAR_USERMST_USERID).replace(/^E/i, "");
     setUserId(cleanId);
     setValue("userId", cleanId);
@@ -156,21 +304,15 @@ function FrmAccountAllocationReport() {
     setValue("userId", "");
   };
 
+  // Fetch report data 
   const handleSearch = async () => {
-    const startDateFormatted = formatDateForApi(startDate);
-    const endDateFormatted = formatDateForApi(endDate);
-    const trimmedUserId = userId.trim();
-
-    const brid = user?.brid || "";
-    const branchName = user?.branchName || "";
-
     const queryParams = new URLSearchParams({
-      startDate: startDateFormatted,
-      endDate: endDateFormatted,
-      userId: trimmedUserId,
+      startDate: formatDateForApi(startDate),
+      endDate: formatDateForApi(endDate),
+      userId: userId.trim(),
       smaType,
-      brid,
-      branchName,
+      brid: user?.brid || "",
+      branchName: user?.branchName || "",
     });
 
     setLoading(true);
@@ -210,6 +352,8 @@ function FrmAccountAllocationReport() {
     }
   };
 
+  const tableData = rows.map((item, index) => ({ id: index, ...item }));
+
   return (
     <div className="main-content page-account-allocation-report">
       <div className="page-header">
@@ -223,11 +367,12 @@ function FrmAccountAllocationReport() {
         </nav>
       </div>
 
+      {/* ── Filter Card ── */}
       <div className="card mb-4">
         <div className="card-header d-flex justify-content-between align-items-center gap-3 flex-wrap">
           <h5 className="card-title mb-0">Search Filters</h5>
 
-          {/* 🔍 User search input (name or ID) */}
+          {/* User search */}
           <div
             className="position-relative"
             style={{ minWidth: "280px", maxWidth: "350px", width: "100%" }}
@@ -284,7 +429,6 @@ function FrmAccountAllocationReport() {
                 ))}
               </ul>
             )}
-
             {searchError && (
               <div className="text-danger small mt-1">{searchError}</div>
             )}
@@ -305,7 +449,7 @@ function FrmAccountAllocationReport() {
                   value={startDate}
                   {...register("startDate", {
                     required: "Start Date is required",
-                    onChange: (event) => setStartDate(event.target.value),
+                    onChange: (e) => setStartDate(e.target.value),
                   })}
                 />
                 {errors.startDate && (
@@ -326,7 +470,7 @@ function FrmAccountAllocationReport() {
                   value={endDate}
                   {...register("endDate", {
                     required: "End Date is required",
-                    onChange: (event) => setEndDate(event.target.value),
+                    onChange: (e) => setEndDate(e.target.value),
                   })}
                 />
                 {errors.endDate && (
@@ -336,7 +480,6 @@ function FrmAccountAllocationReport() {
                 )}
               </div>
 
-              {/* User ID field – now read‑only, filled from search dropdown */}
               <div className="col-md-6">
                 <label htmlFor="userId" className="form-label">
                   User ID
@@ -366,7 +509,7 @@ function FrmAccountAllocationReport() {
                   className="form-select"
                   value={smaType}
                   {...register("smaType", {
-                    onChange: (event) => setSmaType(event.target.value),
+                    onChange: (e) => setSmaType(e.target.value),
                   })}
                 >
                   <option value="">Select SMA Type (optional)</option>
@@ -396,16 +539,16 @@ function FrmAccountAllocationReport() {
         </div>
       </div>
 
-      {tableRows.length > 0 && (
-        <div className="card">
-          <div className="card-body">
-            <ReusableDataGrid
-              rows={tableRows}
-              columns={columns}
-              pageSize={10}
-            />
-          </div>
-        </div>
+      {/* ── Results Table ── */}
+      {tableData.length > 0 && (
+        <DataTable
+          title="Account Allocation Report"
+          subtitle={`${tableData.length} records found`}
+          columns={columns}
+          data={tableData}
+          defaultPerPage={10}
+          csvFilename="account_allocation_report.csv"
+        />
       )}
     </div>
   );
