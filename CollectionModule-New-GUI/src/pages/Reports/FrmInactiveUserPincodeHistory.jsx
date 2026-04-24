@@ -1,97 +1,182 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import ReusableDataGrid from '../../components/ReusableDataGrid'
-import apiClient from '../../services/apiClient'
-import { useNotification } from '../../context/useNotification'
+import { Link, useNavigate } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
+import ReusableDataGrid from "../../components/ReusableDataGrid";
+import apiClient from "../../services/apiClient";
+import { useNotification } from "../../context/useNotification";
 
-const formatDateForApi = (value) => {
-  if (!value) return ''
-
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return ''
-
-  const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
-  const day = String(date.getDate()).padStart(2, '0')
-  const month = months[date.getMonth()]
-  const year = date.getFullYear()
-
-  return `${day}-${month}-${year}`
+// Debounce utility
+function debounce(fn, delay) {
+  let timer = null;
+  return (...args) => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
 }
 
+const formatDateForApi = (value) => {
+  if (!value) return "";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+
+  const months = [
+    "JAN",
+    "FEB",
+    "MAR",
+    "APR",
+    "MAY",
+    "JUN",
+    "JUL",
+    "AUG",
+    "SEP",
+    "OCT",
+    "NOV",
+    "DEC",
+  ];
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+
+  return `${day}-${month}-${year}`;
+};
+
 function FrmInactiveUserPincodeHistory() {
-  const navigate = useNavigate()
-  const { showError, showSuccess, showWarning } = useNotification()
+  const navigate = useNavigate();
+  const { showError, showSuccess, showWarning } = useNotification();
   const {
     register,
     handleSubmit: handleFormSubmit,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
-      startDate: '',
-      endDate: '',
-      userId: '',
+      startDate: "",
+      endDate: "",
+      userId: "",
     },
-  })
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
-  const [userId, setUserId] = useState('')
-  const [rows, setRows] = useState([])
-  const [loading, setLoading] = useState(false)
+  });
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [userId, setUserId] = useState("");
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // Search state
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState("");
 
   const columns = [
-    { label: 'Inactive Date', sortable: true },
-    { label: 'User ID', sortable: true },
-    { label: 'Pincode', sortable: true },
-  ]
+    { label: "Inactive Date", sortable: true },
+    { label: "User ID", sortable: true },
+    { label: "Pincode", sortable: true },
+  ];
 
   const tableRows = useMemo(
     () =>
       rows.map((item) => [
-        item.inactiveDate || '',
-        item.userId || '',
-        item.pincode || '',
+        item.inactiveDate || "",
+        item.userId || "",
+        item.pincode || "",
       ]),
-    [rows]
-  )
+    [rows],
+  );
+
+  // Debounced search function
+  const doSearch = debounce(async (term) => {
+    if (!term) {
+      setSearchResults([]);
+      setSearchError("");
+      setSearchLoading(false);
+      return;
+    }
+
+    setSearchLoading(true);
+    setSearchError("");
+
+    try {
+      const response = await apiClient.get("/users/search-user-by-name-id", {
+        params: { search: term },
+      });
+
+      if (response?.success && Array.isArray(response.data)) {
+        setSearchResults(response.data);
+      } else {
+        setSearchResults([]);
+        setSearchError("No results found");
+      }
+    } catch {
+      setSearchResults([]);
+      setSearchError("Search failed");
+    } finally {
+      setSearchLoading(false);
+    }
+  }, 400);
+
+  const handleSearchInput = (e) => {
+    const val = e.target.value;
+    setSearchTerm(val);
+    doSearch(val);
+  };
+
+  const handleSelectUser = (selectedUser) => {
+    setSearchTerm(selectedUser.VAR_USERMST_USERFULLNAME);
+    setSearchResults([]);
+    // Remove leading "E" if present
+    const cleanId = String(selectedUser.VAR_USERMST_USERID).replace(/^E/i, "");
+    setUserId(cleanId);
+    setValue("userId", cleanId);
+    setSearchError("");
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setSearchResults([]);
+    setSearchError("");
+    setUserId("");
+    setValue("userId", "");
+  };
 
   const handleSearch = async () => {
-
     const params = {
       startDate: formatDateForApi(startDate),
       endDate: formatDateForApi(endDate),
       userId: userId.trim(),
-    }
+    };
 
-    const queryParams = new URLSearchParams(params)
+    const queryParams = new URLSearchParams(params);
 
-    setLoading(true)
+    setLoading(true);
     try {
-      const response = await apiClient.get(`/reports/inactiveuserPincodeHistory?${queryParams.toString()}`)
-      const success = response?.success
-      const data = Array.isArray(response?.data) ? response.data : []
+      const response = await apiClient.get(
+        `/reports/inactiveuserPincodeHistory?${queryParams.toString()}`,
+      );
+      const success = response?.success;
+      const data = Array.isArray(response?.data) ? response.data : [];
 
       if (!success || !data.length) {
-        setRows([])
-        showWarning('No data found')
-        return
+        setRows([]);
+        showWarning("No data found");
+        return;
       }
 
       const formattedData = data.map((item) => ({
-        inactiveDate: item.INACTIVE_DATE || '',
-        userId: item.VAR_USER_USERID || '',
-        pincode: item.VAR_USER_PINCODE || '',
-      }))
+        inactiveDate: item.INACTIVE_DATE || "",
+        userId: item.VAR_USER_USERID || "",
+        pincode: item.VAR_USER_PINCODE || "",
+      }));
 
-      setRows(formattedData)
-      showSuccess(`Found ${formattedData.length} records`)
+      setRows(formattedData);
+      showSuccess(`Found ${formattedData.length} records`);
     } catch (apiError) {
-      setRows([])
-      showError(apiError.message || 'Something went wrong')
+      setRows([]);
+      showError(apiError.message || "Something went wrong");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="main-content page-inactive-user-pincode-history">
@@ -102,14 +187,80 @@ function FrmInactiveUserPincodeHistory() {
             Home
           </Link>
           <span className="breadcrumb-item">Reports</span>
-          <span className="breadcrumb-item active">Inactive User Pincode History</span>
+          <span className="breadcrumb-item active">
+            Inactive User Pincode History
+          </span>
         </nav>
       </div>
 
       <div className="card mb-4">
-        <div className="card-header">
+        <div className="card-header d-flex justify-content-between align-items-center gap-3 flex-wrap">
           <h5 className="card-title mb-0">Search Filters</h5>
+
+          {/* 🔍 User search input (name or ID) */}
+          <div
+            className="position-relative"
+            style={{ minWidth: "280px", maxWidth: "350px", width: "100%" }}
+          >
+            <div className="input-group position-relative">
+              <span className="input-group-text bg-white border-end-0">
+                <i className="bi bi-search text-muted"></i>
+              </span>
+              <input
+                type="text"
+                className="form-control border-start-0 pe-5"
+                placeholder="Type name or user ID..."
+                value={searchTerm}
+                onChange={handleSearchInput}
+                autoComplete="off"
+              />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 p-0"
+                >
+                  <i className="bi bi-x-circle text-muted"></i>
+                </button>
+              )}
+            </div>
+
+            {searchLoading && (
+              <div className="spinner-border spinner-border-sm position-absolute end-0 top-50 translate-middle-y me-2" />
+            )}
+
+            {searchResults.length > 0 && (
+              <ul
+                className="list-group position-absolute w-100 shadow z-3"
+                style={{ maxHeight: 180, overflowY: "auto", top: "100%" }}
+              >
+                {searchResults.map((userItem, idx) => (
+                  <li
+                    key={userItem.VAR_USERMST_USERID || idx}
+                    className="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-2 px-2"
+                    style={{ cursor: "pointer", fontSize: "13px" }}
+                    onClick={() => handleSelectUser(userItem)}
+                  >
+                    <div className="d-flex flex-column">
+                      <span className="fw-medium">
+                        {userItem.VAR_USERMST_USERFULLNAME}
+                      </span>
+                      <small className="text-muted">
+                        {userItem.VAR_USERMST_USERID}
+                      </small>
+                    </div>
+                    <i className="bi bi-person text-primary"></i>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {searchError && (
+              <div className="text-danger small mt-1">{searchError}</div>
+            )}
+          </div>
         </div>
+
         <div className="card-body">
           <form onSubmit={handleFormSubmit(handleSearch)}>
             <div className="row g-3">
@@ -120,14 +271,18 @@ function FrmInactiveUserPincodeHistory() {
                 <input
                   id="startDate"
                   type="date"
-                  className={`form-control ${errors.startDate ? 'is-invalid' : ''}`}
+                  className={`form-control ${errors.startDate ? "is-invalid" : ""}`}
                   value={startDate}
-                  {...register('startDate', {
-                    required: 'Start Date is required',
+                  {...register("startDate", {
+                    required: "Start Date is required",
                     onChange: (event) => setStartDate(event.target.value),
                   })}
                 />
-                {errors.startDate && <div className="invalid-feedback">{errors.startDate.message}</div>}
+                {errors.startDate && (
+                  <div className="invalid-feedback">
+                    {errors.startDate.message}
+                  </div>
+                )}
               </div>
 
               <div className="col-md-6">
@@ -137,16 +292,21 @@ function FrmInactiveUserPincodeHistory() {
                 <input
                   id="endDate"
                   type="date"
-                  className={`form-control ${errors.endDate ? 'is-invalid' : ''}`}
+                  className={`form-control ${errors.endDate ? "is-invalid" : ""}`}
                   value={endDate}
-                  {...register('endDate', {
-                    required: 'End Date is required',
+                  {...register("endDate", {
+                    required: "End Date is required",
                     onChange: (event) => setEndDate(event.target.value),
                   })}
                 />
-                {errors.endDate && <div className="invalid-feedback">{errors.endDate.message}</div>}
+                {errors.endDate && (
+                  <div className="invalid-feedback">
+                    {errors.endDate.message}
+                  </div>
+                )}
               </div>
 
+              {/* User ID field – now read‑only, filled from search dropdown */}
               <div className="col-md-6">
                 <label htmlFor="userId" className="form-label">
                   User ID
@@ -154,25 +314,33 @@ function FrmInactiveUserPincodeHistory() {
                 <input
                   id="userId"
                   type="text"
-                  className={`form-control ${errors.userId ? 'is-invalid' : ''}`}
+                  className={`form-control ${errors.userId ? "is-invalid" : ""}`}
                   value={userId}
-                  placeholder="Enter User ID (optional)"
-                  inputMode="numeric"
-                  maxLength={20}
-                  {...register('userId', {
-                    validate: (value) => !value || /^\d+$/.test(value) || 'User ID must contain numbers only',
-                    onChange: (event) => setUserId(event.target.value.replace(/\D/g, '')),
-                  })}
+                  placeholder="Select from search"
+                  readOnly
+                  {...register("userId")}
                 />
-                {errors.userId && <div className="invalid-feedback">{errors.userId.message}</div>}
+                {errors.userId && (
+                  <div className="invalid-feedback">
+                    {errors.userId.message}
+                  </div>
+                )}
               </div>
             </div>
 
             <div className="d-flex justify-content-center gap-3 mt-4">
-              <button type="submit" className="btn btn-primary" disabled={loading}>
-                {loading ? 'Searching...' : 'Search'}
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={loading}
+              >
+                {loading ? "Searching..." : "Search"}
               </button>
-              <button type="button" className="btn btn-secondary" onClick={() => navigate('/')}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => navigate("/")}
+              >
                 Close
               </button>
             </div>
@@ -183,12 +351,16 @@ function FrmInactiveUserPincodeHistory() {
       {tableRows.length > 0 && (
         <div className="card">
           <div className="card-body">
-            <ReusableDataGrid rows={tableRows} columns={columns} pageSize={10} />
+            <ReusableDataGrid
+              rows={tableRows}
+              columns={columns}
+              pageSize={10}
+            />
           </div>
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default FrmInactiveUserPincodeHistory
+export default FrmInactiveUserPincodeHistory;
