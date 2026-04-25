@@ -186,7 +186,7 @@ const FrmNewDashboard2New = () => {
       fetchData(monthYear);
     }
   }, [userId, brCategory, userOf]);
-
+console.log(tableData);
 
 const users = tableData.map((rec, index) => ({
   id:                      index,
@@ -197,17 +197,17 @@ const users = tableData.map((rec, index) => ({
   customerName:            rec[4],
   customerAddress:         rec[5],
   productType:             rec[6],   // used inside dispositionDate render
-  subDispositionCode:      rec[7],
-  collectionAssociateName: rec[8],
-  employeeId:              rec[9],
-  latitude:                rec[10],
-  latitude2:               rec[11],  // shown with bi-geo-alt (info badge)
+  dispositionCode:         rec[7],
+  subDispositionCode:      rec[8],
+  collectionAssociateName: rec[9],
+  employeeId:              rec[10],
+  latitude:                rec[11],  // shown with bi-geo-alt (info badge)
   longitude:               rec[12],  // shown with bi-geo (warning badge)
 }));
 const columns1 = [
   {
     key: "dispositionDate",
-    label: "Disposition Date / Code",
+    label: "Disposition Date / Product Type",
      minWidth: "200px",
     render: (val, row) => (
       <div className="d-flex align-items-center gap-3">
@@ -238,10 +238,18 @@ const columns1 = [
   },
   { key: "customerName",    label: "Customer Name" },
   { key: "customerAddress", label: "Customer Address" , minWidth: "300px",},
+  { key: "dispositionCode", label: "Disposition Code" },
   { key: "subDispositionCode",       label: "Sub Disposition Code" },
   { key: "collectionAssociateName",  label: "Collection Associate Name", cellClass: "text-nowrap" },
   { key: "employeeId",               label: "Employee ID",               cellClass: "text-nowrap" },
-  { key: "latitude",        label: "Latitude" },
+  { key: "latitude",        label: "Latitude", 
+    render: (val) => (
+      <span className="badge bg-warning-subtle text-warning d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill border">
+        <i className="bi bi-geo"></i>
+        {val}
+      </span>
+    ),
+   },
   {
     key: "longitude",
     label: "Longitude",
@@ -252,17 +260,17 @@ const columns1 = [
       </span>
     ),
   },
-  {
-    key: "longitude",
-    label: "Longitude",
-    exportable: false,
-    render: (val) => (
-      <span className="badge bg-warning-subtle text-warning d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill border">
-        <i className="bi bi-geo"></i>
-        {val}
-      </span>
-    ),
-  },
+  // {
+  //   key: "longitude",
+  //   label: "Longitude",
+  //   exportable: false,
+  //   render: (val) => (
+  //     <span className="badge bg-warning-subtle text-warning d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill border">
+  //       <i className="bi bi-geo"></i>
+  //       {val}
+  //     </span>
+  //   ),
+  // },
 ];
   return (
     // <div className="main">

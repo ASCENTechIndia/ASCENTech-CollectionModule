@@ -192,17 +192,18 @@ const FrmActiveAgentsNew = () => {
             return () => window.clearTimeout(timeoutId);
         }
     }, [userId, fetchData]);
-
+console.log(tableData);
     const data = tableData.map((rec, index) => ({
   id:                    index,
   zone:                  rec[0],
-  branchName:            rec[1],   // shown as subtitle under zone
-  collectionAssociateId: rec[2],
-  collectionAssociate:   rec[3],
-  loginDate:             rec[4],
-  firstLogin:            rec[5],
-  lastLogout:            rec[6],
-  mdmId:                 rec[7],
+  regionName:            rec[1],   // shown as subtitle under zone
+  branchName:            rec[2],
+  collectionAssociateId: rec[3],
+  collectionAssociate:   rec[4],
+  loginDate:             rec[5],
+  firstLogin:            rec[6],
+  lastLogout:            rec[7],
+  mdmId:                 rec[8],
   // rec[8] from original — add if needed:
   // extraField:         rec[8],
 }));
@@ -222,20 +223,24 @@ const columns1 = [
         </div>
         <div>
           <div className="fw-medium">{val}</div>
-          <small className="text-muted">{row.branchName}</small>
+          <small className="text-muted">{row.regionName}</small>
         </div>
       </div>
     ),
   },
   {
+    key: "branchName",
+    label: "Branch Name"
+  },
+  {
     key: "collectionAssociateId",
     label: "Collection Associate ID",
-    render: (val) => <span className="fw-semibold">{val}</span>,
+    render: (val) => <span className="text-success">{val}</span>,
   },
   {
     key: "collectionAssociate",
     label: "Collection Associate",
-    render: (val) => <span className="text-success">{val}</span>,
+    render: (val) => <span className="fw-semibold">{val}</span>,
   },
   { key: "loginDate",       label: "Login Date",              minWidth: "150px" },
   { key: "firstLogin",      label: "First Login of the Day",  minWidth: "120px" },
