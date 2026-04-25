@@ -152,8 +152,10 @@ export default function UserPinAllocation() {
 
     setSubmitting(true);
     try {
+
+      const numericEmployeeId = Number(employeeId.replace(/^E/, ''));
       const payload = {
-        username: Number(employeeId),
+        username: numericEmployeeId,
         pincode_str: selectedPincodes.join("~"),
       };
       const response = await apiClient.post("/assignPincode/assignPinCode", payload);

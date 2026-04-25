@@ -74,10 +74,10 @@ function App() {
       <Route
         path="/"
         element={
-          <AdminLayout />
-          // <ProtectedRoute>
-          //   <AdminLayout />
-          // </ProtectedRoute>
+          // <AdminLayout />
+          <ProtectedRoute>
+           <AdminLayout />
+          </ProtectedRoute>
         }
       >
         <Route index element={<DashboardPage />} />
@@ -145,7 +145,7 @@ function App() {
             visual={
               <>
                 <Link to="/" className="fauth-logo">
-                  <img src="/assets/img/logo.webp" alt="Collection Module" />
+                  <img src="/assets/img/logo.png" alt="Collection Module" />
                   <span>Collection Module</span>
                 </Link>
                 <h2 className="fauth-visual-title">Manage collection operations from one unified control center.</h2>

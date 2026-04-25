@@ -10,7 +10,7 @@ function Error404Page() {
 
       <div className="fx-error-card">
         <Link to="/" className="fx-error-logo" aria-label="Back to home">
-          <img src="/assets/img/logo.webp" alt="FlexAdmin" />
+          <img src="/assets/img/logo.png" alt="FlexAdmin" />
         </Link>
         <span className="fx-error-kicker">Error 404</span>
         <h1 className="fx-error-code">404</h1>

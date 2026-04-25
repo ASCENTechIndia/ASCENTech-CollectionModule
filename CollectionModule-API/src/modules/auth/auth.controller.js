@@ -6,19 +6,19 @@ async function login(req, res, next) {
   try {
     const payload = req.body;
 
-    let decryptedPassword;
-    try {
-      decryptedPassword = decryptPassword(payload.password);
-    } catch (_error) {
-      logApiError(req, 400, 'Invalid encrypted password', 'Login failed: invalid encrypted password payload');
-      return res.fail('Invalid encrypted password', 400);
-    }
+    // let decryptedPassword;
+    // try {
+    //   decryptedPassword = decryptPassword(payload.password);
+    // } catch (_error) {
+    //   logApiError(req, 400, 'Invalid encrypted password', 'Login failed: invalid encrypted password payload');
+    //   return res.fail('Invalid encrypted password', 400);
+    // }
 
     const normalizedUserId = payload.userId.startsWith('E')
       ? payload.userId
       : `E${payload.userId}`;
 
-    const result = await loginUser(normalizedUserId, decryptedPassword);
+    const result = await loginUser(normalizedUserId, payload.password);
 
     if (!result.success) {
       logApiError(req, 401, result.message, `Login failed for user: ${normalizedUserId}`);

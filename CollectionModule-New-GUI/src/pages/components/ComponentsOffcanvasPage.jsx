@@ -226,7 +226,7 @@ function ComponentsOffcanvasPage() {
                   <div className="offcanvas offcanvas-start" tabIndex={-1} id="offcanvasNav" style={{width: 280}}>
                     <div className="offcanvas-header">
                       <h5 className="offcanvas-title">
-                        <img src="/assets/img/logo.webp" alt="Logo" height={30} />
+                        <img src="/assets/img/logo.png" alt="Logo" height={30} />
                       </h5>
                       <button type="button" className="btn-close" data-bs-dismiss="offcanvas" />
                     </div>

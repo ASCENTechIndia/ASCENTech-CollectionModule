@@ -37,11 +37,13 @@ async function getUsernamebyId(userId) {
 }
 
 async function getPincodebyId(userId) {
+
+  const cleanUserId = userId.replace(/\D/g, '');
   let sql = `
   select var_user_pincode from atbss.aoup_user_pincode_map where var_user_userid= :userId 
   `;
 
-  const binds = { userId: userId };
+  const binds = { userId: cleanUserId };
   const result = await executeQuery(sql, binds);
   return result.rows || [];
 }

@@ -6,6 +6,8 @@ import { useAuth } from '../../context/AuthContext'
 import { useNotification } from "../../context/useNotification";
 import { useConfirm } from '../../context/ConfirmModalContext';
 import DataTable from '../../components/Datatable'
+import { UserCheck } from "lucide-react";
+
 
 const formatDateForApi = (value) => {
   if (!value) return ''
@@ -188,22 +190,31 @@ function FrmInactiveUserAcs() {
 
   return (
     <div className="main-content">
-      <div className="page-header">
+      <div className="page-users">
+      {/* <div className="page-header">
         <h1 className="page-title">Inactive User Accounts</h1>
         <nav className="breadcrumb">
           <Link to="/" className="breadcrumb-item">Home</Link>
           <span className="breadcrumb-item">User Management</span>
           <span className="breadcrumb-item active">Inactive User Accounts</span>
         </nav>
-      </div>
+      </div> */}
+
+       <div className="page-header users-page-header">
+          <div>
+            <h1 className="page-title">Inactive User Accounts</h1>
+          </div>
+          <div className="page-header-actions">
+            <button
+              className="btn btn-primary btn-sm"
+            onClick={handleUnallocateAll}>
+              <UserCheck className="inline mr-2" size={16} /> Unallocate All Accounts
+            </button>
+          </div>
+        </div>
 
       <div className="card mb-4">
         <div className="card-body">
-          <div className="d-flex justify-content-center mb-4">
-            <button type="button" className="btn btn-primary" onClick={handleUnallocateAll}>
-              Unallocate All Accounts
-            </button>
-          </div>
 
           <p className="fw-semibold mb-3">Users Unallocated Accounts</p>
 
@@ -280,13 +291,6 @@ function FrmInactiveUserAcs() {
         </div>
       </div>
 
-      {error && (
-        <div className="alert alert-danger" role="alert">
-          <i className="bi bi-exclamation-triangle me-2" />
-          {error}
-        </div>
-      )}
-
       {/* {tableRows.length > 0 && (
         <div className="card">
           <div className="card-body">
@@ -309,6 +313,7 @@ function FrmInactiveUserAcs() {
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }

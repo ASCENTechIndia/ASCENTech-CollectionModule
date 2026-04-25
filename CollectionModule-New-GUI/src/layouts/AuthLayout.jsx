@@ -9,7 +9,7 @@ function AuthLayout({ split = false, visual = null }) {
         <div className="fauth-main-inner">
           {!split ? (
             <Link to="/" className="fauth-logo fauth-logo-center">
-              <img src="/assets/img/logo.webp" alt="Collection Module" />
+              <img src="/assets/img/logo.png" alt="Collection Module" />
               <span>Collection Module</span>
             </Link>
           ) : null}

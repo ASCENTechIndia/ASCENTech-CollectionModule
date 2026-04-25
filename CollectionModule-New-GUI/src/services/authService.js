@@ -4,11 +4,11 @@ import { encryptPassword } from '../utils/passwordCrypto'
 const authService = {
   login: async (credentials) => {
     try {
-      const encryptedPassword = await encryptPassword(credentials.password)
+      // const encryptedPassword = await encryptPassword(credentials.password)
 
       const payload = await apiClient.post('/auth/login', {
         userId: credentials.userId,
-        password: encryptedPassword,
+        password: credentials.password,
       })
 
       const data = payload?.data || {}

@@ -40,7 +40,7 @@ function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAs
     <header className="header">
       <div className="header-left">
         <Link to="/" className="header-logo">
-          <img src="/assets/img/logo.webp" alt="FlexAdmin" />
+          <img src="/assets/img/logo.png" alt="FlexAdmin" />
           <span>Collection Module</span>
         </Link>
       </div>
