@@ -6,6 +6,7 @@ import apiClient from "../../services/apiClient";
 import { useAuth } from "../../context/AuthContext";
 import { useNotification } from "../../context/useNotification";
 import RouteMap from "../../components/ui/RouteMap";
+import DataTable from "../../components/Datatable";
 
 // Debounce utility
 function debounce(fn, delay) {
@@ -89,18 +90,93 @@ function FrmUserRouteReport() {
     { label: "Distance", sortable: true },
   ];
 
+  const columns2 = [
+    { key: "srNo", label: "Sr No", sortable: true, },
+    {
+      key: "collectionassociate", label: "Collection Associate", sortable: true, render: (val) =>
+        val ? (
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span
+              style={{
+                width: 30,
+                height: 30,
+                borderRadius: "50%",
+                background: "#e8f0fe",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <i
+                className="bi bi-person-fill"
+                style={{ color: "#1a73e8", fontSize: "0.85rem" }}
+              />
+            </span>
+            <span
+              style={{ fontSize: "0.82rem", fontWeight: 500, color: "#1e293b" }}
+            >
+              {val}
+            </span>
+          </div>
+        ) : (
+          <span className="text-muted">—</span>
+        ),
+    },
+    {
+      key: "accountnumber", label: "Account Number", sortable: true, render: (val) =>
+        val ? (
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "5px",
+              background: "#f8f9fa",
+              color: "#495057",
+              padding: "3px 10px",
+              borderRadius: "6px",
+              fontSize: "0.78rem",
+              fontFamily: "monospace",
+              border: "1px solid #dee2e6",
+              letterSpacing: "0.03em",
+            }}
+          >
+            <i className="bi bi-file-earmark-text" style={{ color: "#6c757d" }} />
+            {val}
+          </span>
+        ) : (
+          <span className="text-muted">—</span>
+        ),
+    },
+    { key: "transactiondate", label: "Transaction Date", sortable: true },
+    {
+      key: "golocation", label: "Go Location", sortable: true, render: (val) => (
+        <span className="badge bg-success text-white p-1">
+          <i class="bi bi-geo-alt-fill" ></i> {val}
+        </span>
+      )
+    },
+    { key: "dispositiontype", label: "Disposition Type", sortable: true },
+    {
+      key: "visitremark", label: "Visit Remark", sortable: true, render: (val) => (
+        val ? <span>{val}</span> : <span className="text-muted">-</span>
+      )
+    },
+    { key: "distance", label: "Distance", sortable: true },
+  ];
+
   const tableRows = useMemo(() => {
     if (!Array.isArray(rows)) return [];
-    return rows.map((item) => [
-      item["Sr No"] ?? "",
-      item["Collection Associate"] ?? "",
-      item["Account Number"] ?? "",
-      item["Transaction Date"] ?? "",
-      item.GO_Location ?? "",
-      item["Disposition Type"] ?? "",
-      item["Visit Remark"] ?? "",
-      item.Distance ?? "",
-    ]);
+    return rows.map((item) => ({
+      srNo: item["Sr No"] ?? "",
+      collectionassociate: item["Collection Associate"] ?? "",
+      accountnumber: item["Account Number"] ?? "",
+      transactiondate: item["Transaction Date"] ?? "",
+      golocation: item.GO_Location ?? "",
+      dispositiontype: item["Disposition Type"] ?? "",
+      visitremark: item["Visit Remark"] ?? "",
+      distance: item.Distance ?? "",
+    }));
   }, [rows]);
 
   const routeUrl = useMemo(() => getRouteUrl(coordinates), [coordinates]);
@@ -375,10 +451,12 @@ function FrmUserRouteReport() {
       {tableRows.length > 0 && (
         <div className="card mt-5">
           <div className="card-body">
-            <ReusableDataGrid
-              rows={tableRows}
-              columns={columns}
-              pageSize={10}
+            <DataTable
+              title="User Route Report"
+              columns={columns2}
+              data={tableRows}
+              defaultPerPage={10}
+              csvFilename="user_route_report.csv"
             />
           </div>
         </div>
