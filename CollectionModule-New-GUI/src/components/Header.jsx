@@ -53,9 +53,9 @@ function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAs
         <div className="header-actions-desktop">
           <div className="header-action-cluster">
             {/* Theme Toggle */}
-            <button className="header-action theme-toggle" title="Toggle Theme" onClick={onThemeToggle}>
+            {/* <button className="header-action theme-toggle" title="Toggle Theme" onClick={onThemeToggle}>
               <i className={`ph-light ${theme === 'dark' ? 'ph-sun' : 'ph-moon-stars'}`} />
-            </button>
+            </button> */}
 
             {/* Notifications */}
             <div className="header-action-wrap dropdown notification-dropdown">

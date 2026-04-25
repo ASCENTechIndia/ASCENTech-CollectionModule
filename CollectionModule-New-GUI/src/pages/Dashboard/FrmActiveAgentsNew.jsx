@@ -192,7 +192,7 @@ const FrmActiveAgentsNew = () => {
             return () => window.clearTimeout(timeoutId);
         }
     }, [userId, fetchData]);
-console.log(tableData);
+
     const data = tableData.map((rec, index) => ({
   id:                    index,
   zone:                  rec[0],
