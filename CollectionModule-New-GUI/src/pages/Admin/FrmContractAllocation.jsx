@@ -134,12 +134,6 @@ function FrmContractAllocation() {
               </button>
             </div>
 
-            {message && (
-              <div className="alert alert-info mt-3 mb-0" role="alert">
-                {message}
-              </div>
-            )}
-
             <div className="mt-3 text-muted text-center">
               {loadingCount
                 ? 'Loading count...'
