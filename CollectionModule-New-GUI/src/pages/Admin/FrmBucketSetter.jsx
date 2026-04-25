@@ -108,17 +108,6 @@ function FrmBucketSetter() {
                 {loading ? 'Processing...' : 'Set Bucket'}
               </button>
             </div>
-
-            {(firstMessage || secondMessage) && (
-              <div className="mt-4 d-grid gap-3">
-                <div className="alert alert-success mb-0" role="alert">
-                  <strong>Status: </strong>{firstMessage}
-                </div>
-                <div className="alert alert-info mb-0" role="alert">
-                  <strong>Updated Rows: </strong>{secondMessage}
-                </div>
-              </div>
-            )}
           </form>
         </div>
       </div>
