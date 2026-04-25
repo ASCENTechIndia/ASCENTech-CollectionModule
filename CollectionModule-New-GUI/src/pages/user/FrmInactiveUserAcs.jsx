@@ -4,6 +4,8 @@ import ReusableDataGrid from '../../components/ReusableDataGrid'
 import apiClient from '../../services/apiClient'
 import { useAuth } from '../../context/AuthContext'
 import { useNotification } from "../../context/useNotification";
+import { useConfirm } from '../../context/ConfirmModalContext';
+import DataTable from '../../components/Datatable'
 
 const formatDateForApi = (value) => {
   if (!value) return ''
@@ -27,7 +29,8 @@ const formatDateToDDMMYYYY = (dateString) => {
 }
 
 function FrmInactiveUserAcs() {
-  const { user } = useAuth()
+  const { user } = useAuth();
+  const confirm = useConfirm();
   const { showWarning, showError, showSuccess } = useNotification()
   const navigate = useNavigate()
   const today = new Date().toISOString().split('T')[0]
@@ -43,18 +46,76 @@ function FrmInactiveUserAcs() {
   const [error, setError] = useState('')
 
   // Table columns
-  const columns = [
-    { label: 'Unallocated Date', sortable: true },
-    { label: 'Collection Associate ID', sortable: true },
-    { label: 'Account Number', sortable: true },
+  // const columns = [
+  //   { label: 'Unallocated Date', sortable: true },
+  //   { label: 'Collection Associate ID', sortable: true },
+  //   { label: 'Account Number', sortable: true },
+  // ]
+  const columns2 = [
+    { label: 'Unallocated Date', sortable: true, key: "date" },
+    {
+      label: 'Collection Associate ID', sortable: true, key: "collectionid", render: (val) =>
+        val ? (
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span
+              style={{
+                width: 30,
+                height: 30,
+                borderRadius: "50%",
+                background: "#e8f0fe",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <i
+                className="bi bi-person-fill"
+                style={{ color: "#1a73e8", fontSize: "0.85rem" }}
+              />
+            </span>
+            <span
+              style={{ fontSize: "0.82rem", fontWeight: 500, color: "#1e293b" }}
+            >
+              {val}
+            </span>
+          </div>
+        ) : (
+          <span className="text-muted">—</span>
+        ),
+    },
+    {
+      label: 'Account Number', sortable: true, key: "accountnumber", render: (val) =>
+        val ? (
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "5px",
+              background: "#f8f9fa",
+              color: "#495057",
+              padding: "3px 10px",
+              borderRadius: "6px",
+              fontSize: "0.78rem",
+              fontFamily: "monospace",
+              border: "1px solid #dee2e6",
+              letterSpacing: "0.03em",
+            }}
+          >
+            <i className="bi bi-file-earmark-text" style={{ color: "#6c757d" }} />
+            {val}
+          </span>
+        ) : (
+          <span className="text-muted">—</span>
+        ),
+    },
   ]
-
   // Convert rows to array of arrays for ReusableDataGrid
-  const tableRows = rows.map((item) => [
-    item.date || '',
-    item.collectionID || '',
-    item.accountNumber || '',
-  ])
+  const tableRows = rows.map((item) => ({
+    date: item.date || '',
+    collectionid: item.collectionID || '',
+    accountnumber: item.accountNumber || '',
+  }))
 
   const handleSearch = async (event) => {
     event.preventDefault()
@@ -108,7 +169,21 @@ function FrmInactiveUserAcs() {
 
   const handleUnallocateAll = async () => {
     // TODO: implement API call
-    showWarning('Unallocate All Accounts feature not yet implemented')
+    // showWarning('Unallocate All Accounts feature not yet implemented')
+    const agreed = await confirm("Do you want unallocate all accounts?");
+    if (!agreed) {
+      return;
+    }
+    try {
+      const response = await apiClient.post("/inactive-user-accounts/unallocate-all", {});
+
+      if (response.success) {
+        showSuccess("Successfully Unallocated Accounts");
+      }
+    } catch (error) {
+      showError(err?.message || 'Failed to unallocate inactive user accounts');
+      setError(err?.message || 'Failed to unallocate inactive user accounts')
+    }
   }
 
   return (
@@ -171,6 +246,10 @@ function FrmInactiveUserAcs() {
                   value={userId}
                   onChange={(e) => setUserId(e.target.value)}
                   placeholder="Enter User ID (optional)"
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, ""); // remove non-digits
+                    setUserId(value);
+                  }}
                 />
               </div>
 
@@ -193,7 +272,7 @@ function FrmInactiveUserAcs() {
               <button type="submit" className="btn btn-primary" disabled={loading}>
                 {loading ? 'Searching...' : 'Search'}
               </button>
-              <button type="button" className="btn btn-secondary" onClick={() => navigate('/dashboard')}>
+              <button type="button" className="btn btn-secondary" onClick={() => navigate('/')}>
                 Close
               </button>
             </div>
@@ -208,10 +287,25 @@ function FrmInactiveUserAcs() {
         </div>
       )}
 
-      {tableRows.length > 0 && (
+      {/* {tableRows.length > 0 && (
         <div className="card">
           <div className="card-body">
             <ReusableDataGrid rows={tableRows} columns={columns} pageSize={10} />
+          </div>
+        </div>
+      )} */}
+
+      {tableRows.length > 0 && (
+        <div className="card">
+          <div className="card-body">
+            {/* <ReusableDataGrid rows={tableRows} columns={columns} pageSize={10} /> */}
+            <DataTable
+              title='Unallocated Accounts Table'
+              data={tableRows}
+              columns={columns2}
+              defaultPerPage={10}
+              csvFilename='inactive_accounts.csv'
+            />
           </div>
         </div>
       )}
