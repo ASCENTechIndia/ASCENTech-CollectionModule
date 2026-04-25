@@ -6,6 +6,7 @@ import ImageViewer from "../../components/ui/ImageViewer";
 import apiClient from "../../services/apiClient";
 import { useAuth } from "../../context/AuthContext";
 import { useNotification } from "../../context/useNotification";
+import DataTable from "../../components/Datatable";
 
 // Debounce utility
 function debounce(fn, delay) {
@@ -19,6 +20,20 @@ function debounce(fn, delay) {
 const formatDateForAPI = (dateStr) => {
   if (!dateStr) return "";
   const [year, month, day] = dateStr.split("-");
+  return `${day}/${month}/${year}`;
+};
+
+const formatToDDMMYYYY = (isoString) => {
+  if (!isoString) return "";
+
+  const date = new Date(isoString);
+
+  if (isNaN(date)) return "";
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+
   return `${day}/${month}/${year}`;
 };
 
@@ -73,6 +88,7 @@ function FrmTransactionReport() {
   const [loadingCollection, setLoadingCollection] = useState(false);
 
   const [rows, setRows] = useState([]);
+  const [rows2, setRows2] = useState([]);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState("");
 
@@ -165,9 +181,9 @@ function FrmTransactionReport() {
               ),
               label: String(
                 item.BRNAME ??
-                  item.brname ??
-                  item.VAR_COMPANYMST_BRANCHNAME ??
-                  "",
+                item.brname ??
+                item.VAR_COMPANYMST_BRANCHNAME ??
+                "",
               ),
             }))
             .filter((item) => item.value);
@@ -206,15 +222,15 @@ function FrmTransactionReport() {
             .map((item) => ({
               value: String(
                 item.NUM_COMPANYMST_COMPID ??
-                  item.num_companymst_compid ??
-                  item.BRID ??
-                  "",
+                item.num_companymst_compid ??
+                item.BRID ??
+                "",
               ),
               label: String(
                 item.VAR_COMPANYMST_BRANCHNAME ??
-                  item.var_companymst_branchname ??
-                  item.BRNAME ??
-                  "",
+                item.var_companymst_branchname ??
+                item.BRNAME ??
+                "",
               ),
             }))
             .filter((item) => item.value);
@@ -251,15 +267,15 @@ function FrmTransactionReport() {
             .map((item) => ({
               value: String(
                 item.NUM_COMPANYMST_COMPID ??
-                  item.num_companymst_compid ??
-                  item.BRID ??
-                  "",
+                item.num_companymst_compid ??
+                item.BRID ??
+                "",
               ),
               label: String(
                 item.VAR_COMPANYMST_BRANCHNAME ??
-                  item.var_companymst_branchname ??
-                  item.BRNAME ??
-                  "",
+                item.var_companymst_branchname ??
+                item.BRNAME ??
+                "",
               ),
             }))
             .filter((item) => item.value);
@@ -422,7 +438,29 @@ function FrmTransactionReport() {
           item.VAR_BANKDATA_DPDBUCKET || "",
           item.VISITSTSTS || "",
         ]);
+        const mappedRows2 = apiData.map((item) => ({
+          userId: item.USERID || "",
+          collectionassociate: item.USERNAME || "",
+          transactionId: item.TRANSID || "",
+          accountNumber: item.CONTRACTNUM || "",
+          distanceKm: item.DIST_VAR_BANKDATA_MATRIX_DISTANCE || "",
+          customerName: item.CUSTNAME || "",
+          mobileNo: item.MOBILENO || "",
+          overdueamount: item.COLLECTAMOUNT || "",
+          feedback: item.FEEDBACK || "",
+          paymode: item.PAYMODE || "",
+          amount: item.PAIDAMT || "",
+          ptpdate: item.PTPDATE || "",
+          transactiondate: item.TRANS_DATE || "",
+          transactiontime: item.TRANS_TIME || "",
+          view: item.IMAGECODE || "",
+          geolocation: item.GOLOCATION || "",
+          mdmid: item.MDM_ID || "",
+          smatype: item.VAR_BANKDATA_DPDBUCKET || "",
+          transactiontype: item.VISITSTSTS || "",
+        }));
         setRows(mappedRows);
+        setRows2(mappedRows2);
         showSuccess(`Found ${mappedRows.length} records`);
       } else {
         setRows([]);
@@ -433,13 +471,13 @@ function FrmTransactionReport() {
       setRows([]);
       showError(
         apiError?.response?.data?.message ||
-          apiError?.message ||
-          "Search failed",
+        apiError?.message ||
+        "Search failed",
       );
       setError(
         apiError?.response?.data?.message ||
-          apiError?.message ||
-          "Search failed",
+        apiError?.message ||
+        "Search failed",
       );
     } finally {
       setSearching(false);
@@ -491,6 +529,204 @@ function FrmTransactionReport() {
     { label: "SMA TYPE", sortable: true },
     { label: "Transaction Type", sortable: true },
   ];
+
+  const columns2 = [
+    {
+      key: "userId",
+      label: "User ID",
+      render: (val) =>
+      val ? (
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <span
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: "50%",
+              background: "#e8f0fe",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <i
+              className="bi bi-person-fill"
+              style={{ color: "#1a73e8", fontSize: "0.85rem" }}
+            />
+          </span>
+          <span
+            style={{ fontSize: "0.82rem", fontWeight: 500, color: "#1e293b" }}
+          >
+            {val}
+          </span>
+        </div>
+      ) : (
+        <span className="text-muted">—</span>
+      ),
+    },
+    {
+      key: "collectionassociate",
+      label: "Collection Associate",
+    },
+    {
+      key: "transactionId",
+      label: "Transaction ID",
+      render: (val) =>
+      val ? (
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "5px",
+            background: "#f8f9fa",
+            color: "#495057",
+            padding: "3px 10px",
+            borderRadius: "6px",
+            fontSize: "0.78rem",
+            fontFamily: "monospace",
+            border: "1px solid #dee2e6",
+            letterSpacing: "0.03em",
+          }}
+        >
+          <i className="bi bi-file-earmark-text" style={{ color: "#6c757d" }} />
+          {val}
+        </span>
+      ) : (
+        <span className="text-muted">—</span>
+      ),
+    },
+    {
+      key: "accountNumber",
+      label: "Account Number",
+      render: (val) => (
+        <span className="badge bg-success text-white">
+          {val}
+        </span>
+      )
+    },
+    {
+      key: "distanceKm",
+      label: "Distance KM",
+      render: (val) => (
+        val ? <span>{val}</span> : <span className="text-muted">-</span>
+      )
+    },
+    {
+      key: "customerName",
+      label: "Customer Name",
+      render: (val) => (
+        val ? <span>{val}</span> : <span className="text-muted">-</span>
+      )
+    },
+    {
+      key: "mobileNo",
+      label: "Customer RMN",
+      render: (val) => (
+        val ? <span>{val}</span> : <span className="text-muted">-</span>
+      )
+    },
+    {
+      key: "overdueamount",
+      label: "Overdue Amount",
+      render: (val) => (
+        <span>₹ {val}</span>
+      )
+    },
+    {
+      key: "feedback",
+      label: "Feedback",
+      render: (val) => (
+        val ? <span>{val}</span> : <span className="text-muted">-</span>
+      )
+    },
+    {
+      key: "paymode",
+      label: "Payment Mode",
+      render: (val) => (
+        val ? <span>{val}</span> : <span className="text-muted">-</span>
+      )
+    },
+    {
+      key: "amount",
+      label: "Amount",
+      render: (val) => (
+        val ? <span>{val}</span> : <span className="text-muted">-</span>
+      )
+    },
+    {
+      key: "ptpdate",
+      label: "PTP Date",
+      render: (val) => (
+        val ? <span>{formatToDDMMYYYY(val)}</span> : <span className="text-muted">-</span>
+      )
+    },
+    {
+      key: "transactiondate",
+      label: "Transaction Date",
+      render: (val) => (
+        val ? <span>{val}</span> : <span className="text-muted">-</span>
+      )
+    },
+    {
+      key: "transactiontime",
+      label: "Transaction Time",
+      render: (val) => (
+        val ? <span>{val}</span> : <span className="text-muted">-</span>
+      )
+    },
+    {
+      key: "view",
+      label: "View",
+      render: (value) => (
+        <button
+          type="button"
+          onClick={() => handleViewClick(value)}
+          className="btn btn-link p-0"
+        >
+          View
+        </button>
+      ),
+    },
+    {
+      key: "geolocation",
+      label: "Geolocation",
+      render: (value) => (
+        <button
+          type="button"
+          onClick={() => handleLocationClick(value)}
+          className="btn btn-link p-0"
+        >
+          View Location
+        </button>
+      ),
+    },
+    {
+      key: "mdmid",
+      label: "MDM ID",
+      render: (val) => (
+        val ? <span>{val}</span> : <span className="text-muted">-</span>
+      )
+    },
+    {
+      key: "smatype",
+      label: "SMA Type",
+      render: (val) => (
+         val === "SMA1" ? (
+          <span className="badge bg-info text-white">
+          {val}
+        </span>) : (<span className="badge bg-primary text-white">
+          {val}
+        </span>)
+      )
+    },
+    {
+      key: "transactiontype",
+      label: "Transaction Type",
+      render: (val) => (
+        val ? <span>{val}</span> : <span className="text-muted">-</span>
+      )
+    }
+  ]
 
   return (
     <div className="main-content page-transaction-report">
@@ -786,10 +1022,25 @@ function FrmTransactionReport() {
         </div>
       )}
 
-      {rows.length > 0 && (
+      {/* {rows.length > 0 && (
         <div className="card">
           <div className="card-body">
             <ReusableDataGrid rows={rows} columns={columns} pageSize={10} />
+          </div>
+        </div>
+      )} */}
+
+      {rows.length > 0 && (
+        <div className="card">
+          <div className="card-body">
+            {/* <ReusableDataGrid rows={rows} columns={columns} pageSize={10} /> */}
+            <DataTable
+              title="Transaction Report Table"
+              csvFilename="transaction_report.csv"
+              data={rows2}
+              columns={columns2}
+              defaultPerPage={10}
+            />
           </div>
         </div>
       )}

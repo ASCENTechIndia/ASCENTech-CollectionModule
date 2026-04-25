@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import ReusableDataGrid from "../../components/ReusableDataGrid";
 import apiClient from "../../services/apiClient";
 import { useNotification } from "../../context/useNotification";
+import DataTable from "../../components/Datatable";
 
 // Debounce utility
 function debounce(fn, delay) {
@@ -42,8 +43,44 @@ function FrmLastLoginHistory() {
     { label: "Login Date", sortable: true },
   ];
 
+  const columns2 = [
+    { key: "userId", label: "User ID", sortable: true, render: (val) =>
+        val ? (
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span
+              style={{
+                width: 30,
+                height: 30,
+                borderRadius: "50%",
+                background: "#e8f0fe",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <i
+                className="bi bi-person-fill"
+                style={{ color: "#1a73e8", fontSize: "0.85rem" }}
+              />
+            </span>
+            <span
+              style={{ fontSize: "0.82rem", fontWeight: 500, color: "#1e293b" }}
+            >
+              {val}
+            </span>
+          </div>
+        ) : (
+          <span className="text-muted">—</span>
+        ), },
+    { key: "ip", label: "IP Address", sortable: true, render: (val) => (
+        val ? <span className="badge bg-success text-white">{val}</span> : <span className="text-muted">-</span>
+      ) },
+    { key: "logdate", label: "Login Date", sortable: true },
+  ];
+
   const tableRows = useMemo(
-    () => rows.map((item) => [item.userid, item.ipaddress, item.logdate]),
+    () => rows.map((item) => ({"userId": item.userid, "ip": item.ipaddress, "logdate": item.logdate})),
     [rows],
   );
 
@@ -254,13 +291,27 @@ function FrmLastLoginHistory() {
         </div>
       </div>
 
-      {tableRows.length > 0 && (
+      {/* {tableRows.length > 0 && (
         <div className="card">
           <div className="card-body">
             <ReusableDataGrid
               rows={tableRows}
               columns={columns}
               pageSize={10}
+            />
+          </div>
+        </div>
+      )} */}
+
+      {tableRows.length > 0 && (
+        <div className="card">
+          <div className="card-body">
+            <DataTable 
+              data={tableRows}
+              columns={columns2}
+              defaultPerPage={10}
+              title="Last Login History"
+              csvFilename="Last_login_history.csv"
             />
           </div>
         </div>
