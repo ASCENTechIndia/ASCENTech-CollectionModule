@@ -174,7 +174,18 @@ const DashboardPage = () => {
                       <tr><th>Product</th><th>Price</th><th>Sold</th><th>Revenue</th><th>Trend</th></tr>
                     </thead>
                     <tbody>
-                      <tr><td><div className="d-flex align-items-center gap-3"><div className="product-img bg-primary-light rounded" style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><i className="bi bi-laptop text-primary" /></div><div><div className="fw-medium">MacBook Pro 14"</div><small className="text-muted">Electronics</small></div></div></td><td>$1,999</td><td>142</td><td>$283,858</td><td><span className="badge badge-soft-success"><i className="bi bi-arrow-up" /> 12%</span></td></tr>
+                      <tr>
+                        <td>
+                          <div className="d-flex align-items-center gap-3">
+                            <div className="product-img bg-primary-light rounded" style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <i className="bi bi-laptop text-primary" />
+                              </div>
+                              <div>
+                                <div className="fw-medium">MacBook Pro 14"</div>
+                                <small className="text-muted">Electronics</small>
+                                </div>
+                                </div>
+                                </td><td>$1,999</td><td>142</td><td>$283,858</td><td><span className="badge badge-soft-success"><i className="bi bi-arrow-up" /> 12%</span></td></tr>
                       <tr><td><div className="d-flex align-items-center gap-3"><div className="product-img bg-success-light rounded" style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><i className="bi bi-phone text-success" /></div><div><div className="fw-medium">iPhone 15 Pro</div><small className="text-muted">Electronics</small></div></div></td><td>$1,199</td><td>238</td><td>$285,362</td><td><span className="badge badge-soft-success"><i className="bi bi-arrow-up" /> 8%</span></td></tr>
                       <tr><td><div className="d-flex align-items-center gap-3"><div className="product-img bg-warning-light rounded" style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><i className="bi bi-headphones text-warning" /></div><div><div className="fw-medium">AirPods Pro</div><small className="text-muted">Audio</small></div></div></td><td>$249</td><td>512</td><td>$127,488</td><td><span className="badge badge-soft-danger"><i className="bi bi-arrow-down" /> 3%</span></td></tr>
                       <tr><td><div className="d-flex align-items-center gap-3"><div className="product-img bg-info-light rounded" style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><i className="bi bi-watch text-info" /></div><div><div className="fw-medium">Apple Watch Series 9</div><small className="text-muted">Wearables</small></div></div></td><td>$399</td><td>186</td><td>$74,214</td><td><span className="badge badge-soft-success"><i className="bi bi-arrow-up" /> 15%</span></td></tr>

@@ -232,21 +232,11 @@ export default function Roles() {
   return (
     <div className="page-roles p-4">
       <div className="page-header">
-        <div>
           <h1 className="page-title">User Edit</h1>
           <nav className="breadcrumb">
             <a href="/" className="breadcrumb-item">Home</a>
             <span className="breadcrumb-item active">User Edit</span>
           </nav>
-        </div>
-        <div className="page-header-actions">
-          <button
-            className="btn btn-primary btn-sm"
-            onClick={() => setShowAddModal(true)}
-          >
-            <Plus className="inline mr-1" size={14} /> Add Role
-          </button>
-        </div>
       </div>
 
       <div className="row g-4">

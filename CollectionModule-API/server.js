@@ -8,13 +8,23 @@ async function bootstrap() {
     await initOraclePool();
 
     const app = createApp();
-    const server = app.listen(config.port, () => {
-      logger.info({ port: config.port, env: config.nodeEnv }, 'Server started');
+
+    // ✅ Detect IIS (iisnode provides PORT)
+    const isIIS = !!process.env.PORT;
+
+    // ✅ Use IIS port if available, else fallback to your env (5000)
+    const port = isIIS ? process.env.PORT : config.port;
+
+    const server = app.listen(port, () => {
+      logger.info(
+        { port, env: config.nodeEnv, mode: isIIS ? 'IIS' : 'LOCAL' },
+        'Server started'
+      );
     });
 
     server.on('error', async (error) => {
       if (error.code === 'EADDRINUSE') {
-        logger.error({ port: config.port }, 'Port already in use. Set a different PORT or stop the existing process.');
+        logger.error({ port }, 'Port already in use.');
       } else {
         logger.error({ err: error }, 'Server failed to start');
       }
@@ -33,6 +43,7 @@ async function bootstrap() {
 
     process.on('SIGINT', () => shutdown('SIGINT'));
     process.on('SIGTERM', () => shutdown('SIGTERM'));
+
   } catch (error) {
     logger.error({ err: error }, 'Failed to start server');
     process.exit(1);

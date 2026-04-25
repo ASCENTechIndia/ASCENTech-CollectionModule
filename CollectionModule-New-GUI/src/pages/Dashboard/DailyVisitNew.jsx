@@ -990,7 +990,7 @@ const DailyVisitNew = () => {
                         <div className="col-12 col-md-6">
                             <div className="card h-100">
                                 <div className="card-header d-flex justify-content-between align-items-center">
-                                    <h5 className="card-title mb-0">{dashboardData?.dateRange?.ptpDateRangeLabel}</h5>
+                                    <h5 className="card-title mb-0">{dashboardData?.dateRange?.ptpDateRangeLabel || 'PTP spans from - to -'}</h5>
                                     {/* <a href="#" class="btn btn-sm btn-link">View All</a> */}
                                 </div>
                                 <div className="card-body p-0">
