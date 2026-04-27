@@ -587,6 +587,9 @@ async function getDailyVisitDashboardData(payload) {
     ? Number(((allocatedAccounts / totalAccounts) * 100).toFixed(2))
     : 0;
 
+  const totalAssignedFOS = allocatedAccounts;
+  const totalUnassignedFOS_alt = totalAccounts - allocatedAccounts;
+
   const visitStatsMap = visitStats.value || {};
   const totalVisits = asNumber(visitStatsMap.Total_visits ?? visitStatsMap.TOTAL_VISITS ?? visitStatsMap.TotalVisits, 0);
   const uniqueVisits = asNumber(visitStatsMap.Unique_visits ?? visitStatsMap.UNIQUE_VISITS ?? visitStatsMap.UniqueVisits, 0);
@@ -635,6 +638,8 @@ async function getDailyVisitDashboardData(payload) {
       visitedAccounts,
       nonVisitedAccounts,
       fosAssignedPercent,
+      totalAssignedFOS,
+      totalUnassignedFOS_alt,
       dotNetBindings: {
         label15TotalAccounts: totalAccounts,
         label9VisitDetailsTotal: allocatedAccounts,
