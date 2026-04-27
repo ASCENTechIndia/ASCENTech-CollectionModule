@@ -25631,11 +25631,8 @@ textarea.form-control {
 --------------------------------------------------------------*/
 /* Gradient Backgrounds */
 .gradient-primary {
-  background: linear-gradient(
-    135deg,
-    var(--accent-color) 0%,
-    color-mix(in srgb, var(--accent-color), black 15%) 100%
-  );
+  background: linear-gradient(135deg, #4abdbc 0%,
+ color-mix(in srgb, #057878, rgb(207, 205, 205) 15%) 100%);
 }
 
 .gradient-success {
@@ -25698,7 +25695,7 @@ textarea.form-control {
   font-size: 0.9375rem;
   opacity: 0.9;
   margin-bottom: var(--spacing-md);
-  max-width: 400px;
+  max-width: 600px;
 }
 
 .widget-banner-image {
@@ -26155,11 +26152,10 @@ textarea.form-control {
 
 .widget-banner-feature-content {
   flex: 1;
-  padding-top: var(--spacing-lg);
 }
 
 .widget-banner-feature-title {
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--heading-color);
   margin-bottom: var(--spacing-xs);
@@ -26185,14 +26181,14 @@ textarea.form-control {
 }
 
 .widget-banner-feature-icon {
-  width: 56px;
-  height: 56px;
+  width: 46px;
+  height: 46px;
   background: color-mix(in srgb, var(--accent-color), transparent 90%);
   border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   color: var(--accent-color);
   flex-shrink: 0;
   margin-left: var(--spacing-lg);

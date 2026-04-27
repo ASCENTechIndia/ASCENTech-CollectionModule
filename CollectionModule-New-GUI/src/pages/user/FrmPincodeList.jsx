@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, Edit, Search, Plus, MapPinX, MapPinCheck, MapPinned } from "lucide-react";
+import { Eye, Edit, Search, Plus, MapPinX, MapPinCheck, MapPinned, Trash2, Pin } from "lucide-react";
 import apiClient from "../../services/apiClient";
 import { useAuth } from "../../context/AuthContext";
 import { useNotification } from "../../context/useNotification";
@@ -11,6 +11,7 @@ const FrmPincodeList = () => {
     const { user } = useAuth();
     const { showError, showSuccess } = useNotification();
     const navigate = useNavigate();
+    const confirm = useConfirm()
 
     const {
         register,
@@ -24,6 +25,48 @@ const FrmPincodeList = () => {
     const [showModal, setShowModal] = useState(false);
     const [loading, setLoading] = useState(false);
     const [mode, setMode] = useState(1);
+    const [tableData, setTableData] = useState([]);
+    
+    const [page, setPage] = useState(1);
+      const limit = 10; // fixed limit
+      const [totalPages, setTotalPages] = useState(1);
+      const [counts, setCounts] = useState({ total: 0, assigned: 0, unassigned: 0 });
+
+    const fetchAllPincodes = async () => {
+        try {
+            const response = await apiClient.get("/assignPincode/fetchAllPincodesList");
+            console.log(response);
+
+            if (response.success && Array.isArray(response.data) && response.data.length > 0) {
+                showSuccess(`Pincodes found: ${response.data.length}`);
+                setTableData(response.data);
+            }
+        } catch (error) {
+            console.log(error);
+            showError(
+                error?.response?.data?.message ||
+                error?.message ||
+                "Failed to fetch pincodes",
+            );
+        }
+    }
+
+    const handleDelete = async () => {
+        const agreed = await confirm("Do you want to delete this pincode?");
+
+        if (!agreed) return;
+
+        try {
+
+        } catch (error) {
+            console.log(error);
+            showError(
+                error?.response?.data?.message ||
+                error?.message ||
+                "Failed to delete the pincode",
+            );
+        }
+    }
 
     const onModalSubmit = async (values) => {
         try {
@@ -48,6 +91,10 @@ const FrmPincodeList = () => {
             );
         }
     };
+
+    useEffect(() => {
+        fetchAllPincodes();
+    }, []);
     return (
         <div className="main-content">
             <div className="page-users">
@@ -195,20 +242,22 @@ const FrmPincodeList = () => {
                     </div>
 
                     <div className="table-responsive users-table-wrap">
-                            {loading ? (
-                              <div className="text-center py-5">Loading users...</div>
-                            ) : 
+                        {loading ? (
+                            <div className="text-center py-5">Loading users...</div>
+                        ) :
                             (
-                              <table className="table table-hover align-middle mb-0">
-                                <thead>
-                                  <tr>
-                                    <th>Pincode</th>
-                                    <th>Assigned Users</th>
-                                    <th className="users-th-actions">Actions</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {/* {filteredUsers.map((userItem) => {
+                                <table className="table table-hover align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Pincode</th>
+                                            <th>Assigned Cases</th>
+                                            {/* <th className="users-th-actions">Actions</th> */}
+                                            <th>Status</th>
+                                            <th className="users-th-actions">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {/* {filteredUsers.map((userItem) => {
                                     const role = getRoleBadge(userItem.role);
                                     const status = getStatusBadge(userItem.status);
                                     return (
@@ -253,10 +302,40 @@ const FrmPincodeList = () => {
                                       </tr>
                                     );
                                   })} */}
-                                </tbody>
-                              </table>
+
+                                        {tableData.length > 0 && tableData.map((pincode, index) => (
+                                            <tr key={index + 1}>
+                                                <td>
+                                                    <span className="badge bg-primary text-white p-2 gap-2">
+                                                        <i class="bi bi-geo-fill"></i>
+                                                        {pincode.VAR_PINCODE_NO}
+                                                    </span>
+
+                                                </td>
+                                                <td>{pincode.ASSIGNED_COUNT}</td>
+                                                <td>{pincode.VAR_PINCODE_ACTIVE === "Y" ? <span className="badge bg-success text-white">Active</span> : <span className="badge bg-danger text-white">Inactive</span>}</td>
+                                                <td>
+                                                    <div className="users-actions">
+                                                        {/* <button type="button" onClick={() => {
+                                                            setValue("pinCode", `${pincode.VAR_PINCODE_NO}`);
+                                                            setShowModal(true);
+                                                        }}>
+                                                            <Edit size={16} />
+                                                        </button> */}
+                                                        <button type="button" className="btn btn-danger btn-sm" onClick={() => {
+                                                            handleDelete();
+                                                        }}>
+                                                            <i class="bi bi-trash"></i>
+                                                            Delete
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             )}
-                          </div>
+                    </div>
 
                     {/* <div className="users-pagination">
                             <div className="users-pagination-info">
@@ -286,8 +365,6 @@ const FrmPincodeList = () => {
                               </ul>
                             </nav>
                           </div> */}
-
-
 
                 </div>
             </div>
