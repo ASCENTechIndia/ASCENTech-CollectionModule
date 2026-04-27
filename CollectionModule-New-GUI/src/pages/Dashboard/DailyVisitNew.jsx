@@ -961,7 +961,7 @@ const DailyVisitNew = () => {
                                         <div className="d-flex align-items-center gap-2">
                                             <span
                                                 className="badge-dot"
-                                                style={{ backgroundColor: "var(--info-color)" }}
+                                                style={{ backgroundColor: "var(--accent-color)" }}
                                             ></span>
                                             <span>Allocated</span>
                                         </div>
