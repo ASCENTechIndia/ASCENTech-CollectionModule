@@ -66,6 +66,7 @@ import UnAssignedPincode from './pages/user/UnAssignedPincode'
 import FrmActiveAgentsNew from './pages/Dashboard/FrmActiveAgentsNew'
 import FrmNewDashboard2New from './pages/Dashboard/FrmNewDashboard2New'
 import DailyVisitNew from './pages/Dashboard/DailyVisitNew'
+import Home from './pages/Home'
 
 function App() {
   return (
@@ -80,7 +81,7 @@ function App() {
           </ProtectedRoute>
         }
       >
-        <Route index element={<DashboardPage />} />
+        <Route index element={<Home />} />
         <Route path="users" element={<UsersPage />} />
         <Route path="roles" element={<RolesPage />} />
         <Route path="widgets" element={<WidgetsMenuPage />} />
@@ -95,6 +96,7 @@ function App() {
         <Route path="user/FrmUserList" element={<FrmUserList />} />
         <Route path="User/FrmUserCreation" element={<FrmUserCreation />} />
         <Route path="User/FrmUserCreationWeb" element={<FrmUserCreationWeb />} />
+        <Route path='/home' element={<Home />} />
         {/* Dashboard */}
         <Route path='/Dashboard/FrmActiveAgents' element={<FrmActiveAgents />} />
         <Route path="Dashboard/FrmNewDashboard2" element={<FrmNewDashboard2 />} />

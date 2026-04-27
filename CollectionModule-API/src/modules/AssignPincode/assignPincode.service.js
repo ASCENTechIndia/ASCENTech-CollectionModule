@@ -1,5 +1,6 @@
 const {
-  getPincodes, getUsernamebyId, getPincodebyId, assignPincodeIns, insertPincodeMasterIns
+  getPincodes, getUsernamebyId, getPincodebyId, assignPincodeIns, insertPincodeMasterIns,
+  getAllPincodes
 } = require('./assignPincode.repo');
 
 
@@ -11,8 +12,8 @@ async function fetchUsername(userId) {
   return getUsernamebyId(userId);
 }
 
-async function fetchUserPincodes(userId) {
-  return getPincodebyId(userId);
+async function fetchUserPincodes() {
+  return getPincodebyId(uerId);
 }
 
 async function assignPincode(payload) {
@@ -32,10 +33,15 @@ async function insertPincodeMaster(payload) {
   };
 }
 
+async function fetchAllPincodes() {
+  return getAllPincodes();
+}
+
 module.exports = {
   pincodes,
   fetchUsername,
   fetchUserPincodes,
   assignPincode,
   insertPincodeMaster,
+  fetchAllPincodes
 }
