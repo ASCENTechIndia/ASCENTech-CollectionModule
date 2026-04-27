@@ -67,6 +67,7 @@ import FrmActiveAgentsNew from './pages/Dashboard/FrmActiveAgentsNew'
 import FrmNewDashboard2New from './pages/Dashboard/FrmNewDashboard2New'
 import DailyVisitNew from './pages/Dashboard/DailyVisitNew'
 import Home from './pages/Home'
+import FrmImageUploadmobapp from './pages/Admin/FrmImageUploadmobapp'
 
 function App() {
   return (
@@ -137,6 +138,7 @@ function App() {
         <Route path="user/roles" element={<Roles />} />
         <Route path="user/pincode-allocation" element={<UserPinAllocation />} />
         <Route path="user/unassigned-Pincode" element={<UnAssignedPincode />} />
+        <Route path="admin/FrmImageUploadmobapp" element={<FrmImageUploadmobapp />} />
       </Route>
       <Route path="/map-view" element={<MapViewPage />} />
       <Route
@@ -220,9 +222,9 @@ function App() {
       <Route path="/Admin/FrmBucketSetter" element={<Navigate to="/admin/bucket-setter" replace />} />
       <Route path="/Admin/FrmContractAllocation" element={<Navigate to="/admin/contract-allocation" replace />} />
       <Route path="/Admin/FrmDistanceMatrix" element={<Navigate to="/admin/distance-matrix" replace />} />
-   <Route path="/User/Userlist" element={<Navigate to="/user/user-list" replace />} />
-    <Route path="/User/Roles" element={<Navigate to="/user/roles" replace />} />
-    <Route path="/User/UserPinAllocation" element={<Navigate to="/user/pincode-allocation" replace />} />
+      <Route path="/User/Userlist" element={<Navigate to="/user/user-list" replace />} />
+      <Route path="/User/Roles" element={<Navigate to="/user/roles" replace />} />
+      <Route path="/User/UserPinAllocation" element={<Navigate to="/user/pincode-allocation" replace />} />
 
 
 

@@ -313,7 +313,7 @@ const Roles = () => {
               <div>
                 <h5 className="card-title mb-0">Page Access</h5>
                 <span className="roles-subtitle">
-                  Page access for {selectedRole.name} user
+                  Page access for user
                 </span>
               </div>
               <button

@@ -253,7 +253,11 @@ const UsersList = () => {
           <div className="users-toolbar">
             <div className="ms-auto">
               <button
-                className="btn btn-primary btn-sm"
+                 style={{
+                      fontSize: "14px",
+                      fontWeight: "semiBold",
+                      color: "#0ea5a4",
+                    }}
                 onClick={clearFilters}
                 title="Clear all filters"
               >

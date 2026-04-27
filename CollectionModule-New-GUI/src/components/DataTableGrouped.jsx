@@ -14,7 +14,7 @@ function exportToCSV(columns, data, filename = "export.csv") {
       return str.includes(",") || str.includes('"') || str.includes("\n")
         ? `"${str}"`
         : str;
-    })
+    }),
   );
 
   const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
@@ -177,10 +177,10 @@ function flattenColumns(columnGroups) {
  *   }
  * ]
  */
- export function DataTableGrouped({
+export function DataTableGrouped({
   title = "",
   subtitle = "",
-  columnGroups = [],   // ← NEW: grouped column definitions
+  columnGroups = [], // ← NEW: grouped column definitions
   data = [],
   defaultPerPage = 10,
   perPageOptions = [5, 10, 25, 50],
@@ -189,8 +189,8 @@ function flattenColumns(columnGroups) {
   addLabel = "Add",
   searchable = true,
   exportable = true,
-  fontSize        = "0.78rem",   // ← NEW: override any time
-  compactCells    = true,        // ← NEW: tighter padding
+  fontSize = "0.78rem", // ← NEW: override any time
+  compactCells = true, // ← NEW: tighter padding
 }) {
   const [search, setSearch] = useState("");
   const [perPage, setPerPage] = useState(defaultPerPage);
@@ -210,7 +210,11 @@ function flattenColumns(columnGroups) {
     const q = search.trim().toLowerCase();
     if (!q) return data;
     return data.filter((row) =>
-      searchKeys.some((k) => String(row[k] ?? "").toLowerCase().includes(q))
+      searchKeys.some((k) =>
+        String(row[k] ?? "")
+          .toLowerCase()
+          .includes(q),
+      ),
     );
   }, [data, search]);
 
@@ -268,20 +272,20 @@ function flattenColumns(columnGroups) {
 
   return (
     <div className="card mt-3">
-
       {/* ── Card Header ── */}
-      {title && (<div className="card-header d-flex justify-content-between align-items-center">
-        <div>
-          <h5 className="card-title">{title}</h5>
-          {subtitle && <p className="card-subtitle">{subtitle}</p>}
+      {title && (
+        <div className="card-header d-flex justify-content-between align-items-center">
+          <div>
+            <h5 className="card-title">{title}</h5>
+            {subtitle && <p className="card-subtitle">{subtitle}</p>}
+          </div>
+          {onAddClick && (
+            <button className="btn btn-primary btn-sm" onClick={onAddClick}>
+              <i className="bi bi-plus-lg me-1"></i> {addLabel}
+            </button>
+          )}
         </div>
-        {onAddClick && (
-          <button className="btn btn-primary btn-sm" onClick={onAddClick}>
-            <i className="bi bi-plus-lg me-1"></i> {addLabel}
-          </button>
-        )}
-      </div>)}
-      
+      )}
 
       {/* ── Toolbar ── */}
       {(searchable || exportable) && (
@@ -310,11 +314,7 @@ function flattenColumns(columnGroups) {
                 }}
               />
               {search && (
-                <button
-                  style={T.clearBtn}
-                  onClick={clearSearch}
-                  title="Clear"
-                >
+                <button style={T.clearBtn} onClick={clearSearch} title="Clear">
                   <i className="bi bi-x-circle-fill"></i>
                 </button>
               )}
@@ -368,29 +368,28 @@ function flattenColumns(columnGroups) {
         <div className="table-responsive">
           <table className="table table-bordered mb-0">
             <thead>
-
               {/* ── Row 1: Group headers ── */}
-             {/* ── Row 1: Group headers ── */}
-<tr style={{background: "#0ea5a4"}}>
-  {columnGroups.map((group, gi) => (
-    <th
-      key={gi}
-      colSpan={group.columns.length}
-      className={group.headerClass || "text-center"}
-      style={{
-        background: "#0ea5a4",           // ← changed
-        color: "#ffffff",                // ← added
-        fontWeight: 600,
-        fontSize: fontSize,
-        letterSpacing: "0.02em",
-        borderBottom: "2px solid #0ea5a4",  // ← match border to bg
-        ...(compactCells ? { padding: "6px 8px" } : {}),
-      }}
-    >
-      {group.label}
-    </th>
-  ))}
-</tr>
+              {/* ── Row 1: Group headers ── */}
+              <tr style={{ background: "#0ea5a4" }}>
+                {columnGroups.map((group, gi) => (
+                  <th
+                    key={gi}
+                    colSpan={group.columns.length}
+                    className={group.headerClass || "text-center"}
+                    style={{
+                      background: "#d9eafc", // ← changed
+                      color: "#ffffff", // ← added
+                      fontWeight: 600,
+                      fontSize: fontSize,
+                      letterSpacing: "0.02em",
+                      borderBottom: "2px solid #0ea5a4", // ← match border to bg
+                      ...(compactCells ? { padding: "6px 8px" } : {}),
+                    }}
+                  >
+                    {group.label}
+                  </th>
+                ))}
+              </tr>
 
               {/* ── Row 2: Leaf column headers ── */}
               <tr>
@@ -403,8 +402,8 @@ function flattenColumns(columnGroups) {
                       className={col.headerClass || "text-center"}
                       onClick={() => isSortable && handleSort(col)}
                       style={{
-                        fontSize: fontSize, 
-                        ...(compactCells ? { padding: "6px 8px" } : {}), 
+                        fontSize: fontSize,
+                        ...(compactCells ? { padding: "6px 8px" } : {}),
                         ...(isSortable
                           ? { cursor: "pointer", userSelect: "none" }
                           : {}),
@@ -419,7 +418,6 @@ function flattenColumns(columnGroups) {
                   );
                 })}
               </tr>
-
             </thead>
             <tbody>
               {pageData.length === 0 ? (
@@ -437,17 +435,17 @@ function flattenColumns(columnGroups) {
                   <tr key={row.id ?? rowIdx}>
                     {columns.map((col) => (
                       <td
-                         key={col.key}
-  className={col.cellClass || "text-center"}
-  style={{
-    fontSize: fontSize,          // ← NEW
-    ...(compactCells ? { padding: "5px 8px" } : {}),   // ← NEW
-    ...(col.minWidth ? { minWidth: col.minWidth } : {}),
-  }}
+                        key={col.key}
+                        className={col.cellClass || "text-center"}
+                        style={{
+                          fontSize: fontSize, // ← NEW
+                          ...(compactCells ? { padding: "5px 8px" } : {}), // ← NEW
+                          ...(col.minWidth ? { minWidth: col.minWidth } : {}),
+                        }}
                       >
                         {col.render
                           ? col.render(row[col.key], row)
-                          : row[col.key] ?? "—"}
+                          : (row[col.key] ?? "—")}
                       </td>
                     ))}
                   </tr>
@@ -541,4 +539,4 @@ function flattenColumns(columnGroups) {
       </div>
     </div>
   );
-};
+}
