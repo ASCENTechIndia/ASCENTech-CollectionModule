@@ -94,22 +94,44 @@ async function insertPincodeMasterIns(pincode) {
 
 async function getAllPincodes() {
 
-  let sql = `
-  SELECT 
-    pm.VAR_PINCODE_NO,
-    pm.VAR_PINCODE_ACTIVE,
-    NVL(COUNT(bd.NUM_BANKDATA_PINCODE), 0) AS ASSIGNED_COUNT
-FROM atbss.aoup_pincode_master pm
-LEFT JOIN atbss.aoup_etech_bankdata bd
-    ON pm.VAR_PINCODE_NO = bd.NUM_BANKDATA_PINCODE
-GROUP BY 
-    pm.VAR_PINCODE_NO,
-    pm.VAR_PINCODE_NAME,
-    pm.VAR_PINCODE_ACTIVE
-ORDER BY pm.VAR_PINCODE_NO`;
+  const listSql = `
+    SELECT 
+        pm.VAR_PINCODE_NO,
+        pm.VAR_PINCODE_ACTIVE,
+        COUNT(bd.NUM_BANKDATA_PINCODE) AS ASSIGNED_COUNT
+    FROM atbss.aoup_pincode_master pm
+    LEFT JOIN atbss.aoup_etech_bankdata bd
+        ON pm.VAR_PINCODE_NO = bd.NUM_BANKDATA_PINCODE
+    GROUP BY 
+        pm.VAR_PINCODE_NO,
+        pm.VAR_PINCODE_ACTIVE
+    ORDER BY pm.VAR_PINCODE_NO
+  `;
 
-  const result = await executeQuery(sql);
-  return result.rows || [];
+  const summarySql = `
+    SELECT 
+        COUNT(*) AS TOTAL_PINCODES,
+
+        COUNT(CASE 
+            WHEN bd.NUM_BANKDATA_PINCODE IS NOT NULL THEN 1 
+        END) AS TOTAL_ASSIGNED,
+
+        COUNT(CASE 
+            WHEN bd.NUM_BANKDATA_PINCODE IS NULL THEN 1 
+        END) AS TOTAL_UNASSIGNED
+
+    FROM atbss.aoup_pincode_master pm
+    LEFT JOIN atbss.aoup_etech_bankdata bd
+        ON pm.VAR_PINCODE_NO = bd.NUM_BANKDATA_PINCODE
+  `;
+
+  const listResult = await executeQuery(listSql);
+  const summaryResult = await executeQuery(summarySql);
+
+  return {
+    pincodes: listResult.rows || [],
+    summary: summaryResult.rows[0] || {}
+  };
 }
 
 module.exports = {
