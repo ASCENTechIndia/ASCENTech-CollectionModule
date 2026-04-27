@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, Edit, Search, Monitor, Smartphone , ListTodo } from "lucide-react";
+import { Eye, Edit, Search, Monitor, Smartphone, ListTodo } from "lucide-react";
 import apiClient from "../../services/apiClient";
 import { useAuth } from "../../context/AuthContext";
 
-export default function UsersList() {
+const UsersList = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const brCategory = user?.brCategory;
@@ -23,7 +23,7 @@ export default function UsersList() {
 
   // Pagination
   const [page, setPage] = useState(1);
-  const limit = 10; // fixed limit
+  const limit = 10;
   const [totalPages, setTotalPages] = useState(1);
   const [counts, setCounts] = useState({ total: 0, active: 0, inactive: 0 });
 
@@ -44,12 +44,22 @@ export default function UsersList() {
     transition: "border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out",
   };
 
+  // Clear all filters
+  const clearFilters = () => {
+    setUserLevel("");
+    setBranchId("");
+    setFilterRole("all");
+    setFilterStatus("all");
+    setSearchTerm("");
+    setPage(1);
+  };
+
   // Fetch branches
   const fetchBranches = async (level) => {
     if (!level || !brCategory) return;
     try {
       const res = await apiClient.get(
-        `/users/getBranches/?brcategory=${brCategory}&userLevel=${level}`
+        `/users/getBranches/?brcategory=${brCategory}&userLevel=${level}`,
       );
       if (res.success) {
         const options = res.data.map((i) => ({
@@ -81,7 +91,9 @@ export default function UsersList() {
       params.append("page", page);
       params.append("limit", limit);
 
-      const res = await apiClient.get(`/users/getAgentsNew?${params.toString()}`);
+      const res = await apiClient.get(
+        `/users/getAgentsNew?${params.toString()}`,
+      );
       if (res.success) {
         const apiData = res.data;
         const userList = apiData.data.map((agent, i) => ({
@@ -145,7 +157,8 @@ export default function UsersList() {
       (user.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
       (user.email?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
       (user.mobile?.toLowerCase() || "").includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === "all" || user.status === filterStatus;
+    const matchesStatus =
+      filterStatus === "all" || user.status === filterStatus;
     return matchesSearch && matchesStatus;
   });
 
@@ -180,138 +193,158 @@ export default function UsersList() {
               className="btn btn-outline-secondary btn-sm"
               onClick={() => navigate("/User/FrmUserCreationWeb")}
             >
-              <Monitor className="inline mr-2" size={16} /> Web User
+              <Monitor className="inline mr-2" size={16} /> Add Web User
             </button>
             <button
               className="btn btn-primary btn-sm"
               onClick={() => navigate("/User/FrmUserCreation")}
             >
-              <Smartphone className="inline mr-2" size={16} /> Mobile User
+              <Smartphone className="inline mr-2" size={16} /> Add Mobile User
             </button>
           </div>
         </div>
 
         <div className="row g-4 mb-3">
-            <div className="col-lg-4 col-md-6">
-              <div className="card widget-stat-progress">
-                <div className="card-body">
-                  <div className="widget-stat-icon primary">
-                    <i class="bi bi-people"></i>
-                  </div>
-                  <div className="widget-stat-content">
-                    <span className="widget-stat-label">Total Users</span>
-                    <span className="widget-stat-value">{counts.total}</span>
-                  </div>
-                  <div className="widget-stat-bar primary" />
+          <div className="col-lg-4 col-md-6">
+            <div className="card widget-stat-progress">
+              <div className="card-body">
+                <div className="widget-stat-icon primary">
+                  <i className="bi bi-people"></i>
                 </div>
+                <div className="widget-stat-content">
+                  <span className="widget-stat-label">Total Users</span>
+                  <span className="widget-stat-value">{counts.total}</span>
+                </div>
+                <div className="widget-stat-bar primary" />
               </div>
             </div>
-            <div className="col-lg-4 col-md-6">
-              <div className="card widget-stat-progress">
-                <div className="card-body">
-                  <div className="widget-stat-icon warning">
-                    <i class="bi bi-person-check"></i>
-                  </div>
-                  <div className="widget-stat-content">
-                    <span className="widget-stat-label">Active Users</span>
-                    <span className="widget-stat-value">{counts.active}</span>
-                  </div>
-                  <div className="widget-stat-bar warning" />
+          </div>
+          <div className="col-lg-4 col-md-6">
+            <div className="card widget-stat-progress">
+              <div className="card-body">
+                <div className="widget-stat-icon warning">
+                  <i className="bi bi-person-check"></i>
                 </div>
+                <div className="widget-stat-content">
+                  <span className="widget-stat-label">Active Users</span>
+                  <span className="widget-stat-value">{counts.active}</span>
+                </div>
+                <div className="widget-stat-bar warning" />
               </div>
             </div>
-            <div className="col-lg-4 col-md-6">
-              <div className="card widget-stat-progress">
-                <div className="card-body">
-                  <div className="widget-stat-icon danger">
-                    <i class="bi bi-person-fill-x"></i>
-                  </div>
-                  <div className="widget-stat-content">
-                    <span className="widget-stat-label">Inactive Users</span>
-                    <span className="widget-stat-value">{counts.inactive}</span>
-                  </div>
-                  <div className="widget-stat-bar danger" />
+          </div>
+          <div className="col-lg-4 col-md-6">
+            <div className="card widget-stat-progress">
+              <div className="card-body">
+                <div className="widget-stat-icon danger">
+                  <i className="bi bi-person-fill-x"></i>
                 </div>
+                <div className="widget-stat-content">
+                  <span className="widget-stat-label">Inactive Users</span>
+                  <span className="widget-stat-value">{counts.inactive}</span>
+                </div>
+                <div className="widget-stat-bar danger" />
               </div>
             </div>
-            </div>
+          </div>
+        </div>
 
         <div className="card users-list-card">
           <div className="users-toolbar">
-            <div className="users-toolbar-left">
-              <div className="users-filter-tabs">
-                <button
-                  className={`users-filter-tab ${filterStatus === "all" ? "active" : ""}`}
-                  onClick={() => setFilterStatus("all")}
-                >
-                  All <span className="users-filter-count">{users.length}</span>
-                </button>
-                <button
-                  className={`users-filter-tab ${filterStatus === "active" ? "active" : ""}`}
-                  onClick={() => setFilterStatus("active")}
-                >
-                  Active{" "}
-                  <span className="users-filter-count">
-                    {users.filter((u) => u.status === "active").length}
-                  </span>
-                </button>
-                <button
-                  className={`users-filter-tab ${filterStatus === "inactive" ? "active" : ""}`}
-                  onClick={() => setFilterStatus("inactive")}
-                >
-                  Inactive{" "}
-                  <span className="users-filter-count">
-                    {users.filter((u) => u.status === "inactive").length}
-                  </span>
-                </button>
-              </div>
+            <div className="ms-auto">
+              <button
+                 style={{
+                      fontSize: "14px",
+                      fontWeight: "semiBold",
+                      color: "#0ea5a4",
+                    }}
+                onClick={clearFilters}
+                title="Clear all filters"
+              >
+                Clear Filters
+              </button>
             </div>
-
-            <div className="users-toolbar-right">
-              <div className="users-search">
-                <Search className="inline search-icon" size={16} />
-                <input
-                  type="text"
-                  placeholder="Search users, email, mobile..."
-                  value={searchTerm}
-                  onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setPage(1);
-                  }}
-                />
+            <div className="d-flex justify-content-between">
+              <div className="users-toolbar-left">
+                <div className="users-filter-tabs">
+                  <button
+                    className={`users-filter-tab ${filterStatus === "all" ? "active" : ""}`}
+                    onClick={() => setFilterStatus("all")}
+                  >
+                    All{" "}
+                    <span className="users-filter-count">{users.length}</span>
+                  </button>
+                  <button
+                    className={`users-filter-tab ${filterStatus === "active" ? "active" : ""}`}
+                    onClick={() => setFilterStatus("active")}
+                  >
+                    Active{" "}
+                    <span className="users-filter-count">
+                      {users.filter((u) => u.status === "active").length}
+                    </span>
+                  </button>
+                  <button
+                    className={`users-filter-tab ${filterStatus === "inactive" ? "active" : ""}`}
+                    onClick={() => setFilterStatus("inactive")}
+                  >
+                    Inactive{" "}
+                    <span className="users-filter-count">
+                      {users.filter((u) => u.status === "inactive").length}
+                    </span>
+                  </button>
+                </div>
               </div>
 
-              <div className="d-flex gap-2">
-                <select style={dropdownStyle} value={userLevel} onChange={(e) => setUserLevel(e.target.value)}>
-                  <option value="">Select User Level</option>
-                  <option value="Zone">Zone</option>
-                  <option value="Region">Region</option>
-                  <option value="Branch">Branch</option>
-                </select>
+              <div className="users-toolbar-right">
+                <div className="users-search">
+                  <Search className="inline search-icon" size={16} />
+                  <input
+                    type="text"
+                    placeholder="Search users, email, mobile..."
+                    value={searchTerm}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      setPage(1);
+                    }}
+                  />
+                </div>
 
-                <select
-                  style={dropdownStyle}
-                  value={branchId}
-                  onChange={(e) => setBranchId(e.target.value)}
-                  disabled={!userLevel}
-                >
-                  <option value="">Select Z/R/B</option>
-                  {branchOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
+                <div className="d-flex gap-2">
+                  <select
+                    style={dropdownStyle}
+                    value={userLevel}
+                    onChange={(e) => setUserLevel(e.target.value)}
+                  >
+                    <option value="">Select User Level</option>
+                    <option value="Zone">Zone</option>
+                    <option value="Region">Region</option>
+                    <option value="Branch">Branch</option>
+                  </select>
 
-                <select
-                  style={dropdownStyle}
-                  value={filterRole}
-                  onChange={(e) => setFilterRole(e.target.value)}
-                >
-                  <option value="all">All roles</option>
-                  <option value="5">Generic</option>
-                  <option value="1">FOS</option>
-                </select>
+                  <select
+                    style={dropdownStyle}
+                    value={branchId}
+                    onChange={(e) => setBranchId(e.target.value)}
+                    disabled={!userLevel}
+                  >
+                    <option value="">Select Z/R/B</option>
+                    {branchOptions.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+
+                  <select
+                    style={dropdownStyle}
+                    value={filterRole}
+                    onChange={(e) => setFilterRole(e.target.value)}
+                  >
+                    <option value="all">All roles</option>
+                    <option value="5">Generic</option>
+                    <option value="1">FOS</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
@@ -335,20 +368,35 @@ export default function UsersList() {
                   {filteredUsers.map((userItem) => {
                     const role = getRoleBadge(userItem.role);
                     const status = getStatusBadge(userItem.status);
+                    // Disable Pin Allocation button when the role dropdown is set to "Generic" (value "5")
+                    const isPinDisabled = filterRole === "5";
                     return (
                       <tr key={userItem.id}>
                         <td>
                           <div className="users-user">
                             <div className="users-avatar-wrap">
-                              <img src={`/assets/img/profile-img.jpg`} alt="" className="users-avatar" />
+                              <img
+                                src={`/assets/img/profile-img.jpg`}
+                                alt=""
+                                className="users-avatar"
+                              />
                               <span className="users-avatar-status online"></span>
                             </div>
                             <div className="users-user-info">
-                              <Link to={`/users/${userItem.id}`} className="users-user-name">
+                              <Link
+                                to={`/users/${userItem.id}`}
+                                className="users-user-name"
+                              >
                                 {userItem.name}
                               </Link>
-                              <span className="users-user-email">{userItem.email}</span>
-                              {userItem.mobile && <span className="users-user-mobile">{userItem.mobile}</span>}
+                              <span className="users-user-email">
+                                {userItem.email}
+                              </span>
+                              {userItem.mobile && (
+                                <span className="users-user-mobile">
+                                  {userItem.mobile}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </td>
@@ -359,17 +407,40 @@ export default function UsersList() {
                         </td>
                         <td>
                           <span className={`users-status ${status.class}`}>
-                            <span className="users-status-dot"></span> {status.label}
+                            <span className="users-status-dot"></span>{" "}
+                            {status.label}
                           </span>
                         </td>
                         <td className="users-meta">{userItem.lastActive}</td>
                         <td className="users-meta">{userItem.joined}</td>
                         <td>
                           <div className="users-actions">
-                            <Link to="/user/roles" state={{ employeeId: userItem.id }} className="users-action-btn" title="Edit">
+                            <Link
+                              to="/user/roles"
+                              state={{ employeeId: userItem.id }}
+                              className="users-action-btn"
+                              title="Edit"
+                            >
                               <Edit size={16} />
                             </Link>
-                            <Link to="/user/pincode-allocation" state={{ employeeId: userItem.id }} className="users-action-btn" title="Pin Allocation">
+                            <Link
+                              to="/user/pincode-allocation"
+                              state={{ employeeId: userItem.id }}
+                              className={`users-action-btn ${isPinDisabled ? "disabled-link" : ""}`}
+                              title={
+                                isPinDisabled
+                                  ? "Pin allocation not available for Generic role"
+                                  : "Pin Allocation"
+                              }
+                              onClick={(e) =>
+                                isPinDisabled && e.preventDefault()
+                              }
+                              style={
+                                isPinDisabled
+                                  ? { pointerEvents: "none", opacity: 0.5 }
+                                  : {}
+                              }
+                            >
                               <ListTodo size={16} />
                             </Link>
                           </div>
@@ -394,11 +465,17 @@ export default function UsersList() {
             <nav>
               <ul className="pagination pagination-sm mb-0">
                 <li className={`page-item ${page === 1 ? "disabled" : ""}`}>
-                  <button className="page-link" onClick={() => setPage((prev) => prev - 1)} disabled={page === 1}>
+                  <button
+                    className="page-link"
+                    onClick={() => setPage((prev) => prev - 1)}
+                    disabled={page === 1}
+                  >
                     ← Previous
                   </button>
                 </li>
-                <li className={`page-item ${page === totalPages || totalPages === 0 ? "disabled" : ""}`}>
+                <li
+                  className={`page-item ${page === totalPages || totalPages === 0 ? "disabled" : ""}`}
+                >
                   <button
                     className="page-link"
                     onClick={() => setPage((prev) => prev + 1)}
@@ -414,4 +491,6 @@ export default function UsersList() {
       </div>
     </div>
   );
-}
+};
+
+export default UsersList;
