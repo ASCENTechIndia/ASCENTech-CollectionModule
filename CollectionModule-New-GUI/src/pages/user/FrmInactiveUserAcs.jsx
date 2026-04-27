@@ -202,7 +202,7 @@ function FrmInactiveUserAcs() {
 
        <div className="page-header users-page-header">
           <div>
-            <h1 className="page-title">Inactive User Accounts</h1>
+            <h1 className="page-title">Unallocated Accounts</h1>
           </div>
           <div className="page-header-actions">
             <button
@@ -215,8 +215,6 @@ function FrmInactiveUserAcs() {
 
       <div className="card mb-4">
         <div className="card-body">
-
-          <p className="fw-semibold mb-3">Users Unallocated Accounts</p>
 
           <form onSubmit={handleSearch}>
             <div className="row g-3">

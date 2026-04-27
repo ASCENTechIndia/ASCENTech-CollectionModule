@@ -24,8 +24,8 @@ const adminMenuItems = [
 const userMenuItems = [
   { to: "/user/user-list", label: "Users" },
   { to: '/user/unassigned-Pincode', label: 'Unassigned Cases' },
-  {to: '/User/FrmPincodeMstrInserion', label: 'Add Pincode' },
-  { to: '/User/FrmInactiveUserAcs', label: 'Inactive User Cases' },
+  {to: '/User/FrmPincodeList', label: 'Pincode Management' },
+  { to: '/User/FrmInactiveUserAcs', label: 'Unallocated Accounts' },
   { to: '/user/reset-password', label: 'Reset Password' },
   { to: '/user/change-password', label: 'Change Password' },
 ]
