@@ -134,11 +134,31 @@ async function getAllPincodes() {
   };
 }
 
+async function deletePincodeIns(pincode) {
+  const statement = `
+    BEGIN
+      atbss.AOUP_Pincode_master_Manager(
+        :in_pincode,
+        :out_ErrorCode,
+        :out_ErrorMsg
+      );
+    END;
+  `;
+  const binds = {
+    in_pincode: String(pincode),
+    out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 100 },
+    out_ErrorMsg: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 1000 },
+  };
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
 module.exports = {
   getPincodes,
   getUsernamebyId,
   getPincodebyId,
   assignPincodeIns,
   insertPincodeMasterIns,
-  getAllPincodes
-} 
+  getAllPincodes,
+  deletePincodeIns
+}
