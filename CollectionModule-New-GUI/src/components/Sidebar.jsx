@@ -197,7 +197,7 @@ function Sidebar({
                 aria-expanded={userMenuOpen}
               >
                 <span className="nav-icon"><i className="ph-light ph-user" /></span>
-                <span className="nav-text">User</span>
+                <span className="nav-text">User Management</span>
                 <span className="nav-badge">{userMenuItems.length}</span>
                 <span className="nav-arrow"><i className="bi bi-chevron-right" /></span>
               </button>
