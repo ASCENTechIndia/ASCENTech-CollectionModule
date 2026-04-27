@@ -961,11 +961,11 @@ const DailyVisitNew = () => {
                                         <div className="d-flex align-items-center gap-2">
                                             <span
                                                 className="badge-dot"
-                                                style={{ backgroundColor: "var(--info-color)" }}
+                                                style={{ backgroundColor: "var(--accent-color)" }}
                                             ></span>
                                             <span>Allocated</span>
                                         </div>
-                                        <span className="fw-medium">{dashboardData?.allocation?.nonVisitedAccounts || 0}</span>
+                                        <span className="fw-medium">{dashboardData?.allocation?.totalAssignedFOS || 0}</span>
                                     </div>
                                     <div className="d-flex justify-content-between align-items-center mb-3">
                                         <div className="d-flex align-items-center gap-2">
@@ -975,7 +975,7 @@ const DailyVisitNew = () => {
                                             ></span>
                                             <span>Unallocated</span>
                                         </div>
-                                        <span className="fw-medium">{dashboardData?.allocation?.nonVisitedAccounts || 0}</span>
+                                        <span className="fw-medium">{dashboardData?.allocation?.totalUnassignedFOS_alt || 0}</span>
                                     </div>
                                 </div>
 
