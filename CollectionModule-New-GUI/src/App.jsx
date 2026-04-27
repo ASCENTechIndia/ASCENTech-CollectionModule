@@ -69,6 +69,7 @@ import DailyVisitNew from './pages/Dashboard/DailyVisitNew'
 import FrmPincodeList from './pages/user/FrmPincodeList'
 import Home from './pages/Home'
 import FrmImageUploadmobapp from './pages/Admin/FrmImageUploadmobapp'
+import FrmImageUploadMobApp2 from './pages/Admin/FrmImageUploadMobApp2'
 
 function App() {
   return (
@@ -141,6 +142,7 @@ function App() {
         <Route path="user/pincode-allocation" element={<UserPinAllocation />} />
         <Route path="user/unassigned-Pincode" element={<UnAssignedPincode />} />
         <Route path="admin/FrmImageUploadmobapp" element={<FrmImageUploadmobapp />} />
+        <Route path="admin/FrmImageUploadMobApp2" element={<FrmImageUploadMobApp2 />} />
       </Route>
       <Route path="/map-view" element={<MapViewPage />} />
       <Route
