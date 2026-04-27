@@ -1,22 +1,25 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
-import { BrowserRouter } from 'react-router-dom'
-import { AuthProvider } from './context/AuthContext'
-import { NotificationProvider } from './context/NotificationContext'
-import { ConfirmModalProvider } from './context/ConfirmModalContext.jsx'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import "./index.css";
+import App from "./App.jsx";
+import { BrowserRouter } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import { NotificationProvider } from "./context/NotificationContext";
+import { ConfirmModalProvider } from "./context/ConfirmModalContext.jsx";
+import { LoaderProvider } from "./context/LoaderContext.jsx";
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <ConfirmModalProvider>
-        <NotificationProvider>
-          <App />
-        </NotificationProvider>
-        </ConfirmModalProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <LoaderProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <ConfirmModalProvider>
+            <NotificationProvider>
+              <App />
+            </NotificationProvider>
+          </ConfirmModalProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </LoaderProvider>
   </StrictMode>,
-)
+);

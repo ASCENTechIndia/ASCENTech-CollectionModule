@@ -1,7 +1,18 @@
 const {
   getPincodes, getUsernamebyId, getPincodebyId, assignPincodeIns, insertPincodeMasterIns,
-  getAllPincodes
+  getAllPincodes, deletePincodeIns
 } = require('./assignPincode.repo');
+async function deletePincode(pincode) {
+  const out = await deletePincodeIns(pincode);
+  const errorCode = String(out.out_ErrorCode ?? out.OUT_ERRORCODE ?? out.out_errorcode ?? '');
+  const errorMessage = String(out.out_ErrorMsg ?? out.OUT_ERRORMSG ?? out.out_errormsg ?? '');
+  const isSuccess = errorCode === '9999';
+  return {
+    isSuccess,
+    message: isSuccess ? 'Pincode deleted successfully' : errorMessage,
+    out,
+  };
+}
 
 
 async function pincodes() {
@@ -43,5 +54,6 @@ module.exports = {
   fetchUserPincodes,
   assignPincode,
   insertPincodeMaster,
-  fetchAllPincodes
+  fetchAllPincodes,
+  deletePincode
 }
