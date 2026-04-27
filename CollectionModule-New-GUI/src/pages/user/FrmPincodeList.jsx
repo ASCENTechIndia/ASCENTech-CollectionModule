@@ -9,7 +9,7 @@ import { useConfirm } from "../../context/ConfirmModalContext";
 
 const FrmPincodeList = () => {
     const { user } = useAuth();
-    const { showError, showSuccess } = useNotification();
+    const { showError, showSuccess, showWarning } = useNotification();
     const navigate = useNavigate();
     const confirm = useConfirm()
 
@@ -26,20 +26,27 @@ const FrmPincodeList = () => {
     const [loading, setLoading] = useState(false);
     const [mode, setMode] = useState(1);
     const [tableData, setTableData] = useState([]);
-    
+    const [filterStatus, setFilterStatus] = useState("all");
+    const [searchTerm, setSearchTerm] = useState("");
+
     const [page, setPage] = useState(1);
-      const limit = 10; // fixed limit
-      const [totalPages, setTotalPages] = useState(1);
-      const [counts, setCounts] = useState({ total: 0, assigned: 0, unassigned: 0 });
+    const limit = 10; // fixed limit
+    const [totalPages, setTotalPages] = useState(1);
+    const [counts, setCounts] = useState({});
 
     const fetchAllPincodes = async () => {
         try {
             const response = await apiClient.get("/assignPincode/fetchAllPincodesList");
             console.log(response);
 
-            if (response.success && Array.isArray(response.data) && response.data.length > 0) {
-                showSuccess(`Pincodes found: ${response.data.length}`);
-                setTableData(response.data);
+            if (response.success && Array.isArray(response.data.pincodes) && response.data.pincodes.length > 0) {
+                showSuccess(`Pincodes found: ${response.data.pincodes.length}`);
+                setCounts({
+                    total: response.data.summary.TOTAL_PINCODES,
+                    assigned: response.data.summary.TOTAL_ASSIGNED,
+                    unassigned: response.data.summary.TOTAL_UNASSIGNED
+                })
+                setTableData(response.data.pincodes);
             }
         } catch (error) {
             console.log(error);
@@ -51,13 +58,24 @@ const FrmPincodeList = () => {
         }
     }
 
-    const handleDelete = async () => {
+    const handleDelete = async (pinCode) => {
         const agreed = await confirm("Do you want to delete this pincode?");
 
         if (!agreed) return;
 
         try {
+            const payload = {
+                "pincode": pinCode
+            }
 
+            const response = await apiClient.delete("/assignPincode/deletePincode", payload);
+
+            if (response.success && response.message === "success") {
+                showSuccess(response.data?.message);
+                fetchAllPincodes();
+            } else {
+                showWarning(response?.message);
+            }
         } catch (error) {
             console.log(error);
             showError(
@@ -79,6 +97,8 @@ const FrmPincodeList = () => {
             if (response.success && response.data.isSuccess) {
                 showSuccess(response.data.message || "Pincode inserted successfully");
                 reset({ pinCode: "" });
+                setShowModal(false);
+                fetchAllPincodes();
             } else if (response.success && !response.data.isSuccess) {
                 showError(response.data.message || "Failed to insert pincode");
             }
@@ -92,9 +112,39 @@ const FrmPincodeList = () => {
         }
     };
 
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+
+    const filteredData = tableData.filter((item) => {
+        const matchesSearch = item.VAR_PINCODE_NO
+            ?.toString()
+            .includes(searchTerm);
+
+        const matchesFilter =
+            filterStatus === "all" ||
+            (filterStatus === "assigned" && item.ASSIGNED_COUNT > 0) ||
+            (filterStatus === "unassigned" && item.ASSIGNED_COUNT === 0);
+
+        return matchesSearch && matchesFilter;
+    });
+
+    const paginatedData = filteredData.slice(startIndex, endIndex);
+
+
+
     useEffect(() => {
         fetchAllPincodes();
     }, []);
+
+    useEffect(() => {
+        setTotalPages(Math.ceil(filteredData.length / limit) || 1);
+    }, [filteredData]);
+
+    useEffect(() => {
+    if (page > totalPages) {
+        setPage(1);
+    }
+}, [totalPages]);
     return (
         <div className="main-content">
             <div className="page-users">
@@ -118,7 +168,7 @@ const FrmPincodeList = () => {
                                 </div>
                                 <div className="widget-stat-content">
                                     <span className="widget-stat-label">Total Pincode</span>
-                                    <span className="widget-stat-value">{0}</span>
+                                    <span className="widget-stat-value">{counts?.total}</span>
                                 </div>
                                 <div className="widget-stat-bar primary" />
                             </div>
@@ -132,7 +182,7 @@ const FrmPincodeList = () => {
                                 </div>
                                 <div className="widget-stat-content">
                                     <span className="widget-stat-label">Assigned Pincode</span>
-                                    <span className="widget-stat-value">{0}</span>
+                                    <span className="widget-stat-value">{counts?.assigned}</span>
                                 </div>
                                 <div className="widget-stat-bar warning" />
                             </div>
@@ -146,7 +196,7 @@ const FrmPincodeList = () => {
                                 </div>
                                 <div className="widget-stat-content">
                                     <span className="widget-stat-label">Unassigned Pincode</span>
-                                    <span className="widget-stat-value">{0}</span>
+                                    <span className="widget-stat-value">{counts?.unassigned}</span>
                                 </div>
                                 <div className="widget-stat-bar danger" />
                             </div>
@@ -159,34 +209,43 @@ const FrmPincodeList = () => {
                         <div className="users-toolbar-left">
                             <div className="users-filter-tabs">
                                 <button
-                                    className={`users-filter-tab`
-                                        // ${filterStatus === "all" ? "active" : ""}`
+                                    className={`users-filter-tab
+                                        ${filterStatus === "all" ? "active" : ""}`
                                     }
-                                //   onClick={() => setFilterStatus("all")}
+                                    onClick={() => {
+                                        setFilterStatus("all");
+                                        setPage(1);
+                                    }}
                                 >
                                     All
-                                    {/* <span className="users-filter-count">{users.length}</span> */}
+                                    <span className="users-filter-count">{tableData.length}</span>
                                 </button>
                                 <button
-                                    className={`users-filter-tab`
-                                        // ${filterStatus === "active" ? "active" : ""}`
+                                    className={`users-filter-tab
+                                        ${filterStatus === "assigned" ? "active" : ""}`
                                     }
-                                //   onClick={() => setFilterStatus("active")}
+                                    onClick={() => {
+                                        setFilterStatus("assigned");
+                                        setPage(1);
+                                    }}
                                 >
                                     Assigned{" "}
                                     <span className="users-filter-count">
-                                        {/* {users.filter((u) => u.status === "active").length} */}
+                                        {tableData.filter((u) => u.ASSIGNED_COUNT > 0).length}
                                     </span>
                                 </button>
                                 <button
-                                    className={`users-filter-tab`
-                                        // ${filterStatus === "inactive" ? "active" : ""}`
+                                    className={`users-filter-tab
+                                        ${filterStatus === "unassigned" ? "active" : ""}`
                                     }
-                                //   onClick={() => setFilterStatus("inactive")}
+                                  onClick={() => {
+                                    setFilterStatus("unassigned");
+                                    setPage(1);
+                                }}
                                 >
                                     Unassigned{" "}
                                     <span className="users-filter-count">
-                                        {/* {users.filter((u) => u.status === "inactive").length} */}
+                                        {tableData.filter((u) => u.ASSIGNED_COUNT === 0).length}
                                     </span>
                                 </button>
                             </div>
@@ -198,10 +257,10 @@ const FrmPincodeList = () => {
                                 <input
                                     type="text"
                                     placeholder="Search pincode.."
-                                    //   value={searchTerm}
+                                    value={searchTerm}
                                     onChange={(e) => {
-                                        // setSearchTerm(e.target.value);
-                                        // setPage(1);
+                                        setSearchTerm(e.target.value);
+                                        setPage(1);
                                     }}
                                 />
                             </div>
@@ -303,7 +362,7 @@ const FrmPincodeList = () => {
                                     );
                                   })} */}
 
-                                        {tableData.length > 0 && tableData.map((pincode, index) => (
+                                        {paginatedData.length > 0 && paginatedData.map((pincode, index) => (
                                             <tr key={index + 1}>
                                                 <td>
                                                     <span className="badge bg-primary text-white p-2 gap-2">
@@ -323,7 +382,7 @@ const FrmPincodeList = () => {
                                                             <Edit size={16} />
                                                         </button> */}
                                                         <button type="button" className="btn btn-danger btn-sm" onClick={() => {
-                                                            handleDelete();
+                                                            handleDelete(pincode.VAR_PINCODE_NO);
                                                         }}>
                                                             <i class="bi bi-trash"></i>
                                                             Delete
@@ -337,34 +396,34 @@ const FrmPincodeList = () => {
                             )}
                     </div>
 
-                    {/* <div className="users-pagination">
-                            <div className="users-pagination-info">
-                              Showing{" "}
-                              <strong>
-                                {counts.total === 0 ? 0 : (page - 1) * limit + 1} -{" "}
-                                {Math.min(page * limit, counts.total)}
-                              </strong>{" "}
-                              of <strong>{counts.total}</strong> users
-                            </div>
-                            <nav>
-                              <ul className="pagination pagination-sm mb-0">
+                    <div className="users-pagination">
+                        <div className="users-pagination-info">
+                            Showing{" "}
+                            <strong>
+                                {filteredData.length === 0 ? 0 : (page - 1) * limit + 1} -{" "}
+                                {Math.min(page * limit, filteredData.length)}
+                            </strong>{" "}
+                            of <strong>{filteredData.length}</strong> users
+                        </div>
+                        <nav>
+                            <ul className="pagination pagination-sm mb-0">
                                 <li className={`page-item ${page === 1 ? "disabled" : ""}`}>
-                                  <button className="page-link" onClick={() => setPage((prev) => prev - 1)} disabled={page === 1}>
-                                    ← Previous
-                                  </button>
+                                    <button className="page-link" onClick={() => setPage((prev) => prev - 1)} disabled={page === 1}>
+                                        ← Previous
+                                    </button>
                                 </li>
                                 <li className={`page-item ${page === totalPages || totalPages === 0 ? "disabled" : ""}`}>
-                                  <button
-                                    className="page-link"
-                                    onClick={() => setPage((prev) => prev + 1)}
-                                    disabled={page === totalPages || totalPages === 0}
-                                  >
-                                    Next →
-                                  </button>
+                                    <button
+                                        className="page-link"
+                                        onClick={() => setPage((prev) => prev + 1)}
+                                        disabled={page === totalPages || totalPages === 0}
+                                    >
+                                        Next →
+                                    </button>
                                 </li>
-                              </ul>
-                            </nav>
-                          </div> */}
+                            </ul>
+                        </nav>
+                    </div>
 
                 </div>
             </div>
