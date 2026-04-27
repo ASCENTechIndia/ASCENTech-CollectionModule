@@ -67,8 +67,11 @@ const FrmPincodeList = () => {
             const payload = {
                 "pincode": pinCode
             }
-
-            const response = await apiClient.delete("/assignPincode/deletePincode", payload);
+            console.log(payload);
+            // return;
+            const response = await apiClient.delete("/assignPincode/deletePincode", {
+                data: payload
+            });
 
             if (response.success && response.message === "success") {
                 showSuccess(response.data?.message);
@@ -77,7 +80,7 @@ const FrmPincodeList = () => {
                 showWarning(response?.message);
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
             showError(
                 error?.response?.data?.message ||
                 error?.message ||
@@ -310,58 +313,11 @@ const FrmPincodeList = () => {
                                         <tr>
                                             <th>Pincode</th>
                                             <th>Assigned Cases</th>
-                                            {/* <th className="users-th-actions">Actions</th> */}
                                             <th>Status</th>
                                             <th className="users-th-actions">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {/* {filteredUsers.map((userItem) => {
-                                    const role = getRoleBadge(userItem.role);
-                                    const status = getStatusBadge(userItem.status);
-                                    return (
-                                      <tr key={userItem.id}>
-                                        <td>
-                                          <div className="users-user">
-                                            <div className="users-avatar-wrap">
-                                              <img src={`/assets/img/profile-img.jpg`} alt="" className="users-avatar" />
-                                              <span className="users-avatar-status online"></span>
-                                            </div>
-                                            <div className="users-user-info">
-                                              <Link to={`/users/${userItem.id}`} className="users-user-name">
-                                                {userItem.name}
-                                              </Link>
-                                              <span className="users-user-email">{userItem.email}</span>
-                                              {userItem.mobile && <span className="users-user-mobile">{userItem.mobile}</span>}
-                                            </div>
-                                          </div>
-                                        </td>
-                                        <td>
-                                          <span className={`users-role ${role.class}`}>
-                                            {role.icon} {role.label}
-                                          </span>
-                                        </td>
-                                        <td>
-                                          <span className={`users-status ${status.class}`}>
-                                            <span className="users-status-dot"></span> {status.label}
-                                          </span>
-                                        </td>
-                                        <td className="users-meta">{userItem.lastActive}</td>
-                                        <td className="users-meta">{userItem.joined}</td>
-                                        <td>
-                                          <div className="users-actions">
-                                            <Link to="/user/roles" state={{ employeeId: userItem.id }} className="users-action-btn" title="Edit">
-                                              <Edit size={16} />
-                                            </Link>
-                                            <Link to="/user/pincode-allocation" state={{ employeeId: userItem.id }} className="users-action-btn" title="Pin Allocation">
-                                              <ListTodo size={16} />
-                                            </Link>
-                                          </div>
-                                        </td>
-                                      </tr>
-                                    );
-                                  })} */}
-
                                         {paginatedData.length > 0 && paginatedData.map((pincode, index) => (
                                             <tr key={index + 1}>
                                                 <td>
