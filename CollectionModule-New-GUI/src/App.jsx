@@ -66,6 +66,7 @@ import UnAssignedPincode from './pages/user/UnAssignedPincode'
 import FrmActiveAgentsNew from './pages/Dashboard/FrmActiveAgentsNew'
 import FrmNewDashboard2New from './pages/Dashboard/FrmNewDashboard2New'
 import DailyVisitNew from './pages/Dashboard/DailyVisitNew'
+import FrmPincodeList from './pages/user/FrmPincodeList'
 
 function App() {
   return (
@@ -108,6 +109,7 @@ function App() {
         <Route path="/FrmAccessofPages" element={<FrmAccessofPages />} />
         <Route path='/User/FrmPincodeMstrInserion' element={<FrmPincodeMstrInserion/>}/>
         <Route path='/User/FrmInactiveUserAcs' element={<FrmInactiveUserAcs/>}/>
+        <Route path='/User/FrmPincodeList' element={<FrmPincodeList />} />
 
 
 
