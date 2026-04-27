@@ -3,13 +3,15 @@ import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useNotification } from "../../context/useNotification";
 import { useLoader } from "../../context/LoaderContext";
+import { useConfirm } from "../../context/ConfirmModalContext";
 import apiClient from "../../services/apiClient";
+import { base64ToDataUrl } from "../../utils/imageHelper";
 
 const FrmImageUploadmobapp = () => {
   const { showSuccess, showError } = useNotification();
   const { setLoader } = useLoader();
+  const confirm = useConfirm();
 
-  // react-hook-form setup
   const {
     register,
     handleSubmit,
@@ -25,17 +27,65 @@ const FrmImageUploadmobapp = () => {
     },
   });
 
-  // File preview state
   const [previewUrl, setPreviewUrl] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [currentPreviewSource, setCurrentPreviewSource] = useState("fetched");
+  const [fetchedData, setFetchedData] = useState({});
 
-  // Ref for hidden file input (to trigger click on dropzone)
   const fileInputRef = useRef(null);
+  const watchDocumentType = watch("documentType");
 
-  // Watch form values (for preview & validation)
-  const watchedFile = watch("file");
+  // Fetch images on page load
+  const fetchImages = async () => {
+    try {
+      setLoader(true);
+      const response = await apiClient.get("/image-upload-mobapp");
+      const data = response;
+      if (Array.isArray(data)) {
+        const map = {};
+        data.forEach((item) => {
+          const title = item.VAR_IMAGE_TITLE;
+          if (title === "Notification" || title === "EOTM") {
+            map[title] = {
+              imageDataUrl: base64ToDataUrl(item.BLB_IMAGE_DATA),
+              flag: item.VAR_FLAG,
+            };
+          }
+        });
+        setFetchedData(map);
+      }
+    } catch (err) {
+      console.error("Failed to fetch images", err);
+      showError("Could not load existing images");
+    } finally {
+      setLoader(false);
+    }
+  };
+  useEffect(() => {
+    fetchImages();
+  }, []);
 
-  // Handle file change from the hidden input
+  // Update preview when document type changes
+  useEffect(() => {
+    if (!selectedFile && watchDocumentType && fetchedData[watchDocumentType]) {
+      const { imageDataUrl, flag } = fetchedData[watchDocumentType];
+      if (imageDataUrl) {
+        setPreviewUrl(imageDataUrl);
+        setCurrentPreviewSource("fetched");
+        setValue("visibility", flag);
+      } else {
+        setPreviewUrl(null);
+      }
+    } else if (
+      !selectedFile &&
+      watchDocumentType &&
+      !fetchedData[watchDocumentType]
+    ) {
+      setPreviewUrl(null);
+      setValue("visibility", "");
+    }
+  }, [watchDocumentType, fetchedData, selectedFile, setValue]);
+
   const handleFileChange = useCallback(
     (event) => {
       const file = event.target.files?.[0];
@@ -45,6 +95,7 @@ const FrmImageUploadmobapp = () => {
       if (file.type.startsWith("image/")) {
         const url = URL.createObjectURL(file);
         setPreviewUrl(url);
+        setCurrentPreviewSource("uploaded");
       } else {
         setPreviewUrl(null);
       }
@@ -52,19 +103,18 @@ const FrmImageUploadmobapp = () => {
     [setValue],
   );
 
-  // Trigger file picker when dropzone is clicked
   const handleDropzoneClick = () => {
     fileInputRef.current?.click();
   };
 
-  // Cleanup preview URL on unmount or when file changes
   useEffect(() => {
     return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      if (previewUrl && currentPreviewSource === "uploaded") {
+        URL.revokeObjectURL(previewUrl);
+      }
     };
-  }, [previewUrl]);
+  }, [previewUrl, currentPreviewSource]);
 
-  // Reset form and preview
   const resetForm = () => {
     reset({
       documentType: "",
@@ -72,32 +122,95 @@ const FrmImageUploadmobapp = () => {
       file: null,
     });
     setSelectedFile(null);
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    if (previewUrl && currentPreviewSource === "uploaded") {
+      URL.revokeObjectURL(previewUrl);
+    }
     setPreviewUrl(null);
+    setCurrentPreviewSource("fetched");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // Submit handler
-  const onSubmit = async (data) => {
-    const formData = new FormData();
-    formData.append("type", data.documentType);
-    formData.append("visibility", data.visibility);
-    formData.append("file", data.file);
+  // ✅ Delete function using apiClient.delete
+  const handleDelete = async () => {
+    if (!watchDocumentType) {
+      showError("Please select a document type first");
+      return;
+    }
+    const agreed = await confirm(
+      `Are you sure you want to delete the image for "${watchDocumentType}"?`,
+    );
+    if (!agreed) return;
 
     try {
       setLoader(true);
-      // Replace with actual API call
-        const response = await apiClient.get(
-          "/reports/AccAllocationReport?startDate=02-MAY-2025&endDate=15-MAY-2026&brid=10001&branchName=HEAD OFFICE",
-        );
-        console.log("response :", response)
-      console.log("Submitting:", Object.fromEntries(formData));
-      showSuccess("Upload successful (demo)");
-      //   resetForm();
+      const response = await apiClient.delete(
+        `/image-upload-mobapp/delete-image?title=${watchDocumentType}`,
+      );
+      showSuccess(`${response.message}`);
+      setFetchedData((prev) => ({
+        ...prev,
+        [watchDocumentType]: { imageDataUrl: null, flag: "" },
+      }));
+      setSelectedFile(null);
+      if (previewUrl && currentPreviewSource === "uploaded")
+        URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+      setCurrentPreviewSource("fetched");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      setValue("visibility", "");
+      fetchImages(); // fetching updated data
+    } catch (err) {
+      console.error("Delete error:", err);
+      showError(err?.message || "Delete request failed");
+    } finally {
+      setLoader(false);
+    }
+  };
+
+  const onSubmit = async (data) => {
+    const formData = new FormData();
+    formData.append("title", data.documentType);
+    formData.append("visibility", data.visibility);
+    formData.append("image", data.file);
+
+    try {
+      setLoader(true);
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/image-upload-mobapp/upload`,
+        {
+          method: "POST",
+          body: formData,
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        },
+      );
+      const result = await response.json();
+      if (result.result === true) {
+        showSuccess(result.message || "Upload successful");
+        const refreshRes = await apiClient.get("/image-upload-mobapp");
+        if (Array.isArray(refreshRes.data)) {
+          const map = {};
+          refreshRes.data.forEach((item) => {
+            if (
+              item.VAR_IMAGE_TITLE === "Notification" ||
+              item.VAR_IMAGE_TITLE === "EOTM"
+            ) {
+              map[item.VAR_IMAGE_TITLE] = {
+                imageDataUrl: base64ToDataUrl(item.BLB_IMAGE_DATA),
+                flag: item.VAR_FLAG,
+              };
+            }
+          });
+          setFetchedData(map);
+        }
+        resetForm();
+        fetchImages(); // fetching updated data
+      } else {
+        showError(result.message || "Upload failed");
+      }
     } catch (err) {
       showError(err?.message || "Upload failed");
     } finally {
-      setLoader(false)
+      setLoader(false);
     }
   };
 
@@ -135,8 +248,8 @@ const FrmImageUploadmobapp = () => {
                     })}
                   >
                     <option value="">Select type</option>
-                    <option value="1">Notification</option>
-                    <option value="2">Employee of the month</option>
+                    <option value="Notification">Notification</option>
+                    <option value="EOTM">Employee of the month</option>
                   </select>
                   {errors.documentType && (
                     <div className="invalid-feedback">
@@ -177,7 +290,6 @@ const FrmImageUploadmobapp = () => {
                       </p>
                     </div>
                   </div>
-                  {/* Hidden register for file validation */}
                   <input
                     type="hidden"
                     {...register("file", { required: "Please select a file" })}
@@ -255,12 +367,18 @@ const FrmImageUploadmobapp = () => {
           </div>
         </div>
 
-        {/* Right Panel: Preview */}
+        {/* Right Panel: Preview + Delete Button */}
         <div className="col-lg-7 col-12">
           <div className="card h-100">
-            <div className="card-header">
-              <h5 className="card-title">Preview</h5>
-              <p className="card-subtitle">Selected image will appear here</p>
+            <div className="card-header d-flex justify-content-between align-items-center">
+              <h5 className="card-title mb-0">Preview</h5>
+              <button
+                className="btn btn-danger btn-sm m-0"
+                onClick={handleDelete}
+                disabled={!watchDocumentType}
+              >
+                <i className="bi bi-trash me-1"></i> Delete
+              </button>
             </div>
             <div className="card-body d-flex align-items-center justify-content-center">
               {previewUrl ? (
@@ -273,7 +391,7 @@ const FrmImageUploadmobapp = () => {
               ) : (
                 <div className="text-center text-muted">
                   <i className="bi bi-image fs-1"></i>
-                  <p className="mt-2">No image selected</p>
+                  <p className="mt-2">No image selected / available</p>
                 </div>
               )}
             </div>
