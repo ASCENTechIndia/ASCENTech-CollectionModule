@@ -75,7 +75,7 @@ function FrmDistanceMatrix() {
               disabled={loading}
               className="btn btn-primary px-4"
             >
-              {loading ? 'Processing...' : 'Matrix Distance Insertion'}
+              {loading ? 'Processing...' : 'Add Distance Matrix'}
             </button>
           </div>
         </div>

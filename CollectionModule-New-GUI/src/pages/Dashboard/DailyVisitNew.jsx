@@ -732,11 +732,11 @@ const DailyVisitNew = () => {
             <div className="page-users-view">
                 <div className="page-header uv-page-header">
                     <div>
-                        <h1 className="page-title">Daily Visit</h1>
+                        <h1 className="page-title">Daily Visit Dashboard</h1>
                         <nav className="breadcrumb">
                             <span className="breadcrumb-item">Home</span>
                             <span className="breadcrumb-item">Dashboard</span>
-                            <span className="breadcrumb-item active">Daily Visit</span>
+                            <span className="breadcrumb-item active">Daily Visit Dashboard</span>
                         </nav>
                     </div>
                     <div className="d-flex gap-2">
@@ -956,6 +956,29 @@ const DailyVisitNew = () => {
                     <span className="funnel-rate">44%</span>
                   </div>
                 </div> */}
+                                <div className="mt-auto">
+                                    <div className="d-flex justify-content-between align-items-center mb-3">
+                                        <div className="d-flex align-items-center gap-2">
+                                            <span
+                                                className="badge-dot"
+                                                style={{ backgroundColor: "var(--info-color)" }}
+                                            ></span>
+                                            <span>Allocated</span>
+                                        </div>
+                                        <span className="fw-medium">{dashboardData?.allocation?.nonVisitedAccounts || 0}</span>
+                                    </div>
+                                    <div className="d-flex justify-content-between align-items-center mb-3">
+                                        <div className="d-flex align-items-center gap-2">
+                                            <span
+                                                className="badge-dot"
+                                                style={{ backgroundColor: "var(--info-color)" }}
+                                            ></span>
+                                            <span>Unallocated</span>
+                                        </div>
+                                        <span className="fw-medium">{dashboardData?.allocation?.nonVisitedAccounts || 0}</span>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -1000,20 +1023,20 @@ const DailyVisitNew = () => {
                                             onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
 
                                             <div className="d-flex align-items-center gap-3 deal-info">
-                          <div className="product-img bg-primary-light rounded" style={{
-                            width: "40px",
-                            height: "40px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center"
-                            }}>
-                           <i className="bi bi-bar-chart text-primary"></i>
-                          </div>
-                          <div>
-                            <div className="fw-medium">Total</div>
-                            <small className="text-muted">PTP Count</small>
-                          </div>
-                        </div>
+                                                <div className="product-img bg-primary-light rounded" style={{
+                                                    width: "40px",
+                                                    height: "40px",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    justifyContent: "center"
+                                                }}>
+                                                    <i className="bi bi-bar-chart text-primary"></i>
+                                                </div>
+                                                <div>
+                                                    <div className="fw-medium">Total</div>
+                                                    <small className="text-muted">PTP Count</small>
+                                                </div>
+                                            </div>
                                             <div className="deal-meta">
                                                 <span className="deal-amount">{formatNumber(dashboardData?.ptp?.totalPtpCount)}</span>
                                                 {/* <span class="badge bg-success-subtle text-success">Won</span> */}
@@ -1023,20 +1046,20 @@ const DailyVisitNew = () => {
                                             onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
                                             onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
                                             <div className="d-flex align-items-center gap-3 deal-info">
-                          <div className="product-img bg-primary-light rounded" style={{
-                            width: "40px",
-                            height: "40px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center"
-                            }}>
-                            <i className="bi bi-hourglass-split text-warning"></i>
-                          </div>
-                          <div>
-                            <div className="fw-medium">Pending</div>
-                            <small className="text-muted">PTP Count</small>
-                          </div>
-                        </div>
+                                                <div className="product-img bg-primary-light rounded" style={{
+                                                    width: "40px",
+                                                    height: "40px",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    justifyContent: "center"
+                                                }}>
+                                                    <i className="bi bi-hourglass-split text-warning"></i>
+                                                </div>
+                                                <div>
+                                                    <div className="fw-medium">Pending</div>
+                                                    <small className="text-muted">PTP Count</small>
+                                                </div>
+                                            </div>
                                             <div className="deal-meta">
                                                 <span className="deal-amount">{formatNumber(dashboardData?.ptp?.pendingPtpCount)}</span>
                                                 {/* <span class="badge bg-success-subtle text-success">Won</span> */}
@@ -1045,21 +1068,21 @@ const DailyVisitNew = () => {
                                         <div className="deal-item" style={{ transition: 'all 0.3s ease', cursor: 'pointer' }}
                                             onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
                                             onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
-                                             <div className="d-flex align-items-center gap-3 deal-info">
-                          <div className="product-img bg-primary-light rounded" style={{
-                            width: "40px",
-                            height: "40px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center"
-                            }}>
-                            <i className="bi bi-check-circle text-success"></i>
-                          </div>
-                          <div>
-                            <div className="fw-medium">Paid</div>
-                            <small className="text-muted">PTP Count</small>
-                          </div>
-                        </div>
+                                            <div className="d-flex align-items-center gap-3 deal-info">
+                                                <div className="product-img bg-primary-light rounded" style={{
+                                                    width: "40px",
+                                                    height: "40px",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    justifyContent: "center"
+                                                }}>
+                                                    <i className="bi bi-check-circle text-success"></i>
+                                                </div>
+                                                <div>
+                                                    <div className="fw-medium">Paid</div>
+                                                    <small className="text-muted">PTP Count</small>
+                                                </div>
+                                            </div>
                                             <div className="deal-meta">
                                                 <span className="deal-amount">{formatNumber(dashboardData?.ptp?.paidPtpCount)}</span>
                                                 {/* <span class="badge bg-success-subtle text-success">Won</span> */}
@@ -1069,20 +1092,20 @@ const DailyVisitNew = () => {
                                             onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
                                             onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
                                             <div className="d-flex align-items-center gap-3 deal-info">
-                          <div className="product-img bg-primary-light rounded" style={{
-                            width: "40px",
-                            height: "40px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center"
-                            }}>
-                            <i className="bi bi-x-circle text-danger"></i>
-                          </div>
-                          <div>
-                            <div className="fw-medium">Broken</div>
-                            <small className="text-muted">PTP Count</small>
-                          </div>
-                        </div>
+                                                <div className="product-img bg-primary-light rounded" style={{
+                                                    width: "40px",
+                                                    height: "40px",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    justifyContent: "center"
+                                                }}>
+                                                    <i className="bi bi-x-circle text-danger"></i>
+                                                </div>
+                                                <div>
+                                                    <div className="fw-medium">Broken</div>
+                                                    <small className="text-muted">PTP Count</small>
+                                                </div>
+                                            </div>
                                             <div className="deal-meta">
                                                 <span className="deal-amount">{formatNumber(dashboardData?.ptp?.brokenPtpCount)}</span>
                                                 {/* <span class="badge bg-success-subtle text-success">Won</span> */}

@@ -38,7 +38,6 @@ async function getUsernamebyId(userId) {
 
 async function getPincodebyId(userId) {
 
-  const cleanUserId = userId.replace(/\D/g, '');
   let sql = `
   select var_user_pincode from atbss.aoup_user_pincode_map where var_user_userid= :userId 
   `;
@@ -93,10 +92,31 @@ async function insertPincodeMasterIns(pincode) {
   return result.outBinds;
 }
 
+async function getAllPincodes() {
+
+  let sql = `
+  SELECT 
+    pm.VAR_PINCODE_NO,
+    pm.VAR_PINCODE_ACTIVE,
+    NVL(COUNT(bd.NUM_BANKDATA_PINCODE), 0) AS ASSIGNED_COUNT
+FROM atbss.aoup_pincode_master pm
+LEFT JOIN atbss.aoup_etech_bankdata bd
+    ON pm.VAR_PINCODE_NO = bd.NUM_BANKDATA_PINCODE
+GROUP BY 
+    pm.VAR_PINCODE_NO,
+    pm.VAR_PINCODE_NAME,
+    pm.VAR_PINCODE_ACTIVE
+ORDER BY pm.VAR_PINCODE_NO`;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
 module.exports = {
   getPincodes,
   getUsernamebyId,
   getPincodebyId,
   assignPincodeIns,
   insertPincodeMasterIns,
+  getAllPincodes
 } 
