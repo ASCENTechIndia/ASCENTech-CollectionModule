@@ -33118,10 +33118,10 @@ textarea.form-control {
 
 .page-dashboard .fx-kpi-label {
   font-size: 0.68rem;
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
   letter-spacing: 0.07em;
   color: var(--muted-color);
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .page-dashboard .fx-kpi-value {
@@ -33315,10 +33315,10 @@ textarea.form-control {
 .page-dashboard .fx-mini-label {
   display: block;
   font-size: 0.69rem;
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
   letter-spacing: 0.08em;
   color: var(--muted-color);
-  font-weight: 700;
+  font-weight: 500;
   word-break: break-word;
 }
 
