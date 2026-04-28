@@ -8,13 +8,14 @@ import { useForm } from "react-hook-form";
 import { useNotification } from "../../context/useNotification";
 import Chart from 'chart.js/auto'
 import DataTable from "../../components/Datatable";
+import { useLoader } from "../../context/LoaderContext";
 
 const FrmActiveAgentsNew = () => {
     const { user } = useAuth();
     const userId = user?.userId;
     console.log("User ID:", userId);
     const { showError } = useNotification();
-    const [loading, setLoading] = useState(false);
+    const { loading, setLoader } = useLoader();
     const [summaryDetails, setSummaryDetails] = useState({});
     const [chartData, setChartData] = useState({
         labels: [],
@@ -149,8 +150,8 @@ const FrmActiveAgentsNew = () => {
     }))
 
     const fetchData = useCallback(async (monthYear) => {
-        setLoading(true);
         try {
+            setLoader(true);
             const [month, year] = monthYear.split("-");
             const userNo = userId.split("E")[1];
 
@@ -179,7 +180,7 @@ const FrmActiveAgentsNew = () => {
         } catch (error) {
             console.error(error);
         } finally {
-            setLoading(false);
+            setLoader(false);
         }
     }, [userId])
 

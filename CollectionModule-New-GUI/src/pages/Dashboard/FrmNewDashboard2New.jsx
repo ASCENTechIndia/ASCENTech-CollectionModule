@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { useNotification } from "../../context/useNotification";
 import Chart from "chart.js/auto";
 import DataTable from "../../components/Datatable";
+import { useLoader } from "../../context/LoaderContext";
 
 const FrmNewDashboard2New = () => {
   const { user } = useAuth();
@@ -15,7 +16,7 @@ const FrmNewDashboard2New = () => {
   const brCategory = user?.brCategory;
   const userOf = user?.userProofType;
   const { showError } = useNotification();
-  const [loading, setLoading] = useState(false);
+  const {loading, setLoader} = useLoader();
   const [showDetails, setShowDetails] = useState(false);
   const [chartData, setChartData] = useState({
     labels1: [],
@@ -131,6 +132,7 @@ const FrmNewDashboard2New = () => {
 
   const fetchData = async (monthYear) => {
     try {
+      setLoader(true);
       const [month, year] = monthYear.split("-");
       const userNo = userId.split("E")[1];
 
@@ -139,17 +141,7 @@ const FrmNewDashboard2New = () => {
         {},
       );
 
-      console.log(response);
-
       if (response.success) {
-        // setAgentChartData({
-        //     labels: response.data.chart1.labels,
-        //     datasets: response.data.chart1.data
-        // });
-        // setDispositionChartData({
-        //     labels: response?.data?.chart2?.labels,
-        //     datasets: response?.data?.chart2?.data
-        // })
         setChartData({
           labels1: response?.data?.chart1?.labels,
           datasets1: response?.data?.chart1?.data,
@@ -177,6 +169,8 @@ const FrmNewDashboard2New = () => {
       }
     } catch (error) {
       console.error(error?.response);
+    } finally {
+      setLoader(false);
     }
   };
 
