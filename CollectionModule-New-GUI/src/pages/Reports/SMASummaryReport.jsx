@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { DataTableGrouped } from "../../components/DataTableGrouped";
 import apiClient from "../../services/apiClient";
+import { useLoader } from "../../context/LoaderContext";
 
 // Helpers
 const fmtNum = (v) =>
@@ -78,7 +79,7 @@ const NumCell = ({ v }) => (
   <span style={{ fontSize: "0.78rem", color: "#334155" }}>{fmtNum(v)}</span>
 );
 
-// Column groups 
+// Column groups
 const columnGroups = [
   {
     label: "SUMMARY",
@@ -143,7 +144,7 @@ const columnGroups = [
         label: "(%)",
         cellClass: "text-center",
         minWidth: "70px",
-        render: (v) => <PctCell v={v} highIsGood={true} />, 
+        render: (v) => <PctCell v={v} highIsGood={true} />,
       },
     ],
   },
@@ -291,6 +292,8 @@ const columnGroups = [
 
 function SMASummaryReport() {
   const navigate = useNavigate();
+  const { setLoader } = useLoader();
+
   const [reportData, setReportData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -304,6 +307,7 @@ function SMASummaryReport() {
       setLoading(true);
       setError(null);
       try {
+        setLoader(true);
         const response = await apiClient.get("/reports/smaSummary");
         setReportData(response.data || []);
       } catch (err) {
@@ -311,6 +315,7 @@ function SMASummaryReport() {
         setError("Failed to load report data");
       } finally {
         setLoading(false);
+        setLoader(false);
       }
     };
 

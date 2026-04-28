@@ -5,15 +5,16 @@ import DataTable from "../../components/Datatable";
 import apiClient from "../../services/apiClient";
 import { useAuth } from "../../context/AuthContext";
 import { useNotification } from "../../context/useNotification";
+import { useLoader } from "../../context/LoaderContext";
 
-// SMA badge color map 
+// SMA badge color map
 const smaBadgeColor = {
   SMA0: { bg: "#fff3cd", color: "#856404", border: "#ffc107" },
   SMA1: { bg: "#fff0e6", color: "#c45000", border: "#fd7e14" },
   SMA2: { bg: "#fde8e8", color: "#b02a37", border: "#dc3545" },
 };
 
-// Debounce utility 
+// Debounce utility
 function debounce(fn, delay) {
   let timer = null;
   return (...args) => {
@@ -46,7 +47,7 @@ const formatDateForApi = (value) => {
   return `${day}-${month}-${year}`;
 };
 
-// Column definitions 
+// Column definitions
 const columns = [
   {
     key: "collectionAssosId",
@@ -144,7 +145,7 @@ const columns = [
       ),
   },
   {
-    // PLAIN TEXT 
+    // PLAIN TEXT
     key: "allocationDate",
     label: "Allocation Date",
     sortable: true,
@@ -184,7 +185,7 @@ const columns = [
       ),
   },
   {
-    // PLAIN TEXT 
+    // PLAIN TEXT
     key: "dispositionDate",
     label: "Disposition Date",
     sortable: true,
@@ -230,6 +231,8 @@ const columns = [
 function FrmAccountAllocationReport() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { setLoader } = useLoader();
+
   const { showError, showSuccess, showWarning } = useNotification();
 
   const {
@@ -254,7 +257,7 @@ function FrmAccountAllocationReport() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState("");
 
-  // User search 
+  // User search
   const doSearch = debounce(async (term) => {
     if (!term) {
       setSearchResults([]);
@@ -304,7 +307,7 @@ function FrmAccountAllocationReport() {
     setValue("userId", "");
   };
 
-  // Fetch report data 
+  // Fetch report data
   const handleSearch = async () => {
     const queryParams = new URLSearchParams({
       startDate: formatDateForApi(startDate),
@@ -317,6 +320,7 @@ function FrmAccountAllocationReport() {
 
     setLoading(true);
     try {
+      setLoader(true);
       const response = await apiClient.get(
         `/reports/AccAllocationReport?${queryParams.toString()}`,
       );
@@ -349,6 +353,7 @@ function FrmAccountAllocationReport() {
       );
     } finally {
       setLoading(false);
+      setLoader(false);
     }
   };
 

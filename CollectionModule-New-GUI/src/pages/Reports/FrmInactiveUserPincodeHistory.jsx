@@ -5,6 +5,7 @@ import ReusableDataGrid from "../../components/ReusableDataGrid";
 import apiClient from "../../services/apiClient";
 import { useNotification } from "../../context/useNotification";
 import DataTable from "../../components/Datatable";
+import { useLoader } from "../../context/LoaderContext";
 
 const MilestoneDate = ({ date }) => {
   if (!date) return null;
@@ -68,6 +69,8 @@ const formatDateForApi = (value) => {
 
 function FrmInactiveUserPincodeHistory() {
   const navigate = useNavigate();
+  const {setLoader} = useLoader()
+
   const { showError, showSuccess, showWarning } = useNotification();
   const {
     register,
@@ -105,44 +108,48 @@ function FrmInactiveUserPincodeHistory() {
   );
 
   const columns2 = [
-  {
-  key: "inactiveDate", // keep main key (or rename if you want)
-  label: "Inactive Date",
-  render: (val, row) => 
-      <MilestoneDate date={row.inactiveDate} userId={row.userId} />
-},
-{
-  key: "username",
-  label: "Username & UserId",
-  minWidth: "120px",
-  render: (val,row) => (
-    <div class="workload-item">
-                  <img src="/assets/img/profile-img.jpg" alt="" class="workload-avatar"/>
-                  <div class="workload-info">
-                    <div class="workload-name">{val}</div>
-                    <div class="workload-role">{row.userId}</div>
-                  </div></div>
-  ),
-},
-  {
-    key: "pincode",
-    label: "Pincode",
-    minWidth: "120px",
-    render: (val) => (
-     <span className="badge bg-success text-white">
-  {val}
-</span>
-    ),
-  },
-];
+    {
+      key: "inactiveDate", // keep main key (or rename if you want)
+      label: "Inactive Date",
+      render: (val, row) => (
+        <MilestoneDate date={row.inactiveDate} userId={row.userId} />
+      ),
+    },
+    {
+      key: "username",
+      label: "Username & UserId",
+      minWidth: "120px",
+      render: (val, row) => (
+        <div class="workload-item">
+          <img
+            src="/assets/img/profile-img.jpg"
+            alt=""
+            class="workload-avatar"
+          />
+          <div class="workload-info">
+            <div class="workload-name">{val}</div>
+            <div class="workload-role">{row.userId}</div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "pincode",
+      label: "Pincode",
+      minWidth: "120px",
+      render: (val) => (
+        <span className="badge bg-success text-white">{val}</span>
+      ),
+    },
+  ];
 
-const tableData2 = rows.map((item, index) => ({
-  id: index,
-  inactiveDate: item.inactiveDate || "",
-  userId: item.userId || "",
-  pincode: item.pincode || "",
-  username: item.username || "",
-}));
+  const tableData2 = rows.map((item, index) => ({
+    id: index,
+    inactiveDate: item.inactiveDate || "",
+    userId: item.userId || "",
+    pincode: item.pincode || "",
+    username: item.username || "",
+  }));
 
   // Debounced search function
   const doSearch = debounce(async (term) => {
@@ -210,6 +217,7 @@ const tableData2 = rows.map((item, index) => ({
 
     setLoading(true);
     try {
+      setLoader(true)
       const response = await apiClient.get(
         `/reports/inactiveuserPincodeHistory?${queryParams.toString()}`,
       );
@@ -236,6 +244,7 @@ const tableData2 = rows.map((item, index) => ({
       showError(apiError.message || "Something went wrong");
     } finally {
       setLoading(false);
+      setLoader(false)
     }
   };
 
@@ -410,15 +419,14 @@ const tableData2 = rows.map((item, index) => ({
       </div>
 
       {tableRows.length > 0 && (
-
         <DataTable
-  title="Inactive Users Report"
-  subtitle="Users who have been inactive"
-  columns={columns2}
-  data={tableData2}
-  perPage={5}
-  csvFilename="inactive_users.csv"
-/>
+          title="Inactive Users Report"
+          subtitle="Users who have been inactive"
+          columns={columns2}
+          data={tableData2}
+          perPage={5}
+          csvFilename="inactive_users.csv"
+        />
       )}
     </div>
   );

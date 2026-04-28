@@ -3,10 +3,12 @@ import { Link } from "react-router-dom";
 import apiClient from "../../services/apiClient";
 import { useNotification } from "../../context/useNotification";
 import { useConfirm } from "../../context/ConfirmModalContext";
+import { useLoader } from "../../context/LoaderContext";
 
 export default function UnAssignedPincode() {
   const { showSuccess, showError } = useNotification();
   const confirm = useConfirm();
+  const { setLoader } = useLoader();
 
   // Data states
   const [users, setUsers] = useState([]);
@@ -20,6 +22,7 @@ export default function UnAssignedPincode() {
 
   const fetchUsers = async () => {
     try {
+      setLoader(true);
       setLoading(true);
       const response = await apiClient.get("/admin/unassign-cases/users");
       if (response?.success && Array.isArray(response.data)) {
@@ -44,6 +47,7 @@ export default function UnAssignedPincode() {
       showError(err?.message || "Failed to fetch userid");
     } finally {
       setLoading(false);
+      setLoader(false);
     }
   };
 
@@ -123,6 +127,7 @@ export default function UnAssignedPincode() {
 
     setSubmitting(true);
     try {
+      setLoader(true);
       const response = await apiClient.post("/admin/unassign-cases", {
         selections,
       });
@@ -137,6 +142,7 @@ export default function UnAssignedPincode() {
       showError(err?.message || "Failed to unassign cases");
     } finally {
       setSubmitting(false);
+      setLoader(false);
     }
   };
 
@@ -157,14 +163,14 @@ export default function UnAssignedPincode() {
   return (
     <div className="page-users-edit p-4">
       <div className="page-header">
-          <h1 className="page-title">Unassign Cases For Users</h1>
-          <nav className="breadcrumb">
-            <Link to="/" className="breadcrumb-item">
-              Home
-            </Link>
-            <span className="breadcrumb-item">User</span>
-            <span className="breadcrumb-item active">Unassign Cases</span>
-          </nav>
+        <h1 className="page-title">Unassign Cases For Users</h1>
+        <nav className="breadcrumb">
+          <Link to="/" className="breadcrumb-item">
+            Home
+          </Link>
+          <span className="breadcrumb-item">User</span>
+          <span className="breadcrumb-item active">Unassign Cases</span>
+        </nav>
       </div>
 
       <div className="responsive-split">

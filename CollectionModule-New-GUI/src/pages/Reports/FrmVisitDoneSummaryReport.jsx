@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { DataTableGrouped } from "../../components/DataTableGrouped";
 import apiClient from "../../services/apiClient";
 import { useNotification } from "../../context/useNotification";
+import { useLoader } from "../../context/LoaderContext";
 
 // ── Smart percentage cell ─────────────────────────────────────────────────────
 const PctCell = ({ v, highIsGood = true }) => {
@@ -312,6 +313,8 @@ const columnGroups = [
 ];
 
 function FrmVisitDoneSummaryReport() {
+  const { setLoader } = useLoader();
+
   const { showError, showSuccess } = useNotification();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -326,6 +329,7 @@ function FrmVisitDoneSummaryReport() {
       setLoading(true);
       setError("");
       try {
+        setLoader(true);
         const response = await apiClient.get("/reports/visitDoneSummary");
         const success = response?.success;
         const data = Array.isArray(response?.data) ? response.data : [];
@@ -373,6 +377,7 @@ function FrmVisitDoneSummaryReport() {
         setError(apiError.message || "Failed to load report");
       } finally {
         setLoading(false);
+        setLoader(false);
       }
     };
 

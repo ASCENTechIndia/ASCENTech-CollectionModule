@@ -5,6 +5,7 @@ import ReusableDataGrid from '../../components/ReusableDataGrid'
 import apiClient from '../../services/apiClient'
 import { useNotification } from '../../context/useNotification'
 import DataTable from '../../components/Datatable'
+import { useLoader } from '../../context/LoaderContext'
 
 const MilestoneDate = ({ date }) => {
   if (!date) return <span>-</span>;
@@ -52,6 +53,8 @@ const formatDateForApi = (value) => {
 
 function RptDaywisedata() {
   const { showError, showSuccess, showWarning } = useNotification()
+  const {setLoader} = useLoader()
+
   const {
     register,
     handleSubmit: handleFormSubmit,
@@ -196,6 +199,7 @@ function RptDaywisedata() {
 
     setLoading(true)
     try {
+      setLoader(true)
       const response = await apiClient.get(`/reports/dailyUploadedReport?${queryParams.toString()}`)
       const success = response?.success
       const data = Array.isArray(response?.data) ? response.data : []
@@ -224,6 +228,7 @@ function RptDaywisedata() {
       showError(apiError.message || 'API Error')
     } finally {
       setLoading(false)
+      setLoader(false)
     }
   }
 

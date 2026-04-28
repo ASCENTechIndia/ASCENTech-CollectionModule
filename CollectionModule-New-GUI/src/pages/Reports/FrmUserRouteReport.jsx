@@ -7,6 +7,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useNotification } from "../../context/useNotification";
 import RouteMap from "../../components/ui/RouteMap";
 import DataTable from "../../components/Datatable";
+import { useLoader } from "../../context/LoaderContext";
 
 // Debounce utility
 function debounce(fn, delay) {
@@ -52,6 +53,8 @@ const getRouteUrl = (coordinates) => {
 function FrmUserRouteReport() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { setLoader } = useLoader();
+
   const { showError, showSuccess, showWarning } = useNotification();
   const {
     register,
@@ -91,9 +94,12 @@ function FrmUserRouteReport() {
   ];
 
   const columns2 = [
-    { key: "srNo", label: "Sr No", sortable: true, },
+    { key: "srNo", label: "Sr No", sortable: true },
     {
-      key: "collectionassociate", label: "Collection Associate", sortable: true, render: (val) =>
+      key: "collectionassociate",
+      label: "Collection Associate",
+      sortable: true,
+      render: (val) =>
         val ? (
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <span
@@ -124,7 +130,10 @@ function FrmUserRouteReport() {
         ),
     },
     {
-      key: "accountnumber", label: "Account Number", sortable: true, render: (val) =>
+      key: "accountnumber",
+      label: "Account Number",
+      sortable: true,
+      render: (val) =>
         val ? (
           <span
             style={{
@@ -141,7 +150,10 @@ function FrmUserRouteReport() {
               letterSpacing: "0.03em",
             }}
           >
-            <i className="bi bi-file-earmark-text" style={{ color: "#6c757d" }} />
+            <i
+              className="bi bi-file-earmark-text"
+              style={{ color: "#6c757d" }}
+            />
             {val}
           </span>
         ) : (
@@ -150,17 +162,22 @@ function FrmUserRouteReport() {
     },
     { key: "transactiondate", label: "Transaction Date", sortable: true },
     {
-      key: "golocation", label: "Go Location", sortable: true, render: (val) => (
+      key: "golocation",
+      label: "Go Location",
+      sortable: true,
+      render: (val) => (
         <span className="badge bg-success text-white p-1">
-          <i class="bi bi-geo-alt-fill" ></i> {val}
+          <i class="bi bi-geo-alt-fill"></i> {val}
         </span>
-      )
+      ),
     },
     { key: "dispositiontype", label: "Disposition Type", sortable: true },
     {
-      key: "visitremark", label: "Visit Remark", sortable: true, render: (val) => (
-        val ? <span>{val}</span> : <span className="text-muted">-</span>
-      )
+      key: "visitremark",
+      label: "Visit Remark",
+      sortable: true,
+      render: (val) =>
+        val ? <span>{val}</span> : <span className="text-muted">-</span>,
     },
     { key: "distance", label: "Distance", sortable: true },
   ];
@@ -248,6 +265,7 @@ function FrmUserRouteReport() {
     setCoordinates([]);
 
     try {
+      setLoader(true);
       const response = await apiClient.get("/reports/user-route", {
         params: {
           fosId: trimmedFosId,
@@ -278,6 +296,7 @@ function FrmUserRouteReport() {
       showError(message);
     } finally {
       setLoading(false);
+      setLoader(false);
     }
   };
 
