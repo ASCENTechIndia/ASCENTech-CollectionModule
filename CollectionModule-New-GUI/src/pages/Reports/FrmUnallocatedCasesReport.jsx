@@ -4,9 +4,12 @@ import DataTable from "../../components/DataTable";
 import apiClient from "../../services/apiClient";
 import { useAuth } from "../../context/AuthContext";
 import { useNotification } from "../../context/useNotification";
+import { useLoader } from "../../context/LoaderContext";
 
 function FrmUnallocatedCasesReport() {
   const { user } = useAuth();
+  const { setLoader } = useLoader();
+
   const { showError, showSuccess } = useNotification();
 
   const brid = user?.brid ? String(user.brid) : "";
@@ -80,6 +83,7 @@ function FrmUnallocatedCasesReport() {
 
       setLoading(true);
       try {
+        setLoader(true);
         const response = await apiClient.get("/reports/unallocatedcases", {
           params: { brid, branchName },
         });
@@ -102,6 +106,7 @@ function FrmUnallocatedCasesReport() {
         showError(message);
       } finally {
         setLoading(false);
+        setLoader(false);
       }
     };
 

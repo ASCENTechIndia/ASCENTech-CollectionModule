@@ -7,6 +7,7 @@ import apiClient from "../../services/apiClient";
 import { useAuth } from "../../context/AuthContext";
 import { useNotification } from "../../context/useNotification";
 import DataTable from "../../components/Datatable";
+import { useLoader } from "../../context/LoaderContext";
 
 // Debounce utility
 function debounce(fn, delay) {
@@ -50,6 +51,8 @@ const getDataRows = (response) => {
 function FrmTransactionReport() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { setLoader } = useLoader();
+
   const { showError, showSuccess, showWarning } = useNotification();
   const {
     register,
@@ -122,6 +125,7 @@ function FrmTransactionReport() {
     setSearchLoading(true);
     setSearchError("");
     try {
+      setLoader(true);
       const response = await apiClient.get("/users/search-user-by-name-id", {
         params: { search: term },
       });
@@ -136,6 +140,7 @@ function FrmTransactionReport() {
       setSearchError("Search failed");
     } finally {
       setSearchLoading(false);
+      setLoader(false);
     }
   }, 400);
 
@@ -169,6 +174,7 @@ function FrmTransactionReport() {
       if (brid === null || brCategory === null) return;
       setLoadingZones(true);
       try {
+        setLoader(true);
         const res = await apiClient.get("/transactionReports/getZones", {
           params: { brid, brcategory: brCategory },
         });
@@ -181,9 +187,9 @@ function FrmTransactionReport() {
               ),
               label: String(
                 item.BRNAME ??
-                item.brname ??
-                item.VAR_COMPANYMST_BRANCHNAME ??
-                "",
+                  item.brname ??
+                  item.VAR_COMPANYMST_BRANCHNAME ??
+                  "",
               ),
             }))
             .filter((item) => item.value);
@@ -195,6 +201,7 @@ function FrmTransactionReport() {
         setError(apiError?.message || "Failed to load zones");
       } finally {
         setLoadingZones(false);
+        setLoader(false);
       }
     };
     fetchZones();
@@ -213,6 +220,7 @@ function FrmTransactionReport() {
       }
       setLoadingRegions(true);
       try {
+        setLoader(true);
         const res = await apiClient.get("/transactionReports/getRegions", {
           params: { zoneId: zone, brid, brcategory: brCategory },
         });
@@ -222,15 +230,15 @@ function FrmTransactionReport() {
             .map((item) => ({
               value: String(
                 item.NUM_COMPANYMST_COMPID ??
-                item.num_companymst_compid ??
-                item.BRID ??
-                "",
+                  item.num_companymst_compid ??
+                  item.BRID ??
+                  "",
               ),
               label: String(
                 item.VAR_COMPANYMST_BRANCHNAME ??
-                item.var_companymst_branchname ??
-                item.BRNAME ??
-                "",
+                  item.var_companymst_branchname ??
+                  item.BRNAME ??
+                  "",
               ),
             }))
             .filter((item) => item.value);
@@ -242,6 +250,7 @@ function FrmTransactionReport() {
         setError(apiError?.message || "Failed to load regions");
       } finally {
         setLoadingRegions(false);
+        setLoader(false);
       }
     };
     fetchRegions();
@@ -258,6 +267,7 @@ function FrmTransactionReport() {
       }
       setLoadingBranches(true);
       try {
+        setLoader(true);
         const res = await apiClient.get("/transactionReports/getBranches", {
           params: { regionId: region, brid, brcategory: brCategory },
         });
@@ -267,15 +277,15 @@ function FrmTransactionReport() {
             .map((item) => ({
               value: String(
                 item.NUM_COMPANYMST_COMPID ??
-                item.num_companymst_compid ??
-                item.BRID ??
-                "",
+                  item.num_companymst_compid ??
+                  item.BRID ??
+                  "",
               ),
               label: String(
                 item.VAR_COMPANYMST_BRANCHNAME ??
-                item.var_companymst_branchname ??
-                item.BRNAME ??
-                "",
+                  item.var_companymst_branchname ??
+                  item.BRNAME ??
+                  "",
               ),
             }))
             .filter((item) => item.value);
@@ -287,6 +297,7 @@ function FrmTransactionReport() {
         setError(apiError?.message || "Failed to load branches");
       } finally {
         setLoadingBranches(false);
+        setLoader(false);
       }
     };
     fetchBranches();
@@ -302,6 +313,7 @@ function FrmTransactionReport() {
       const bridParam = String(branch || region || zone || "");
       setLoadingCollection(true);
       try {
+        setLoader(true);
         const res = await apiClient.get(
           "/transactionReports/getCollAssociate",
           {
@@ -340,6 +352,7 @@ function FrmTransactionReport() {
         setError(apiError?.message || "Failed to load collection associates");
       } finally {
         setLoadingCollection(false);
+        setLoader(false);
       }
     };
     fetchCollectionAssociates();
@@ -409,6 +422,7 @@ function FrmTransactionReport() {
     setRows([]);
 
     try {
+      setLoader(true);
       const response = await apiClient.get(
         "/transactionReports/getTransDetails",
         { params },
@@ -471,16 +485,17 @@ function FrmTransactionReport() {
       setRows([]);
       showError(
         apiError?.response?.data?.message ||
-        apiError?.message ||
-        "Search failed",
+          apiError?.message ||
+          "Search failed",
       );
       setError(
         apiError?.response?.data?.message ||
-        apiError?.message ||
-        "Search failed",
+          apiError?.message ||
+          "Search failed",
       );
     } finally {
       setSearching(false);
+      setLoader(false);
     }
   };
 
@@ -535,34 +550,34 @@ function FrmTransactionReport() {
       key: "userId",
       label: "User ID",
       render: (val) =>
-      val ? (
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <span
-            style={{
-              width: 30,
-              height: 30,
-              borderRadius: "50%",
-              background: "#e8f0fe",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
-            <i
-              className="bi bi-person-fill"
-              style={{ color: "#1a73e8", fontSize: "0.85rem" }}
-            />
-          </span>
-          <span
-            style={{ fontSize: "0.82rem", fontWeight: 500, color: "#1e293b" }}
-          >
-            {val}
-          </span>
-        </div>
-      ) : (
-        <span className="text-muted">—</span>
-      ),
+        val ? (
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span
+              style={{
+                width: 30,
+                height: 30,
+                borderRadius: "50%",
+                background: "#e8f0fe",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <i
+                className="bi bi-person-fill"
+                style={{ color: "#1a73e8", fontSize: "0.85rem" }}
+              />
+            </span>
+            <span
+              style={{ fontSize: "0.82rem", fontWeight: 500, color: "#1e293b" }}
+            >
+              {val}
+            </span>
+          </div>
+        ) : (
+          <span className="text-muted">—</span>
+        ),
     },
     {
       key: "collectionassociate",
@@ -572,107 +587,101 @@ function FrmTransactionReport() {
       key: "transactionId",
       label: "Transaction ID",
       render: (val) =>
-      val ? (
-        <span
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "5px",
-            background: "#f8f9fa",
-            color: "#495057",
-            padding: "3px 10px",
-            borderRadius: "6px",
-            fontSize: "0.78rem",
-            fontFamily: "monospace",
-            border: "1px solid #dee2e6",
-            letterSpacing: "0.03em",
-          }}
-        >
-          <i className="bi bi-file-earmark-text" style={{ color: "#6c757d" }} />
-          {val}
-        </span>
-      ) : (
-        <span className="text-muted">—</span>
-      ),
+        val ? (
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "5px",
+              background: "#f8f9fa",
+              color: "#495057",
+              padding: "3px 10px",
+              borderRadius: "6px",
+              fontSize: "0.78rem",
+              fontFamily: "monospace",
+              border: "1px solid #dee2e6",
+              letterSpacing: "0.03em",
+            }}
+          >
+            <i
+              className="bi bi-file-earmark-text"
+              style={{ color: "#6c757d" }}
+            />
+            {val}
+          </span>
+        ) : (
+          <span className="text-muted">—</span>
+        ),
     },
     {
       key: "accountNumber",
       label: "Account Number",
       render: (val) => (
-        <span className="badge bg-success text-white">
-          {val}
-        </span>
-      )
+        <span className="badge bg-success text-white">{val}</span>
+      ),
     },
     {
       key: "distanceKm",
       label: "Distance KM",
-      render: (val) => (
-        val ? <span>{val}</span> : <span className="text-muted">-</span>
-      )
+      render: (val) =>
+        val ? <span>{val}</span> : <span className="text-muted">-</span>,
     },
     {
       key: "customerName",
       label: "Customer Name",
-      render: (val) => (
-        val ? <span>{val}</span> : <span className="text-muted">-</span>
-      )
+      render: (val) =>
+        val ? <span>{val}</span> : <span className="text-muted">-</span>,
     },
     {
       key: "mobileNo",
       label: "Customer RMN",
-      render: (val) => (
-        val ? <span>{val}</span> : <span className="text-muted">-</span>
-      )
+      render: (val) =>
+        val ? <span>{val}</span> : <span className="text-muted">-</span>,
     },
     {
       key: "overdueamount",
       label: "Overdue Amount",
-      render: (val) => (
-        <span>₹ {val}</span>
-      )
+      render: (val) => <span>₹ {val}</span>,
     },
     {
       key: "feedback",
       label: "Feedback",
-      render: (val) => (
-        val ? <span>{val}</span> : <span className="text-muted">-</span>
-      )
+      render: (val) =>
+        val ? <span>{val}</span> : <span className="text-muted">-</span>,
     },
     {
       key: "paymode",
       label: "Payment Mode",
-      render: (val) => (
-        val ? <span>{val}</span> : <span className="text-muted">-</span>
-      )
+      render: (val) =>
+        val ? <span>{val}</span> : <span className="text-muted">-</span>,
     },
     {
       key: "amount",
       label: "Amount",
-      render: (val) => (
-        val ? <span>{val}</span> : <span className="text-muted">-</span>
-      )
+      render: (val) =>
+        val ? <span>{val}</span> : <span className="text-muted">-</span>,
     },
     {
       key: "ptpdate",
       label: "PTP Date",
-      render: (val) => (
-        val ? <span>{formatToDDMMYYYY(val)}</span> : <span className="text-muted">-</span>
-      )
+      render: (val) =>
+        val ? (
+          <span>{formatToDDMMYYYY(val)}</span>
+        ) : (
+          <span className="text-muted">-</span>
+        ),
     },
     {
       key: "transactiondate",
       label: "Transaction Date",
-      render: (val) => (
-        val ? <span>{val}</span> : <span className="text-muted">-</span>
-      )
+      render: (val) =>
+        val ? <span>{val}</span> : <span className="text-muted">-</span>,
     },
     {
       key: "transactiontime",
       label: "Transaction Time",
-      render: (val) => (
-        val ? <span>{val}</span> : <span className="text-muted">-</span>
-      )
+      render: (val) =>
+        val ? <span>{val}</span> : <span className="text-muted">-</span>,
     },
     {
       key: "view",
@@ -703,30 +712,26 @@ function FrmTransactionReport() {
     {
       key: "mdmid",
       label: "MDM ID",
-      render: (val) => (
-        val ? <span>{val}</span> : <span className="text-muted">-</span>
-      )
+      render: (val) =>
+        val ? <span>{val}</span> : <span className="text-muted">-</span>,
     },
     {
       key: "smatype",
       label: "SMA Type",
-      render: (val) => (
-         val === "SMA1" ? (
-          <span className="badge bg-info text-white">
-          {val}
-        </span>) : (<span className="badge bg-primary text-white">
-          {val}
-        </span>)
-      )
+      render: (val) =>
+        val === "SMA1" ? (
+          <span className="badge bg-info text-white">{val}</span>
+        ) : (
+          <span className="badge bg-primary text-white">{val}</span>
+        ),
     },
     {
       key: "transactiontype",
       label: "Transaction Type",
-      render: (val) => (
-        val ? <span>{val}</span> : <span className="text-muted">-</span>
-      )
-    }
-  ]
+      render: (val) =>
+        val ? <span>{val}</span> : <span className="text-muted">-</span>,
+    },
+  ];
 
   return (
     <div className="main-content page-transaction-report">

@@ -3,8 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import { DataTableGrouped } from "../../components/DataTableGrouped";
 import apiClient from "../../services/apiClient";
 import { useNotification } from "../../context/useNotification";
+import { useLoader } from "../../context/LoaderContext";
 
-//  Reusable percent renderer 
+//  Reusable percent renderer
 const PctCell = ({ v, highIsGood = true }) => {
   const num = parseFloat(v) || 0;
   let color = "#6c757d"; // neutral gray default
@@ -16,7 +17,7 @@ const PctCell = ({ v, highIsGood = true }) => {
   );
 };
 
-// Column groups 
+// Column groups
 const columnGroups = [
   {
     label: "In Count",
@@ -301,6 +302,8 @@ const columnGroups = [
 ];
 
 function FrmNonVisitDoneSummaryReport() {
+  const { setLoader } = useLoader();
+
   const { showError, showSuccess } = useNotification();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -315,6 +318,7 @@ function FrmNonVisitDoneSummaryReport() {
       setLoading(true);
       setError("");
       try {
+        setLoader(true);
         const response = await apiClient.get("/reports/nonVisitDoneSummary");
         const success = response?.success;
         const data = Array.isArray(response?.data) ? response.data : [];
@@ -362,6 +366,7 @@ function FrmNonVisitDoneSummaryReport() {
         setError(apiError.message || "Failed to load report");
       } finally {
         setLoading(false);
+        setLoader(false);
       }
     };
 

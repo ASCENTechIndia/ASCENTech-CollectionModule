@@ -54,7 +54,6 @@ const FrmImageUploadMobApp2 = () => {
             };
           }
         });
-        console.log("map :", map);
         setFetchedData(map);
       }
     } catch (err) {
