@@ -180,7 +180,6 @@ export default function UserPinAllocation() {
   return (
     <div className="page-users-edit p-4">
       <div className="page-header">
-        <div>
           <h1 className="page-title">Pincode Allocation</h1>
           <nav className="breadcrumb">
             <Link to="/" className="breadcrumb-item">
@@ -188,7 +187,6 @@ export default function UserPinAllocation() {
             </Link>
             <span className="breadcrumb-item active">Pincode Allocation</span>
           </nav>
-        </div>
       </div>
 
       {/* Summary Row */}

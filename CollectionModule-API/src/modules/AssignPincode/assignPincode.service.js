@@ -23,8 +23,8 @@ async function fetchUsername(userId) {
   return getUsernamebyId(userId);
 }
 
-async function fetchUserPincodes() {
-  return getPincodebyId(uerId);
+async function fetchUserPincodes(userId) {
+  return getPincodebyId(userId);
 }
 
 async function assignPincode(payload) {

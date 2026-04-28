@@ -19,6 +19,7 @@ function AdminLayout() {
   const [reportsMenuManualOpen, setReportsMenuManualOpen] = useState(false)
   const [adminMenuManualOpen, setAdminMenuManualOpen] = useState(false)
   const [userMenuManualOpen, setUserMenuManualOpen] = useState(false)
+  const [pincodeMenuManualOpen, setPincodeMenuManualOpen] = useState(false)
   const [theme, setTheme] = useState(() => {
     const savedTheme = localStorage.getItem('theme')
 
@@ -79,6 +80,7 @@ function AdminLayout() {
   const reportsRouteActive = location.pathname.startsWith('/reports')
   const adminRouteActive = location.pathname.startsWith('/admin')
   const userRouteActive = location.pathname.startsWith('/user')
+  const pincodeRouteActive = location.pathname.startsWith('/pincode')
 
   const authMenuOpen = authRouteActive || authMenuManualOpen
   const formsMenuOpen = formsRouteActive || formsMenuManualOpen
@@ -91,6 +93,7 @@ function AdminLayout() {
   const reportsMenuOpen = reportsRouteActive || reportsMenuManualOpen
   const adminMenuOpen = adminRouteActive || adminMenuManualOpen
   const userMenuOpen = userRouteActive || userMenuManualOpen
+  const pincodeMenuOpen = pincodeRouteActive || pincodeMenuManualOpen
 
   const toggleSidebar = () => {
     // Debounce toggle to prevent rapid state changes during animations
@@ -163,6 +166,7 @@ function AdminLayout() {
         reportsMenuOpen={reportsMenuOpen}
         adminMenuOpen={adminMenuOpen}
         userMenuOpen={userMenuOpen}
+        pincodeMenuOpen={pincodeMenuOpen}
         onToggleAuthMenu={() => setAuthMenuManualOpen((value) => !value)}
         onToggleFormsMenu={() => setFormsMenuManualOpen((value) => !value)}
         onToggleComponentsMenu={() => setComponentsMenuManualOpen((value) => !value)}
@@ -174,6 +178,7 @@ function AdminLayout() {
         onToggleReportsMenu={() => setReportsMenuManualOpen((value) => !value)}
         onToggleAdminMenu={() => setAdminMenuManualOpen((value) => !value)}
         onToggleUserMenu={() => setUserMenuManualOpen((value) => !value)}
+        onTogglePincodeMenu={() => setPincodeMenuManualOpen((value) => !value)}
         onCloseMobile={() => setMobileOpen(false)}
       />
 

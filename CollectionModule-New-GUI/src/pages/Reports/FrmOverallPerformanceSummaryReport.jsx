@@ -121,7 +121,7 @@ function FrmOverallPerformanceSummaryReport() {
   const columnGroups = [
     {
       label: "In Count",
-      headerClass: "text-center bg-light fw-semibold",
+      headerClass: "text-center",
       columns: [
         {
           key: "zone",

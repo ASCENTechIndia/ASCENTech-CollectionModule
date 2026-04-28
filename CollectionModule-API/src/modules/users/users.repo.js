@@ -614,7 +614,9 @@ async function agentDetailsbyBridNew(payload) {
       num_usermst_email email,
       var_designation_designation desg,
       var_userrole_name,
-      var_usermst_status
+      var_usermst_status,
+      DATE_USERMST_LASTLOGIN,
+      DATE_USERMST_STATUSUPDDT
     FROM etech.aoup_usermst_def a
     LEFT JOIN etech.aoup_designation_def 
       ON num_designation_id = num_usermst_desgid

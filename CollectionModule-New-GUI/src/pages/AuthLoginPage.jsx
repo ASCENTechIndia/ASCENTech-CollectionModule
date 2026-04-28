@@ -76,16 +76,14 @@ function AuthLoginPage() {
             </div>
           </div>
 
-          <div className="fauth-row-between mb-3">
-            <div className="form-check mb-0">
-              <input className="form-check-input" type="checkbox" id="remember" name="remember" />
-              <label className="form-check-label" htmlFor="remember">Remember me</label>
-            </div>
-          </div>
 
-          <button type="submit" className="btn btn-primary w-100" disabled={submitting}>
-            {submitting ? 'Signing in...' : 'Sign In'}
-          </button>
+       <button 
+  type="submit" 
+  className="btn btn-primary w-100 mt-3" 
+  disabled={submitting}
+>
+  {submitting ? 'Signing in...' : 'Sign In'}
+</button>
         </form>
       </div>
     </>

@@ -65,8 +65,8 @@ const Roles = () => {
 
   // Common icon for all module names – colorful and consistent
   const commonIcon = {
-    icon: "bi bi-pencil-square",
-    color: "#0284c7", // teal color, can be changed to any color
+    icon: "bi bi-file-text",
+    color: "#0ea5a4", // teal color, can be changed to any color
   };
 
   const handleSearch = async (userId) => {

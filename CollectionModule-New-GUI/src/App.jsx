@@ -113,7 +113,7 @@ function App() {
         <Route path="/FrmAccessofPages" element={<FrmAccessofPages />} />
         <Route path='/User/FrmPincodeMstrInserion' element={<FrmPincodeMstrInserion/>}/>
         <Route path='/User/FrmInactiveUserAcs' element={<FrmInactiveUserAcs/>}/>
-        <Route path='/User/FrmPincodeList' element={<FrmPincodeList />} />
+        <Route path='/pincode/FrmPincodeList' element={<FrmPincodeList />} />
 
 
 

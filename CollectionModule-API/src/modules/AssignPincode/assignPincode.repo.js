@@ -38,6 +38,10 @@ async function getUsernamebyId(userId) {
 
 async function getPincodebyId(userId) {
 
+  const cleanUserId = userId.startsWith('E') 
+    ? userId.substring(1) 
+    : userId;
+
   let sql = `
   select var_user_pincode from atbss.aoup_user_pincode_map where var_user_userid= :userId 
   `;

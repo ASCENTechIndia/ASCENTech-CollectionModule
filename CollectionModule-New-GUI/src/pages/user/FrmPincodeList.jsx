@@ -1,16 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  Eye,
-  Edit,
-  Search,
-  Plus,
-  MapPinX,
-  MapPinCheck,
-  MapPinned,
-  Trash2,
-  Pin,
-} from "lucide-react";
+import { Eye, Edit, Search, Plus, MapPinX, MapPinCheck, MapPinned, Trash2, Pin, X } from "lucide-react";
 import apiClient from "../../services/apiClient";
 import { useAuth } from "../../context/AuthContext";
 import { useNotification } from "../../context/useNotification";
@@ -275,19 +265,44 @@ const FrmPincodeList = () => {
               </div>
             </div>
 
-            <div className="users-toolbar-right">
-              <div className="users-search">
-                <Search className="inline search-icon" size={16} />
-                <input
-                  type="text"
-                  placeholder="Search pincode.."
-                  value={searchTerm}
-                  onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setPage(1);
-                  }}
-                />
-              </div>
+                        <div className="users-toolbar-right">
+                            <div className="users-search" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                                <Search className="inline search-icon" size={16} />
+                                <input
+                                    type="text"
+                                    placeholder="Search pincode.."
+                                    value={searchTerm}
+                                    onChange={(e) => {
+                                        setSearchTerm(e.target.value);
+                                        setPage(1);
+                                    }}
+                                    style={{ paddingRight: searchTerm ? 28 : undefined }}
+                                />
+                                {searchTerm && (
+                                    <button
+                                        type="button"
+                                        aria-label="Clear search"
+                                        onClick={() => {
+                                            setSearchTerm("");
+                                            setPage(1);
+                                        }}
+                                        style={{
+                                            position: 'absolute',
+                                            right: 6,
+                                            background: 'none',
+                                            border: 'none',
+                                            padding: 0,
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            height: '100%'
+                                        }}
+                                    >
+                                        <X size={16} color="red" />
+                                    </button>
+                                )}
+                            </div>
 
               {/* <div className="d-flex gap-2">
                                 <select style={dropdownStyle} value={userLevel} onChange={(e) => setUserLevel(e.target.value)}>

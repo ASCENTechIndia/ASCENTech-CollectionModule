@@ -193,14 +193,14 @@ const FrmImageUploadMobApp2 = () => {
     <div className="main-content p-4">
       <div className="page-header d-flex justify-content-between align-items-center">
         <div>
-          <h1 className="page-title">Mobile Notification Management</h1>
+          <h1 className="page-title">Mobile Notification</h1>
           <nav className="breadcrumb">
             <Link to="/" className="breadcrumb-item">
               Home
             </Link>
             <span className="breadcrumb-item">Admin</span>
             <span className="breadcrumb-item active">
-              Mobile Notification Management
+              Mobile Notification
             </span>
           </nav>
         </div>
@@ -415,6 +415,18 @@ const FrmImageUploadMobApp2 = () => {
                         <i className="bi bi-file-earmark-image me-1"></i>
                         {selectedFile.name} (
                         {(selectedFile.size / 1024).toFixed(2)} KB)
+
+                        <button
+      type="button"
+      className="ms-2"
+      style={{color:"red"}}
+      onClick={() => {
+        setSelectedFile(null);     // clear state
+        setValue("file", null);    // clear react-hook-form value
+      }}
+    >
+      ✕
+    </button>
                       </div>
                     )}
                     {errors.file && (

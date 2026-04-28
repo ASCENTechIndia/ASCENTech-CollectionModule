@@ -102,17 +102,26 @@ const UsersList = () => {
       );
       if (res.success) {
         const apiData = res.data;
-        const userList = apiData.data.map((agent, i) => ({
-          id: agent.USERID,
-          name: agent.EMPNAME,
-          email: agent.EMAIL,
-          mobile: agent.MOBNO?.toString(),
-          role: mapRole(agent.VAR_USERROLE_NAME),
-          status: agent.VAR_USERMST_STATUS === "A" ? "active" : "inactive",
-          lastActive: "Recently",
-          joined: new Date().toLocaleDateString(),
-          avatar: `avatar-${i}.webp`,
-        }));
+       const userList = apiData.data.map((agent, i) => ({
+  id: agent.USERID,
+  name: agent.EMPNAME,
+  email: agent.EMAIL,
+  mobile: agent.MOBNO?.toString(),
+  role: mapRole(agent.VAR_USERROLE_NAME),
+  status: agent.VAR_USERMST_STATUS === "A" ? "active" : "inactive",
+
+  // ✅ Last Active from API
+  lastLogin: agent.DATE_USERMST_LASTLOGIN
+    ? new Date(agent.DATE_USERMST_LASTLOGIN).toLocaleString()
+    : "Never",
+
+  // ✅ Joined from API
+  insertDate: agent.DATE_USERMST_STATUSUPDDT
+    ? new Date(agent.DATE_USERMST_STATUSUPDDT).toLocaleDateString()
+    : "-",
+
+  avatar: `avatar-${i}.webp`,
+}));
         setUsers(userList);
         setTotalPages(apiData.pagination.totalPages);
         setCounts(apiData.counts);
@@ -366,8 +375,8 @@ const UsersList = () => {
                     <th>User</th>
                     <th>Role</th>
                     <th>Status</th>
-                    <th>Last Active</th>
-                    <th>Joined</th>
+                    <th>Last Login</th>
+                    <th>Insert Date</th>
                     <th className="users-th-actions">Actions</th>
                   </tr>
                 </thead>
@@ -418,8 +427,8 @@ const UsersList = () => {
                             {status.label}
                           </span>
                         </td>
-                        <td className="users-meta">{userItem.lastActive}</td>
-                        <td className="users-meta">{userItem.joined}</td>
+                        <td className="users-meta">{userItem.lastLogin}</td>
+                        <td className="users-meta">{userItem.insertDate}</td>
                         <td>
                           <div className="users-actions">
                             <Link
