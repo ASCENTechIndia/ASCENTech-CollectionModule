@@ -8,10 +8,12 @@ import { useForm } from "react-hook-form";
 import { useNotification } from "../../context/useNotification";
 // import Chart from 'chart.js/auto'
 import Chart from "react-apexcharts";
+import { useLoader } from "../../context/LoaderContext";
 
 const DailyVisitNew = () => {
     const { user } = useAuth();
     const userId = user?.userId;
+    const { loading, setLoader } = useLoader();
 
     const { showError } = useNotification();
     const toInputDate = (date) => {
@@ -442,6 +444,7 @@ const DailyVisitNew = () => {
         }
 
         try {
+            setLoader(true);
             const response = await apiClient.get('/daily-visit/dashboard', {
                 params: {
                     userId: apiUserId,
@@ -449,7 +452,6 @@ const DailyVisitNew = () => {
                     toDate: values.toDate,
                 },
             });
-            console.log(response.data);
 
             if (response?.success && response?.data) {
                 setDashboardData(response.data);
@@ -462,6 +464,8 @@ const DailyVisitNew = () => {
             console.error('Failed to fetch daily visit dashboard:', error);
             setDashboardData(null);
             showError(error?.response?.data?.message || error?.message || 'Failed to load daily visit data');
+        } finally {
+            setLoader(false);
         }
     }, [apiUserId, showError]);
 
