@@ -181,11 +181,11 @@ const FrmImageUploadMobApp2 = () => {
     <div className="main-content p-4">
       <div className="page-header d-flex justify-content-between align-items-center">
         <div>
-          <h1 className="page-title">Image Management</h1>
+          <h1 className="page-title">Mobile Notification Management</h1>
           <nav className="breadcrumb">
             <Link to="/" className="breadcrumb-item">Home</Link>
             <span className="breadcrumb-item">Admin</span>
-            <span className="breadcrumb-item active">Image Upload</span>
+            <span className="breadcrumb-item active">Mobile Notification Management</span>
           </nav>
         </div>
         <button className="btn btn-primary" onClick={() => setShowModal(true)}>
@@ -217,10 +217,12 @@ const FrmImageUploadMobApp2 = () => {
                     style={{ maxHeight: "250px", objectFit: "contain" }}
                   />
                 ) : (
-                  <div className="text-center text-muted">
-                    <i className="bi bi-image fs-1"></i>
-                    <p>No image uploaded</p>
-                  </div>
+                  <img
+                    src="/assets/img/no-image.png"
+                    alt="Notification"
+                    className="img-fluid rounded"
+                    style={{ maxHeight: "250px", objectFit: "contain" }}
+                  />
                 )}
               </div>
               <div className="mt-auto d-flex justify-content-between align-items-center pt-3">

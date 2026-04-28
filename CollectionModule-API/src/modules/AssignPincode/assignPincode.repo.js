@@ -110,19 +110,21 @@ async function getAllPincodes() {
 
   const summarySql = `
     SELECT 
-        COUNT(*) AS TOTAL_PINCODES,
+    COUNT(DISTINCT pm.VAR_PINCODE_NO) AS TOTAL_PINCODES,
 
-        COUNT(CASE 
-            WHEN bd.NUM_BANKDATA_PINCODE IS NOT NULL THEN 1 
-        END) AS TOTAL_ASSIGNED,
+    COUNT(DISTINCT CASE 
+        WHEN bd.NUM_BANKDATA_PINCODE IS NOT NULL 
+        THEN pm.VAR_PINCODE_NO 
+    END) AS TOTAL_ASSIGNED,
 
-        COUNT(CASE 
-            WHEN bd.NUM_BANKDATA_PINCODE IS NULL THEN 1 
-        END) AS TOTAL_UNASSIGNED
+    COUNT(DISTINCT CASE 
+        WHEN bd.NUM_BANKDATA_PINCODE IS NULL 
+        THEN pm.VAR_PINCODE_NO 
+    END) AS TOTAL_UNASSIGNED
 
-    FROM atbss.aoup_pincode_master pm
-    LEFT JOIN atbss.aoup_etech_bankdata bd
-        ON pm.VAR_PINCODE_NO = bd.NUM_BANKDATA_PINCODE
+FROM atbss.aoup_pincode_master pm
+LEFT JOIN atbss.aoup_etech_bankdata bd
+    ON pm.VAR_PINCODE_NO = bd.NUM_BANKDATA_PINCODE
   `;
 
   const listResult = await executeQuery(listSql);
