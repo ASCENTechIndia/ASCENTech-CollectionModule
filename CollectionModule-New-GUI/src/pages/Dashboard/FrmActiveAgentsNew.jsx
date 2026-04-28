@@ -15,7 +15,7 @@ const FrmActiveAgentsNew = () => {
     const userId = user?.userId;
     console.log("User ID:", userId);
     const { showError } = useNotification();
-    const { loading, setLoader } = useLoader();
+    const { setLoader } = useLoader();
     const [summaryDetails, setSummaryDetails] = useState({});
     const [chartData, setChartData] = useState({
         labels: [],

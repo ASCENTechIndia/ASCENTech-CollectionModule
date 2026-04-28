@@ -13,7 +13,7 @@ import { useLoader } from "../../context/LoaderContext";
 const DailyVisitNew = () => {
     const { user } = useAuth();
     const userId = user?.userId;
-    const { loading, setLoader } = useLoader();
+    const { setLoader } = useLoader();
 
     const { showError } = useNotification();
     const toInputDate = (date) => {
