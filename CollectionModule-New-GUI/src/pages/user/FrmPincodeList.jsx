@@ -6,12 +6,14 @@ import { useAuth } from "../../context/AuthContext";
 import { useNotification } from "../../context/useNotification";
 import { useForm } from "react-hook-form";
 import { useConfirm } from "../../context/ConfirmModalContext";
+import { useLoader } from "../../context/LoaderContext";
 
 const FrmPincodeList = () => {
     const { user } = useAuth();
     const { showError, showSuccess, showWarning } = useNotification();
     const navigate = useNavigate();
     const confirm = useConfirm()
+    const { setLoader } = useLoader();
 
     const {
         register,
@@ -36,8 +38,8 @@ const FrmPincodeList = () => {
 
     const fetchAllPincodes = async () => {
         try {
+            setLoader(true);
             const response = await apiClient.get("/assignPincode/fetchAllPincodesList");
-            console.log(response);
 
             if (response.success && Array.isArray(response.data.pincodes) && response.data.pincodes.length > 0) {
                 showSuccess(`Pincodes found: ${response.data.pincodes.length}`);
@@ -55,6 +57,8 @@ const FrmPincodeList = () => {
                 error?.message ||
                 "Failed to fetch pincodes",
             );
+        } finally {
+            setLoader(false);
         }
     }
 
@@ -64,10 +68,10 @@ const FrmPincodeList = () => {
         if (!agreed) return;
 
         try {
+            setLoader(true);
             const payload = {
                 "pincode": pinCode
             }
-            console.log(payload);
             // return;
             const response = await apiClient.delete("/assignPincode/deletePincode", {
                 data: payload
@@ -86,11 +90,14 @@ const FrmPincodeList = () => {
                 error?.message ||
                 "Failed to delete the pincode",
             );
+        } finally {
+            setLoader(false)
         }
     }
 
     const onModalSubmit = async (values) => {
         try {
+            setLoader(true);
             const payload = { pincode: values.pinCode };
             const response = await apiClient.post(
                 "/assignPincode/insertPincodeMaster",
@@ -112,6 +119,8 @@ const FrmPincodeList = () => {
                 error?.message ||
                 "Failed to insert pincode",
             );
+        } finally {
+            setLoader(false);
         }
     };
 
@@ -144,10 +153,10 @@ const FrmPincodeList = () => {
     }, [filteredData]);
 
     useEffect(() => {
-    if (page > totalPages) {
-        setPage(1);
-    }
-}, [totalPages]);
+        if (page > totalPages) {
+            setPage(1);
+        }
+    }, [totalPages]);
     return (
         <div className="main-content">
             <div className="page-users">
@@ -241,10 +250,10 @@ const FrmPincodeList = () => {
                                     className={`users-filter-tab
                                         ${filterStatus === "unassigned" ? "active" : ""}`
                                     }
-                                  onClick={() => {
-                                    setFilterStatus("unassigned");
-                                    setPage(1);
-                                }}
+                                    onClick={() => {
+                                        setFilterStatus("unassigned");
+                                        setPage(1);
+                                    }}
                                 >
                                     Unassigned{" "}
                                     <span className="users-filter-count">
@@ -264,6 +273,10 @@ const FrmPincodeList = () => {
                                     onChange={(e) => {
                                         setSearchTerm(e.target.value);
                                         setPage(1);
+                                    }}
+                                    maxLength={6}
+                                    onInput={(e) => {
+                                        e.target.value = e.target.value.replace(/\D/g, "");
                                     }}
                                 />
                             </div>
