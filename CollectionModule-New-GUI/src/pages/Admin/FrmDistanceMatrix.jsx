@@ -3,14 +3,17 @@ import { useState } from 'react'
 import apiClient from '../../services/apiClient'
 import { useNotification } from '../../context/useNotification'
 import { useConfirm } from '../../context/ConfirmModalContext'
+import { useLoader } from '../../context/LoaderContext'
 
 function FrmDistanceMatrix() {
   const { showSuccess, showError } = useNotification()
   const confirm = useConfirm();
   const [loading, setLoading] = useState(false)
+  const { setLoader } = useLoader();
 
   const handleMatrixInsertion = async () => {
     setLoading(true)
+    
 
     const agreed = await confirm("Do you want to insert distance matrix?");
     if (!agreed) {
@@ -19,6 +22,7 @@ function FrmDistanceMatrix() {
     }
 
     try {
+      setLoader(true);
       const response = await apiClient.post('/admin/matrix-distance-insertion')
       const success = response?.success
       const data = response?.data || {}
@@ -33,6 +37,7 @@ function FrmDistanceMatrix() {
       showError(apiError?.message || 'Failed to update distance matrix')
     } finally {
       setLoading(false)
+      setLoader(false);
     }
   }
 

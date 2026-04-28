@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 import apiClient from '../../services/apiClient'
 import { useNotification } from '../../context/useNotification'
 import { useConfirm } from '../../context/ConfirmModalContext'
+import { useLoader } from '../../context/LoaderContext'
 
 function FrmContractAllocation() {
   const { showError, showSuccess } = useNotification()
@@ -12,10 +13,12 @@ function FrmContractAllocation() {
   const [message, setMessage] = useState('')
   const [loadingCount, setLoadingCount] = useState(true)
   const [allocating, setAllocating] = useState(false)
+  const { setLoader } = useLoader(); 
 
   const fetchRecordCount = useCallback(async () => {
     setLoadingCount(true)
     try {
+      setLoader(true);
       const response = await apiClient.get('/admin/getAccCounts')
       const success = response?.success
       const firstRow = Array.isArray(response?.data) ? response.data[0] : null
@@ -31,6 +34,7 @@ function FrmContractAllocation() {
       showError(apiError?.message || 'Failed to fetch record count')
     } finally {
       setLoadingCount(false)
+      setLoader(false);
     }
   }, [showError])
 
@@ -45,6 +49,7 @@ function FrmContractAllocation() {
     }
 
     try {
+      setLoader(true);
       const response = await apiClient.post('/admin/allocateAccount', {
         withSmaStatus: isChecked,
       })
@@ -66,6 +71,7 @@ function FrmContractAllocation() {
       showError(failMessage)
     } finally {
       setAllocating(false)
+      setLoader(false);
     }
   }
 

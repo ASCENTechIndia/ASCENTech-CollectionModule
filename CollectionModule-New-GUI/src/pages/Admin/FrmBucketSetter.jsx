@@ -4,17 +4,19 @@ import { useForm } from 'react-hook-form'
 import apiClient from '../../services/apiClient'
 import { useNotification } from '../../context/useNotification';
 import { useConfirm } from '../../context/ConfirmModalContext';
+import { useLoader } from '../../context/LoaderContext';
 
 function FrmBucketSetter() {
   const { showSuccess, showError } = useNotification()
   const confirm = useConfirm();
   const { handleSubmit } = useForm()
   const [loading, setLoading] = useState(false)
+  const { setLoader } = useLoader();
   const [firstMessage, setFirstMessage] = useState('')
   const [secondMessage, setSecondMessage] = useState('')
 
   const onSubmit = async () => {
-    setLoading(true)
+    // setLoading(true)
     setFirstMessage('')
     setSecondMessage('')
     const agreed = await confirm("Do you want to set the buckets?");
@@ -23,8 +25,9 @@ function FrmBucketSetter() {
       setLoading(false);
       return;
     }
-
+    
     try {
+      setLoader(true);
       const response = await apiClient.post('/admin/bucketsetter')
       const success = response?.success
       const data = response?.data
@@ -43,7 +46,8 @@ function FrmBucketSetter() {
     } catch (apiError) {
       showError(apiError?.message || 'Something went wrong')
     } finally {
-      setLoading(false)
+      // setLoading(false)
+      setLoader(false);
     }
   }
 

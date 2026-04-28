@@ -5,6 +5,7 @@ import ReusableDataGrid from "../../components/ReusableDataGrid";
 import apiClient from "../../services/apiClient";
 import { useNotification } from "../../context/useNotification";
 import DataTable from "../../components/Datatable";
+import { useLoader } from "../../context/LoaderContext";
 
 // Debounce utility
 function debounce(fn, delay) {
@@ -29,6 +30,7 @@ function FrmLastLoginHistory() {
   });
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { setLoader } = useLoader();
 
   // 🔍 Search state for user name/id
   const [searchTerm, setSearchTerm] = useState("");
@@ -89,10 +91,12 @@ function FrmLastLoginHistory() {
     if (!term) {
       setSearchResults([]);
       setSearchError("");
-      setSearchLoading(false);
+      // setSearchLoading(false);
+      setLoader(false);
       return;
     }
     setSearchLoading(true);
+    // setLoader(true);
     setSearchError("");
     try {
       const response = await apiClient.get("/users/search-user-by-name-id", {
@@ -109,6 +113,7 @@ function FrmLastLoginHistory() {
       setSearchError("Search failed");
     } finally {
       setSearchLoading(false);
+      // setLoader(false);
     }
   }, 400);
 
@@ -144,7 +149,8 @@ function FrmLastLoginHistory() {
       return;
     }
 
-    setLoading(true);
+    // setLoading(true);
+    setLoader(true);
     try {
       const response = await apiClient.get("/admin/getLastLogin", {
         params: { userId: trimmedUserId },
@@ -170,7 +176,8 @@ function FrmLastLoginHistory() {
       const message = apiError?.message || "Failed to fetch login history";
       showError(message);
     } finally {
-      setLoading(false);
+      // setLoading(false);
+      setLoader(false);
     }
   };
 
