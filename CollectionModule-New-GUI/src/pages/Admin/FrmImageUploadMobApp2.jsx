@@ -46,12 +46,15 @@ const FrmImageUploadMobApp2 = () => {
           const title = item.VAR_IMAGE_TITLE;
           if (title === "Notification" || title === "EOTM") {
             map[title] = {
-              imageDataUrl: base64ToDataUrl(item.BLB_IMAGE_DATA),
+              imageDataUrl: item.BLB_IMAGE_DATA
+                ? base64ToDataUrl(item.BLB_IMAGE_DATA)
+                : null,
               flag: item.VAR_FLAG,
               title: title,
             };
           }
         });
+        console.log("map :", map);
         setFetchedData(map);
       }
     } catch (err) {
@@ -82,7 +85,7 @@ const FrmImageUploadMobApp2 = () => {
       setValue("file", file, { shouldValidate: true });
       // No preview in modal – we removed it
     },
-    [setValue]
+    [setValue],
   );
 
   const handleDropzoneClick = () => {
@@ -113,11 +116,15 @@ const FrmImageUploadMobApp2 = () => {
   };
 
   const handleDelete = async (title) => {
-    const agreed = await confirm(`Are you sure you want to delete the image for "${title}"?`);
+    const agreed = await confirm(
+      `Are you sure you want to delete the image for "${title}"?`,
+    );
     if (!agreed) return;
     try {
       setLoader(true);
-      const response = await apiClient.delete(`/image-upload-mobapp/delete-image?title=${title}`);
+      const response = await apiClient.delete(
+        `/image-upload-mobapp/delete-image?title=${title}`,
+      );
       showSuccess(response.message || "Image deleted successfully");
       await fetchImages();
     } catch (err) {
@@ -132,11 +139,17 @@ const FrmImageUploadMobApp2 = () => {
     const newFlag = currentFlag === "Y" ? "N" : "Y";
     try {
       setLoader(true);
-      const response = await apiClient.patch("/image-upload-mobapp/update-visibility", {
-        title: title,
-        visibility: newFlag,
-      });
-      showSuccess(response.message || `Visibility toggled to ${newFlag === "Y" ? "Visible" : "Hidden"}`);
+      const response = await apiClient.patch(
+        "/image-upload-mobapp/update-visibility",
+        {
+          title: title,
+          visibility: newFlag,
+        },
+      );
+      showSuccess(
+        response.message ||
+          `Visibility toggled to ${newFlag === "Y" ? "Visible" : "Hidden"}`,
+      );
       await fetchImages();
     } catch (err) {
       console.error("Toggle error:", err);
@@ -160,7 +173,7 @@ const FrmImageUploadMobApp2 = () => {
           method: "POST",
           body: formData,
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
+        },
       );
       const result = await response.json();
       if (result.result === true) {
@@ -183,9 +196,13 @@ const FrmImageUploadMobApp2 = () => {
         <div>
           <h1 className="page-title">Mobile Notification Management</h1>
           <nav className="breadcrumb">
-            <Link to="/" className="breadcrumb-item">Home</Link>
+            <Link to="/" className="breadcrumb-item">
+              Home
+            </Link>
             <span className="breadcrumb-item">Admin</span>
-            <span className="breadcrumb-item active">Mobile Notification Management</span>
+            <span className="breadcrumb-item active">
+              Mobile Notification Management
+            </span>
           </nav>
         </div>
         <button className="btn btn-primary" onClick={() => setShowModal(true)}>
@@ -208,7 +225,10 @@ const FrmImageUploadMobApp2 = () => {
               </button>
             </div>
             <div className="card-body d-flex flex-column">
-              <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "250px" }}>
+              <div
+                className="d-flex justify-content-center align-items-center"
+                style={{ minHeight: "250px" }}
+              >
                 {fetchedData.Notification?.imageDataUrl ? (
                   <img
                     src={fetchedData.Notification.imageDataUrl}
@@ -227,7 +247,10 @@ const FrmImageUploadMobApp2 = () => {
               </div>
               <div className="mt-auto d-flex justify-content-between align-items-center pt-3">
                 <span className="badge bg-secondary">
-                  Visibility: {fetchedData.Notification?.flag === "Y" ? "Visible" : "Hidden"}
+                  Visibility:{" "}
+                  {fetchedData.Notification?.flag === "Y"
+                    ? "Visible"
+                    : "Hidden"}
                 </span>
                 <div className="form-check form-switch">
                   <input
@@ -237,9 +260,17 @@ const FrmImageUploadMobApp2 = () => {
                     id="switchNotification"
                     checked={fetchedData.Notification?.flag === "Y"}
                     disabled={!fetchedData.Notification?.imageDataUrl}
-                    onChange={() => handleToggleVisibility("Notification", fetchedData.Notification?.flag)}
+                    onChange={() =>
+                      handleToggleVisibility(
+                        "Notification",
+                        fetchedData.Notification?.flag,
+                      )
+                    }
                   />
-                  <label className="form-check-label" htmlFor="switchNotification">
+                  <label
+                    className="form-check-label"
+                    htmlFor="switchNotification"
+                  >
                     Visible
                   </label>
                 </div>
@@ -262,7 +293,10 @@ const FrmImageUploadMobApp2 = () => {
               </button>
             </div>
             <div className="card-body d-flex flex-column">
-              <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "250px" }}>
+              <div
+                className="d-flex justify-content-center align-items-center"
+                style={{ minHeight: "250px" }}
+              >
                 {fetchedData.EOTM?.imageDataUrl ? (
                   <img
                     src={fetchedData.EOTM.imageDataUrl}
@@ -271,15 +305,18 @@ const FrmImageUploadMobApp2 = () => {
                     style={{ maxHeight: "250px", objectFit: "contain" }}
                   />
                 ) : (
-                  <div className="text-center text-muted">
-                    <i className="bi bi-image fs-1"></i>
-                    <p>No image uploaded</p>
-                  </div>
+                  <img
+                    src="/assets/img/no-image.png"
+                    alt="Notification"
+                    className="img-fluid rounded"
+                    style={{ maxHeight: "250px", objectFit: "contain" }}
+                  />
                 )}
               </div>
               <div className="mt-auto d-flex justify-content-between align-items-center pt-3">
                 <span className="badge bg-secondary">
-                  Visibility: {fetchedData.EOTM?.flag === "Y" ? "Visible" : "Hidden"}
+                  Visibility:{" "}
+                  {fetchedData.EOTM?.flag === "Y" ? "Visible" : "Hidden"}
                 </span>
                 <div className="form-check form-switch">
                   <input
@@ -289,7 +326,9 @@ const FrmImageUploadMobApp2 = () => {
                     id="switchEOTM"
                     checked={fetchedData.EOTM?.flag === "Y"}
                     disabled={!fetchedData.EOTM?.imageDataUrl}
-                    onChange={() => handleToggleVisibility("EOTM", fetchedData.EOTM?.flag)}
+                    onChange={() =>
+                      handleToggleVisibility("EOTM", fetchedData.EOTM?.flag)
+                    }
                   />
                   <label className="form-check-label" htmlFor="switchEOTM">
                     Visible
@@ -303,12 +342,20 @@ const FrmImageUploadMobApp2 = () => {
 
       {/* Modal for Upload */}
       {showModal && (
-        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+        <div
+          className="modal show d-block"
+          tabIndex="-1"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        >
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Upload New Image</h5>
-                <button type="button" className="btn-close" onClick={closeModal}></button>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={closeModal}
+                ></button>
               </div>
               <div className="modal-body">
                 <form onSubmit={handleSubmit(onSubmit)}>
@@ -319,13 +366,19 @@ const FrmImageUploadMobApp2 = () => {
                     </label>
                     <select
                       className={`form-select ${errors.documentType ? "is-invalid" : ""}`}
-                      {...register("documentType", { required: "Please select a document type" })}
+                      {...register("documentType", {
+                        required: "Please select a document type",
+                      })}
                     >
                       <option value="">Select type</option>
                       <option value="Notification">Notification</option>
                       <option value="EOTM">Employee of the month</option>
                     </select>
-                    {errors.documentType && <div className="invalid-feedback">{errors.documentType.message}</div>}
+                    {errors.documentType && (
+                      <div className="invalid-feedback">
+                        {errors.documentType.message}
+                      </div>
+                    )}
                   </div>
 
                   {/* Redesigned File Dropzone (compact) */}
@@ -352,14 +405,24 @@ const FrmImageUploadMobApp2 = () => {
                         <span>Click to upload the Image</span>
                       </div>
                     </div>
-                    <input type="hidden" {...register("file", { required: "Please select a file" })} />
+                    <input
+                      type="hidden"
+                      {...register("file", {
+                        required: "Please select a file",
+                      })}
+                    />
                     {selectedFile && (
                       <div className="mt-2 alert alert-info py-1 px-2">
                         <i className="bi bi-file-earmark-image me-1"></i>
-                        {selectedFile.name} ({(selectedFile.size / 1024).toFixed(2)} KB)
+                        {selectedFile.name} (
+                        {(selectedFile.size / 1024).toFixed(2)} KB)
                       </div>
                     )}
-                    {errors.file && <div className="text-danger mt-1 small">{errors.file.message}</div>}
+                    {errors.file && (
+                      <div className="text-danger mt-1 small">
+                        {errors.file.message}
+                      </div>
+                    )}
                   </div>
 
                   {/* Radio Buttons */}
@@ -374,9 +437,13 @@ const FrmImageUploadMobApp2 = () => {
                           type="radio"
                           value="Y"
                           id="visY"
-                          {...register("visibility", { required: "Please select visibility" })}
+                          {...register("visibility", {
+                            required: "Please select visibility",
+                          })}
                         />
-                        <label className="form-check-label" htmlFor="visY">Visible (Y)</label>
+                        <label className="form-check-label" htmlFor="visY">
+                          Visible (Y)
+                        </label>
                       </div>
                       <div className="form-check">
                         <input
@@ -384,17 +451,33 @@ const FrmImageUploadMobApp2 = () => {
                           type="radio"
                           value="N"
                           id="visN"
-                          {...register("visibility", { required: "Please select visibility" })}
+                          {...register("visibility", {
+                            required: "Please select visibility",
+                          })}
                         />
-                        <label className="form-check-label" htmlFor="visN">Hidden (N)</label>
+                        <label className="form-check-label" htmlFor="visN">
+                          Hidden (N)
+                        </label>
                       </div>
                     </div>
-                    {errors.visibility && <div className="text-danger mt-1 small">{errors.visibility.message}</div>}
+                    {errors.visibility && (
+                      <div className="text-danger mt-1 small">
+                        {errors.visibility.message}
+                      </div>
+                    )}
                   </div>
 
                   <div className="d-flex justify-content-end gap-2 mt-4">
-                    <button type="button" className="btn btn-secondary" onClick={closeModal}>Cancel</button>
-                    <button type="submit" className="btn btn-primary">Submit</button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={closeModal}
+                    >
+                      Cancel
+                    </button>
+                    <button type="submit" className="btn btn-primary">
+                      Submit
+                    </button>
                   </div>
                 </form>
               </div>
