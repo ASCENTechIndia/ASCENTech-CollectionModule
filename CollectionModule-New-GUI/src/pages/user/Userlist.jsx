@@ -3,10 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { Eye, Edit, Search, Monitor, Smartphone, ListTodo } from "lucide-react";
 import apiClient from "../../services/apiClient";
 import { useAuth } from "../../context/AuthContext";
+import { useLoader } from "../../context/LoaderContext";
 
 const UsersList = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { setLoader } = useLoader();
   const brCategory = user?.brCategory;
 
   // State for dropdowns and API data
@@ -58,6 +60,7 @@ const UsersList = () => {
   const fetchBranches = async (level) => {
     if (!level || !brCategory) return;
     try {
+      setLoader(true);
       const res = await apiClient.get(
         `/users/getBranches/?brcategory=${brCategory}&userLevel=${level}`,
       );
@@ -73,6 +76,8 @@ const UsersList = () => {
     } catch (err) {
       console.error("Error fetching branches:", err);
       setBranchOptions([]);
+    } finally {
+      setLoader(false);
     }
   };
 
@@ -80,6 +85,7 @@ const UsersList = () => {
   const fetchAgents = async () => {
     setLoading(true);
     try {
+      setLoader(true);
       const params = new URLSearchParams();
       if (branchId) params.append("brid", branchId);
       if (filterStatus !== "all") {
@@ -118,6 +124,7 @@ const UsersList = () => {
       setUsers([]);
     } finally {
       setLoading(false);
+      setLoader(false);
     }
   };
 
@@ -253,11 +260,11 @@ const UsersList = () => {
           <div className="users-toolbar">
             <div className="ms-auto">
               <button
-                 style={{
-                      fontSize: "14px",
-                      fontWeight: "semiBold",
-                      color: "#0ea5a4",
-                    }}
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "semiBold",
+                  color: "#0ea5a4",
+                }}
                 onClick={clearFilters}
                 title="Clear all filters"
               >

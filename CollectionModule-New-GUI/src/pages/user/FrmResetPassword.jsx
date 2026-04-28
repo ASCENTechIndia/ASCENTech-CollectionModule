@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import apiClient from "../../services/apiClient";
 import { useNotification } from "../../context/useNotification";
+import { useLoader } from "../../context/LoaderContext";
 
 // Debounce utility
 function debounce(fn, delay) {
@@ -15,6 +16,7 @@ function debounce(fn, delay) {
 function FrmResetPassword() {
   const navigate = useNavigate();
   const { showSuccess, showError, showWarning } = useNotification();
+  const { setLoader } = useLoader();
 
   const [userId, setUserId] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -77,7 +79,7 @@ function FrmResetPassword() {
     setUserId("");
   };
 
-  // ── Submit (Reset Password) ───────────────────────────────────
+  // Submit (Reset Password)
   const handleSubmit = async (event) => {
     event.preventDefault();
     setSearched(true);
@@ -98,6 +100,7 @@ function FrmResetPassword() {
     setNewPassword("");
 
     try {
+      setLoader(true);
       const response = await apiClient.post("/password/resetPassword", {
         userId: trimmedUserId,
       });
@@ -118,6 +121,7 @@ function FrmResetPassword() {
       showError(apiError?.message || "Network error");
     } finally {
       setLoading(false);
+      setLoader(false);
     }
   };
 
