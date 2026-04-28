@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import apiClient from '../../services/apiClient'
 import { useNotification } from '../../context/useNotification'
+import { useLoader } from '../../context/LoaderContext'
 
 // Debounce utility
 function debounce(fn, delay) {
@@ -44,7 +45,7 @@ function FrmUserLocationTracking() {
 
   const [coordinates, setCoordinates] = useState(null)
   const [loading, setLoading] = useState(false)
-
+  const { setLoader } = useLoader();
   // Search state
   const [searchTerm, setSearchTerm] = useState('')
   const [searchResults, setSearchResults] = useState([])
@@ -60,10 +61,12 @@ function FrmUserLocationTracking() {
     const trimmedUserId = String(values.userId || '').trim()
     const trackingDate = values.trackingDate
 
-    setLoading(true)
+    // setLoading(true)
+    setLoader(true);
     setCoordinates(null)
 
     try {
+      
       const response = await apiClient.get('/admin/getLocationTracking', {
         params: {
           userId: trimmedUserId,
@@ -87,7 +90,8 @@ function FrmUserLocationTracking() {
     } catch (error) {
       showError(error?.message || 'Failed to fetch location')
     } finally {
-      setLoading(false)
+      // setLoading(false)
+      setLoader(false);
     }
   }
 
@@ -101,6 +105,7 @@ function FrmUserLocationTracking() {
     }
 
     setSearchLoading(true)
+    // setLoader(true);
     setSearchError('')
 
     try {
@@ -119,6 +124,7 @@ function FrmUserLocationTracking() {
       setSearchError('Search failed')
     } finally {
       setSearchLoading(false)
+      // setLoader(false);
     }
   }, 400)
 

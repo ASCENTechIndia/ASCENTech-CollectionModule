@@ -16,7 +16,7 @@ const FrmNewDashboard2New = () => {
   const brCategory = user?.brCategory;
   const userOf = user?.userProofType;
   const { showError } = useNotification();
-  const {loading, setLoader} = useLoader();
+  const {setLoader} = useLoader();
   const [showDetails, setShowDetails] = useState(false);
   const [chartData, setChartData] = useState({
     labels1: [],
