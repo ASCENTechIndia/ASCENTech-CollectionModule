@@ -335,13 +335,13 @@ function FrmAccountAllocationReport() {
 
       const formattedData = apiData.map((item) => ({
         collectionAssosId: item.ASSIGNEDFOS || "",
-        zone: "",
-        region: "",
+        zone: item.VAR_BANKDATA_PRODUCTNM || "",
+        region: item.VAR_BANKDATA_PRODUCTCODE || "",
         branch: item.VAR_BANKDATA_BRANCH || "",
         allocationDate: item.CONTRACTALLOCATIONDATE || "",
         contractNo: item.CONTRACTNUMBER || "",
         dispositionDate: item.TRANSDAT || "",
-        smaType: "",
+        smaType: item.VAR_BANKDATA_DPDBUCKET || "",
       }));
 
       setRows(formattedData);
