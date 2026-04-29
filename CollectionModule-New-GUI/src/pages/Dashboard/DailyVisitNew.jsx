@@ -1109,7 +1109,7 @@ const DailyVisitNew = () => {
                       <span class="fx-mini-icon revenue">
                         <i
                           class={`bi ${icon}`}
-                          style={{ fontSize: "24px", color: color }}
+                          style={{ fontSize: "18px", color: color }}
                         ></i>
                       </span>
                       <span class="fx-mini-label">{card.label}</span>

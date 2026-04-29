@@ -204,7 +204,7 @@ const FrmActiveAgentsNew = () => {
     {
       key: "zone",
       label: "Zone",
-      minWidth: "160px",
+      minWidth: "180px",
       render: (val) =>
         val ? (
           <span
@@ -226,7 +226,7 @@ const FrmActiveAgentsNew = () => {
     {
       key: "regionName",
       label: "Region",
-      minWidth: "150px",
+      minWidth: "180px",
       render: (val) =>
         val ? (
           <span
@@ -245,33 +245,19 @@ const FrmActiveAgentsNew = () => {
           <span className="text-muted">—</span>
         ),
     },
-    {
-      key: "branchName",
-      label: "Branch Name",
-      minWidth: "160px",
-      render: (val) =>
-        val ? (
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "5px",
-              background: "#f0f4ff",
-              color: "#3d5a99",
-              padding: "3px 10px",
-              borderRadius: "20px",
-              fontSize: "0.78rem",
-              fontWeight: 500,
-              border: "1px solid #c5d3f0",
-            }}
-          >
-            <i className="bi bi-bank" />
-            {val}
-          </span>
-        ) : (
-          <span className="text-muted">—</span>
-        ),
-    },
+   {
+  key: "branchName",
+  label: "Branch",
+  minWidth: "250px",
+  render: (val) =>
+    val ? (
+      <span style={{ fontSize: "0.75rem" }}>
+        {val}
+      </span>
+    ) : (
+      "—"
+    ),
+},
     {
       key: "collectionAssociateId",
       label: "Collection Associate ID",

@@ -70,6 +70,8 @@ import FrmPincodeList from './pages/user/FrmPincodeList'
 import Home from './pages/Home'
 import FrmImageUploadmobapp from './pages/Admin/FrmImageUploadmobapp'
 import FrmImageUploadMobApp2 from './pages/Admin/FrmImageUploadMobApp2'
+import TwoFactor from './pages/TwoFactor'
+import Settings from './pages/Settings'
 
 function App() {
   return (
@@ -143,6 +145,7 @@ function App() {
         <Route path="user/unassigned-Pincode" element={<UnAssignedPincode />} />
         <Route path="admin/FrmImageUploadmobapp" element={<FrmImageUploadmobapp />} />
         <Route path="admin/FrmImageUploadMobApp2" element={<FrmImageUploadMobApp2 />} />
+        <Route path='admin/settings' element={<Settings />} />
       </Route>
       <Route path="/map-view" element={<MapViewPage />} />
       <Route
@@ -174,6 +177,7 @@ function App() {
       <Route path="/auth" element={<AuthLayout />}>
         <Route path="forgot-password" element={<AuthForgotPasswordPage />} />
         <Route path="reset-password" element={<AuthResetPasswordPage />} />
+        <Route path="/auth/two-factor-authentication" element={<TwoFactor />} />
       </Route>
 
       <Route path="/auth-login" element={<Navigate to="/auth/login" replace />} />

@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import Header from '../components/Header'
 import Sidebar from '../components/Sidebar'
+import BackToTopButton from '../components/ui/BackToTopButton'
 
 function AdminLayout() {
   const location = useLocation()
@@ -192,6 +193,7 @@ function AdminLayout() {
             </div>
           </div>
         </footer>
+        <BackToTopButton />
       </main>
     </>
   )

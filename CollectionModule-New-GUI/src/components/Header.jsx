@@ -13,6 +13,7 @@ function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAs
   const displayName = user?.name || user?.userName || user?.fullName || user?.userId || 'User'
   const displayEmail = user?.email || ''
   const displayRole = user?.role || user?.designation || 'User'
+  const brandImage = user?.brandImage || null
 
   const unreadCount = notifications.filter((item) => !item.read).length
 
@@ -48,6 +49,17 @@ function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAs
       <button className="sidebar-toggle" title="Toggle Sidebar" onClick={onToggleSidebar}>
         <i className="bi bi-layout-sidebar-inset" />
       </button>
+
+      {brandImage && (
+        <div className="header-center" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', zIndex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', pointerEvents: 'none' }}>
+          <img
+            src={`data:image/png;base64,${brandImage}`}
+            alt="Brand"
+            style={{ height: 48, maxWidth: 160, objectFit: 'contain', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
+          />
+        </div>
+      )}
+
 
       <div className="header-right">
         <div className="header-actions-desktop">

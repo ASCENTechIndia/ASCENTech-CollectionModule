@@ -404,7 +404,7 @@ async function getDailyVisitDashboardData(payload) {
     }),
     safeCall('Aoup_get_monthly__summary_Resolution_per', async () => {
       const out = await callProcedure(
-        `BEGIN Aoup_get_monthly__summary_Resolution_per(
+        `BEGIN ATBSS.Aoup_get_monthly__summary_Resolution_per(
           :out_loan_amt,
           :out_res_amt,
           :out_res_pct

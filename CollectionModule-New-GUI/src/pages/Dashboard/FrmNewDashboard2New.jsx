@@ -186,22 +186,11 @@ const FrmNewDashboard2New = () => {
     {
       key: "productType",
       label: "Product Type",
-      minWidth: "200px",
+      minWidth: "250px",
       render: (val) =>
         val ? (
           <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "5px",
-              background: "#eff6ff",
-              color: "#1d4ed8",
-              padding: "3px 10px",
-              borderRadius: "20px",
-              fontSize: "0.78rem",
-              fontWeight: 600,
-              border: "1px solid #bfdbfe",
-            }}
+          className="text-primary"
           >
             {val}
           </span>
@@ -217,7 +206,7 @@ const FrmNewDashboard2New = () => {
     {
       key: "branchName",
       label: "Branch Name",
-      minWidth: "140px",
+      minWidth: "300px",
     },
     {
       key: "accountNumber",
@@ -238,12 +227,12 @@ const FrmNewDashboard2New = () => {
     {
       key: "dispositionCode",
       label: "Disposition Code",
-      minWidth: "170px",
+      minWidth: "220px",
     },
     {
       key: "subDispositionCode",
       label: "Sub Disposition Code",
-      minWidth: "200px",
+      minWidth: "220px",
     },
     {
       key: "collectionAssociateName",

@@ -73,6 +73,23 @@ const proofTypeResult = await executeQuery(
   { userId }
 );
 const userProofType = proofTypeResult.rows?.[0]?.NUM_USERMST_USERPROOFTYPE;
+  // Fetch brand image
+  let brandImage = null;
+  try {
+    // Remove leading 'E' if present in userId for brand image query
+    let numericUserId = String(userId);
+    if (numericUserId.startsWith('E')) {
+      numericUserId = numericUserId.slice(1);
+    }
+    const brandImageResult = await executeQuery(
+      `SELECT BASE64IMG FROM AOUP_ETECH_BANNER_IMAGE WHERE NUM_AGENCY_ID = :agencyId AND USERID = :userId AND IS_ACTIVE = 'Y'`,
+      { agencyId: '100', userId: numericUserId }
+    );
+    brandImage = brandImageResult.rows?.[0]?.BASE64IMG || null;
+  } catch (e) {
+    brandImage = null;
+  }
+
   const user = {
     userId,
     compId: out.Out_CompId,
@@ -91,7 +108,8 @@ const userProofType = proofTypeResult.rows?.[0]?.NUM_USERMST_USERPROOFTYPE;
     desgName: out.Out_desgname,
     brCategory: out.Out_brcategory,
     role: out.Out_role,
-    userProofType
+    userProofType,
+    brandImage
   };
 
   const token = jwt.sign(

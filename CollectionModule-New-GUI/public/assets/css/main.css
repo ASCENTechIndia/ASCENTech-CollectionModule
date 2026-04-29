@@ -34,7 +34,7 @@
 /* Spacing Scale */
 :root {
   --spacing-xs: 0.25rem;
-  --spacing-sm: 0.5rem;
+  --spacing-sm: 0.6rem;
   --spacing-md: 1rem;
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
@@ -5508,7 +5508,7 @@ textarea.form-control {
 }
 
 .table > :not(caption) > * > * {
-  padding: var(--spacing-md) var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-sm);
   background-color: transparent;
   border-bottom-width: 1px;
   box-shadow: none;
@@ -5563,7 +5563,7 @@ textarea.form-control {
 
 /* Small Table */
 .table-sm > :not(caption) > * > * {
-  padding: var(--spacing-sm) var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-xs);
 }
 
 /* Responsive Table */
@@ -33321,10 +33321,10 @@ textarea.form-control {
 .page-dashboard .fx-mini-value {
   display: block;
   margin-top: 5px;
-  font-size: 1.2rem;
+  font-size: 1rem;
   line-height: 1.2;
   color: var(--heading-color);
-  font-weight: 700;
+  font-weight: 600;
   word-break: break-word;
 }
 
