@@ -10,7 +10,7 @@ import { useNotification } from "../../context/useNotification";
 import Chart from "react-apexcharts";
 import { useLoader } from "../../context/LoaderContext";
 
-const DailyVisitNew = () => {
+const   DailyVisitNew = () => {
   const { user } = useAuth();
   const userId = user?.userId;
   const { setLoader } = useLoader();
