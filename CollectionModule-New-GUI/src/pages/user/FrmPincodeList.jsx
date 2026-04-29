@@ -7,6 +7,7 @@ import { useNotification } from "../../context/useNotification";
 import { useForm } from "react-hook-form";
 import { useConfirm } from "../../context/ConfirmModalContext";
 import { useLoader } from "../../context/LoaderContext";
+import { useLoader } from "../../context/LoaderContext";
 
 const FrmPincodeList = () => {
   const { user } = useAuth();
