@@ -6,7 +6,6 @@ import apiClient from "../../services/apiClient";
 import { useAuth } from "../../context/AuthContext";
 import { useForm } from "react-hook-form";
 import { useNotification } from "../../context/useNotification";
-// import Chart from 'chart.js/auto'
 import Chart from "react-apexcharts";
 import { useLoader } from "../../context/LoaderContext";
 
@@ -603,52 +602,6 @@ const DailyVisitNew = () => {
     },
   ];
 
-  // useEffect(() => {
-  //     if (userId) {
-  //         fetchDailyVisitData({
-  //             fromDate: startOfMonth,
-  //             toDate: today,
-  //         });
-  //     }
-  // }, [userId, fetchDailyVisitData, startOfMonth, today]);
-
-  //  useEffect(() => {
-  //     if (!fromDateValue || !toDateValue) return;
-
-  //     const from = new Date(fromDateValue);
-  //     const to = new Date(toDateValue);
-  //     const todayDate = new Date(today);
-
-  //     const diffDays = (to - from) / (1000 * 60 * 60 * 24);
-
-  //     // ❌ Only show errors AFTER both selected
-  //     if (to > todayDate) {
-  //         showError("To Date: Future dates are not allowed");
-  //         return;
-  //     }
-
-  //     if (from > todayDate) {
-  //         showError("From Date: Future dates are not allowed");
-  //         return;
-  //     }
-
-  //     if (diffDays < 0) {
-  //         showError("To Date cannot be before From Date");
-  //         return;
-  //     }
-
-  //     if (diffDays > 30) {
-  //         showError("Date range cannot exceed 30 days");
-  //         return;
-  //     }
-
-  //     fetchDailyVisitData({
-  //     fromDate: toInputDate(from),
-  //     toDate: toInputDate(to)
-  // });
-
-  // }, [fromDateValue, toDateValue]);
-
   useEffect(() => {
     if (!fromDateValue || !toDateValue) return;
 
@@ -657,10 +610,6 @@ const DailyVisitNew = () => {
     const todayDate = new Date(today);
 
     const diffDays = (to - from) / (1000 * 60 * 60 * 24);
-
-    // if (to > todayDate || from > todayDate || diffDays < 0 || diffDays > 30) {
-    //     return; // stop invalid calls
-    // }
 
     if (to > todayDate) {
       showError("To Date: Future dates are not allowed");
@@ -859,21 +808,8 @@ const DailyVisitNew = () => {
                 className="form-control"
               />
             </div>
-            {/* {errors.toDate && <div className="col-12 col-md-3">
-                            {errors.toDate && (
-                                <p className="text-danger small mt-1 d-flex align-items-center gap-1">
-                                    {errors.toDate.message}
-                                </p>
-                            )}
-                        </div>} */}
-            {/* <div className="d-flex align-items-end">
-                            <button type="submit" className="btn btn-primary">
-                                Search
-                            </button>
-                        </div> */}
           </div>
         </div>
-        {/* <div className="card p-4 shadow border-0 d-flex flex-column flex-md-row gap-3 align-items-stretch"> */}
         <div className="row g-3">
           <div className="col-12 col-md-4 d-flex">
             <div className="card w-100 h-100">
@@ -999,34 +935,9 @@ const DailyVisitNew = () => {
                     <div className="funnel-info">
                       <span className="funnel-name">Unallocated %</span>
                       <span className="funnel-value">{`${Math.max(0, 100 - (dashboardData?.allocation?.fosAssignedPercent || 0))}%`}</span>
-                      {/* <span className="funnel-rate">65%</span> */}
                     </div>
                   </div>
                 </div>
-                {/* <div className="funnel-stage" style={{ "--funnel-width": "35%" }}>
-                  <div className="funnel-bar warning"></div>
-                  <div className="funnel-info">
-                    <span className="funnel-name">MQL</span>
-                    <span className="funnel-value">15,848</span>
-                    <span className="funnel-rate">54%</span>
-                  </div>
-                </div>
-                <div className="funnel-stage" style={{ "--funnel-width": "18%" }}>
-                  <div className="funnel-bar success"></div>
-                  <div className="funnel-info">
-                    <span className="funnel-name">SQL</span>
-                    <span className="funnel-value">8,150</span>
-                    <span className="funnel-rate">51%</span>
-                  </div>
-                </div>
-                <div className="funnel-stage" style={{ "--funnel-width" : "8%" }}>
-                  <div className="funnel-bar danger"></div>
-                  <div className="funnel-info">
-                    <span className="funnel-name">Customers</span>
-                    <span className="funnel-value">3,622</span>
-                    <span className="funnel-rate">44%</span>
-                  </div>
-                </div> */}
                 <div className="mt-auto">
                   <div className="d-flex justify-content-between align-items-center mb-3">
                     <div className="d-flex align-items-center gap-2">
@@ -1279,30 +1190,6 @@ const DailyVisitNew = () => {
                 </div>
               </div>
             </div>
-            {/* <div className="col-12 col-md-6">
-                            <div className="col-12 col-md-6 d-flex">
-                                <ChartCard title="PTP Conversion Percent">
-                                    <div style={{ height: 'clamp(220px, 32vw, 300px)', width: '100%' }}>
-                                        <canvas ref={ptpConversionData} />
-                                    </div>
-                                </ChartCard>
-                            </div>
-                        </div> */}
-            {/* <div className="col-md-6 col-12">
-                            <div className="card h-100">
-                                <div className="card-header">
-                                    <h5 className="card-title">PTP Conversion</h5>
-                                </div>
-                                <div className="card-body">
-                                    <Chart
-                                        options={ptpOptions}
-                                        series={ptpSeries}
-                                        type="pie"
-                                        height={280}
-                                    />
-                                </div>
-                            </div>
-                        </div> */}
             <div className="col-12 col-md-6">
               <div className="card h-100">
                 <div className="card-header">
@@ -1337,16 +1224,6 @@ const DailyVisitNew = () => {
                         %
                       </span>
                     </div>
-                    {/* <div className="legend-item">
-                                            <span className="legend-dot" style={{ backgroundColor: "var(--warning-color)" }}></span>
-                                            <span className="legend-label">Website</span>
-                                            <span className="legend-value">22%</span>
-                                        </div>
-                                        <div className="legend-item">
-                                            <span className="legend-dot" style={{ backgroundColor: "var(--info-color)" }}></span>
-                                            <span className="legend-label">Social</span>
-                                            <span className="legend-value">15%</span>
-                                        </div> */}
                   </div>
                 </div>
               </div>
