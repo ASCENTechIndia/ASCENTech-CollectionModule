@@ -182,13 +182,53 @@ function FrmUserRouteReport() {
     { key: "distance", label: "Distance", sortable: true },
   ];
 
+  function formatDateTime(input) {
+    // Split the input string by '-'
+    const parts = input.split("-");
+
+    // The first three parts are day, month, year
+    const day = parts[0].padStart(2, "0");
+    const month = parseInt(parts[1], 10);
+    const year = parts[2];
+
+    // The remaining parts (after index 2) form the time, joined back with ':'
+    const timeParts = parts.slice(3);
+    const time = timeParts.join(":");
+
+    // Month abbreviation mapping
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    // Validate month
+    if (month < 1 || month > 12) {
+      return input; // or throw error
+    }
+
+    const monthAbbr = monthNames[month - 1];
+    const formattedDate = `${day}-${monthAbbr}-${year}`;
+
+    return `${formattedDate} ${time}`;
+  }
+
   const tableRows = useMemo(() => {
     if (!Array.isArray(rows)) return [];
     return rows.map((item) => ({
       srNo: item["Sr No"] ?? "",
       collectionassociate: item["Collection Associate"] ?? "",
       accountnumber: item["Account Number"] ?? "",
-      transactiondate: item["Transaction Date"] ?? "",
+      transactiondate: formatDateTime(item["Transaction Date"]) ?? "",
       golocation: item.GO_Location ?? "",
       dispositiontype: item["Disposition Type"] ?? "",
       visitremark: item["Visit Remark"] ?? "",
@@ -281,6 +321,7 @@ function FrmUserRouteReport() {
       const apiCoordinates = getCoordinates(apiData?.coordinates);
 
       if (success && apiRows.length > 0) {
+        console.log("api rows :", apiRows);
         setRows(apiRows);
         setCoordinates(apiCoordinates);
         showSuccess(`Found ${apiRows.length} records`);

@@ -33,16 +33,6 @@ const formatDateForApi = (value) => {
   return `${day}-${month}-${year}`;
 };
 
-const formatDateToDDMMYYYY = (dateString) => {
-  if (!dateString) return "";
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return "";
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
-  return `${day}-${month}-${year}`;
-};
-
 function FrmInactiveUserAcs() {
   const { user } = useAuth();
   const confirm = useConfirm();
@@ -137,6 +127,35 @@ function FrmInactiveUserAcs() {
     accountnumber: item.accountNumber || "",
   }));
 
+  function formatDateFromISO(isoString) {
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) {
+      return isoString; // return original if invalid
+    }
+
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    const month = date.getUTCMonth(); // 0‑indexed
+    const year = date.getUTCFullYear();
+
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const monthAbbr = monthNames[month];
+
+    return `${day}-${monthAbbr}-${year}`;
+  }
+
   const handleSearch = async (event) => {
     event.preventDefault();
     setError("");
@@ -167,7 +186,7 @@ function FrmInactiveUserAcs() {
         response.data.length > 0
       ) {
         const formattedData = response.data.map((item) => ({
-          date: formatDateToDDMMYYYY(item.UNALLOCATE_DATE),
+          date: formatDateFromISO(item.UNALLOCATE_DATE),
           collectionID: item.VAR_BANKDATA_USERID,
           accountNumber: item.VAR_BANKDATA_CONTRACTNUM,
         }));
