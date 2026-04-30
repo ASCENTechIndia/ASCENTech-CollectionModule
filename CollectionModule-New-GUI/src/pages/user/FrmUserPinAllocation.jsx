@@ -171,11 +171,6 @@ function FrmUserPinAllocation() {
     <div className="main-content page-user-pin-allocation">
       <div className="page-header">
         <h1 className="page-title">User PIN Assignment</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">Home</Link>
-          <span className="breadcrumb-item">User</span>
-          <span className="breadcrumb-item active">User PIN Assignment</span>
-        </nav>
       </div>
 
       <div className="card">

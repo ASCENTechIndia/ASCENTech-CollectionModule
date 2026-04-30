@@ -160,13 +160,6 @@ const FrmUserCreationWeb = () => {
   <div className="main-content">
      <div className="page-header">
         <h1 className="page-title">Web User Creation</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">
-            Home
-          </Link>
-          <span className="breadcrumb-item">User</span>
-          <span className="breadcrumb-item active">Web User Creation</span>
-        </nav>
       </div>
 
     <div className="card">

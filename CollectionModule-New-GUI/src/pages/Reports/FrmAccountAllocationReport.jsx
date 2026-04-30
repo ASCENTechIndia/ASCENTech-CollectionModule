@@ -87,6 +87,7 @@ const columns = [
     key: "zone",
     label: "Zone",
     sortable: true,
+    minWidth: "120px",
     render: (val) =>
       val ? (
         <span
@@ -110,6 +111,7 @@ const columns = [
     key: "region",
     label: "Region",
     sortable: true,
+    minWidth: "150px",
     render: (val) =>
       val ? (
         <span style={{ fontSize: "0.82rem", color: "#1e293b" }}>{val}</span>
@@ -121,6 +123,7 @@ const columns = [
     key: "branch",
     label: "Branch",
     sortable: true,
+     minWidth: "300px",
     render: (val) =>
       val ? (
         <span
@@ -148,6 +151,7 @@ const columns = [
     // PLAIN TEXT
     key: "allocationDate",
     label: "Allocation Date",
+     minWidth: "150px",
     sortable: true,
     render: (val) =>
       val ? (
@@ -188,6 +192,7 @@ const columns = [
     // PLAIN TEXT
     key: "dispositionDate",
     label: "Disposition Date",
+     minWidth: "250px",
     sortable: true,
     render: (val) =>
       val ? (
@@ -395,13 +400,6 @@ function FrmAccountAllocationReport() {
     <div className="main-content page-account-allocation-report">
       <div className="page-header">
         <h1 className="page-title">Account Allocation Report</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">
-            Home
-          </Link>
-          <span className="breadcrumb-item">Reports</span>
-          <span className="breadcrumb-item active">Account Allocation</span>
-        </nav>
       </div>
 
       {/* ── Filter Card ── */}

@@ -194,15 +194,6 @@ const FrmImageUploadMobApp2 = () => {
       <div className="page-header d-flex justify-content-between align-items-center">
         <div>
           <h1 className="page-title">Mobile Notification</h1>
-          <nav className="breadcrumb">
-            <Link to="/" className="breadcrumb-item">
-              Home
-            </Link>
-            <span className="breadcrumb-item">Admin</span>
-            <span className="breadcrumb-item active">
-              Mobile Notification
-            </span>
-          </nav>
         </div>
         <button className="btn btn-primary" onClick={() => setShowModal(true)}>
           <i className="bi bi-cloud-upload me-2"></i> Upload Image

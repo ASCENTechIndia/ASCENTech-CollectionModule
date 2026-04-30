@@ -252,15 +252,6 @@ function FrmInactiveUserPincodeHistory() {
     <div className="main-content page-inactive-user-pincode-history">
       <div className="page-header">
         <h1 className="page-title">Inactive User Pincode History</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">
-            Home
-          </Link>
-          <span className="breadcrumb-item">Reports</span>
-          <span className="breadcrumb-item active">
-            Inactive User Pincode History
-          </span>
-        </nav>
       </div>
 
       <div className="card mb-4">

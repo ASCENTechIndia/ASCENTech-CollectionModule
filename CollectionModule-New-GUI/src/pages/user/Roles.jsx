@@ -216,12 +216,6 @@ const Roles = () => {
     <div className="page-roles p-4">
       <div className="page-header">
         <h1 className="page-title">Edit User</h1>
-        <nav className="breadcrumb">
-          <a href="/" className="breadcrumb-item">
-            Home
-          </a>
-          <span className="breadcrumb-item active">Edit User</span>
-        </nav>
       </div>
 
       <div className="row g-4">

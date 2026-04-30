@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import Header from '../components/Header'
 import Sidebar from '../components/Sidebar'
 import BackToTopButton from '../components/ui/BackToTopButton'
+import ScrollToTop from '../pages/ScrollToTop'
 
 function AdminLayout() {
   const location = useLocation()
@@ -142,6 +143,13 @@ function AdminLayout() {
     )
   }
 
+  useEffect(() => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth", // you can remove "smooth" if you want instant
+  });
+}, [location.pathname]);
+
   return (
     <>
       <Header
@@ -185,6 +193,7 @@ function AdminLayout() {
 
       <main className="main">
         <Outlet />
+        <ScrollToTop />
 
         <footer className="footer">
           <div className="footer-content">

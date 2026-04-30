@@ -122,13 +122,6 @@ function FrmUnallocatedCasesReport() {
     <div className="main-content page-unallocated-cases-report">
       <div className="page-header">
         <h1 className="page-title">Unallocated Cases Report</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">
-            Home
-          </Link>
-          <span className="breadcrumb-item">Reports</span>
-          <span className="breadcrumb-item active">Unallocated Cases</span>
-        </nav>
       </div>
 
       <div className="card mb-4">

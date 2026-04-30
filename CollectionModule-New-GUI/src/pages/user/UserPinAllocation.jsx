@@ -181,12 +181,6 @@ export default function UserPinAllocation() {
     <div className="page-users-edit p-4">
       <div className="page-header">
           <h1 className="page-title">Pincode Allocation</h1>
-          <nav className="breadcrumb">
-            <Link to="/" className="breadcrumb-item">
-              Home
-            </Link>
-            <span className="breadcrumb-item active">Pincode Allocation</span>
-          </nav>
       </div>
 
       {/* Summary Row */}

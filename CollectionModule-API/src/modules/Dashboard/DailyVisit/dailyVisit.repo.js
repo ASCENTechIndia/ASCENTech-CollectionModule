@@ -210,8 +210,11 @@ function resolveDateRange(fromDateInput, toDateInput) {
   const defaultFrom = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
   const defaultTo = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
 
-  const fromDate = parseDateText(fromDateInput) || defaultFrom;
-  const toDate = parseDateText(toDateInput) || defaultTo;
+  // const fromDate = parseDateText(fromDateInput) || defaultFrom;
+  // const toDate = parseDateText(toDateInput) || defaultTo;
+
+    const fromDate = new Date('2026-04-01') || defaultFrom;
+  const toDate = new Date('2026-04-30') || defaultTo;
 
   if (fromDate.getTime() > toDate.getTime()) {
     throw createError('From date can not be greater than to date.');
@@ -234,7 +237,8 @@ function resolveDateRange(fromDateInput, toDateInput) {
   // Legacy WebForms passes DateTime.Now for current-month default range,
   // and selected end-date otherwise.
   const procedureCurrentDate = isLegacyCurrentMonthDefaultRange ? now : toDate;
-  const numberOfDays = daySpan + 1;
+  // const numberOfDays = daySpan + 1;
+  const numberOfDays = 30;
 
   return {
     fromDate,

@@ -292,13 +292,6 @@ const FrmActiveAgents = () => {
         <div className="main-content">
             <div className="page-header">
                 <h1 className="page-title">Active Agent Dashboard</h1>
-                <nav className="breadcrumb">
-                    <Link to="/" className="breadcrumb-item">
-                        Home
-                    </Link>
-                    <span className="breadcrumb-item">Dashboard</span>
-                    <span className="breadcrumb-item active">Active Agents Dashboard</span>
-                </nav>
             </div>
             <div className="card p-4 shadow border-0">
                 <div className="row align-items-center g-3 ">

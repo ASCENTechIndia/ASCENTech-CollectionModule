@@ -83,11 +83,6 @@ const FrmUserModification = () => {
       {/* Page Header */}
       <div className="page-header">
         <h1 className="page-title">User Modification</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">Home</Link>
-          <span className="breadcrumb-item">User Management</span>
-          <span className="breadcrumb-item active">User Modification</span>
-        </nav>
       </div>
 
       {/* Form Card */}

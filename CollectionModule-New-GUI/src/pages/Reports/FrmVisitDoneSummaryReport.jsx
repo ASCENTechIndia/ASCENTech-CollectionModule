@@ -63,7 +63,7 @@ const columnGroups = [
       {
         key: "zone",
         label: "Zone",
-        minWidth: "140px",
+        minWidth: "160px",
         render: (v) => <ZoneCell v={v} />,
       },
       {
@@ -388,13 +388,6 @@ function FrmVisitDoneSummaryReport() {
     <div className="main-content page-visit-done-summary-report">
       <div className="page-header">
         <h1 className="page-title">Visit Done Summary Report</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">
-            Home
-          </Link>
-          <span className="breadcrumb-item">Reports</span>
-          <span className="breadcrumb-item active">Visit Done Summary</span>
-        </nav>
       </div>
 
       {error && (

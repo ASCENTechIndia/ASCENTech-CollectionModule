@@ -164,16 +164,9 @@ export default function UnAssignedPincode() {
     <div className="page-users-edit p-4">
       <div className="page-header">
         <h1 className="page-title">Unassign Cases For Users</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">
-            Home
-          </Link>
-          <span className="breadcrumb-item">User</span>
-          <span className="breadcrumb-item active">Unassign Cases</span>
-        </nav>
       </div>
 
-      <div className="responsive-split" style={{ height: "75vh" }}>
+      <div className="responsive-split">
         {/* Left Panel: Users */}
         <div className="users-panel card m-0">
           <div className="card-header">
@@ -241,7 +234,7 @@ export default function UnAssignedPincode() {
         </div>
 
         {/* Right Panel: Pincodes */}
-        <div className="pincodes-panel card relative">
+        <div className="pincodes-panel card">
           <div className="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div className="select-all-checkbox">
               <input
@@ -327,10 +320,7 @@ export default function UnAssignedPincode() {
             )}
           </div>
 
-          <div
-            className="card-footer"
-            style={{ position: "absolute", bottom: "0", width: "100%" }}
-          >
+          <div className="card-footer">
             <button
               type="button"
               className="btn btn-primary"

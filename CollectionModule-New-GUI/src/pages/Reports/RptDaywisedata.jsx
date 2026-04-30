@@ -248,13 +248,6 @@ function RptDaywisedata() {
     <div className="main-content page-daywise-data-report">
       <div className="page-header">
         <h1 className="page-title">Daily Uploaded Data Report</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">
-            Home
-          </Link>
-          <span className="breadcrumb-item">Reports</span>
-          <span className="breadcrumb-item active">Daily Uploaded Data</span>
-        </nav>
       </div>
 
       <div className="card mb-4">

@@ -345,13 +345,6 @@ function FrmUserRouteReport() {
     <div className="main-content page-user-route-report">
       <div className="page-header">
         <h1 className="page-title">User Route Report</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">
-            Home
-          </Link>
-          <span className="breadcrumb-item">Reports</span>
-          <span className="breadcrumb-item active">User Route Report</span>
-        </nav>
       </div>
 
       <div className="card mb-4">

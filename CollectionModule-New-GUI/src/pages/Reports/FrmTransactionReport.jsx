@@ -765,13 +765,6 @@ function FrmTransactionReport() {
     <div className="main-content page-transaction-report">
       <div className="page-header">
         <h1 className="page-title">Transaction Report</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">
-            Home
-          </Link>
-          <span className="breadcrumb-item">Reports</span>
-          <span className="breadcrumb-item active">Transaction Report</span>
-        </nav>
       </div>
 
       <div className="card mb-4">

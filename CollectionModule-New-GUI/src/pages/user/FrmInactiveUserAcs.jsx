@@ -242,7 +242,7 @@ function FrmInactiveUserAcs() {
       <div className="page-users">
         <div className="page-header users-page-header">
           <div>
-            <h1 className="page-title">Unallocated Accounts</h1>
+            <h1 className="page-title">Unallocated Accounts History</h1>
           </div>
           <div className="page-header-actions">
             <button

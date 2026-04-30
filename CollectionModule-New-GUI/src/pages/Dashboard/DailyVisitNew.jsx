@@ -663,7 +663,7 @@ const DailyVisitNew = () => {
       type: "donut",
     },
     labels: ["Allocated", "Unallocated"],
-    colors: ["var(--accent-color)", "var(--success-color)"],
+    colors: ["var(--success-color)", "var(--accent-color)"],
     plotOptions: {
       pie: {
         donut: {
@@ -702,7 +702,7 @@ const DailyVisitNew = () => {
       type: "donut",
     },
     labels: ["Visited", "Not Visited"],
-    colors: ["var(--warning-color)", "var(--info-color)"],
+    colors: ["var(--info-color)","var(--warning-color)" ],
     plotOptions: {
       pie: {
         donut: {
@@ -763,13 +763,6 @@ const DailyVisitNew = () => {
         <div className="page-header uv-page-header">
           <div>
             <h1 className="page-title">Daily Visit Dashboard</h1>
-            <nav className="breadcrumb">
-              <span className="breadcrumb-item">Home</span>
-              <span className="breadcrumb-item">Dashboard</span>
-              <span className="breadcrumb-item active">
-                Daily Visit Dashboard
-              </span>
-            </nav>
           </div>
           <div className="d-flex gap-2">
             <div className="d-flex flex-column align-items-md-center">
@@ -840,7 +833,7 @@ const DailyVisitNew = () => {
                     <div className="d-flex align-items-center gap-2">
                       <span
                         className="badge-dot"
-                        style={{ backgroundColor: "var(--accent-color)" }}
+                        style={{ backgroundColor: "var(--success-color)" }}
                       ></span>
                       <span>Allocated Account</span>
                     </div>
@@ -852,7 +845,7 @@ const DailyVisitNew = () => {
                     <div className="d-flex align-items-center gap-2">
                       <span
                         className="badge-dot"
-                        style={{ backgroundColor: "var(--success-color)" }}
+                        style={{ backgroundColor: "var(--accent-color)" }}
                       ></span>
                       <span>Unallocated Account</span>
                     </div>
@@ -881,7 +874,7 @@ const DailyVisitNew = () => {
                     <div className="d-flex align-items-center gap-2">
                       <span
                         className="badge-dot"
-                        style={{ backgroundColor: "var(--warning-color)" }}
+                        style={{ backgroundColor: "var(--info-color)" }}
                       ></span>
                       <span>Visited</span>
                     </div>
@@ -893,7 +886,7 @@ const DailyVisitNew = () => {
                     <div className="d-flex align-items-center gap-2">
                       <span
                         className="badge-dot"
-                        style={{ backgroundColor: "var(--info-color)" }}
+                        style={{ backgroundColor: "var(--warning-color)" }}
                       ></span>
                       <span>Not Visited</span>
                     </div>
@@ -918,9 +911,9 @@ const DailyVisitNew = () => {
                       "--funnel-width": `${dashboardData?.allocation?.fosAssignedPercent || 0}%`,
                     }}
                   >
-                    <div className="funnel-bar primary"></div>
-                    <div className="funnel-info">
-                      <span className="funnel-name">Allocated %</span>
+                    <div className="funnel-bar success"></div>
+                    <div className="funnel-success">
+                      <span className="funnel-name">Allocated </span>
                       <span className="funnel-value">
                         {dashboardData?.allocation?.fosAssignedPercent || 0}%
                       </span>
@@ -936,9 +929,9 @@ const DailyVisitNew = () => {
                       )}%`,
                     }}
                   >
-                    <div className="funnel-bar info"></div>
-                    <div className="funnel-info">
-                      <span className="funnel-name">Unallocated %</span>
+                    <div className="funnel-bar warning"></div>
+                    <div className="funnel-warning">
+                      <span className="funnel-name">Unallocated </span>
                       <span className="funnel-value">{`${Math.max(
                         0,
                         100 -
@@ -952,7 +945,7 @@ const DailyVisitNew = () => {
                     <div className="d-flex align-items-center gap-2">
                       <span
                         className="badge-dot"
-                        style={{ backgroundColor: "var(--accent-color)" }}
+                        style={{ backgroundColor: "var(--success-color)" }}
                       ></span>
                       <span>Allocated</span>
                     </div>
@@ -964,7 +957,7 @@ const DailyVisitNew = () => {
                     <div className="d-flex align-items-center gap-2">
                       <span
                         className="badge-dot"
-                        style={{ backgroundColor: "var(--info-color)" }}
+                        style={{ backgroundColor: "var(--warning-color)" }}
                       ></span>
                       <span>Unallocated</span>
                     </div>

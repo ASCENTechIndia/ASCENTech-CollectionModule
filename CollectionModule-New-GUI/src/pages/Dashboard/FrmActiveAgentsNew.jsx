@@ -36,39 +36,35 @@ const FrmActiveAgentsNew = () => {
   }
 
 
-  function formatDate(dateString) {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return dateString;
+  function formatDate(dateString, showTime = true) {
+  if (!dateString) return "";
 
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return dateString;
 
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
+  const months = [
+    "Jan","Feb","Mar","Apr","May","Jun",
+    "Jul","Aug","Sep","Oct","Nov","Dec"
+  ];
 
-    let hours = date.getHours();
-    const mins = String(date.getMinutes()).padStart(2, "0");
-    const secs = String(date.getSeconds()).padStart(2, "0");
-    const ampm = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12 || 12; // convert 0 → 12 for 12 AM
-    const hh = String(hours).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
 
-    return `${day}-${month}-${year} ${hh}:${mins}:${secs} ${ampm}`;
+  if (!showTime) {
+    return `${day}-${month}-${year}`;
   }
+
+  let hours = date.getHours();
+  const mins = String(date.getMinutes()).padStart(2, "0");
+  const secs = String(date.getSeconds()).padStart(2, "0");
+
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12 || 12;
+  const hh = String(hours).padStart(2, "0");
+
+  return `${day}-${month}-${year} ${hh}:${mins}:${secs} ${ampm}`;
+}
 
   // Chart card 
   function ChartCard({ title, children, subtitle }) {
@@ -163,7 +159,7 @@ const FrmActiveAgentsNew = () => {
             item.CURRENT_BRANCH_NAME, // [2] branch
             item.USERID, // [3] collectionAssociateId
             item.VAR_USERMST_USERFULLNAME, // [4] collectionAssociate
-            item?.LOGIN_DATE ? formatDate(item.LOGIN_DATE) : "", // [5] loginDate   ← CHANGE 3
+            item?.LOGIN_DATE ? formatDate(item.LOGIN_DATE,false) : "", // [5] loginDate   ← CHANGE 3
             item?.MIN_LOGIN ? formatDate(item.MIN_LOGIN) : "", // [6] firstLogin
             item?.MAX_LOGOUT ? formatDate(item.MAX_LOGOUT) : "", // [7] lastLogout
           ]);
@@ -298,7 +294,7 @@ const FrmActiveAgentsNew = () => {
     {
       key: "loginDate",
       label: "Login Date",
-      minWidth: "220px",
+      minWidth: "150px",
       render: (val) =>
         val ? (
           <span
@@ -372,13 +368,6 @@ const FrmActiveAgentsNew = () => {
         <div className="page-header uv-page-header">
           <div>
             <h1 className="page-title">Active Agent Dashboard</h1>
-            <nav className="breadcrumb">
-              <span className="breadcrumb-item">Home</span>
-              <span className="breadcrumb-item">Dashboard</span>
-              <span className="breadcrumb-item active">
-                Active Agent Dashboard
-              </span>
-            </nav>
           </div>
           <div className="d-flex flex-column align-items-md-center">
             <select

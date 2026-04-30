@@ -287,13 +287,6 @@ const FrmUserCreation = () => {
   <div className="main-content">
     <div className="page-header">
         <h1 className="page-title">User Creation</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">
-            Home
-          </Link>
-          <span className="breadcrumb-item">User</span>
-          <span className="breadcrumb-item active">User Creation</span>
-        </nav>
       </div>
 
     <div className="card">

@@ -185,13 +185,6 @@ function FrmLastLoginHistory() {
     <div className="main-content page-last-login-history">
       <div className="page-header">
         <h1 className="page-title">Web Users Login History</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">
-            Home
-          </Link>
-          <span className="breadcrumb-item">Admin</span>
-          <span className="breadcrumb-item active">Last Login History</span>
-        </nav>
       </div>
 
       <div className="card mb-4">

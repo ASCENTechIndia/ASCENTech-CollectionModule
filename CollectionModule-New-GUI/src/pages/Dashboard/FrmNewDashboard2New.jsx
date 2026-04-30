@@ -302,13 +302,6 @@ const FrmNewDashboard2New = () => {
         <div className="page-header uv-page-header">
           <div>
             <h1 className="page-title">Disposition Report</h1>
-            <nav className="breadcrumb">
-              <span className="breadcrumb-item">Home</span>
-              <span className="breadcrumb-item">Dashboard</span>
-              <span className="breadcrumb-item active">
-                Disposition Dashboard
-              </span>
-            </nav>
           </div>
           <div className="d-flex flex-column align-items-md-center">
             <select

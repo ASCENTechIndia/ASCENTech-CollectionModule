@@ -46,13 +46,6 @@ const FrmPincodeMstrInserion = () => {
     <div className="main-content">
       <div className="page-header">
         <h1 className="page-title">Pincode Master Insertion</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">
-            Home
-          </Link>
-          <span className="breadcrumb-item">User Management</span>
-          <span className="breadcrumb-item active">Pincode Master</span>
-        </nav>
       </div>
 
       <div className="row justify-content-center">

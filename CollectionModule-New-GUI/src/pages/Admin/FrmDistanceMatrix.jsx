@@ -45,11 +45,6 @@ function FrmDistanceMatrix() {
     <div className="main-content page-distance-matrix">
       <div className="page-header">
         <h1 className="page-title">Distance Matrix</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">Home</Link>
-          <span className="breadcrumb-item">Admin</span>
-          <span className="breadcrumb-item active">Distance Matrix</span>
-        </nav>
       </div>
 
       <div className="card">

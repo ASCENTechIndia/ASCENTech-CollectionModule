@@ -326,13 +326,6 @@ function SMASummaryReport() {
     <div className="main-content page-sma-summary-report">
       <div className="page-header">
         <h1 className="page-title">SMA Summary Report</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">
-            Home
-          </Link>
-          <span className="breadcrumb-item">Reports</span>
-          <span className="breadcrumb-item active">SMA Summary</span>
-        </nav>
       </div>
 
       {error && (

@@ -29,7 +29,7 @@ const adminMenuItems = [
 const userMenuItems = [
   { to: "/user/user-list", label: "Users" },
   { to: '/user/unassigned-Pincode', label: 'Unassigned Cases' },
-  { to: '/User/FrmInactiveUserAcs', label: 'Unallocated Accounts' },
+  { to: '/User/FrmInactiveUserAcs', label: 'Unallocated Accounts History' },
   { to: '/user/reset-password', label: 'Reset Password' },
   { to: '/user/change-password', label: 'Change Password' },
 ]

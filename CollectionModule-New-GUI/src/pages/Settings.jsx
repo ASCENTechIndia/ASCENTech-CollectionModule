@@ -5,13 +5,6 @@ export default function Settings() {
     <div className="main-content page-settings">
          <div className="page-header">
         <h1 className="page-title">Web Users Login History</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">
-            Home
-          </Link>
-          <span className="breadcrumb-item">Admin</span>
-          <span className="breadcrumb-item active">Last Login History</span>
-        </nav>
       </div>
 
 
@@ -43,10 +36,18 @@ export default function Settings() {
 
             <div className="card mb-3">
               <div className="card-header">
-                <h5 className="card-title mb-0">Security Controls</h5>
+                <h5 className="card-title mb-0">General Settings</h5>
               </div>
               <div className="card-body">
                 <div className="settings-security-stack">
+
+                  <div class="settings-security-item">
+                    <div class="settings-security-info">
+                      <h6 class="settings-security-title">Brand Logo</h6>
+                      <p class="settings-security-desc">Manage brand logo image</p>
+                    </div>
+                    <a href="activity.html" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">Manage</a>
+                  </div>
 
                     <div className="settings-security-item">
                     <div className="settings-security-info">
@@ -70,8 +71,43 @@ export default function Settings() {
                 </div>
               </div>
             </div>
-
+<div className="modal fade" id="addUserModal" tabIndex="-1">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Add New User</h5>
+                <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div className="modal-body">
+                <form>
+                  <div className="row g-3">
+                    <div className="col-sm-6">
+                      <label className="form-label">Password</label>
+                      <input type="password" className="form-control" placeholder="Enter password" />
+                    </div>
+                    <div className="col-sm-6">
+                      <label className="form-label">Confirm Password</label>
+                      <input type="password" className="form-control" placeholder="Confirm password" />
+                    </div>
+                    <div className="col-12">
+                      <div className="form-check">
+                        <input className="form-check-input" type="checkbox" id="sendInvite" defaultChecked />
+                        <label className="form-check-label" htmlFor="sendInvite">Send welcome email with login details</label>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" className="btn btn-primary">Submit</button>
+              </div>
+            </div>
           </div>
+        </div>
+          </div>
+
+          
         </div>
     </div>
   )

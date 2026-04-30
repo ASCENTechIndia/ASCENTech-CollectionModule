@@ -26,7 +26,7 @@ const columnGroups = [
       {
         key: "zone",
         label: "Zone",
-        minWidth: "120px",
+        minWidth: "160px",
         render: (v) => {
           const value = String(v || "").trim();
           const isTotal = value.toLowerCase() === "total";
@@ -377,13 +377,6 @@ function FrmNonVisitDoneSummaryReport() {
     <div className="main-content page-non-visit-done-summary-report">
       <div className="page-header">
         <h1 className="page-title">Non-Visit Done Summary Report</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">
-            Home
-          </Link>
-          <span className="breadcrumb-item">Reports</span>
-          <span className="breadcrumb-item active">Non-Visit Done Summary</span>
-        </nav>
       </div>
 
       {error && (

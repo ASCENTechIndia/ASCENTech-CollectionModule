@@ -210,7 +210,7 @@ const FrmPincodeList = () => {
                   <MapPinX />
                 </div>
                 <div className="widget-stat-content">
-                  <span className="widget-stat-label">Unassigned Pincode</span>
+                  <span className="widget-stat-label">Pincode Without Cases</span>
                   <span className="widget-stat-value">
                     {counts?.unassigned}
                   </span>

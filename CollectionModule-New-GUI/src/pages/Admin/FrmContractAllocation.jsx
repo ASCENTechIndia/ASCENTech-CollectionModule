@@ -87,11 +87,6 @@ function FrmContractAllocation() {
     <div className="main-content page-contract-allocation">
       <div className="page-header">
         <h1 className="page-title">Account Allocation</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">Home</Link>
-          <span className="breadcrumb-item">Admin</span>
-          <span className="breadcrumb-item active">Contract Allocation</span>
-        </nav>
       </div>
 
       <div className="card">

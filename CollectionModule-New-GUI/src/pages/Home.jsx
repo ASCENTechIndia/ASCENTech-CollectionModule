@@ -14,9 +14,6 @@ const Home = () => {
         {/* Page Header */}
         <div className="page-header">
           <h1 className="page-title">Home</h1>
-          <nav className="breadcrumb">
-            <span className="breadcrumb-item active">Home</span>
-          </nav>
         </div>
         {/* Welcome Banners */}
         <section className="section">

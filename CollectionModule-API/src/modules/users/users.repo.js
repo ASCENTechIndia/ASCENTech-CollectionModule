@@ -639,9 +639,17 @@ async function agentDetailsbyBridNew(payload) {
   // =========================
   // 🔥 STATUS COUNTS
   // =========================
+  // let countSql = `
+  //   SELECT 
+  //     SUM(CASE WHEN VAR_USERMST_STATUS = 'A' THEN 1 ELSE 0 END) AS active_count,
+  //     SUM(CASE WHEN VAR_USERMST_STATUS = 'I' THEN 1 ELSE 0 END) AS inactive_count
+  //   FROM etech.aoup_usermst_def a
+  //   ${whereClause}
+  // `;
+
   let countSql = `
     SELECT 
-      SUM(CASE WHEN VAR_USERMST_STATUS = 'A' THEN 1 ELSE 0 END) AS active_count,
+      SUM(CASE WHEN VAR_USERMST_STATUS IN ('A', 'U') THEN 1 ELSE 0 END) AS active_count,
       SUM(CASE WHEN VAR_USERMST_STATUS = 'I' THEN 1 ELSE 0 END) AS inactive_count
     FROM etech.aoup_usermst_def a
     ${whereClause}

@@ -129,13 +129,6 @@ function FrmResetPassword() {
     <div className="main-content page-reset-password">
       <div className="page-header">
         <h1 className="page-title">Reset Password</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">
-            Home
-          </Link>
-          <span className="breadcrumb-item">User</span>
-          <span className="breadcrumb-item active">Reset Password</span>
-        </nav>
       </div>
 
       <div className="card">

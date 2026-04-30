@@ -167,6 +167,12 @@ const UsersList = () => {
     }
   }, [userLevel]);
 
+  const rolePrefix = {
+  all: "",
+  "5": "Web ",
+  "1": "Mobile ",
+};
+
   // Frontend filter: only search and status (role already filtered by API)
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
@@ -180,11 +186,11 @@ const UsersList = () => {
 
   const getRoleBadge = (role) => {
     const roles = {
-      admin: { icon: "🛡️", label: "Admin", class: "admin" },
+      admin: { icon: "📱", label: "Mobile User", class: "admin" },
       manager: { icon: "⚙️", label: "Manager", class: "manager" },
       user: { icon: "👤", label: "User", class: "user" },
-      1: { icon: "📱", label: "FOS", class: "admin" },
-      5: { icon: "👁️", label: "Generic View", class: "manager" },
+      1: { icon: "📱", label: "Mobile User", class: "admin" },
+      5: { icon: "🖥️", label: "Web User", class: "manager" },
     };
     return roles[role] || roles.user;
   };
@@ -196,6 +202,8 @@ const UsersList = () => {
     };
     return statuses[status] || statuses.active;
   };
+
+  const prefix = rolePrefix[filterRole] || "";
 
   return (
     <div className="main-content">
@@ -221,7 +229,7 @@ const UsersList = () => {
         </div>
 
         {/* Changes will be in this div */}
-        <div className="row g-4 mb-3">
+        {/* <div className="row g-4 mb-3">
           <div className="col-lg-4 col-md-6">
             <div className="card widget-stat-progress">
               <div className="card-body d-flex justify-content-between">
@@ -294,7 +302,66 @@ const UsersList = () => {
               </div>
             </div>
           </div>
+        </div> */}
+
+         <div className="row g-4 mb-3">
+  <div className="col-lg-4 col-md-6">
+    <div className="card widget-stat-progress">
+      <div className="card-body d-flex justify-content-between">
+        <div className="d-flex align-items-center ">
+          <div className="widget-stat-icon primary">
+            <i className="bi bi-people"></i>
+          </div>
+          <div className="widget-stat-content ms-3">
+            <span className="widget-stat-label">
+              Total {prefix}Users
+            </span>
+            <span className="widget-stat-value">{counts.total}</span>
+          </div>
         </div>
+        <div className="widget-stat-bar primary" />
+      </div>
+    </div>
+  </div>
+
+  <div className="col-lg-4 col-md-6">
+    <div className="card widget-stat-progress">
+      <div className="card-body d-flex justify-content-between">
+        <div className="d-flex align-items-center ">
+          <div className="widget-stat-icon warning">
+            <i className="bi bi-person-check"></i>
+          </div>
+          <div className="widget-stat-content ms-3">
+            <span className="widget-stat-label">
+              Active {prefix}Users
+            </span>
+            <span className="widget-stat-value">{counts.active}</span>
+          </div>
+        </div>
+        <div className="widget-stat-bar warning" />
+      </div>
+    </div>
+  </div>
+
+  <div className="col-lg-4 col-md-6">
+    <div className="card widget-stat-progress">
+      <div className="card-body d-flex justify-content-between">
+        <div className="d-flex align-items-center">
+          <div className="widget-stat-icon danger">
+            <i className="bi bi-person-fill-x"></i>
+          </div>
+          <div className="widget-stat-content ms-3">
+            <span className="widget-stat-label">
+              Inactive {prefix}Users
+            </span>
+            <span className="widget-stat-value">{counts.inactive}</span>
+          </div>
+        </div>
+        <div className="widget-stat-bar danger" />
+      </div>
+    </div>
+  </div>
+</div>
 
         <div className="card users-list-card">
           <div className="users-toolbar">
@@ -418,6 +485,7 @@ const UsersList = () => {
 
                     // Disable Pin Allocation button when any table record is generic(web) or value is 5
                     const isPinDisabled = userItem.role === "5";
+                    const isPageAccessDisabled = userItem.role === "admin";
                     return (
                       <tr key={userItem.id}>
                         <td>
@@ -463,8 +531,20 @@ const UsersList = () => {
                             <Link
                               to="/user/roles"
                               state={{ employeeId: userItem.id }}
-                              className="users-action-btn"
-                              title="Edit"
+                              className={`users-action-btn ${isPageAccessDisabled ? "disabled-link" : ""}`}
+                              title={
+                                isPageAccessDisabled
+                                  ? "Page access not available for Admin role"
+                                  : "Edit"
+                              }
+                              onClick={(e) =>
+                                isPageAccessDisabled && e.preventDefault()
+                              }
+                              style={
+                                isPageAccessDisabled
+                                  ? { pointerEvents: "none", opacity: 0.5 }
+                                  : {}
+                              }
                             >
                               <Edit size={16} />
                             </Link>

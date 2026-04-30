@@ -69,12 +69,6 @@ const FrmUserList = () => {
     <div className="main-content">
       <div className="page-header">
         <h1 className="page-title">User List</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">
-            Home
-          </Link>
-          <span className="breadcrumb-item active">User List</span>
-        </nav>
       </div>
 
       <div className="d-flex justify-content-end gap-3 mb-3 flex-wrap">

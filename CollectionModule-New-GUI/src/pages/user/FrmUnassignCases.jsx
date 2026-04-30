@@ -122,11 +122,6 @@ function FrmUnassignCases() {
     <div className="main-content page-unassign-cases">
       <div className="page-header">
         <h1 className="page-title">Unassign Cases For Users</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">Home</Link>
-          <span className="breadcrumb-item">User</span>
-          <span className="breadcrumb-item active">Unassign Cases</span>
-        </nav>
       </div>
 
       <div className="card">

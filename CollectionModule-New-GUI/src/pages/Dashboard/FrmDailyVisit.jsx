@@ -512,13 +512,6 @@ const FrmDailyVisit = () => {
         <div className="main-content">
             <div className="page-header">
                 <h1 className="page-title">Daily Visit Report</h1>
-                <nav className="breadcrumb">
-                    <Link to="/" className="breadcrumb-item">
-                        Home
-                    </Link>
-                    <span className="breadcrumb-item">Dashboard</span>
-                    <span className="breadcrumb-item active">Daily Visit Report</span>
-                </nav>
             </div>
             <div className="card p-4 shadow border-0">
                 <h3 className="card-title">Select Date Range</h3>

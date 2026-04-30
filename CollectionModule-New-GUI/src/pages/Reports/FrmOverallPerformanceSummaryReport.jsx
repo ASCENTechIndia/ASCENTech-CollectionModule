@@ -383,15 +383,6 @@ function FrmOverallPerformanceSummaryReport() {
     <div className="main-content page-overall-performance-summary-report">
       <div className="page-header">
         <h1 className="page-title">Overall Performance Summary Report</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">
-            Home
-          </Link>
-          <span className="breadcrumb-item">Reports</span>
-          <span className="breadcrumb-item active">
-            Overall Performance Summary
-          </span>
-        </nav>
       </div>
 
       <DataTableGrouped
