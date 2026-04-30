@@ -125,7 +125,6 @@ function FrmTransactionReport() {
     setSearchLoading(true);
     setSearchError("");
     try {
-      setLoader(true);
       const response = await apiClient.get("/users/search-user-by-name-id", {
         params: { search: term },
       });
@@ -140,7 +139,6 @@ function FrmTransactionReport() {
       setSearchError("Search failed");
     } finally {
       setSearchLoading(false);
-      setLoader(false);
     }
   }, 400);
 
@@ -1027,18 +1025,9 @@ function FrmTransactionReport() {
         </div>
       )}
 
-      {/* {rows.length > 0 && (
-        <div className="card">
-          <div className="card-body">
-            <ReusableDataGrid rows={rows} columns={columns} pageSize={10} />
-          </div>
-        </div>
-      )} */}
-
       {rows.length > 0 && (
         <div className="card">
           <div className="card-body">
-            {/* <ReusableDataGrid rows={rows} columns={columns} pageSize={10} /> */}
             <DataTable
               title="Transaction Report Table"
               csvFilename="transaction_report.csv"

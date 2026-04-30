@@ -173,7 +173,7 @@ export default function UnAssignedPincode() {
         </nav>
       </div>
 
-      <div className="responsive-split">
+      <div className="responsive-split" style={{ height: "75vh" }}>
         {/* Left Panel: Users */}
         <div className="users-panel card m-0">
           <div className="card-header">
@@ -241,7 +241,7 @@ export default function UnAssignedPincode() {
         </div>
 
         {/* Right Panel: Pincodes */}
-        <div className="pincodes-panel card">
+        <div className="pincodes-panel card relative">
           <div className="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div className="select-all-checkbox">
               <input
@@ -327,7 +327,10 @@ export default function UnAssignedPincode() {
             )}
           </div>
 
-          <div className="card-footer">
+          <div
+            className="card-footer"
+            style={{ position: "absolute", bottom: "0", width: "100%" }}
+          >
             <button
               type="button"
               className="btn btn-primary"
