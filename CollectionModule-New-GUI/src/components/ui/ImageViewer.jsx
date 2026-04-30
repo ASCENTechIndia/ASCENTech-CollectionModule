@@ -16,8 +16,8 @@ function ImageViewer({ imageCode, onClose }) {
           params: { imageCode },
         });
 
-        if (res?.data?.success && res?.data?.data) {
-          setImageSrc(`data:image/png;base64,${res.data.data}`);
+        if (res?.success && res?.data) {
+          setImageSrc(`data:image/png;base64,${res.data}`);
         } else {
           setImageSrc("");
           showError("Image not available");
