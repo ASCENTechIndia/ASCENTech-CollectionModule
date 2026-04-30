@@ -91,7 +91,37 @@ const FrmNewDashboard2New = () => {
     );
   }
 
-  // ── Fetch data ────────────────────────────────────────────
+  function formatDateToAbbr(dateStr) {
+    const parts = dateStr.split("/");
+    if (parts.length !== 3) {
+      return dateStr;
+    }
+    const day = parts[0].padStart(2, "0");
+    const month = parseInt(parts[1], 10);
+    const year = parts[2];
+
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    if (month < 1 || month > 12) {
+      return dateStr;
+    }
+    const monthAbbr = monthNames[month - 1];
+    return `${day}-${monthAbbr}-${year}`;
+  }
+
+  // Fetch data 
   const fetchData = async (monthYear) => {
     try {
       setLoader(true);
@@ -112,7 +142,7 @@ const FrmNewDashboard2New = () => {
         });
 
         const formattedTableData = response.data.grid.map((item) => [
-          item.TRANS_DATE,
+          formatDateToAbbr(item.TRANS_DATE),
           item.MDM_ID,
           item.VAR_BANKDATA_BRANCH,
           item.CONTRACTNUM,
@@ -143,7 +173,7 @@ const FrmNewDashboard2New = () => {
     }
   }, [userId, brCategory, userOf]);
 
-  // Map raw array rows → objects 
+  // Map raw array rows → objects
   const users = tableData.map((rec, index) => ({
     id: index,
     dispositionDate: rec[0],
@@ -189,11 +219,7 @@ const FrmNewDashboard2New = () => {
       minWidth: "250px",
       render: (val) =>
         val ? (
-          <span
-          className="text-primary"
-          >
-            {val}
-          </span>
+          <span className="text-primary">{val}</span>
         ) : (
           <span className="text-muted">—</span>
         ),

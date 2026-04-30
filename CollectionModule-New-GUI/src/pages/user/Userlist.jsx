@@ -102,26 +102,26 @@ const UsersList = () => {
       );
       if (res.success) {
         const apiData = res.data;
-       const userList = apiData.data.map((agent, i) => ({
-  id: agent.USERID,
-  name: agent.EMPNAME,
-  email: agent.EMAIL,
-  mobile: agent.MOBNO?.toString(),
-  role: mapRole(agent.VAR_USERROLE_NAME),
-  status: agent.VAR_USERMST_STATUS === "A" ? "active" : "inactive",
+        const userList = apiData.data.map((agent, i) => ({
+          id: agent.USERID,
+          name: agent.EMPNAME,
+          email: agent.EMAIL,
+          mobile: agent.MOBNO?.toString(),
+          role: mapRole(agent.VAR_USERROLE_NAME),
+          status: agent.VAR_USERMST_STATUS === "A" ? "active" : "inactive",
 
-  // ✅ Last Active from API
-  lastLogin: agent.DATE_USERMST_LASTLOGIN
-    ? new Date(agent.DATE_USERMST_LASTLOGIN).toLocaleString()
-    : "Never",
+          // ✅ Last Active from API
+          lastLogin: agent.DATE_USERMST_LASTLOGIN
+            ? new Date(agent.DATE_USERMST_LASTLOGIN).toLocaleString()
+            : "Never",
 
-  // ✅ Joined from API
-  insertDate: agent.DATE_USERMST_STATUSUPDDT
-    ? new Date(agent.DATE_USERMST_STATUSUPDDT).toLocaleDateString()
-    : "-",
+          // ✅ Joined from API
+          insertDate: agent.DATE_USERMST_STATUSUPDDT
+            ? new Date(agent.DATE_USERMST_STATUSUPDDT).toLocaleDateString()
+            : "-",
 
-  avatar: `avatar-${i}.webp`,
-}));
+          avatar: `avatar-${i}.webp`,
+        }));
         setUsers(userList);
         setTotalPages(apiData.pagination.totalPages);
         setCounts(apiData.counts);
@@ -220,16 +220,27 @@ const UsersList = () => {
           </div>
         </div>
 
+        {/* Changes will be in this div */}
         <div className="row g-4 mb-3">
           <div className="col-lg-4 col-md-6">
             <div className="card widget-stat-progress">
-              <div className="card-body">
-                <div className="widget-stat-icon primary">
-                  <i className="bi bi-people"></i>
+              <div className="card-body d-flex justify-content-between">
+                <div className="d-flex align-items-center ">
+                  <div className="widget-stat-icon primary">
+                    <i className="bi bi-people"></i>
+                  </div>
+                  <div className="widget-stat-content ms-3">
+                    <span className="widget-stat-label">Total Users</span>
+                    <span className="widget-stat-value">{counts.total}</span>
+                  </div>
                 </div>
-                <div className="widget-stat-content">
-                  <span className="widget-stat-label">Total Users</span>
-                  <span className="widget-stat-value">{counts.total}</span>
+                <div>
+                  <p className="m-0">
+                    <span className="fw-bold">Web:</span> 100
+                  </p>
+                  <p className="m-0">
+                    <span className="fw-bold">Mobile:</span> 30
+                  </p>
                 </div>
                 <div className="widget-stat-bar primary" />
               </div>
@@ -237,13 +248,23 @@ const UsersList = () => {
           </div>
           <div className="col-lg-4 col-md-6">
             <div className="card widget-stat-progress">
-              <div className="card-body">
-                <div className="widget-stat-icon warning">
-                  <i className="bi bi-person-check"></i>
+              <div className="card-body d-flex justify-content-between">
+                <div className="d-flex align-items-center ">
+                  <div className="widget-stat-icon warning">
+                    <i className="bi bi-person-check"></i>
+                  </div>
+                  <div className="widget-stat-content ms-3">
+                    <span className="widget-stat-label">Active Users</span>
+                    <span className="widget-stat-value">{counts.active}</span>
+                  </div>
                 </div>
-                <div className="widget-stat-content">
-                  <span className="widget-stat-label">Active Users</span>
-                  <span className="widget-stat-value">{counts.active}</span>
+                <div>
+                  <p className="m-0">
+                    <span className="fw-bold">Web:</span> 100
+                  </p>
+                  <p className="m-0">
+                    <span className="fw-bold">Mobile:</span> 30
+                  </p>
                 </div>
                 <div className="widget-stat-bar warning" />
               </div>
@@ -251,13 +272,23 @@ const UsersList = () => {
           </div>
           <div className="col-lg-4 col-md-6">
             <div className="card widget-stat-progress">
-              <div className="card-body">
-                <div className="widget-stat-icon danger">
-                  <i className="bi bi-person-fill-x"></i>
+              <div className="card-body d-flex justify-content-between">
+                <div className="d-flex align-items-center">
+                  <div className="widget-stat-icon danger">
+                    <i className="bi bi-person-fill-x"></i>
+                  </div>
+                  <div className="widget-stat-content ms-3">
+                    <span className="widget-stat-label">Inactive Users</span>
+                    <span className="widget-stat-value">{counts.inactive}</span>
+                  </div>
                 </div>
-                <div className="widget-stat-content">
-                  <span className="widget-stat-label">Inactive Users</span>
-                  <span className="widget-stat-value">{counts.inactive}</span>
+                <div>
+                  <p className="m-0">
+                    <span className="fw-bold">Web:</span> 100
+                  </p>
+                  <p className="m-0">
+                    <span className="fw-bold">Mobile:</span> 30
+                  </p>
                 </div>
                 <div className="widget-stat-bar danger" />
               </div>
@@ -357,8 +388,8 @@ const UsersList = () => {
                     onChange={(e) => setFilterRole(e.target.value)}
                   >
                     <option value="all">All roles</option>
-                    <option value="5">Generic</option>
-                    <option value="1">FOS</option>
+                    <option value="5">Web</option>
+                    <option value="1">Mobile</option>
                   </select>
                 </div>
               </div>
@@ -376,7 +407,7 @@ const UsersList = () => {
                     <th>Role</th>
                     <th>Status</th>
                     <th>Last Login</th>
-                    <th>Insert Date</th>
+                    <th>Creation Date</th>
                     <th className="users-th-actions">Actions</th>
                   </tr>
                 </thead>
@@ -384,8 +415,9 @@ const UsersList = () => {
                   {filteredUsers.map((userItem) => {
                     const role = getRoleBadge(userItem.role);
                     const status = getStatusBadge(userItem.status);
-                    // Disable Pin Allocation button when the role dropdown is set to "Generic" (value "5")
-                    const isPinDisabled = filterRole === "5";
+
+                    // Disable Pin Allocation button when any table record is generic(web) or value is 5
+                    const isPinDisabled = userItem.role === "5";
                     return (
                       <tr key={userItem.id}>
                         <td>
@@ -399,12 +431,9 @@ const UsersList = () => {
                               <span className="users-avatar-status online"></span>
                             </div>
                             <div className="users-user-info">
-                              <Link
-                                to={`/users/${userItem.id}`}
-                                className="users-user-name"
-                              >
+                              <span className="users-user-mobile">
                                 {userItem.name}
-                              </Link>
+                              </span>
                               <span className="users-user-email">
                                 {userItem.email}
                               </span>

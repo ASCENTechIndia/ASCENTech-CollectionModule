@@ -43,7 +43,7 @@ const DailyVisitNew = () => {
   });
 
   const [dashboardData, setDashboardData] = useState(null);
-  console.log("dashboard data:", dashboardData);
+
   const fromDateValue = watch("fromDate");
   const toDateValue = watch("toDate");
 
@@ -600,33 +600,27 @@ const DailyVisitNew = () => {
   const getSunburstItems = useCallback((sunburstData) => {
     if (!sunburstData) return [];
 
-    const items = [];
-
-    const mapping = [
-      { key: "reacted", label: "Reacted" },
-      { key: "collected", label: "Payment Collected" },
-      { key: "cf", label: "Fully Paid (CF)" },
-      { key: "cp", label: "Partially Paid (CP)" },
-      { key: "ptp", label: "Promise to Pay (PTP)" },
-      { key: "borrowerAbusive", label: "Borrower Abusive / Aggressive" },
-      { key: "nonReacted", label: "Non-Contactable" },
-      { key: "invalid", label: "Invalid" },
-      { key: "shortAddress", label: "Short Address" },
-      { key: "addressNotFound", label: "Address Not Found" },
+    // Complete list of all labels in the order they appear in the sunburst chart
+    const allLabels = [
+      { label: "Total Cases", key: "total" },
+      { label: "Reacted", key: "reacted" },
+      { label: "Payment Collected", key: "collected" },
+      { label: "Fully Paid", key: "cf" },
+      { label: "Partially Paid", key: "cp" },
+      { label: "Promise to Pay", key: "ptp" },
+      { label: "PTP on Field", key: "ptp" }, // child node – same key
+      { label: "Borrower Abusive / Aggressive", key: "borrowerAbusive" }, // parent node
+      { label: "Borrower Abusive / Aggressive", key: "borrowerAbusive" }, // child node (duplicate label, but we include twice)
+      { label: "Non-Contactable", key: "nonReacted" },
+      { label: "Invalid", key: "invalid" },
+      { label: "Short Address", key: "shortAddress" },
+      { label: "Address Not Found", key: "addressNotFound" },
     ];
 
-    mapping.forEach(({ key, label }) => {
-      const value = sunburstData[key];
-      if (value !== undefined && value !== null) {
-        items.push({ label, value });
-      }
-    });
-
-    if (sunburstData.total !== undefined) {
-      items.unshift({ label: "Total Cases", value: sunburstData.total });
-    }
-
-    return items;
+    return allLabels.map(({ label, key }) => ({
+      label,
+      value: sunburstData[key] ?? 0,
+    }));
   }, []);
 
   useEffect(() => {
@@ -1276,8 +1270,8 @@ const DailyVisitNew = () => {
                     <div
                       className="sunburst-legend-list"
                       style={{
-                        maxHeight: "400px",
-                        overflowY: "auto",
+                        // maxHeight: "400px",
+                        // overflowY: "auto",
                         paddingRight: "8px",
                       }}
                     >
@@ -1327,7 +1321,10 @@ const DailyVisitNew = () => {
                                   backgroundColor: `hsl(${(idx * 30) % 360}, 70%, 55%)`,
                                 }}
                               ></span>
-                              <span className="text-muted small" style={{fontSize: "13px"}}>
+                              <span
+                                className="text-muted small"
+                                style={{ fontSize: "13px" }}
+                              >
                                 {item.label}
                               </span>
                             </div>

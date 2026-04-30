@@ -387,6 +387,36 @@ function FrmTransactionReport() {
     window.open(`/map-view?lat=${lat.trim()}&lng=${lng.trim()}`, "_blank");
   };
 
+  function formatDateToAbbr(dateStr) {
+    const parts = dateStr.split("/");
+    if (parts.length !== 3) {
+      return dateStr;
+    }
+    const day = parts[0].padStart(2, "0");
+    const month = parseInt(parts[1], 10);
+    const year = parts[2];
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    if (month < 1 || month > 12) {
+      return dateStr;
+    }
+
+    const monthAbbr = monthNames[month - 1];
+    return `${day}-${monthAbbr}-${year}`;
+  }
+
   // ---------- Main search (transaction report) ----------
   const handleSearch = async () => {
     setError("");
@@ -463,7 +493,7 @@ function FrmTransactionReport() {
           paymode: item.PAYMODE || "",
           amount: item.PAIDAMT || "",
           ptpdate: item.PTPDATE || "",
-          transactiondate: item.TRANS_DATE || "",
+          transactiondate: formatDateToAbbr(item.TRANS_DATE) || "",
           transactiontime: item.TRANS_TIME || "",
           view: item.IMAGECODE || "",
           geolocation: item.GOLOCATION || "",

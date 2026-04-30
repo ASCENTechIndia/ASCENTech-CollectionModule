@@ -307,6 +307,38 @@ function FrmAccountAllocationReport() {
     setValue("userId", "");
   };
 
+  function formatDateToAbbr(dateStr) {
+    const parts = dateStr.split("/");
+    if (parts.length !== 3) {
+      return dateStr;
+    }
+    const day = parts[0].padStart(2, "0");
+    const month = parseInt(parts[1], 10);
+    const year = parts[2];
+
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    if (month < 1 || month > 12) {
+      return dateStr;
+    }
+
+    const monthAbbr = monthNames[month - 1];
+    return `${day}-${monthAbbr}-${year}`;
+  }
+
   // Fetch report data
   const handleSearch = async () => {
     const queryParams = new URLSearchParams({
@@ -338,7 +370,7 @@ function FrmAccountAllocationReport() {
         zone: item.VAR_BANKDATA_PRODUCTNM || "",
         region: item.VAR_BANKDATA_PRODUCTCODE || "",
         branch: item.VAR_BANKDATA_BRANCH || "",
-        allocationDate: item.CONTRACTALLOCATIONDATE || "",
+        allocationDate: formatDateToAbbr(item.CONTRACTALLOCATIONDATE) || "",
         contractNo: item.CONTRACTNUMBER || "",
         dispositionDate: item.TRANSDAT || "",
         smaType: item.VAR_BANKDATA_DPDBUCKET || "",
