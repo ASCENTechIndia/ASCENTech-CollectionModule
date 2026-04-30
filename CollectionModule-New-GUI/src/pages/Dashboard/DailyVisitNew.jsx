@@ -13,8 +13,8 @@ const DailyVisitNew = () => {
   const { user } = useAuth();
   const userId = user?.userId;
   const { setLoader } = useLoader();
-
   const { showError } = useNotification();
+
   const toInputDate = (date) => {
     const tzOffset = date.getTimezoneOffset() * 60000;
     return new Date(date.getTime() - tzOffset).toISOString().split("T")[0];
@@ -26,6 +26,7 @@ const DailyVisitNew = () => {
     return toInputDate(date);
   })();
   const apiUserId = String(userId || "").replace(/\D/g, "");
+
   const {
     register,
     handleSubmit,
@@ -40,7 +41,9 @@ const DailyVisitNew = () => {
       toDate: today,
     },
   });
+
   const [dashboardData, setDashboardData] = useState(null);
+  console.log("dashboard data:", dashboardData);
   const fromDateValue = watch("fromDate");
   const toDateValue = watch("toDate");
 
@@ -67,21 +70,17 @@ const DailyVisitNew = () => {
 
   function useChart(setup) {
     const canvasRef = useRef(null);
-
     useEffect(() => {
       const context = canvasRef.current?.getContext("2d");
       if (!context) return undefined;
-
       const chart = setup(context);
       return () => chart?.destroy?.();
     }, [setup]);
-
     return canvasRef;
   }
 
   function useEChart(optionFactory) {
     const ref = useRef(null);
-
     useEffect(() => {
       if (!ref.current) return undefined;
       const chart = echarts.init(ref.current);
@@ -93,7 +92,6 @@ const DailyVisitNew = () => {
         chart.dispose();
       };
     }, [optionFactory]);
-
     return ref;
   }
 
@@ -381,7 +379,6 @@ const DailyVisitNew = () => {
                   value: dashboardData?.dispositionSunburst?.reacted,
                   itemStyle: {
                     color: "rgba(251, 226, 130, 1)",
-                    // color: 'rgba(212, 185, 209, 1)'
                   },
                   children: [
                     {
@@ -489,7 +486,6 @@ const DailyVisitNew = () => {
         showError("User ID is not available");
         return;
       }
-
       try {
         setLoader(true);
         const response = await apiClient.get("/daily-visit/dashboard", {
@@ -499,12 +495,10 @@ const DailyVisitNew = () => {
             toDate: values.toDate,
           },
         });
-
         if (response?.success && response?.data) {
           setDashboardData(response.data);
           return;
         }
-
         setDashboardData(null);
         showError(response?.message || "Failed to load daily visit data");
       } catch (error) {
@@ -602,6 +596,39 @@ const DailyVisitNew = () => {
     },
   ];
 
+  // Helper to get flat label-value list for sunburst
+  const getSunburstItems = useCallback((sunburstData) => {
+    if (!sunburstData) return [];
+
+    const items = [];
+
+    const mapping = [
+      { key: "reacted", label: "Reacted" },
+      { key: "collected", label: "Payment Collected" },
+      { key: "cf", label: "Fully Paid (CF)" },
+      { key: "cp", label: "Partially Paid (CP)" },
+      { key: "ptp", label: "Promise to Pay (PTP)" },
+      { key: "borrowerAbusive", label: "Borrower Abusive / Aggressive" },
+      { key: "nonReacted", label: "Non-Contactable" },
+      { key: "invalid", label: "Invalid" },
+      { key: "shortAddress", label: "Short Address" },
+      { key: "addressNotFound", label: "Address Not Found" },
+    ];
+
+    mapping.forEach(({ key, label }) => {
+      const value = sunburstData[key];
+      if (value !== undefined && value !== null) {
+        items.push({ label, value });
+      }
+    });
+
+    if (sunburstData.total !== undefined) {
+      items.unshift({ label: "Total Cases", value: sunburstData.total });
+    }
+
+    return items;
+  }, []);
+
   useEffect(() => {
     if (!fromDateValue || !toDateValue) return;
 
@@ -632,10 +659,11 @@ const DailyVisitNew = () => {
     }
 
     fetchDailyVisitData({
-      fromDate: fromDateValue, // already correct format
+      fromDate: fromDateValue,
       toDate: toDateValue,
     });
   }, [fromDateValue, toDateValue]);
+
   const chart1Options = {
     chart: {
       type: "donut",
@@ -713,6 +741,7 @@ const DailyVisitNew = () => {
     dashboardData?.allocation?.visitedAccounts || 0,
     dashboardData?.allocation?.nonVisitedAccounts || 0,
   ];
+
   const ptpOptions = {
     chart: {
       type: "pie",
@@ -733,6 +762,7 @@ const DailyVisitNew = () => {
     dashboardData?.ptp?.ptpConversionPercent || 0,
     Math.max(0, 100 - (dashboardData?.ptp?.ptpConversionPercent || 0)),
   ];
+
   return (
     <div className="page-roles p-4">
       <div className="page-users-view">
@@ -764,42 +794,29 @@ const DailyVisitNew = () => {
                 })}
                 max={today}
                 className="form-control"
-                // onChange={(e) => {
-                //     setValue("fromDate", e);
-                // }}
               />
             </div>
             <div className="d-flex flex-column align-items-md-center">
               <label className="form-label mb-0 fw-medium">To Date:</label>
-
               <input
                 type="date"
                 {...register("toDate", {
                   required: "To Date is required",
                   validate: (value) => {
                     if (!value) return true;
-
                     if (value > today) {
                       return "Future dates are not allowed";
-                      // showError("Future dates are not allowed");
-                      // return;
                     }
-
                     if (!fromDateValue) return true;
-
                     const from = new Date(fromDateValue);
                     const to = new Date(value);
-
                     const diffDays = (to - from) / (1000 * 60 * 60 * 24);
-
                     if (diffDays < 0) {
                       return "To Date cannot be before From Date";
                     }
-
                     if (diffDays > 30) {
                       return "To Date cannot be more than 30 days after From Date";
                     }
-
                     return true;
                   },
                 })}
@@ -810,22 +827,20 @@ const DailyVisitNew = () => {
             </div>
           </div>
         </div>
+
         <div className="row g-3">
           <div className="col-12 col-md-4 d-flex">
             <div className="card w-100 h-100">
               <div className="card-header">
                 <h5 className="card-title">Allocation details</h5>
               </div>
-
               <div className="card-body">
-                {/* ✅ REAL CHART */}
                 <Chart
                   options={chart1Options}
                   series={chart1Series}
                   type="donut"
                   height={220}
                 />
-
                 <div className="mt-4">
                   <div className="d-flex justify-content-between align-items-center mb-3">
                     <div className="d-flex align-items-center gap-2">
@@ -839,8 +854,6 @@ const DailyVisitNew = () => {
                       {dashboardData?.allocation?.allocatedAccounts || 0}
                     </span>
                   </div>
-
-                  {/* Audio */}
                   <div className="d-flex justify-content-between align-items-center mb-3">
                     <div className="d-flex align-items-center gap-2">
                       <span
@@ -862,18 +875,14 @@ const DailyVisitNew = () => {
               <div className="card-header">
                 <h5 className="card-title">Visits Details</h5>
               </div>
-
               <div className="card-body d-flex flex-column flex-grow-1">
-                {/* ✅ REAL CHART */}
                 <Chart
                   options={chart2Options}
                   series={chart2Series}
                   type="donut"
                   height={220}
                 />
-
                 <div className="mt-4">
-                  {/* Electronics */}
                   <div className="d-flex justify-content-between align-items-center mb-3">
                     <div className="d-flex align-items-center gap-2">
                       <span
@@ -886,8 +895,6 @@ const DailyVisitNew = () => {
                       {dashboardData?.allocation?.visitedAccounts || 0}
                     </span>
                   </div>
-
-                  {/* Audio */}
                   <div className="d-flex justify-content-between align-items-center mb-3">
                     <div className="d-flex align-items-center gap-2">
                       <span
@@ -928,13 +935,21 @@ const DailyVisitNew = () => {
                   <div
                     className="funnel-stage"
                     style={{
-                      "--funnel-width": `${Math.max(0, 100 - (dashboardData?.allocation?.fosAssignedPercent || 0))}%`,
+                      "--funnel-width": `${Math.max(
+                        0,
+                        100 -
+                          (dashboardData?.allocation?.fosAssignedPercent || 0),
+                      )}%`,
                     }}
                   >
                     <div className="funnel-bar info"></div>
                     <div className="funnel-info">
                       <span className="funnel-name">Unallocated %</span>
-                      <span className="funnel-value">{`${Math.max(0, 100 - (dashboardData?.allocation?.fosAssignedPercent || 0))}%`}</span>
+                      <span className="funnel-value">{`${Math.max(
+                        0,
+                        100 -
+                          (dashboardData?.allocation?.fosAssignedPercent || 0),
+                      )}%`}</span>
                     </div>
                   </div>
                 </div>
@@ -968,6 +983,7 @@ const DailyVisitNew = () => {
             </div>
           </div>
         </div>
+
         <div className="card mt-3 p-4">
           <div className="page-dashboard row g-3 mb-3">
             {summaryCards.map((card, index) => {
@@ -1005,9 +1021,9 @@ const DailyVisitNew = () => {
               ];
               const icon = icons[index % icons.length];
               return (
-                <div class="col-md-3 col-12 d-flex">
+                <div className="col-md-3 col-12 d-flex" key={card.label}>
                   <div
-                    class="card fx-mini-stat h-100"
+                    className="card fx-mini-stat h-100"
                     style={{ transition: "all 0.3s ease", cursor: "pointer" }}
                     onMouseEnter={(e) =>
                       (e.currentTarget.style.transform = "translateY(-4px)")
@@ -1016,16 +1032,15 @@ const DailyVisitNew = () => {
                       (e.currentTarget.style.transform = "translateY(0)")
                     }
                   >
-                    <div class="card-body">
-                      <span class="fx-mini-icon revenue">
+                    <div className="card-body">
+                      <span className="fx-mini-icon revenue">
                         <i
-                          class={`bi ${icon}`}
+                          className={`bi ${icon}`}
                           style={{ fontSize: "18px", color: color }}
                         ></i>
                       </span>
-                      <span class="fx-mini-label">{card.label}</span>
-                      <span class="fx-mini-value">{card.value}</span>
-                      {/* <span class="fx-mini-meta positive"><i class="bi bi-arrow-up"></i> 7.1%</span> */}
+                      <span className="fx-mini-label">{card.label}</span>
+                      <span className="fx-mini-value">{card.value}</span>
                     </div>
                   </div>
                 </div>
@@ -1033,6 +1048,7 @@ const DailyVisitNew = () => {
             })}
           </div>
         </div>
+
         <div className="card mt-3 p-4">
           <div className="row g-3">
             <div className="col-12 col-md-6">
@@ -1042,7 +1058,6 @@ const DailyVisitNew = () => {
                     {dashboardData?.dateRange?.ptpDateRangeLabel ||
                       "PTP spans from - to -"}
                   </h5>
-                  {/* <a href="#" class="btn btn-sm btn-link">View All</a> */}
                 </div>
                 <div className="card-body p-0">
                   <div className="deal-list">
@@ -1078,7 +1093,6 @@ const DailyVisitNew = () => {
                         <span className="deal-amount">
                           {formatNumber(dashboardData?.ptp?.totalPtpCount)}
                         </span>
-                        {/* <span class="badge bg-success-subtle text-success">Won</span> */}
                       </div>
                     </div>
                     <div
@@ -1113,7 +1127,6 @@ const DailyVisitNew = () => {
                         <span className="deal-amount">
                           {formatNumber(dashboardData?.ptp?.pendingPtpCount)}
                         </span>
-                        {/* <span class="badge bg-success-subtle text-success">Won</span> */}
                       </div>
                     </div>
                     <div
@@ -1148,7 +1161,6 @@ const DailyVisitNew = () => {
                         <span className="deal-amount">
                           {formatNumber(dashboardData?.ptp?.paidPtpCount)}
                         </span>
-                        {/* <span class="badge bg-success-subtle text-success">Won</span> */}
                       </div>
                     </div>
                     <div
@@ -1183,7 +1195,6 @@ const DailyVisitNew = () => {
                         <span className="deal-amount">
                           {formatNumber(dashboardData?.ptp?.brokenPtpCount)}
                         </span>
-                        {/* <span class="badge bg-success-subtle text-success">Won</span> */}
                       </div>
                     </div>
                   </div>
@@ -1220,7 +1231,10 @@ const DailyVisitNew = () => {
                       ></span>
                       <span className="legend-label">Non-PTP Conversion</span>
                       <span className="legend-value">
-                        {`${Math.max(0, 100 - (dashboardData?.ptp?.ptpConversionPercent || 0))}`}
+                        {`${Math.max(
+                          0,
+                          100 - (dashboardData?.ptp?.ptpConversionPercent || 0),
+                        )}`}
                         %
                       </span>
                     </div>
@@ -1230,10 +1244,9 @@ const DailyVisitNew = () => {
             </div>
           </div>
         </div>
+
         <div className="card page-dashboard mt-3 p-3">
           <div className="row g-3">
-            {" "}
-            {/* 👈 use gutters */}
             {fullPaymentCards.map((card, index) => (
               <div className="col-12 col-md-4 d-flex" key={card.label}>
                 <div
@@ -1253,16 +1266,97 @@ const DailyVisitNew = () => {
             ))}
           </div>
 
+          {/* Sunburst Chart Section – now with left label list and right chart */}
           <div className="mt-3 p-1">
-            <ChartCard title="Sunburst Chart">
-              <div
-                className="echart-container"
-                ref={sunburst}
-                style={{
-                  width: "100%",
-                  height: "clamp(300px, 55vh, 680px)",
-                }}
-              />
+            <ChartCard title="Sunburst Chart" subtitle="Disposition breakdown">
+              <div className="row align-items-start">
+                {/* Left side: enhanced label-value list */}
+                <div className="col-md-4">
+                  {dashboardData?.dispositionSunburst ? (
+                    <div
+                      className="sunburst-legend-list"
+                      style={{
+                        maxHeight: "400px",
+                        overflowY: "auto",
+                        paddingRight: "8px",
+                      }}
+                    >
+                      {/* Header */}
+                      <div className="d-flex justify-content-between px-2 pb-2 mb-2 border-bottom">
+                        <span className="fw-bold small text-uppercase text-muted">
+                          Category
+                        </span>
+                        <span className="fw-bold small text-uppercase text-muted">
+                          Value
+                        </span>
+                      </div>
+                      {getSunburstItems(dashboardData.dispositionSunburst).map(
+                        (item, idx) => (
+                          <div
+                            key={idx}
+                            className="sunburst-legend-item d-flex justify-content-between align-items-center py-1 rounded-2"
+                            style={{
+                              transition: "all 0.2s ease",
+                              backgroundColor:
+                                idx % 2 === 0
+                                  ? "var(--bs-gray-100)"
+                                  : "transparent",
+                              cursor: "default",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor =
+                                "var(--bs-primary-bg-subtle)";
+                              e.currentTarget.style.transform =
+                                "translateX(4px)";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor =
+                                idx % 2 === 0
+                                  ? "var(--bs-gray-100)"
+                                  : "transparent";
+                              e.currentTarget.style.transform = "translateX(0)";
+                            }}
+                          >
+                            <div className="d-flex align-items-center gap-2">
+                              {/* Colorful dot (based on index – you can replace with fixed colors per category) */}
+                              <span
+                                className="rounded-circle"
+                                style={{
+                                  width: "8px",
+                                  height: "8px",
+                                  backgroundColor: `hsl(${(idx * 30) % 360}, 70%, 55%)`,
+                                }}
+                              ></span>
+                              <span className="text-muted small" style={{fontSize: "13px"}}>
+                                {item.label}
+                              </span>
+                            </div>
+                            <span className="fw-semibold small">
+                              {item.value.toLocaleString()}
+                            </span>
+                          </div>
+                        ),
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-muted text-center py-4">
+                      No data available
+                    </div>
+                  )}
+                </div>
+
+                {/* Right side: chart (unchanged) */}
+                <div className="col-md-8">
+                  <div
+                    className="echart-container"
+                    ref={sunburst}
+                    style={{
+                      width: "100%",
+                      height: "clamp(300px, 55vh, 680px)",
+                    }}
+                  />
+                </div>
+              </div>
             </ChartCard>
           </div>
         </div>
