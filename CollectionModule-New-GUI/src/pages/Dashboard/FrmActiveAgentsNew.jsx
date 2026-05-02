@@ -6,6 +6,53 @@ import Chart from "chart.js/auto";
 import DataTable from "../../components/Datatable";
 import { useLoader } from "../../context/LoaderContext";
 
+//  Generate month options from Sep-2024 to current month
+function generateMonthOptions() {
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  const startMonth = 9;
+  const startYear = 2024;
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+  const options = [];
+  let month = startMonth;
+  let year = startYear;
+  while (
+    year < currentYear ||
+    (year === currentYear && month <= currentMonth)
+  ) {
+    options.push({
+      value: `${month}-${year}`,
+      label: `${monthNames[month - 1]} ${year}`,
+    });
+    month++;
+    if (month > 12) {
+      month = 1;
+      year++;
+    }
+  }
+  return options;
+}
+
+const MONTH_OPTIONS = generateMonthOptions();
+const CURRENT_MONTH = (() => {
+  const now = new Date();
+  return `${now.getMonth() + 1}-${now.getFullYear()}`;
+})();
+
 const FrmActiveAgentsNew = () => {
   const { user } = useAuth();
   const userId = user?.userId;
@@ -16,7 +63,7 @@ const FrmActiveAgentsNew = () => {
   const [tableData, setTableData] = useState([]);
 
   const { register } = useForm({
-    defaultValues: { monthYear: getCurrentMonthYear() },
+    defaultValues: { monthYear: CURRENT_MONTH },
   });
 
   const commonColors = {
@@ -27,7 +74,6 @@ const FrmActiveAgentsNew = () => {
     danger: "#ef4444",
   };
 
-  //  Helpers 
   function getCurrentMonthYear() {
     const now = new Date();
     const month = now.getMonth() + 1;
@@ -35,38 +81,41 @@ const FrmActiveAgentsNew = () => {
     return `${month}-${year}`;
   }
 
+  function formatDate(dateString) {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
 
-  function formatDate(dateString, showTime = true) {
-  if (!dateString) return "";
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
 
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return dateString;
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
 
-  const months = [
-    "Jan","Feb","Mar","Apr","May","Jun",
-    "Jul","Aug","Sep","Oct","Nov","Dec"
-  ];
+    let hours = date.getHours();
+    const mins = String(date.getMinutes()).padStart(2, "0");
+    const secs = String(date.getSeconds()).padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12 || 12; // convert 0 → 12 for 12 AM
+    const hh = String(hours).padStart(2, "0");
 
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = months[date.getMonth()];
-  const year = date.getFullYear();
-
-  if (!showTime) {
-    return `${day}-${month}-${year}`;
+    return `${day}-${month}-${year} ${hh}:${mins}:${secs} ${ampm}`;
   }
 
-  let hours = date.getHours();
-  const mins = String(date.getMinutes()).padStart(2, "0");
-  const secs = String(date.getSeconds()).padStart(2, "0");
-
-  const ampm = hours >= 12 ? "PM" : "AM";
-  hours = hours % 12 || 12;
-  const hh = String(hours).padStart(2, "0");
-
-  return `${day}-${month}-${year} ${hh}:${mins}:${secs} ${ampm}`;
-}
-
-  // Chart card 
+  // Chart card
   function ChartCard({ title, children, subtitle }) {
     return (
       <div className="card h-100">
@@ -108,7 +157,6 @@ const FrmActiveAgentsNew = () => {
       }),
   );
 
-  // Summary cards 
   const summaryCards = [
     {
       label: "No. of Onboarded and Active Collection Associate",
@@ -133,7 +181,6 @@ const FrmActiveAgentsNew = () => {
     },
   ];
 
-  //  Fetch 
   const fetchData = useCallback(
     async (monthYear) => {
       try {
@@ -154,14 +201,15 @@ const FrmActiveAgentsNew = () => {
           });
 
           const formattedGridData = response.data.grid.map((item) => [
-            item.GRANDPARENT_BRANCH_NAME, // [0] zone
-            item.PARENT_BRANCH_NAME, // [1] region
-            item.CURRENT_BRANCH_NAME, // [2] branch
-            item.USERID, // [3] collectionAssociateId
-            item.VAR_USERMST_USERFULLNAME, // [4] collectionAssociate
-            item?.LOGIN_DATE ? formatDate(item.LOGIN_DATE,false) : "", // [5] loginDate   ← CHANGE 3
-            item?.MIN_LOGIN ? formatDate(item.MIN_LOGIN) : "", // [6] firstLogin
-            item?.MAX_LOGOUT ? formatDate(item.MAX_LOGOUT) : "", // [7] lastLogout
+            item.GRANDPARENT_BRANCH_NAME,
+            item.PARENT_BRANCH_NAME,
+            item.CURRENT_BRANCH_NAME,
+            item.USERID,
+            item.VAR_USERMST_USERFULLNAME,
+            item?.LOGIN_DATE ? formatDate(item.LOGIN_DATE) : "",
+            item?.MIN_LOGIN ? formatDate(item.MIN_LOGIN) : "",
+            item?.MAX_LOGOUT ? formatDate(item.MAX_LOGOUT) : "",
+            // MDM_ID removed from grid — CHANGE 2
           ]);
           setTableData(formattedGridData);
         }
@@ -182,25 +230,23 @@ const FrmActiveAgentsNew = () => {
     }
   }, [userId, fetchData]);
 
-  // Map rows → objects 
   const data = tableData.map((rec, index) => ({
     id: index,
     zone: rec[0],
-    regionName: rec[1], 
+    regionName: rec[1],
     branchName: rec[2],
     collectionAssociateId: rec[3],
     collectionAssociate: rec[4],
     loginDate: rec[5],
     firstLogin: rec[6],
     lastLogout: rec[7],
-    // mdmId removed — CHANGE 2
   }));
 
   const columns1 = [
     {
       key: "zone",
       label: "Zone",
-      minWidth: "180px",
+      minWidth: "160px",
       render: (val) =>
         val ? (
           <span
@@ -222,7 +268,7 @@ const FrmActiveAgentsNew = () => {
     {
       key: "regionName",
       label: "Region",
-      minWidth: "180px",
+      minWidth: "150px",
       render: (val) =>
         val ? (
           <span
@@ -241,23 +287,35 @@ const FrmActiveAgentsNew = () => {
           <span className="text-muted">—</span>
         ),
     },
-   {
-  key: "branchName",
-  label: "Branch",
-  minWidth: "250px",
-  render: (val) =>
-    val ? (
-      <span style={{ fontSize: "0.75rem" }}>
-        {val}
-      </span>
-    ) : (
-      "—"
-    ),
-},
+    {
+      key: "branchName",
+      label: "Branch Name",
+      render: (val) =>
+        val ? (
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "5px",
+              background: "#f0f4ff",
+              color: "#3d5a99",
+              padding: "3px 10px",
+              borderRadius: "20px",
+              fontSize: "0.78rem",
+              fontWeight: 500,
+              border: "1px solid #c5d3f0",
+            }}
+          >
+            <i className="bi bi-bank" />
+            {val}
+          </span>
+        ) : (
+          <span className="text-muted">—</span>
+        ),
+    },
     {
       key: "collectionAssociateId",
       label: "Collection Associate ID",
-      minWidth: "220px",
       render: (val) => (
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <span
@@ -288,13 +346,12 @@ const FrmActiveAgentsNew = () => {
     {
       key: "collectionAssociate",
       label: "Collection Associate",
-      minWidth: "200px",
       render: (val) => <span className="fw-semibold">{val}</span>,
     },
     {
       key: "loginDate",
       label: "Login Date",
-      minWidth: "150px",
+      minWidth: "190px",
       render: (val) =>
         val ? (
           <span
@@ -316,7 +373,7 @@ const FrmActiveAgentsNew = () => {
     {
       key: "firstLogin",
       label: "First Login of the Day",
-      minWidth: "220px",
+      minWidth: "190px",
       render: (val) =>
         val ? (
           <span
@@ -341,7 +398,7 @@ const FrmActiveAgentsNew = () => {
     {
       key: "lastLogout",
       label: "Last Logout of the Day",
-      minWidth: "220px",
+      minWidth: "190px",
       render: (val) =>
         val ? (
           <span
@@ -368,27 +425,27 @@ const FrmActiveAgentsNew = () => {
         <div className="page-header uv-page-header">
           <div>
             <h1 className="page-title">Active Agent Dashboard</h1>
+            <nav className="breadcrumb">
+              <span className="breadcrumb-item">Home</span>
+              <span className="breadcrumb-item">Dashboard</span>
+              <span className="breadcrumb-item active">
+                Active Agent Dashboard
+              </span>
+            </nav>
           </div>
           <div className="d-flex flex-column align-items-md-center">
             <select
               className="form-select"
               style={{ maxWidth: "280px" }}
+              defaultValue={CURRENT_MONTH}
               {...register("monthYear")}
               onChange={(e) => fetchData(e.target.value)}
             >
-              <option value="4-2025">April 2025</option>
-              <option value="5-2025">May 2025</option>
-              <option value="6-2025">June 2025</option>
-              <option value="7-2025">July 2025</option>
-              <option value="8-2025">August 2025</option>
-              <option value="9-2025">September 2025</option>
-              <option value="10-2025">October 2025</option>
-              <option value="11-2025">November 2025</option>
-              <option value="12-2025">December 2025</option>
-              <option value="1-2026">January 2026</option>
-              <option value="2-2026">February 2026</option>
-              <option value="3-2026">March 2026</option>
-              <option value="4-2026">April 2026</option>
+              {MONTH_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
             </select>
           </div>
         </div>

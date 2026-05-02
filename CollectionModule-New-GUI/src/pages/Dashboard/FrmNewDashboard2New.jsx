@@ -8,6 +8,61 @@ import Chart from "chart.js/auto";
 import DataTable from "../../components/Datatable";
 import { useLoader } from "../../context/LoaderContext";
 
+// Generate month options from Sep-2024 to current month
+function generateMonthOptions() {
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const startMonth = 9; // September
+  const startYear = 2024;
+
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1; // 1-based
+  const currentYear = now.getFullYear();
+
+  const options = [];
+  let month = startMonth;
+  let year = startYear;
+
+  while (
+    year < currentYear ||
+    (year === currentYear && month <= currentMonth)
+  ) {
+    options.push({
+      value: `${month}-${year}`,
+      label: `${monthNames[month - 1]} ${year}`,
+    });
+    month++;
+    if (month > 12) {
+      month = 1;
+      year++;
+    }
+  }
+
+  return options;
+}
+
+// Built once at module load — no re-computation on re-render
+const MONTH_OPTIONS = generateMonthOptions();
+
+// Current month value e.g. "5-2026"
+const CURRENT_MONTH = (() => {
+  const now = new Date();
+  return `${now.getMonth() + 1}-${now.getFullYear()}`;
+})();
+
 const FrmNewDashboard2New = () => {
   const { user } = useAuth();
   const userId = user?.userId;
@@ -25,8 +80,9 @@ const FrmNewDashboard2New = () => {
   });
   const [tableData, setTableData] = useState([]);
 
+  // default to current month
   const { register } = useForm({
-    defaultValues: { monthYear: getCurrentMonthYear() },
+    defaultValues: { monthYear: CURRENT_MONTH },
   });
 
   const commonColors = {
@@ -37,14 +93,7 @@ const FrmNewDashboard2New = () => {
     danger: "#ef4444",
   };
 
-  function getCurrentMonthYear() {
-    const now = new Date();
-    const month = now.getMonth() + 1;
-    const year = now.getFullYear();
-    return `${month}-${year}`;
-  }
-
-  // ── Chart hook ────────────────────────────────────────────
+  // Chart hook
   function useChart(setup) {
     const canvasRef = useRef(null);
     useEffect(() => {
@@ -93,13 +142,10 @@ const FrmNewDashboard2New = () => {
 
   function formatDateToAbbr(dateStr) {
     const parts = dateStr.split("/");
-    if (parts.length !== 3) {
-      return dateStr;
-    }
+    if (parts.length !== 3) return dateStr;
     const day = parts[0].padStart(2, "0");
     const month = parseInt(parts[1], 10);
     const year = parts[2];
-
     const monthNames = [
       "Jan",
       "Feb",
@@ -114,14 +160,10 @@ const FrmNewDashboard2New = () => {
       "Nov",
       "Dec",
     ];
-    if (month < 1 || month > 12) {
-      return dateStr;
-    }
-    const monthAbbr = monthNames[month - 1];
-    return `${day}-${monthAbbr}-${year}`;
+    if (month < 1 || month > 12) return dateStr;
+    return `${day}-${monthNames[month - 1]}-${year}`;
   }
 
-  // Fetch data 
   const fetchData = async (monthYear) => {
     try {
       setLoader(true);
@@ -169,11 +211,10 @@ const FrmNewDashboard2New = () => {
 
   useEffect(() => {
     if (userId && brCategory) {
-      fetchData(getCurrentMonthYear());
+      fetchData(CURRENT_MONTH);
     }
   }, [userId, brCategory, userOf]);
 
-  // Map raw array rows → objects
   const users = tableData.map((rec, index) => ({
     id: index,
     dispositionDate: rec[0],
@@ -224,16 +265,8 @@ const FrmNewDashboard2New = () => {
           <span className="text-muted">—</span>
         ),
     },
-    {
-      key: "mdmId",
-      label: "MDM ID",
-      minWidth: "120px",
-    },
-    {
-      key: "branchName",
-      label: "Branch Name",
-      minWidth: "300px",
-    },
+    { key: "mdmId", label: "MDM ID", minWidth: "120px" },
+    { key: "branchName", label: "Branch Name", minWidth: "300px" },
     {
       key: "accountNumber",
       label: "Account Number",
@@ -245,16 +278,8 @@ const FrmNewDashboard2New = () => {
         </span>
       ),
     },
-    {
-      key: "customerName",
-      label: "Customer Name",
-      minWidth: "160px",
-    },
-    {
-      key: "dispositionCode",
-      label: "Disposition Code",
-      minWidth: "220px",
-    },
+    { key: "customerName", label: "Customer Name", minWidth: "160px" },
+    { key: "dispositionCode", label: "Disposition Code", minWidth: "220px" },
     {
       key: "subDispositionCode",
       label: "Sub Disposition Code",
@@ -303,26 +328,21 @@ const FrmNewDashboard2New = () => {
           <div>
             <h1 className="page-title">Disposition Report</h1>
           </div>
+
+          {/* ── Dynamic month/year dropdown ── */}
           <div className="d-flex flex-column align-items-md-center">
             <select
               className="form-select"
               style={{ maxWidth: "280px" }}
+              defaultValue={CURRENT_MONTH}
               {...register("monthYear")}
               onChange={(e) => fetchData(e.target.value)}
             >
-              <option value="4-2025">April 2025</option>
-              <option value="5-2025">May 2025</option>
-              <option value="6-2025">June 2025</option>
-              <option value="7-2025">July 2025</option>
-              <option value="8-2025">August 2025</option>
-              <option value="9-2025">September 2025</option>
-              <option value="10-2025">October 2025</option>
-              <option value="11-2025">November 2025</option>
-              <option value="12-2025">December 2025</option>
-              <option value="1-2026">January 2026</option>
-              <option value="2-2026">February 2026</option>
-              <option value="3-2026">March 2026</option>
-              <option value="4-2026">April 2026</option>
+              {MONTH_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
             </select>
           </div>
         </div>
