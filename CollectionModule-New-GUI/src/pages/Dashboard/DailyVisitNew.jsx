@@ -702,7 +702,7 @@ const DailyVisitNew = () => {
       type: "donut",
     },
     labels: ["Visited", "Not Visited"],
-    colors: ["var(--info-color)","var(--warning-color)" ],
+    colors: ["var(--info-color)", "var(--warning-color)"],
     plotOptions: {
       pie: {
         donut: {
