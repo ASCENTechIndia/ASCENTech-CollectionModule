@@ -8,7 +8,7 @@ import Chart from "chart.js/auto";
 import DataTable from "../../components/Datatable";
 import { useLoader } from "../../context/LoaderContext";
 
-// Generate month options from Sep-2024 to current month
+// Generate month options from Sep-2024 to current month 
 function generateMonthOptions() {
   const monthNames = [
     "January",
@@ -51,13 +51,11 @@ function generateMonthOptions() {
     }
   }
 
-  return options;
+  return options.reverse();
 }
 
-// Built once at module load — no re-computation on re-render
 const MONTH_OPTIONS = generateMonthOptions();
 
-// Current month value e.g. "5-2026"
 const CURRENT_MONTH = (() => {
   const now = new Date();
   return `${now.getMonth() + 1}-${now.getFullYear()}`;
@@ -93,7 +91,6 @@ const FrmNewDashboard2New = () => {
     danger: "#ef4444",
   };
 
-  // Chart hook
   function useChart(setup) {
     const canvasRef = useRef(null);
     useEffect(() => {

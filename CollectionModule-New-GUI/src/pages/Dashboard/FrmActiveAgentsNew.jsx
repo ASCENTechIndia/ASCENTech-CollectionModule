@@ -6,7 +6,7 @@ import Chart from "chart.js/auto";
 import DataTable from "../../components/Datatable";
 import { useLoader } from "../../context/LoaderContext";
 
-//  Generate month options from Sep-2024 to current month
+// Generate month options from Sep-2024 to current month
 function generateMonthOptions() {
   const monthNames = [
     "January",
@@ -44,7 +44,7 @@ function generateMonthOptions() {
       year++;
     }
   }
-  return options;
+  return options.reverse();
 }
 
 const MONTH_OPTIONS = generateMonthOptions();
@@ -114,8 +114,6 @@ const FrmActiveAgentsNew = () => {
 
     return `${day}-${month}-${year} ${hh}:${mins}:${secs} ${ampm}`;
   }
-
-  // Chart card
   function ChartCard({ title, children, subtitle }) {
     return (
       <div className="card h-100">
@@ -209,7 +207,6 @@ const FrmActiveAgentsNew = () => {
             item?.LOGIN_DATE ? formatDate(item.LOGIN_DATE) : "",
             item?.MIN_LOGIN ? formatDate(item.MIN_LOGIN) : "",
             item?.MAX_LOGOUT ? formatDate(item.MAX_LOGOUT) : "",
-            // MDM_ID removed from grid — CHANGE 2
           ]);
           setTableData(formattedGridData);
         }
