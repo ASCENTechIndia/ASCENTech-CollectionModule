@@ -770,69 +770,6 @@ function FrmTransactionReport() {
       <div className="card mb-4">
         <div className="card-header d-flex justify-content-between align-items-center gap-3 flex-wrap">
           <h5 className="card-title mb-0">Search Filters</h5>
-
-          {/* 🔍 User search input (name or ID) */}
-          <div
-            className="position-relative"
-            style={{ minWidth: "280px", maxWidth: "350px", width: "100%" }}
-          >
-            <div className="input-group position-relative">
-              <span className="input-group-text bg-white border-end-0">
-                <i className="bi bi-search text-muted"></i>
-              </span>
-              <input
-                type="text"
-                className="form-control border-start-0 pe-5"
-                placeholder="Type name or user ID..."
-                value={searchTerm}
-                onChange={handleSearchInput}
-                autoComplete="off"
-              />
-              {searchTerm && (
-                <button
-                  type="button"
-                  onClick={handleClearSearch}
-                  className="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 p-0"
-                >
-                  <i className="bi bi-x-circle text-muted"></i>
-                </button>
-              )}
-            </div>
-
-            {searchLoading && (
-              <div className="spinner-border spinner-border-sm position-absolute end-0 top-50 translate-middle-y me-2" />
-            )}
-
-            {searchResults.length > 0 && (
-              <ul
-                className="list-group position-absolute w-100 shadow z-3"
-                style={{ maxHeight: 180, overflowY: "auto", top: "100%" }}
-              >
-                {searchResults.map((userItem, idx) => (
-                  <li
-                    key={userItem.VAR_USERMST_USERID || idx}
-                    className="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-2 px-2"
-                    style={{ cursor: "pointer", fontSize: "13px" }}
-                    onClick={() => handleSelectUser(userItem)}
-                  >
-                    <div className="d-flex flex-column">
-                      <span className="fw-medium">
-                        {userItem.VAR_USERMST_USERFULLNAME}
-                      </span>
-                      <small className="text-muted">
-                        {userItem.VAR_USERMST_USERID}
-                      </small>
-                    </div>
-                    <i className="bi bi-person text-primary"></i>
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            {searchError && (
-              <div className="text-danger small mt-1">{searchError}</div>
-            )}
-          </div>
         </div>
 
         <div className="card-body">
@@ -876,6 +813,93 @@ function FrmTransactionReport() {
                 {errors.toDate && (
                   <div className="invalid-feedback">
                     {errors.toDate.message}
+                  </div>
+                )}
+              </div>
+
+              <div className="col-md-6 d-flex align-items-end">
+                {/* 🔍 User search input (name or ID) */}
+                <div
+                  style={{
+                    width: "100%",
+                  }}
+                >
+                  <div className="input-group position-relative">
+                    <span className="input-group-text bg-white border-end-0">
+                      <i className="bi bi-search text-muted"></i>
+                    </span>
+                    <input
+                      type="text"
+                      className="form-control border-start-0 pe-5"
+                      placeholder="Type name or user ID..."
+                      value={searchTerm}
+                      onChange={handleSearchInput}
+                      autoComplete="off"
+                    />
+                    {searchTerm && (
+                      <button
+                        type="button"
+                        onClick={handleClearSearch}
+                        className="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 p-0"
+                      >
+                        <i className="bi bi-x-circle text-muted"></i>
+                      </button>
+                    )}
+                  </div>
+
+                  {searchLoading && (
+                    <div className="spinner-border spinner-border-sm position-absolute end-0 top-50 translate-middle-y me-2" />
+                  )}
+
+                  {searchResults.length > 0 && (
+                    <ul
+                      className="list-group position-absolute w-100 shadow z-3"
+                      style={{ maxHeight: 180, overflowY: "auto", top: "100%" }}
+                    >
+                      {searchResults.map((userItem, idx) => (
+                        <li
+                          key={userItem.VAR_USERMST_USERID || idx}
+                          className="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-2 px-2"
+                          style={{ cursor: "pointer", fontSize: "13px" }}
+                          onClick={() => handleSelectUser(userItem)}
+                        >
+                          <div className="d-flex flex-column">
+                            <span className="fw-medium">
+                              {userItem.VAR_USERMST_USERFULLNAME}
+                            </span>
+                            <small className="text-muted">
+                              {userItem.VAR_USERMST_USERID}
+                            </small>
+                          </div>
+                          <i className="bi bi-person text-primary"></i>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {searchError && (
+                    <div className="text-danger small mt-1">{searchError}</div>
+                  )}
+                </div>
+              </div>
+
+              {/* User ID field – now readOnly, populated via search dropdown */}
+              <div className="col-md-6">
+                <label htmlFor="userId" className="form-label">
+                  User Id
+                </label>
+                <input
+                  id="userId"
+                  type="text"
+                  className={`form-control ${errors.userId ? "is-invalid" : ""}`}
+                  value={userId}
+                  placeholder="Select from search"
+                  readOnly
+                  {...register("userId")}
+                />
+                {errors.userId && (
+                  <div className="invalid-feedback">
+                    {errors.userId.message}
                   </div>
                 )}
               </div>
@@ -938,27 +962,6 @@ function FrmTransactionReport() {
                     </option>
                   ))}
                 </select>
-              </div>
-
-              {/* User ID field – now readOnly, populated via search dropdown */}
-              <div className="col-md-6">
-                <label htmlFor="userId" className="form-label">
-                  User Id
-                </label>
-                <input
-                  id="userId"
-                  type="text"
-                  className={`form-control ${errors.userId ? "is-invalid" : ""}`}
-                  value={userId}
-                  placeholder="Select from search"
-                  readOnly
-                  {...register("userId")}
-                />
-                {errors.userId && (
-                  <div className="invalid-feedback">
-                    {errors.userId.message}
-                  </div>
-                )}
               </div>
 
               <div className="col-md-6">
