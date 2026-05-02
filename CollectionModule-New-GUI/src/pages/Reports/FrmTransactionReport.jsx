@@ -817,8 +817,11 @@ function FrmTransactionReport() {
                 )}
               </div>
 
-              <div className="col-md-6 d-flex align-items-end">
+              <div className="col-md-6">
                 {/* 🔍 User search input (name or ID) */}
+                <label htmlFor="toDate" className="form-label">
+                  Search name or userId<span className="text-danger">*</span>
+                </label>
                 <div
                   style={{
                     width: "100%",

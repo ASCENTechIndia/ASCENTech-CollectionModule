@@ -411,7 +411,10 @@ function FrmAccountAllocationReport() {
         <div className="card-body">
           <form onSubmit={handleFormSubmit(handleSearch)}>
             <div className="row g-3">
-              <div className="col-md-4 d-flex align-items-end">
+              <div className="col-md-4">
+                <label htmlFor="startDate" className="form-label">
+                  Search name or userId <span className="text-danger">*</span>
+                </label>
                 {/* User search */}
                 <div
                   className="position-relative"
