@@ -1026,8 +1026,8 @@ const DailyVisitNew = () => {
                           style={{ fontSize: "18px", color: color }}
                         ></i>
                       </span>
-                      <span className="fx-mini-label">{card.label}</span>
                       <span className="fx-mini-value">{card.value}</span>
+                      <span className="fx-mini-label">{card.label}</span>
                     </div>
                   </div>
                 </div>
