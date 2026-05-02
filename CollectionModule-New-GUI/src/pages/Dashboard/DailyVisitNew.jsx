@@ -480,6 +480,21 @@ const DailyVisitNew = () => {
     };
   });
 
+  // Colour map for sunburst labels (exactly matching chart colours)
+  const labelColorMap = {
+    total: "#6c757d",
+    reacted: "rgba(251, 226, 130, 1)",
+    collected: "rgba(247, 181, 165, 1)",
+    cf: "rgba(167, 103, 182, 1)",
+    cp: "rgba(160, 165, 187, 1)",
+    ptp: "rgba(212, 185, 209, 1)",
+    borrowerAbusive: "rgba(155, 136, 129, 1)",
+    nonReacted: "rgb(249, 75, 75)",
+    invalid: "rgba(250, 198, 4, 1)",
+    shortAddress: "rgba(146, 211, 227, 1)",
+    addressNotFound: "rgba(63, 200, 200, 1)",
+  };
+
   const fetchDailyVisitData = useCallback(
     async (values) => {
       if (!apiUserId) {
@@ -596,11 +611,10 @@ const DailyVisitNew = () => {
     },
   ];
 
-  // Helper to get flat label-value list for sunburst
+  // Helper to get flat label-value list with matching colours
   const getSunburstItems = useCallback((sunburstData) => {
     if (!sunburstData) return [];
 
-    // Complete list of all labels in the order they appear in the sunburst chart
     const allLabels = [
       { label: "Total Cases", key: "total" },
       { label: "Reacted", key: "reacted" },
@@ -608,9 +622,9 @@ const DailyVisitNew = () => {
       { label: "Fully Paid", key: "cf" },
       { label: "Partially Paid", key: "cp" },
       { label: "Promise to Pay", key: "ptp" },
-      { label: "PTP on Field", key: "ptp" }, // child node – same key
-      { label: "Borrower Abusive / Aggressive", key: "borrowerAbusive" }, // parent node
-      { label: "Borrower Abusive / Aggressive", key: "borrowerAbusive" }, // child node (duplicate label, but we include twice)
+      { label: "PTP on Field", key: "ptp" },
+      { label: "Borrower Abusive / Aggressive", key: "borrowerAbusive" },
+      { label: "Borrower Abusive / Aggressive", key: "borrowerAbusive" },
       { label: "Non-Contactable", key: "nonReacted" },
       { label: "Invalid", key: "invalid" },
       { label: "Short Address", key: "shortAddress" },
@@ -620,6 +634,7 @@ const DailyVisitNew = () => {
     return allLabels.map(({ label, key }) => ({
       label,
       value: sunburstData[key] ?? 0,
+      color: labelColorMap[key] || "#6c7d77",
     }));
   }, []);
 
@@ -1253,20 +1268,16 @@ const DailyVisitNew = () => {
             ))}
           </div>
 
-          {/* Sunburst Chart Section – now with left label list and right chart */}
+          {/* Sunburst Chart Section – colours now match chart */}
           <div className="mt-3 p-1">
             <ChartCard title="Sunburst Chart" subtitle="Disposition breakdown">
               <div className="row align-items-start">
-                {/* Left side: enhanced label-value list */}
+                {/* Left side: enhanced label-value list with matching colours */}
                 <div className="col-md-4">
                   {dashboardData?.dispositionSunburst ? (
                     <div
                       className="sunburst-legend-list"
-                      style={{
-                        // maxHeight: "400px",
-                        // overflowY: "auto",
-                        paddingRight: "8px",
-                      }}
+                      style={{ paddingRight: "8px" }}
                     >
                       {/* Header */}
                       <div className="d-flex justify-content-between px-2 pb-2 mb-2 border-bottom">
@@ -1305,13 +1316,13 @@ const DailyVisitNew = () => {
                             }}
                           >
                             <div className="d-flex align-items-center gap-2">
-                              {/* Colorful dot (based on index – you can replace with fixed colors per category) */}
+                              {/* Dot with exact colour from chart */}
                               <span
                                 className="rounded-circle"
                                 style={{
                                   width: "8px",
                                   height: "8px",
-                                  backgroundColor: `hsl(${(idx * 30) % 360}, 70%, 55%)`,
+                                  backgroundColor: item.color,
                                 }}
                               ></span>
                               <span
