@@ -102,7 +102,6 @@ const UsersList = () => {
         `/users/getAgentsNew?${params.toString()}`,
       );
 
-      console.log("ress ", res);
       if (res.success) {
         const apiData = res.data;
         const userList = apiData.data.map((agent, i) => ({
