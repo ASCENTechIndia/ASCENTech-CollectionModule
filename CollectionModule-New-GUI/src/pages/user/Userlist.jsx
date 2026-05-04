@@ -16,6 +16,7 @@ const UsersList = () => {
   const [branchId, setBranchId] = useState("");
   const [branchOptions, setBranchOptions] = useState([]);
   const [users, setUsers] = useState([]);
+  const [isDisplayCount, setIsDisplayCount] = useState(true);
   const [loading, setLoading] = useState(false);
 
   // Filter states
@@ -100,6 +101,8 @@ const UsersList = () => {
       const res = await apiClient.get(
         `/users/getAgentsNew?${params.toString()}`,
       );
+
+      console.log("ress ", res);
       if (res.success) {
         const apiData = res.data;
         const userList = apiData.data.map((agent, i) => ({
@@ -168,10 +171,10 @@ const UsersList = () => {
   }, [userLevel]);
 
   const rolePrefix = {
-  all: "",
-  "5": "Web ",
-  "1": "Mobile ",
-};
+    all: "",
+    5: "Web ",
+    1: "Mobile ",
+  };
 
   // Frontend filter: only search and status (role already filtered by API)
   const filteredUsers = users.filter((user) => {
@@ -229,7 +232,7 @@ const UsersList = () => {
         </div>
 
         {/* Changes will be in this div */}
-        {/* <div className="row g-4 mb-3">
+        <div className="row g-4 mb-3">
           <div className="col-lg-4 col-md-6">
             <div className="card widget-stat-progress">
               <div className="card-body d-flex justify-content-between">
@@ -242,14 +245,16 @@ const UsersList = () => {
                     <span className="widget-stat-value">{counts.total}</span>
                   </div>
                 </div>
-                <div>
-                  <p className="m-0">
-                    <span className="fw-bold">Web:</span> 100
-                  </p>
-                  <p className="m-0">
-                    <span className="fw-bold">Mobile:</span> 30
-                  </p>
-                </div>
+                {isDisplayCount && (
+                  <div>
+                    <p className="m-0">
+                      <span className="fw-bold">Web:</span> 100
+                    </p>
+                    <p className="m-0">
+                      <span className="fw-bold">Mobile:</span> 30
+                    </p>
+                  </div>
+                )}
                 <div className="widget-stat-bar primary" />
               </div>
             </div>
@@ -266,14 +271,16 @@ const UsersList = () => {
                     <span className="widget-stat-value">{counts.active}</span>
                   </div>
                 </div>
-                <div>
-                  <p className="m-0">
-                    <span className="fw-bold">Web:</span> 100
-                  </p>
-                  <p className="m-0">
-                    <span className="fw-bold">Mobile:</span> 30
-                  </p>
-                </div>
+                {isDisplayCount && (
+                  <div>
+                    <p className="m-0">
+                      <span className="fw-bold">Web:</span> 100
+                    </p>
+                    <p className="m-0">
+                      <span className="fw-bold">Mobile:</span> 30
+                    </p>
+                  </div>
+                )}
                 <div className="widget-stat-bar warning" />
               </div>
             </div>
@@ -290,78 +297,21 @@ const UsersList = () => {
                     <span className="widget-stat-value">{counts.inactive}</span>
                   </div>
                 </div>
-                <div>
-                  <p className="m-0">
-                    <span className="fw-bold">Web:</span> 100
-                  </p>
-                  <p className="m-0">
-                    <span className="fw-bold">Mobile:</span> 30
-                  </p>
-                </div>
+                {isDisplayCount && (
+                  <div>
+                    <p className="m-0">
+                      <span className="fw-bold">Web:</span> 100
+                    </p>
+                    <p className="m-0">
+                      <span className="fw-bold">Mobile:</span> 30
+                    </p>
+                  </div>
+                )}
                 <div className="widget-stat-bar danger" />
               </div>
             </div>
           </div>
-        </div> */}
-
-         <div className="row g-4 mb-3">
-  <div className="col-lg-4 col-md-6">
-    <div className="card widget-stat-progress">
-      <div className="card-body d-flex justify-content-between">
-        <div className="d-flex align-items-center ">
-          <div className="widget-stat-icon primary">
-            <i className="bi bi-people"></i>
-          </div>
-          <div className="widget-stat-content ms-3">
-            <span className="widget-stat-label">
-              Total {prefix}Users
-            </span>
-            <span className="widget-stat-value">{counts.total}</span>
-          </div>
         </div>
-        <div className="widget-stat-bar primary" />
-      </div>
-    </div>
-  </div>
-
-  <div className="col-lg-4 col-md-6">
-    <div className="card widget-stat-progress">
-      <div className="card-body d-flex justify-content-between">
-        <div className="d-flex align-items-center ">
-          <div className="widget-stat-icon warning">
-            <i className="bi bi-person-check"></i>
-          </div>
-          <div className="widget-stat-content ms-3">
-            <span className="widget-stat-label">
-              Active {prefix}Users
-            </span>
-            <span className="widget-stat-value">{counts.active}</span>
-          </div>
-        </div>
-        <div className="widget-stat-bar warning" />
-      </div>
-    </div>
-  </div>
-
-  <div className="col-lg-4 col-md-6">
-    <div className="card widget-stat-progress">
-      <div className="card-body d-flex justify-content-between">
-        <div className="d-flex align-items-center">
-          <div className="widget-stat-icon danger">
-            <i className="bi bi-person-fill-x"></i>
-          </div>
-          <div className="widget-stat-content ms-3">
-            <span className="widget-stat-label">
-              Inactive {prefix}Users
-            </span>
-            <span className="widget-stat-value">{counts.inactive}</span>
-          </div>
-        </div>
-        <div className="widget-stat-bar danger" />
-      </div>
-    </div>
-  </div>
-</div>
 
         <div className="card users-list-card">
           <div className="users-toolbar">
@@ -452,7 +402,14 @@ const UsersList = () => {
                   <select
                     style={dropdownStyle}
                     value={filterRole}
-                    onChange={(e) => setFilterRole(e.target.value)}
+                    onChange={(e) => {
+                      setFilterRole(e.target.value);
+                      if (e.target.value === "all") {
+                        setIsDisplayCount(true);
+                      } else {
+                        setIsDisplayCount(false);
+                      }
+                    }}
                   >
                     <option value="all">All roles</option>
                     <option value="5">Web</option>
