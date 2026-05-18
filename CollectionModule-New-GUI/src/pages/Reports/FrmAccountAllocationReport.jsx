@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import DataTable from "../../components/Datatable";
 import apiClient from "../../services/apiClient";
@@ -47,7 +47,32 @@ const formatDateForApi = (value) => {
   return `${day}-${month}-${year}`;
 };
 
-// Column definitions
+// format YYYY-MM-DD to DD-MMM-YYYY
+function formatDateToAbbr(dateStr) {
+  if (!dateStr) return "";
+  const parts = dateStr.split("-");
+  if (parts.length !== 3) return dateStr;
+  const year = parts[0];
+  const month = parseInt(parts[1], 10);
+  const day = parseInt(parts[2], 10);
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  if (month < 1 || month > 12) return dateStr;
+  return `${day.toString().padStart(2, "0")}-${monthNames[month - 1]}-${year}`;
+}
+
 const columns = [
   {
     key: "collectionAssosId",
@@ -107,7 +132,6 @@ const columns = [
       ),
   },
   {
-    // ── PLAIN TEXT ──
     key: "region",
     label: "Region",
     sortable: true,
@@ -148,7 +172,6 @@ const columns = [
       ),
   },
   {
-    // PLAIN TEXT
     key: "allocationDate",
     label: "Allocation Date",
     minWidth: "150px",
@@ -189,7 +212,6 @@ const columns = [
       ),
   },
   {
-    // PLAIN TEXT
     key: "dispositionDate",
     label: "Disposition Date",
     minWidth: "250px",
@@ -237,7 +259,6 @@ function FrmAccountAllocationReport() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { setLoader } = useLoader();
-
   const { showError, showSuccess, showWarning } = useNotification();
 
   const {
@@ -256,11 +277,78 @@ function FrmAccountAllocationReport() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Search state
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState("");
+
+  const [dateRangeOption, setDateRangeOption] = useState("currentMonth");
+
+  const getTodayDate = () => new Date().toISOString().split("T")[0];
+
+  const getFirstDay = (year, monthIndex) =>
+    `${year}-${String(monthIndex + 1).padStart(2, "0")}-01`;
+
+  const getLastDay = (year, monthIndex) => {
+    const lastDay = new Date(year, monthIndex + 1, 0).getDate();
+    return `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+  };
+
+  const updateDatesFromOption = (option) => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth(); // 0‑based
+
+    if (option === "currentMonth") {
+      // First day of current month → today
+      const firstDay = getFirstDay(currentYear, currentMonth);
+      const today = getTodayDate();
+      setStartDate(firstDay);
+      setEndDate(today);
+      setValue("startDate", firstDay);
+      setValue("endDate", today);
+    } else if (option === "lastMonth") {
+      // First day of last month → last day of last month
+      const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+      const lastMonthIndex = currentMonth === 0 ? 11 : currentMonth - 1;
+      const firstDay = getFirstDay(lastMonthYear, lastMonthIndex);
+      const lastDay = getLastDay(lastMonthYear, lastMonthIndex);
+      setStartDate(firstDay);
+      setEndDate(lastDay);
+      setValue("startDate", firstDay);
+      setValue("endDate", lastDay);
+    } else if (option === "lastThreeMonths") {
+      let startYear = currentYear;
+      let startMonth = currentMonth - 2;
+      if (startMonth < 0) {
+        startYear = currentYear - 1;
+        startMonth += 12;
+      }
+      const startFirstDay = getFirstDay(startYear, startMonth);
+      const endYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+      const endMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+      const endLastDay = getLastDay(endYear, endMonth);
+      setStartDate(startFirstDay);
+      setEndDate(endLastDay);
+      setValue("startDate", startFirstDay);
+      setValue("endDate", endLastDay);
+    }
+  };
+
+  // Handle dropdown change
+  const handleDateRangeChange = (e) => {
+    const option = e.target.value;
+    setDateRangeOption(option);
+    updateDatesFromOption(option);
+  };
+
+  useEffect(() => {
+    const today = getTodayDate();
+    setStartDate(today);
+    setEndDate(today);
+    setValue("startDate", today);
+    setValue("endDate", today);
+  }, []);
 
   // User search
   const doSearch = debounce(async (term) => {
@@ -311,38 +399,6 @@ function FrmAccountAllocationReport() {
     setUserId("");
     setValue("userId", "");
   };
-
-  function formatDateToAbbr(dateStr) {
-    const parts = dateStr.split("/");
-    if (parts.length !== 3) {
-      return dateStr;
-    }
-    const day = parts[0].padStart(2, "0");
-    const month = parseInt(parts[1], 10);
-    const year = parts[2];
-
-    const monthNames = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-
-    if (month < 1 || month > 12) {
-      return dateStr;
-    }
-
-    const monthAbbr = monthNames[month - 1];
-    return `${day}-${monthAbbr}-${year}`;
-  }
 
   // Fetch report data
   const handleSearch = async () => {
@@ -399,26 +455,25 @@ function FrmAccountAllocationReport() {
   return (
     <div className="main-content page-account-allocation-report">
       <div className="page-header">
-        <h1 className="page-title">Account Allocation Report</h1>
+        <h1 className="page-title">
+          Account Allocation Report
+          <span className="info-icon">
+            <i className="bi bi-info-circle-fill text-muted"></i>
+            <span className="info-icon-text">
+              This report shows allocated accounts by FOS, branch, and SMA type.
+              Filter by date range, user, and SMA type.
+            </span>
+          </span>
+        </h1>
       </div>
 
-      {/* ── Filter Card ── */}
       <div className="card mb-4">
-
         <div className="card-body">
           <form onSubmit={handleFormSubmit(handleSearch)}>
             <div className="row g-3">
               <div className="col-md-4">
-                <label htmlFor="startDate" className="form-label">
-                  Search name or userId <span className="text-danger">*</span>
-                </label>
-                {/* User search */}
-                <div
-                  className="position-relative"
-                  style={{
-                    width: "100%",
-                  }}
-                >
+                <label className="form-label">Search name or userId</label>
+                <div className="position-relative" style={{ width: "100%" }}>
                   <div className="input-group position-relative">
                     <span className="input-group-text bg-white border-end-0">
                       <i className="bi bi-search text-muted"></i>
@@ -519,8 +574,22 @@ function FrmAccountAllocationReport() {
                 )}
               </div>
             </div>
-            <div className="row g-3" style={{ marginTop: "1px" }}>
-              <div className="col-md-6">
+
+            <div className="row g-3 mt-2">
+              <div className="col-md-4">
+                <label className="form-label">Date Range Preset</label>
+                <select
+                  className="form-select"
+                  value={dateRangeOption}
+                  onChange={handleDateRangeChange}
+                >
+                  <option value="currentMonth">Current Month</option>
+                  <option value="lastMonth">Last Month</option>
+                  <option value="lastThreeMonths">Last Three Months</option>
+                </select>
+              </div>
+
+              <div className="col-md-4">
                 <label htmlFor="userId" className="form-label">
                   User ID
                 </label>
@@ -540,7 +609,7 @@ function FrmAccountAllocationReport() {
                 )}
               </div>
 
-              <div className="col-md-6">
+              <div className="col-md-4">
                 <label htmlFor="smaType" className="form-label">
                   SMA Type
                 </label>
@@ -579,7 +648,6 @@ function FrmAccountAllocationReport() {
         </div>
       </div>
 
-      {/* ── Results Table ── */}
       {tableData.length > 0 && (
         <DataTable
           title="Account Allocation Report"

@@ -325,7 +325,16 @@ function SMASummaryReport() {
   return (
     <div className="main-content page-sma-summary-report">
       <div className="page-header">
-        <h1 className="page-title">SMA Summary Report</h1>
+        <h1 className="page-title">
+          SMA Summary Report
+          <span className="info-icon">
+            <i className="bi bi-info-circle-fill text-muted"></i>
+            <span className="info-icon-text">
+              Tracks account movement between SMA stages with collection and
+              slippage metrics.
+            </span>
+          </span>
+        </h1>
       </div>
 
       {error && (
