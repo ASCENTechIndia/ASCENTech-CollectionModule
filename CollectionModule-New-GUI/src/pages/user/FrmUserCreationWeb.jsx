@@ -13,34 +13,51 @@ const FrmUserCreationWeb = () => {
         formState: { errors },
         reset
     } = useForm({
-        userLevel: "",
-        ZoneRegionBranch: "",
-        userRole: "",
-        userDevice: "",
-        employeeCode: "",
-        userFor: "",
-        firstName: "",
-        lastName: "",
-        mobileNumber: ""
+        defaultValues: {
+            userId: "",
+            userRole: "",
+            companyCode: "",
+            firstName: "",
+            lastName: "",
+            mobileNumber: "",
+            userIdProof: "",
+            idProofNo: "",
+            employerName: "",
+            collectionTeam: "",
+            branch: "",
+            userDevice: "",
+            employeeCode: "",
+            dob: "",
+            emailId: "",
+            uploadIdProof: "",
+            workingFor: "",
+            userDesignation: "",
+            productCategorisation: ""
+        }
     });
 
     const navigate = useNavigate();
     const { user } = useAuth();
-    const { showSuccess, showError } = useNotification();
-    const brCategory = user?.brCategory;
+    const { showError: _ } = useNotification();
     const userName = user?.userName;
-    const [selectedUserLevel, setSelectedUserLevel] = useState("");
     const [branchOptions, setBranchOptions] = useState([]);
     const [roleOptions, setRoleOptions] = useState([]);
     const [deviceOptions, setDeviceOptions] = useState([]);
+    const [userIdProofOptions, setUserIdProofOptions] = useState([]);
+    const [employerNameOptions, setEmployerNameOptions] = useState([]);
+    const [collectionTeamOptions, setCollectionTeamOptions] = useState([]);
+    const [workingForOptions, setWorkingForOptions] = useState([]);
+    const [userDesignationOptions, setUserDesignationOptions] = useState([]);
+    const [productCategorizationOptions, setProductCategorizationOptions] = useState([]);
+    const [companyCodeOptions, setCompanyCodeOptions] = useState([]);
     const fetchBranches = async () => {
         try {
-            const response = await apiClient.get(`/users/getUsercreationbranches/?brcategory=${brCategory}&userLevel=${selectedUserLevel}`, {});
+            const response = await apiClient.get(`/users/getBranches`, {});
 
             if (response.success && Array.isArray(response.data)) {
                 const formattedOptions = response.data.map((item) => ({
-                    label: item.BRANCHNAME,
-                    value: item.BRID
+                    label: item.BRANCHNAME || item.name,
+                    value: item.BRID || item.id
                 }));
 
                 setBranchOptions(formattedOptions);
@@ -82,31 +99,104 @@ const FrmUserCreationWeb = () => {
         }
     }
 
+    const fetchDropdowns = async () => {
+        try {
+            const response = await apiClient.get(`/users/mobile-form-options`, {});
+
+            if (response.success && response.data) {
+                // User ID Proof
+                if (response.data?.userIdProofs?.length > 0) {
+                    const dd = response.data.userIdProofs.map((item) => ({
+                        value: item.id,
+                        label: item.name,
+                    }));
+                    setUserIdProofOptions(dd);
+                }
+
+                // Employer Name
+                if (response.data?.employers?.length > 0) {
+                    const dd = response.data.employers.map((item) => ({
+                        value: item.id,
+                        label: item.name,
+                    }));
+                    setEmployerNameOptions(dd);
+                }
+
+                // Collection Team
+                if (response.data?.collectionTeams?.length > 0) {
+                    const dd = response.data.collectionTeams.map((item) => ({
+                        value: item.id,
+                        label: item.name,
+                    }));
+                    setCollectionTeamOptions(dd);
+                }
+
+                // Working For
+                if (response.data?.workingFor?.length > 0) {
+                    const dd = response.data.workingFor.map((item) => ({
+                        value: item.id,
+                        label: item.name,
+                    }));
+                    setWorkingForOptions(dd);
+                }
+
+                // User Designation
+                if (response.data?.designations?.length > 0) {
+                    const dd = response.data.designations.map((item) => ({
+                        value: item.id,
+                        label: item.name,
+                    }));
+                    setUserDesignationOptions(dd);
+                }
+
+                // Product Categorisation
+                if (response.data?.productCategories?.length > 0) {
+                    const dd = response.data.productCategories.map((item) => ({
+                        value: item.id,
+                        label: item.name,
+                    }));
+                    setProductCategorizationOptions(dd);
+                }
+
+                // Company Code
+                if (response.data?.companyCodes?.length > 0) {
+                    const dd = response.data.companyCodes.map((item) => ({
+                        value: item.id,
+                        label: item.name,
+                    }));
+                    setCompanyCodeOptions(dd);
+                }
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
    const onSubmit = async (values) => {
   try {
     const payload = {
-      in_brid: Number(values.zoneRegionBranch),
-      in_userid: "0",
+      in_brid: Number(values.branch),
+      in_userid: values.userId || "",
       in_username: `${values.firstName.trim()} ${values.lastName.trim()}`,
       in_userpwd: "",
       in_mobno: Number(values.mobileNumber),
-      in_email: "",
+      in_email: values.emailId || "",
       in_usertypeid: Number(values.userDevice),
-      in_DOB: null,
-      in_proofno: null,
-      in_desgid: 0,
+      in_DOB: values.dob || null,
+      in_proofno: values.idProofNo || null,
+      in_desgid: Number(values.userDesignation),
       in_roleid: Number(values.userRole),
-      in_compcode: 0,
-      in_workid: 0,
-      in_empid: 0,
-      in_collectionid: 0,
-      in_categoryid: 0,
+      in_compcode: Number(values.companyCode),
+      in_workid: Number(values.workingFor),
+      in_empid: Number(values.employerName),
+      in_collectionid: Number(values.collectionTeam),
+      in_categoryid: Number(values.productCategorisation),
       in_mode: 1,
       in_status: "A",
       in_Empcode: values.employeeCode,
       in_firstname: values.firstName.trim(),
       in_lastname: values.lastName.trim(),
-      in_prooftype: values.userFor === "1" ? 1 : 2,
+      in_prooftype: Number(values.userIdProof) || 0,
       in_compid: 0,
       in_insby: userName,
     };
@@ -116,19 +206,7 @@ const FrmUserCreationWeb = () => {
     if (response?.data?.Out_errorCode === 9999) {
       window.alert(response.data.Out_ErrorMsg || "User created successfully");
 
-      reset({
-        userLevel: "",
-        ZoneRegionBranch: "",
-        userRole: "",
-        userDevice: "",
-        employeeCode: "",
-        userFor: "",
-        firstName: "",
-        lastName: "",
-        mobileNumber: "",
-      });
-
-      setSelectedUserLevel("");
+      reset();
       setBranchOptions([]);
     } else {
       window.alert(response?.data?.Out_ErrorMsg || "Something went wrong");
@@ -146,14 +224,16 @@ const FrmUserCreationWeb = () => {
 };
 
     useEffect(() => {
-        if (!selectedUserLevel || !brCategory) return;
-
-        fetchBranches();
-    }, [selectedUserLevel, brCategory]);
-
-    useEffect(() => {
-        fetchRoles();
-        fetchUserDevices();
+        // Initialize all form dropdowns on component mount
+        const initializeDropdowns = async () => {
+            await Promise.all([
+                fetchBranches(),
+                fetchRoles(),
+                fetchUserDevices(),
+                fetchDropdowns()
+            ]);
+        };
+        initializeDropdowns();
     }, [])
 
   return (
@@ -170,158 +250,309 @@ const FrmUserCreationWeb = () => {
       <div className="card-body">
         <form onSubmit={handleSubmit(onSubmit)}>
 
-          <div className="row g-3">
-
-            {/* User Level */}
+          <div className="row">
+            {/* LEFT COLUMN */}
             <div className="col-md-6">
-              <label className="form-label">User Level <span className="text-danger">*</span></label>
-              <select
-                {...register("userLevel", { required: "User Level is required" })}
-                className={`form-select ${errors.userLevel ? "is-invalid" : ""}`}
-                onChange={(e) => setSelectedUserLevel(e.target.value)}
-              >
-                <option value="">Select</option>
-                <option value="Zone">Zone</option>
-                <option value="Branch">Branch</option>
-                <option value="Region">Region</option>
-              </select>
-              {errors.userLevel && (
-                <div className="invalid-feedback">
-                  {errors.userLevel.message}
+              {/* User ID */}
+              <div className="mb-3">
+                <label className="form-label">User ID <span className="text-danger">*</span></label>
+                <input
+                  {...register("userId", { required: "User ID is required" })}
+                  className={`form-control ${errors.userId ? "is-invalid" : ""}`}
+                />
+                {errors.userId && (
+                  <div className="invalid-feedback">{errors.userId.message}</div>
+                )}
+              </div>
+
+              {/* User Role */}
+              <div className="mb-3">
+                <label className="form-label">User Role <span className="text-danger">*</span></label>
+                <select
+                  {...register("userRole", { required: "User Role is required" })}
+                  className={`form-select ${errors.userRole ? "is-invalid" : ""}`}
+                >
+                  <option value="">-- Select Option --</option>
+                  {roleOptions.map((i) => (
+                    <option key={i.value} value={i.value}>{i.label}</option>
+                  ))}
+                </select>
+                {errors.userRole && (
+                  <div className="invalid-feedback">{errors.userRole.message}</div>
+                )}
+              </div>
+
+              {/* Company Code */}
+              <div className="mb-3">
+                <label className="form-label">Company Code <span className="text-danger">*</span></label>
+                <select
+                  {...register("companyCode", { required: "Company Code is required" })}
+                  className={`form-select ${errors.companyCode ? "is-invalid" : ""}`}
+                >
+                  <option value="">-- Select Option --</option>
+                  {companyCodeOptions.map((i) => (
+                    <option key={i.value} value={i.value}>{i.label}</option>
+                  ))}
+                </select>
+                {errors.companyCode && (
+                  <div className="invalid-feedback">{errors.companyCode.message}</div>
+                )}
+              </div>
+
+              {/* User Name */}
+              <div className="mb-3">
+                <label className="form-label">User Name <span className="text-danger">*</span></label>
+                <div className="row g-2">
+                  <div className="col-6">
+                    <input
+                      placeholder="FIRST NAME"
+                      {...register("firstName", { required: "First Name is required" })}
+                      onChange={(e) => {
+                        e.target.value = e.target.value.replace(/[^A-Za-z\s]/g, "");
+                      }}
+                      className={`form-control ${errors.firstName ? "is-invalid" : ""}`}
+                    />
+                    {errors.firstName && (
+                      <div className="invalid-feedback">{errors.firstName.message}</div>
+                    )}
+                  </div>
+                  <div className="col-6">
+                    <input
+                      placeholder="LAST NAME"
+                      {...register("lastName", { required: "Last Name is required" })}
+                      onChange={(e) => {
+                        e.target.value = e.target.value.replace(/[^A-Za-z\s]/g, "");
+                      }}
+                      className={`form-control ${errors.lastName ? "is-invalid" : ""}`}
+                    />
+                    {errors.lastName && (
+                      <div className="invalid-feedback">{errors.lastName.message}</div>
+                    )}
+                  </div>
                 </div>
-              )}
-            </div>
+              </div>
 
-            {/* Branch */}
-            <div className="col-md-6">
-              <label className="form-label">Zone/Region/Branch <span className="text-danger">*</span></label>
-              <select
-                {...register("zoneRegionBranch", { required: "Required" })}
-                className={`form-select ${errors.zoneRegionBranch ? "is-invalid" : ""}`}
-              >
-                <option value="">Select</option>
-                {branchOptions.map((i) => (
-                  <option key={i.value} value={i.value}>{i.label}</option>
-                ))}
-              </select>
-              {errors.zoneRegionBranch && (
-                <div className="invalid-feedback">
-                  {errors.zoneRegionBranch.message}
-                </div>
-              )}
-            </div>
-
-            {/* Role */}
-            <div className="col-md-6">
-              <label className="form-label">User Role <span className="text-danger">*</span></label>
-              <select
-                {...register("userRole", { required: "User Role is required" })}
-                className={`form-select ${errors.userRole ? "is-invalid" : ""}`}
-              >
-                <option value="">Select</option>
-                {roleOptions.map((i) => (
-                  <option key={i.value} value={i.value}>{i.label}</option>
-                ))}
-              </select>
-              {errors.userRole && (
-                <div className="invalid-feedback">{errors.userRole.message}</div>
-              )}
-            </div>
-
-            {/* Device */}
-            <div className="col-md-6">
-              <label className="form-label">User Device <span className="text-danger">*</span></label>
-              <select
-                {...register("userDevice", { required: "User Device is required" })}
-                className={`form-select ${errors.userDevice ? "is-invalid" : ""}`}
-              >
-                <option value="">Select</option>
-                {deviceOptions.map((i) => (
-                  <option key={i.value} value={i.value}>{i.label}</option>
-                ))}
-              </select>
-              {errors.userDevice && (
-                <div className="invalid-feedback">{errors.userDevice.message}</div>
-              )}
-            </div>
-
-            {/* Employee Code */}
-            <div className="col-md-6">
-              <label className="form-label">Employee Code <span className="text-danger">*</span></label>
-              <input
-                {...register("employeeCode", { required: "Employee Code is required" })}
-                   onChange={(e) => {
-                e.target.value = e.target.value.replace(/[^A-Za-z0-9]/g, "");
-              }}
-                className={`form-control ${errors.employeeCode ? "is-invalid" : ""}`}
-              />
-              {errors.employeeCode && (
-                <div className="invalid-feedback">{errors.employeeCode.message}</div>
-              )}
-            </div>
-
-            {/* User For */}
-            <div className="col-md-6">
-              <label className="form-label">User For <span className="text-danger">*</span></label>
-              <select
-                {...register("userFor", { required: "User For is required" })}
-                className={`form-select ${errors.userFor ? "is-invalid" : ""}`}
-              >
-                <option value="">Select</option>
-                <option value="1">Conneqt</option>
-                <option value="2">Central Bank</option>
-              </select>
-              {errors.userFor && (
-                <div className="invalid-feedback">{errors.userFor.message}</div>
-              )}
-            </div>
-
-            {/* First Name */}
-            <div className="col-md-6">
-              <label className="form-label">First Name <span className="text-danger">*</span></label>
-              <input
-                {...register("firstName", { required: "First Name is required" })}
-                   onChange={(e) => {
-                    e.target.value = e.target.value.replace(/[^A-Za-z\s]/g, "");
-                  }}
-                className={`form-control ${errors.firstName ? "is-invalid" : ""}`}
-              />
-              {errors.firstName && (
-                <div className="invalid-feedback">{errors.firstName.message}</div>
-              )}
-            </div>
-
-            {/* Last Name */}
-            <div className="col-md-6">
-              <label className="form-label">Last Name <span className="text-danger">*</span></label>
-              <input
-                {...register("lastName", { required: "Last Name is required" })}
-                   onChange={(e) => {
-                    e.target.value = e.target.value.replace(/[^A-Za-z\s]/g, "");
-                  }}
-                className={`form-control ${errors.lastName ? "is-invalid" : ""}`}
-              />
-              {errors.lastName && (
-                <div className="invalid-feedback">{errors.lastName.message}</div>
-              )}
-            </div>
-
-            {/* Mobile */}
-            <div className="col-md-6">
-              <label className="form-label">Mobile Number <span className="text-danger">*</span></label>
-              <input
-              maxLength={10}
-                {...register("mobileNumber", { required: "Mobile Number is required" })}
-                   onChange={(e) => {
+              {/* Mobile No. */}
+              <div className="mb-3">
+                <label className="form-label">Mobile No. <span className="text-danger">*</span></label>
+                <input
+                  maxLength={10}
+                  {...register("mobileNumber", { required: "Mobile Number is required" })}
+                  onChange={(e) => {
                     e.target.value = e.target.value.replace(/[^0-9]/g, "");
                   }}
-                className={`form-control ${errors.mobileNumber ? "is-invalid" : ""}`}
-              />
-              {errors.mobileNumber && (
-                <div className="invalid-feedback">{errors.mobileNumber.message}</div>
-              )}
+                  className={`form-control ${errors.mobileNumber ? "is-invalid" : ""}`}
+                />
+                {errors.mobileNumber && (
+                  <div className="invalid-feedback">{errors.mobileNumber.message}</div>
+                )}
+              </div>
+
+              {/* User ID Proof */}
+              <div className="mb-3">
+                <label className="form-label">User ID Proof</label>
+                <select
+                  {...register("userIdProof")}
+                  className={`form-select ${errors.userIdProof ? "is-invalid" : ""}`}
+                >
+                  <option value="">-- Select Option --</option>
+                  {userIdProofOptions.map((i) => (
+                    <option key={i.value} value={i.value}>{i.label}</option>
+                  ))}
+                </select>
+                {errors.userIdProof && (
+                  <div className="invalid-feedback">{errors.userIdProof.message}</div>
+                )}
+              </div>
+
+              {/* ID Proof No. */}
+              <div className="mb-3">
+                <label className="form-label">ID Proof No.</label>
+                <input
+                  {...register("idProofNo")}
+                  className={`form-control ${errors.idProofNo ? "is-invalid" : ""}`}
+                />
+                {errors.idProofNo && (
+                  <div className="invalid-feedback">{errors.idProofNo.message}</div>
+                )}
+              </div>
+
+              {/* Employer Name */}
+              <div className="mb-3">
+                <label className="form-label">Employer Name</label>
+                <select
+                  {...register("employerName")}
+                  className={`form-select ${errors.employerName ? "is-invalid" : ""}`}
+                >
+                  <option value="">-- Select Option --</option>
+                  {employerNameOptions.map((i) => (
+                    <option key={i.value} value={i.value}>{i.label}</option>
+                  ))}
+                </select>
+                {errors.employerName && (
+                  <div className="invalid-feedback">{errors.employerName.message}</div>
+                )}
+              </div>
+
+              {/* Collection Team */}
+              <div className="mb-3">
+                <label className="form-label">Collection Team</label>
+                <select
+                  {...register("collectionTeam")}
+                  className={`form-select ${errors.collectionTeam ? "is-invalid" : ""}`}
+                >
+                  <option value="">-- Select Option --</option>
+                  {collectionTeamOptions.map((i) => (
+                    <option key={i.value} value={i.value}>{i.label}</option>
+                  ))}
+                </select>
+                {errors.collectionTeam && (
+                  <div className="invalid-feedback">{errors.collectionTeam.message}</div>
+                )}
+              </div>
             </div>
 
+            {/* RIGHT COLUMN */}
+            <div className="col-md-6">
+              {/* Branch */}
+              <div className="mb-3">
+                <label className="form-label">Branch <span className="text-danger">*</span></label>
+                <select
+                  {...register("branch", { required: "Branch is required" })}
+                  className={`form-select ${errors.branch ? "is-invalid" : ""}`}
+                >
+                  <option value="">-- Select Option --</option>
+                  {branchOptions.map((i) => (
+                    <option key={i.value} value={i.value}>{i.label}</option>
+                  ))}
+                </select>
+                {errors.branch && (
+                  <div className="invalid-feedback">{errors.branch.message}</div>
+                )}
+              </div>
+
+              {/* User Device */}
+              <div className="mb-3">
+                <label className="form-label">User Device <span className="text-danger">*</span></label>
+                <select
+                  {...register("userDevice", { required: "User Device is required" })}
+                  className={`form-select ${errors.userDevice ? "is-invalid" : ""}`}
+                >
+                  <option value="">-- Select Option --</option>
+                  {deviceOptions.map((i) => (
+                    <option key={i.value} value={i.value}>{i.label}</option>
+                  ))}
+                </select>
+                {errors.userDevice && (
+                  <div className="invalid-feedback">{errors.userDevice.message}</div>
+                )}
+              </div>
+
+              {/* Employee Code */}
+              <div className="mb-3">
+                <label className="form-label">Employee Code <span className="text-danger">*</span></label>
+                <input
+                  {...register("employeeCode", { required: "Employee Code is required" })}
+                  onChange={(e) => {
+                    e.target.value = e.target.value.replace(/[^A-Za-z0-9]/g, "");
+                  }}
+                  className={`form-control ${errors.employeeCode ? "is-invalid" : ""}`}
+                />
+                {errors.employeeCode && (
+                  <div className="invalid-feedback">{errors.employeeCode.message}</div>
+                )}
+              </div>
+
+              {/* User D.O.B. */}
+              <div className="mb-3">
+                <label className="form-label">User D.O.B.</label>
+                <input
+                  type="date"
+                  {...register("dob")}
+                  className={`form-control ${errors.dob ? "is-invalid" : ""}`}
+                />
+                {errors.dob && (
+                  <div className="invalid-feedback">{errors.dob.message}</div>
+                )}
+              </div>
+
+              {/* Email ID */}
+              <div className="mb-3">
+                <label className="form-label">Email ID</label>
+                <input
+                  type="email"
+                  {...register("emailId")}
+                  className={`form-control ${errors.emailId ? "is-invalid" : ""}`}
+                />
+                {errors.emailId && (
+                  <div className="invalid-feedback">{errors.emailId.message}</div>
+                )}
+              </div>
+
+              {/* Upload ID Proof */}
+              <div className="mb-3">
+                <label className="form-label">Upload ID Proof</label>
+                <input
+                  type="file"
+                  {...register("uploadIdProof")}
+                  className={`form-control ${errors.uploadIdProof ? "is-invalid" : ""}`}
+                />
+                {errors.uploadIdProof && (
+                  <div className="invalid-feedback">{errors.uploadIdProof.message}</div>
+                )}
+              </div>
+
+              {/* Working For */}
+              <div className="mb-3">
+                <label className="form-label">Working For <span className="text-danger">*</span></label>
+                <select
+                  {...register("workingFor", { required: "Working For is required" })}
+                  className={`form-select ${errors.workingFor ? "is-invalid" : ""}`}
+                >
+                  <option value="">-- Select Option --</option>
+                  {workingForOptions.map((i) => (
+                    <option key={i.value} value={i.value}>{i.label}</option>
+                  ))}
+                </select>
+                {errors.workingFor && (
+                  <div className="invalid-feedback">{errors.workingFor.message}</div>
+                )}
+              </div>
+
+              {/* User Designation */}
+              <div className="mb-3">
+                <label className="form-label">User Designation <span className="text-danger">*</span></label>
+                <select
+                  {...register("userDesignation", { required: "User Designation is required" })}
+                  className={`form-select ${errors.userDesignation ? "is-invalid" : ""}`}
+                >
+                  <option value="">-- Select Option --</option>
+                  {userDesignationOptions.map((i) => (
+                    <option key={i.value} value={i.value}>{i.label}</option>
+                  ))}
+                </select>
+                {errors.userDesignation && (
+                  <div className="invalid-feedback">{errors.userDesignation.message}</div>
+                )}
+              </div>
+
+              {/* Product Categorisation */}
+              <div className="mb-3">
+                <label className="form-label">Product Categorisation <span className="text-danger">*</span></label>
+                <select
+                  {...register("productCategorisation", { required: "Product Categorisation is required" })}
+                  className={`form-select ${errors.productCategorisation ? "is-invalid" : ""}`}
+                >
+                  <option value="">-- Select Option --</option>
+                  {productCategorizationOptions.map((i) => (
+                    <option key={i.value} value={i.value}>{i.label}</option>
+                  ))}
+                </select>
+                {errors.productCategorisation && (
+                  <div className="invalid-feedback">{errors.productCategorisation.message}</div>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Buttons */}
