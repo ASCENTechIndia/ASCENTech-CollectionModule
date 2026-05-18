@@ -557,57 +557,105 @@ const FrmPincodeList = () => {
         </div>
       )}
       {showEditModal && (
-        <div className={`modal fade ${showEditModal ? 'show d-block' : ''}`} tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} role="dialog">
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Modify Status</h5>
-                <button type="button" className="btn-close" onClick={() => {
-                  setShowEditModal(false);
-                  setSelectedPincode(null);
-                  setNewStatus("")
-                }} />
-              </div>
+        <>
+          <div
+            className={`modal fade ${showEditModal ? "show d-block" : ""}`}
+            tabIndex="-1"
+            role="dialog"
+            style={{ zIndex: 1040 }}
+          >
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Modify Status</h5>
 
-              <div className="modal-body">
-                <div className="row mb-3">
-                  <div className="col-6">
-                    Pincode: {selectedPincode?.VAR_PINCODE_NO}
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => {
+                      setShowEditModal(false);
+                      setSelectedPincode(null);
+                      setNewStatus("");
+                    }}
+                  />
+                </div>
+
+                <div className="modal-body">
+                  <div className="row mb-3">
+                    <div className="col-6">
+                      Pincode: {selectedPincode?.VAR_PINCODE_NO}
+                    </div>
+
+                    <div className="col-6">
+                      Current Status:{" "}
+                      {selectedPincode?.VAR_PINCODE_ACTIVE === "Y"
+                        ? "Active"
+                        : "Inactive"}
+                    </div>
                   </div>
-                  <div className="col-6">
-                    Current Status: {selectedPincode?.VAR_PINCODE_ACTIVE === 'Y' ? "Active" : "Inactive"}
+
+                  <div className="mb-3">
+                    <label className="form-label">
+                      New Status <span className="text-danger">*</span>
+                    </label>
+
+                    <select
+                      className="form-select"
+                      value={newStatus || ""}
+                      onChange={(e) => setNewStatus(e.target.value)}
+                    >
+                      <option value="">-- Select Status --</option>
+
+                      <option
+                        value="A"
+                        disabled={selectedPincode?.VAR_PINCODE_ACTIVE === "Y"}
+                      >
+                        Active
+                      </option>
+
+                      <option
+                        value="I"
+                        disabled={selectedPincode?.VAR_PINCODE_ACTIVE !== "Y"}
+                      >
+                        Inactive
+                      </option>
+                    </select>
                   </div>
                 </div>
-                <div className="mb-3">
-                  <label className="form-label">New Status <span className="text-danger">*</span></label>
-                  <select
-                    className="form-select"
-                    value={newStatus || ""}
-                    onChange={(e) => setNewStatus(e.target.value)}
+
+                <div className="modal-footer justify-content-center">
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() =>
+                      handleModifyStatus(selectedPincode?.VAR_PINCODE_NO)
+                    }
                   >
-                    <option value="">-- Select Status --</option>
-                    <option value="A" disabled={selectedPincode?.VAR_PINCODE_ACTIVE === 'Y'}>Active</option>
-                    <option value="I" disabled={selectedPincode?.VAR_PINCODE_ACTIVE !== 'Y'}>Inactive</option>
-                  </select>
+                    Save
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => {
+                      setShowEditModal(false);
+                      setSelectedPincode(null);
+                      setNewStatus("");
+                    }}
+                  >
+                    Cancel
+                  </button>
                 </div>
-              </div>
-              <div className="modal-footer justify-content-center">
-                <button type="button" className="btn btn-primary"
-                  onClick={() => handleModifyStatus(selectedPincode?.VAR_PINCODE_NO)}
-                >
-                  Save
-                </button>
-                <button type="button" className="btn btn-secondary" onClick={() => {
-                  setShowEditModal(false);
-                  setSelectedPincode(null);
-                  setNewStatus("")
-                }}>
-                  Cancel
-                </button>
               </div>
             </div>
           </div>
-        </div>
+
+          {/* Backdrop */}
+          <div
+            className="modal-backdrop fade show"
+            style={{ zIndex: 1039 }}
+          ></div>
+        </>
       )}
     </div>
   );
