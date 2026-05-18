@@ -344,7 +344,16 @@ function FrmUserRouteReport() {
   return (
     <div className="main-content page-user-route-report">
       <div className="page-header">
-        <h1 className="page-title">User Route Report</h1>
+        <h1 className="page-title">
+          User Route Report
+          <span className="info-icon">
+            <i className="bi bi-info-circle-fill text-muted"></i>
+            <span className="info-icon-text">
+              Visualises the daily route of a collection associate with
+              geo‑coordinates and transaction data.
+            </span>
+          </span>
+        </h1>
       </div>
 
       <div className="card mb-4">

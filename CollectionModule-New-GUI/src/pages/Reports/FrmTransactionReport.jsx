@@ -1,7 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import ReusableDataGrid from "../../components/ReusableDataGrid";
 import ImageViewer from "../../components/ui/ImageViewer";
 import apiClient from "../../services/apiClient";
 import { useAuth } from "../../context/AuthContext";
@@ -9,7 +8,6 @@ import { useNotification } from "../../context/useNotification";
 import DataTable from "../../components/Datatable";
 import { useLoader } from "../../context/LoaderContext";
 
-// Debounce utility
 function debounce(fn, delay) {
   let timer = null;
   return (...args) => {
@@ -26,15 +24,11 @@ const formatDateForAPI = (dateStr) => {
 
 const formatToDDMMYYYY = (isoString) => {
   if (!isoString) return "";
-
   const date = new Date(isoString);
-
   if (isNaN(date)) return "";
-
   const day = String(date.getDate()).padStart(2, "0");
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const year = date.getFullYear();
-
   return `${day}/${month}/${year}`;
 };
 
@@ -52,7 +46,6 @@ function FrmTransactionReport() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { setLoader } = useLoader();
-
   const { showError, showSuccess, showWarning } = useNotification();
   const {
     register,
@@ -66,6 +59,7 @@ function FrmTransactionReport() {
       userId: "",
     },
   });
+
   const brid = user?.brid ?? user?.BRID ?? user?.num_usermst_brid ?? null;
   const brCategory =
     user?.brCategory ?? user?.brcategory ?? user?.BRCATEGORY ?? null;
@@ -98,23 +92,86 @@ function FrmTransactionReport() {
   const [selectedImageCode, setSelectedImageCode] = useState("");
   const [showImageViewer, setShowImageViewer] = useState(false);
 
-  // 🔍 Search state for user name/id
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState("");
 
+  const [dateRangeOption, setDateRangeOption] = useState("currentMonth");
+
+  const getTodayDate = () => new Date().toISOString().split("T")[0];
+  const getFirstDay = (year, monthIndex) =>
+    `${year}-${String(monthIndex + 1).padStart(2, "0")}-01`;
+  const getLastDay = (year, monthIndex) => {
+    const lastDay = new Date(year, monthIndex + 1, 0).getDate();
+    return `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+  };
+
+  const updateDatesFromOption = (option) => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+
+    if (option === "currentMonth") {
+      const firstDay = getFirstDay(currentYear, currentMonth);
+      const today = getTodayDate();
+      setFromDate(firstDay);
+      setToDate(today);
+      setValue("fromDate", firstDay);
+      setValue("toDate", today);
+    } else if (option === "lastMonth") {
+      const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+      const lastMonthIndex = currentMonth === 0 ? 11 : currentMonth - 1;
+      const firstDay = getFirstDay(lastMonthYear, lastMonthIndex);
+      const lastDay = getLastDay(lastMonthYear, lastMonthIndex);
+      setFromDate(firstDay);
+      setToDate(lastDay);
+      setValue("fromDate", firstDay);
+      setValue("toDate", lastDay);
+    } else if (option === "lastThreeMonths") {
+      let startYear = currentYear;
+      let startMonth = currentMonth - 2;
+      if (startMonth < 0) {
+        startYear = currentYear - 1;
+        startMonth += 12;
+      }
+      const startFirstDay = getFirstDay(startYear, startMonth);
+      const endYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+      const endMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+      const endLastDay = getLastDay(endYear, endMonth);
+      setFromDate(startFirstDay);
+      setToDate(endLastDay);
+      setValue("fromDate", startFirstDay);
+      setValue("toDate", endLastDay);
+    }
+  };
+
+  const handleDateRangeChange = (e) => {
+    const option = e.target.value;
+    setDateRangeOption(option);
+    updateDatesFromOption(option);
+  };
+
+  // Set default dates on mount (today) and dateRangeOption to currentMonth
+  useEffect(() => {
+    const today = getTodayDate();
+    setFromDate(today);
+    setToDate(today);
+    setValue("fromDate", today);
+    setValue("toDate", today);
+    setDateRangeOption("currentMonth");
+  }, []);
+
   const transactionTypeOptions = [
     { label: "Collection", value: "1" },
     { label: "Feedback", value: "2" },
   ];
-
   const smaTypeOptions = [
     { value: "SMA1", label: "SMA1" },
     { value: "SMA2", label: "SMA2" },
   ];
 
-  // ---------- User search debounced API ----------
+  // User search debounced API
   const doSearch = debounce(async (term) => {
     if (!term) {
       setSearchResults([]);
@@ -151,7 +208,6 @@ function FrmTransactionReport() {
   const handleSelectUser = (selectedUser) => {
     setSearchTerm(selectedUser.VAR_USERMST_USERFULLNAME);
     setSearchResults([]);
-    // Remove leading "E" if present
     const cleanId = String(selectedUser.VAR_USERMST_USERID).replace(/^E/i, "");
     setUserId(cleanId);
     setValue("userId", cleanId);
@@ -166,7 +222,7 @@ function FrmTransactionReport() {
     setValue("userId", "");
   };
 
-  // ---------- Existing dropdown fetches (unchanged) ----------
+  // Dropdown fetches
   useEffect(() => {
     const fetchZones = async () => {
       if (brid === null || brCategory === null) return;
@@ -314,9 +370,7 @@ function FrmTransactionReport() {
         setLoader(true);
         const res = await apiClient.get(
           "/transactionReports/getCollAssociate",
-          {
-            params: { brid: bridParam },
-          },
+          { params: { brid: bridParam } },
         );
         const dataArray = getDataRows(res);
         if (dataArray.length > 0) {
@@ -356,7 +410,6 @@ function FrmTransactionReport() {
     fetchCollectionAssociates();
   }, [zone, region, branch, brid]);
 
-  // ---------- Image & location handlers (unchanged) ----------
   const handleViewClick = (imageCode) => {
     if (!imageCode) {
       showError("No image available");
@@ -389,9 +442,7 @@ function FrmTransactionReport() {
 
   function formatDateToAbbr(dateStr) {
     const parts = dateStr.split("/");
-    if (parts.length !== 3) {
-      return dateStr;
-    }
+    if (parts.length !== 3) return dateStr;
     const day = parts[0].padStart(2, "0");
     const month = parseInt(parts[1], 10);
     const year = parts[2];
@@ -409,15 +460,12 @@ function FrmTransactionReport() {
       "Nov",
       "Dec",
     ];
-    if (month < 1 || month > 12) {
-      return dateStr;
-    }
-
+    if (month < 1 || month > 12) return dateStr;
     const monthAbbr = monthNames[month - 1];
     return `${day}-${monthAbbr}-${year}`;
   }
 
-  // ---------- Main search (transaction report) ----------
+  // Main search
   const handleSearch = async () => {
     setError("");
     const fromDateFormatted = fromDate ? formatDateForAPI(fromDate) : "";
@@ -527,52 +575,6 @@ function FrmTransactionReport() {
     }
   };
 
-  const columns = [
-    { label: "User Id", sortable: true, field: "userId" },
-    { label: "Collection Associate", sortable: true },
-    { label: "Transaction Id", sortable: true },
-    { label: "Account Number", sortable: true },
-    { label: "Distance KM", sortable: true },
-    { label: "Customer Name", sortable: true },
-    { label: "Customer RMN", sortable: true },
-    { label: "OverDue Amount", sortable: true },
-    { label: "Feedback", sortable: true },
-    { label: "Payment Mode", sortable: true },
-    { label: "Amount", sortable: true },
-    { label: "PTP Date", sortable: true },
-    { label: "Transaction date", sortable: true },
-    { label: "Transaction Time", sortable: true },
-    {
-      label: "View",
-      sortable: false,
-      render: (value) => (
-        <button
-          type="button"
-          onClick={() => handleViewClick(value)}
-          className="btn btn-link p-0"
-        >
-          View
-        </button>
-      ),
-    },
-    {
-      label: "Geolocation",
-      sortable: false,
-      render: (value) => (
-        <button
-          type="button"
-          onClick={() => handleLocationClick(value)}
-          className="btn btn-link p-0"
-        >
-          View Location
-        </button>
-      ),
-    },
-    { label: "MDM ID", sortable: true },
-    { label: "SMA TYPE", sortable: true },
-    { label: "Transaction Type", sortable: true },
-  ];
-
   const columns2 = [
     {
       key: "userId",
@@ -607,10 +609,7 @@ function FrmTransactionReport() {
           <span className="text-muted">—</span>
         ),
     },
-    {
-      key: "collectionassociate",
-      label: "Collection Associate",
-    },
+    { key: "collectionassociate", label: "Collection Associate" },
     {
       key: "transactionId",
       label: "Transaction ID",
@@ -764,7 +763,16 @@ function FrmTransactionReport() {
   return (
     <div className="main-content page-transaction-report">
       <div className="page-header">
-        <h1 className="page-title">Transaction Report</h1>
+        <h1 className="page-title">
+          Transaction Report
+          <span className="info-icon">
+            <i className="bi bi-info-circle-fill text-muted"></i>
+            <span className="info-icon-text">
+              This report displays transaction details including user, account,
+              amount, feedback, location, and image.
+            </span>
+          </span>
+        </h1>
       </div>
 
       <div className="card mb-4">
@@ -775,7 +783,19 @@ function FrmTransactionReport() {
         <div className="card-body">
           <form onSubmit={handleFormSubmit(handleSearch)}>
             <div className="row g-3">
-              <div className="col-md-6">
+              <div className="col-md-4">
+                <label className="form-label">Date Range Preset</label>
+                <select
+                  className="form-select"
+                  value={dateRangeOption}
+                  onChange={handleDateRangeChange}
+                >
+                  <option value="currentMonth">Current Month</option>
+                  <option value="lastMonth">Last Month</option>
+                  <option value="lastThreeMonths">Last Three Months</option>
+                </select>
+              </div>
+              <div className="col-md-4">
                 <label htmlFor="fromDate" className="form-label">
                   From Date <span className="text-danger">*</span>
                 </label>
@@ -786,7 +806,7 @@ function FrmTransactionReport() {
                   value={fromDate}
                   {...register("fromDate", {
                     required: "From Date is required",
-                    onChange: (event) => setFromDate(event.target.value),
+                    onChange: (e) => setFromDate(e.target.value),
                   })}
                 />
                 {errors.fromDate && (
@@ -796,7 +816,7 @@ function FrmTransactionReport() {
                 )}
               </div>
 
-              <div className="col-md-6">
+              <div className="col-md-4">
                 <label htmlFor="toDate" className="form-label">
                   To Date <span className="text-danger">*</span>
                 </label>
@@ -807,7 +827,7 @@ function FrmTransactionReport() {
                   value={toDate}
                   {...register("toDate", {
                     required: "To Date is required",
-                    onChange: (event) => setToDate(event.target.value),
+                    onChange: (e) => setToDate(e.target.value),
                   })}
                 />
                 {errors.toDate && (
@@ -816,17 +836,12 @@ function FrmTransactionReport() {
                   </div>
                 )}
               </div>
+            </div>
 
+            <div className="row g-3 mt-2">
               <div className="col-md-6">
-                {/* 🔍 User search input (name or ID) */}
-                <label htmlFor="toDate" className="form-label">
-                  Search name or userId<span className="text-danger">*</span>
-                </label>
-                <div
-                  style={{
-                    width: "100%",
-                  }}
-                >
+                <label className="form-label">Search name or userId</label>
+                <div style={{ width: "100%" }}>
                   <div className="input-group position-relative">
                     <span className="input-group-text bg-white border-end-0">
                       <i className="bi bi-search text-muted"></i>
@@ -849,11 +864,9 @@ function FrmTransactionReport() {
                       </button>
                     )}
                   </div>
-
                   {searchLoading && (
                     <div className="spinner-border spinner-border-sm position-absolute end-0 top-50 translate-middle-y me-2" />
                   )}
-
                   {searchResults.length > 0 && (
                     <ul
                       className="list-group position-absolute w-100 shadow z-3"
@@ -879,14 +892,12 @@ function FrmTransactionReport() {
                       ))}
                     </ul>
                   )}
-
                   {searchError && (
                     <div className="text-danger small mt-1">{searchError}</div>
                   )}
                 </div>
               </div>
 
-              {/* User ID field – now readOnly, populated via search dropdown */}
               <div className="col-md-6">
                 <label htmlFor="userId" className="form-label">
                   User Id
@@ -906,7 +917,9 @@ function FrmTransactionReport() {
                   </div>
                 )}
               </div>
+            </div>
 
+            <div className="row g-3 mt-2">
               <div className="col-md-6">
                 <label htmlFor="zone" className="form-label">
                   Zone
@@ -915,7 +928,7 @@ function FrmTransactionReport() {
                   id="zone"
                   className="form-select"
                   value={zone}
-                  onChange={(event) => setZone(event.target.value)}
+                  onChange={(e) => setZone(e.target.value)}
                   disabled={loadingZones}
                 >
                   <option value="">Select Zone</option>
@@ -935,7 +948,7 @@ function FrmTransactionReport() {
                   id="region"
                   className="form-select"
                   value={region}
-                  onChange={(event) => setRegion(event.target.value)}
+                  onChange={(e) => setRegion(e.target.value)}
                   disabled={!zone || loadingRegions}
                 >
                   <option value="">Select Region</option>
@@ -946,7 +959,9 @@ function FrmTransactionReport() {
                   ))}
                 </select>
               </div>
+            </div>
 
+            <div className="row g-3 mt-2">
               <div className="col-md-6">
                 <label htmlFor="branch" className="form-label">
                   Branch
@@ -955,7 +970,7 @@ function FrmTransactionReport() {
                   id="branch"
                   className="form-select"
                   value={branch}
-                  onChange={(event) => setBranch(event.target.value)}
+                  onChange={(e) => setBranch(e.target.value)}
                   disabled={!region || loadingBranches}
                 >
                   <option value="">Select Branch</option>
@@ -966,7 +981,6 @@ function FrmTransactionReport() {
                   ))}
                 </select>
               </div>
-
               <div className="col-md-6">
                 <label htmlFor="collectionAssociated" className="form-label">
                   Collection Associate
@@ -975,9 +989,7 @@ function FrmTransactionReport() {
                   id="collectionAssociated"
                   className="form-select"
                   value={collectionAssociated}
-                  onChange={(event) =>
-                    setCollectionAssociated(event.target.value)
-                  }
+                  onChange={(e) => setCollectionAssociated(e.target.value)}
                   disabled={!zone || loadingCollection}
                 >
                   <option value="">Select Collection Associate</option>
@@ -988,7 +1000,9 @@ function FrmTransactionReport() {
                   ))}
                 </select>
               </div>
+            </div>
 
+            <div className="row g-3 mt-2">
               <div className="col-md-6">
                 <label htmlFor="transactionType" className="form-label">
                   Transaction Type
@@ -997,7 +1011,7 @@ function FrmTransactionReport() {
                   id="transactionType"
                   className="form-select"
                   value={transactionType}
-                  onChange={(event) => setTransactionType(event.target.value)}
+                  onChange={(e) => setTransactionType(e.target.value)}
                 >
                   <option value="">Select Transaction Type</option>
                   {transactionTypeOptions.map((opt) => (
@@ -1016,7 +1030,7 @@ function FrmTransactionReport() {
                   id="smaType"
                   className="form-select"
                   value={smaType}
-                  onChange={(event) => setSmaType(event.target.value)}
+                  onChange={(e) => setSmaType(e.target.value)}
                 >
                   <option value="">Select SMA Type</option>
                   {smaTypeOptions.map((opt) => (

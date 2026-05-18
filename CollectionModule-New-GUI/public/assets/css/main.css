@@ -36628,7 +36628,6 @@ textarea.form-control {
   margin-bottom: 0;
 }
 
-/* Compact Dropzone */
 .upload-dropzone-compact {
   padding: 1rem 1.5rem;
 }
@@ -36662,4 +36661,57 @@ textarea.form-control {
 
 .global-loader-container {
   text-align: center;
+}
+
+.main-content,
+.main
+{
+  overflow: visible !important;
+}
+
+.info-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: help;
+  margin-left: 0.5rem;
+}
+
+.info-icon .info-icon-text {
+  visibility: hidden;
+  width: 400px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 6px 10px;
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  white-space: normal;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  z-index: 99999;
+}
+
+.info-icon .info-icon-text::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -6px;
+  border-width: 6px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+
+.info-icon:hover .info-icon-text {
+  visibility: visible;
+  opacity: 1;
 }

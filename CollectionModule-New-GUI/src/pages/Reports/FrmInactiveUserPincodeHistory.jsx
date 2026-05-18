@@ -1,7 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import ReusableDataGrid from "../../components/ReusableDataGrid";
 import apiClient from "../../services/apiClient";
 import { useNotification } from "../../context/useNotification";
 import DataTable from "../../components/Datatable";
@@ -9,20 +8,15 @@ import { useLoader } from "../../context/LoaderContext";
 
 const MilestoneDate = ({ date }) => {
   if (!date) return null;
-
   const [day, month, year] = date.split("-");
   const parsedDate = new Date(`${year}-${month}-${day}`);
-
   if (isNaN(parsedDate)) return <span>-</span>;
-
   const d = parsedDate.getDate();
   const m = parsedDate.toLocaleString("default", { month: "short" });
   const y = parsedDate.getFullYear();
-
   return (
     <div className="milestone-date-horizontal">
       <span className="milestone-day-big">{d}</span>
-
       <div className="milestone-right">
         <span className="milestone-month">{m}</span>
         <span className="milestone-year">{y}</span>
@@ -31,7 +25,6 @@ const MilestoneDate = ({ date }) => {
   );
 };
 
-// Debounce utility
 function debounce(fn, delay) {
   let timer = null;
   return (...args) => {
@@ -42,10 +35,8 @@ function debounce(fn, delay) {
 
 const formatDateForApi = (value) => {
   if (!value) return "";
-
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-
+  if (isNaN(date.getTime())) return "";
   const months = [
     "JAN",
     "FEB",
@@ -63,14 +54,12 @@ const formatDateForApi = (value) => {
   const day = String(date.getDate()).padStart(2, "0");
   const month = months[date.getMonth()];
   const year = date.getFullYear();
-
   return `${day}-${month}-${year}`;
 };
 
 function FrmInactiveUserPincodeHistory() {
   const navigate = useNavigate();
   const { setLoader } = useLoader();
-
   const { showError, showSuccess, showWarning } = useNotification();
   const {
     register,
@@ -78,57 +67,152 @@ function FrmInactiveUserPincodeHistory() {
     setValue,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      startDate: "",
-      endDate: "",
-      userId: "",
-    },
+    defaultValues: { startDate: "", endDate: "", userId: "" },
   });
+
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [userId, setUserId] = useState("");
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Search state
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState("");
 
-  const tableRows = useMemo(
-    () =>
-      rows.map((item) => [
-        item.inactiveDate || "",
-        item.userId || "",
-        item.pincode || "",
-        item.username || "",
-      ]),
-    [rows],
-  );
+  const [dateRangeOption, setDateRangeOption] = useState("currentMonth");
+
+  const getTodayDate = () => new Date().toISOString().split("T")[0];
+  const getFirstDay = (year, monthIndex) =>
+    `${year}-${String(monthIndex + 1).padStart(2, "0")}-01`;
+  const getLastDay = (year, monthIndex) => {
+    const lastDay = new Date(year, monthIndex + 1, 0).getDate();
+    return `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+  };
+
+  const updateDatesFromOption = (option) => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+    if (option === "currentMonth") {
+      const firstDay = getFirstDay(currentYear, currentMonth);
+      const today = getTodayDate();
+      setStartDate(firstDay);
+      setEndDate(today);
+      setValue("startDate", firstDay);
+      setValue("endDate", today);
+    } else if (option === "lastMonth") {
+      const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+      const lastMonthIndex = currentMonth === 0 ? 11 : currentMonth - 1;
+      const firstDay = getFirstDay(lastMonthYear, lastMonthIndex);
+      const lastDay = getLastDay(lastMonthYear, lastMonthIndex);
+      setStartDate(firstDay);
+      setEndDate(lastDay);
+      setValue("startDate", firstDay);
+      setValue("endDate", lastDay);
+    } else if (option === "lastThreeMonths") {
+      let startYear = currentYear;
+      let startMonth = currentMonth - 2;
+      if (startMonth < 0) {
+        startYear = currentYear - 1;
+        startMonth += 12;
+      }
+      const startFirstDay = getFirstDay(startYear, startMonth);
+      const endYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+      const endMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+      const endLastDay = getLastDay(endYear, endMonth);
+      setStartDate(startFirstDay);
+      setEndDate(endLastDay);
+      setValue("startDate", startFirstDay);
+      setValue("endDate", endLastDay);
+    }
+  };
+
+  const handleDateRangeChange = (e) => {
+    const option = e.target.value;
+    setDateRangeOption(option);
+    updateDatesFromOption(option);
+  };
+
+  useEffect(() => {
+    const today = getTodayDate();
+    setStartDate(today);
+    setEndDate(today);
+    setValue("startDate", today);
+    setValue("endDate", today);
+    setDateRangeOption("currentMonth");
+  }, []);
+
+  const doSearch = debounce(async (term) => {
+    if (!term) {
+      setSearchResults([]);
+      setSearchError("");
+      setSearchLoading(false);
+      return;
+    }
+    setSearchLoading(true);
+    setSearchError("");
+    try {
+      const response = await apiClient.get("/users/search-user-by-name-id", {
+        params: { search: term },
+      });
+      if (response?.success && Array.isArray(response.data)) {
+        setSearchResults(response.data);
+      } else {
+        setSearchResults([]);
+        setSearchError("No results found");
+      }
+    } catch {
+      setSearchResults([]);
+      setSearchError("Search failed");
+    } finally {
+      setSearchLoading(false);
+    }
+  }, 400);
+
+  const handleSearchInput = (e) => {
+    setSearchTerm(e.target.value);
+    doSearch(e.target.value);
+  };
+
+  const handleSelectUser = (selectedUser) => {
+    setSearchTerm(selectedUser.VAR_USERMST_USERFULLNAME);
+    setSearchResults([]);
+    const cleanId = String(selectedUser.VAR_USERMST_USERID).replace(/^E/i, "");
+    setUserId(cleanId);
+    setValue("userId", cleanId);
+    setSearchError("");
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setSearchResults([]);
+    setSearchError("");
+    setUserId("");
+    setValue("userId", "");
+  };
 
   const columns2 = [
     {
-      key: "inactiveDate", // keep main key (or rename if you want)
+      key: "inactiveDate",
       label: "Inactive Date",
-      render: (val, row) => (
-        <MilestoneDate date={row.inactiveDate} userId={row.userId} />
-      ),
+      render: (val, row) => <MilestoneDate date={row.inactiveDate} />,
     },
     {
       key: "username",
       label: "Username & UserId",
       minWidth: "120px",
       render: (val, row) => (
-        <div class="workload-item">
+        <div className="workload-item">
           <img
             src="/assets/img/profile-img.jpg"
             alt=""
-            class="workload-avatar"
+            className="workload-avatar"
           />
-          <div class="workload-info">
-            <div class="workload-name">{val}</div>
-            <div class="workload-role">{row.userId}</div>
+          <div className="workload-info">
+            <div className="workload-name">{val}</div>
+            <div className="workload-role">{row.userId}</div>
           </div>
         </div>
       ),
@@ -151,70 +235,13 @@ function FrmInactiveUserPincodeHistory() {
     username: item.username || "",
   }));
 
-  // Debounced search function
-  const doSearch = debounce(async (term) => {
-    if (!term) {
-      setSearchResults([]);
-      setSearchError("");
-      setSearchLoading(false);
-      return;
-    }
-
-    setSearchLoading(true);
-    setSearchError("");
-
-    try {
-      const response = await apiClient.get("/users/search-user-by-name-id", {
-        params: { search: term },
-      });
-
-      if (response?.success && Array.isArray(response.data)) {
-        setSearchResults(response.data);
-      } else {
-        setSearchResults([]);
-        setSearchError("No results found");
-      }
-    } catch {
-      setSearchResults([]);
-      setSearchError("Search failed");
-    } finally {
-      setSearchLoading(false);
-    }
-  }, 400);
-
-  const handleSearchInput = (e) => {
-    const val = e.target.value;
-    setSearchTerm(val);
-    doSearch(val);
-  };
-
-  const handleSelectUser = (selectedUser) => {
-    setSearchTerm(selectedUser.VAR_USERMST_USERFULLNAME);
-    setSearchResults([]);
-    // Remove leading "E" if present
-    const cleanId = String(selectedUser.VAR_USERMST_USERID).replace(/^E/i, "");
-    setUserId(cleanId);
-    setValue("userId", cleanId);
-    setSearchError("");
-  };
-
-  const handleClearSearch = () => {
-    setSearchTerm("");
-    setSearchResults([]);
-    setSearchError("");
-    setUserId("");
-    setValue("userId", "");
-  };
-
   const handleSearch = async () => {
     const params = {
       startDate: formatDateForApi(startDate),
       endDate: formatDateForApi(endDate),
       userId: userId.trim(),
     };
-
     const queryParams = new URLSearchParams(params);
-
     setLoading(true);
     try {
       setLoader(true);
@@ -223,20 +250,17 @@ function FrmInactiveUserPincodeHistory() {
       );
       const success = response?.success;
       const data = Array.isArray(response?.data) ? response.data : [];
-
       if (!success || !data.length) {
         setRows([]);
         showWarning("No data found");
         return;
       }
-
       const formattedData = data.map((item) => ({
         inactiveDate: item.INACTIVE_DATE || "",
         userId: item.VAR_USER_USERID || "",
         pincode: item.VAR_USER_PINCODE || "",
         username: item.VAR_USERMST_USERFULLNAME || "",
       }));
-
       setRows(formattedData);
       showSuccess(`Found ${formattedData.length} records`);
     } catch (apiError) {
@@ -251,18 +275,39 @@ function FrmInactiveUserPincodeHistory() {
   return (
     <div className="main-content page-inactive-user-pincode-history">
       <div className="page-header">
-        <h1 className="page-title">Inactive User Pincode History</h1>
+        <h1 className="page-title">
+          Inactive User Pincode History
+          <span className="info-icon">
+            <i className="bi bi-info-circle-fill text-muted"></i>
+            <span className="info-icon-text">
+              This report shows users who became inactive and their assigned
+              pincodes. Filter by date range and user.
+            </span>
+          </span>
+        </h1>
       </div>
 
       <div className="card mb-4">
         <div className="card-header d-flex justify-content-between align-items-center gap-3 flex-wrap">
           <h5 className="card-title mb-0">Search Filters</h5>
         </div>
-
         <div className="card-body">
           <form onSubmit={handleFormSubmit(handleSearch)}>
             <div className="row g-3">
-              <div className="col-md-6">
+              <div className="col-md-4">
+                <label className="form-label">Date Range Preset</label>
+                <select
+                  className="form-select"
+                  value={dateRangeOption}
+                  onChange={handleDateRangeChange}
+                >
+                  <option value="currentMonth">Current Month</option>
+                  <option value="lastMonth">Last Month</option>
+                  <option value="lastThreeMonths">Last Three Months</option>
+                </select>
+              </div>
+
+              <div className="col-md-4">
                 <label htmlFor="startDate" className="form-label">
                   Start Date <span className="text-danger">*</span>
                 </label>
@@ -273,7 +318,7 @@ function FrmInactiveUserPincodeHistory() {
                   value={startDate}
                   {...register("startDate", {
                     required: "Start Date is required",
-                    onChange: (event) => setStartDate(event.target.value),
+                    onChange: (e) => setStartDate(e.target.value),
                   })}
                 />
                 {errors.startDate && (
@@ -283,7 +328,7 @@ function FrmInactiveUserPincodeHistory() {
                 )}
               </div>
 
-              <div className="col-md-6">
+              <div className="col-md-4">
                 <label htmlFor="endDate" className="form-label">
                   End Date <span className="text-danger">*</span>
                 </label>
@@ -294,7 +339,7 @@ function FrmInactiveUserPincodeHistory() {
                   value={endDate}
                   {...register("endDate", {
                     required: "End Date is required",
-                    onChange: (event) => setEndDate(event.target.value),
+                    onChange: (e) => setEndDate(e.target.value),
                   })}
                 />
                 {errors.endDate && (
@@ -303,12 +348,11 @@ function FrmInactiveUserPincodeHistory() {
                   </div>
                 )}
               </div>
+            </div>
 
+            <div className="row g-3 mt-2">
               <div className="col-md-6">
-                {/* 🔍 User search input (name or ID) */}
-                <label htmlFor="endDate" className="form-label">
-                  Search name or userId<span className="text-danger">*</span>
-                </label>
+                <label className="form-label">Search name or userId</label>
                 <div style={{ width: "100%" }}>
                   <div className="input-group position-relative">
                     <span className="input-group-text bg-white border-end-0">
@@ -332,11 +376,9 @@ function FrmInactiveUserPincodeHistory() {
                       </button>
                     )}
                   </div>
-
                   {searchLoading && (
                     <div className="spinner-border spinner-border-sm position-absolute end-0 top-50 translate-middle-y me-2" />
                   )}
-
                   {searchResults.length > 0 && (
                     <ul
                       className="list-group position-absolute w-100 shadow z-3"
@@ -362,14 +404,12 @@ function FrmInactiveUserPincodeHistory() {
                       ))}
                     </ul>
                   )}
-
                   {searchError && (
                     <div className="text-danger small mt-1">{searchError}</div>
                   )}
                 </div>
               </div>
 
-              {/* User ID field – now read‑only, filled from search dropdown */}
               <div className="col-md-6">
                 <label htmlFor="userId" className="form-label">
                   User ID
@@ -411,7 +451,7 @@ function FrmInactiveUserPincodeHistory() {
         </div>
       </div>
 
-      {tableRows.length > 0 && (
+      {tableData2.length > 0 && (
         <DataTable
           title="Inactive Users Report"
           subtitle="Users who have been inactive"
