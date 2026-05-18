@@ -107,41 +107,35 @@ const FrmPincodeList = () => {
     }
   };
 
-  const handleModifyStatus = async () => {
+  const handleModifyStatus = async (pinCode) => {
     try {
       if (!newStatus.trim().length) {
         showWarning("Please select the status");
         return;
       }
-
-      return;
       const agreed = await confirm("Do you want to modify status?");
       if (!agreed) return;
+      setLoader(true);
       const payload = {
-        // userId: userStatusDetails?.userId,
-        newStatus: newStatus,
-        insBy: webUserId,
+        pincode: pinCode,
       };
-      const response = await apiClient.post(
-        "/users/modify-status-submit",
-        payload,
-      );
-      if (response.success && response.data.out_ErrorCode === -100) {
-        showSuccess(
-          response.data.out_ErrorMsg || "User status updated successfully",
-        );
-        setNewStatus("");
+      const response = await apiClient.post("/assignPincode/changePincodeStatus", payload);
+      console.log(response);
+      return;
+      if (response.success && response.message === "success") {
+        showSuccess(response.data?.message);
         setShowEditModal(false);
         setSelectedPincode(null);
         fetchAllPincodes();
-        // handleSearch(userStatusDetails?.userId);
+      } else {
+        showWarning(response?.message);
       }
     } catch (error) {
       console.error(error);
       showError(
         error?.response?.data?.message ||
         error?.message ||
-        "Failed to update user status",
+        "Failed to update status",
       );
     }
   };
@@ -593,7 +587,7 @@ const FrmPincodeList = () => {
               </div>
               <div className="modal-footer justify-content-center">
                 <button type="button" className="btn btn-primary"
-                  onClick={handleModifyStatus}
+                  onClick={() => handleModifyStatus(selectedPincode?.VAR_PINCODE_NO)}
                 >
                   Save
                 </button>
