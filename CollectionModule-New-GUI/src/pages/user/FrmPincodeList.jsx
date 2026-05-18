@@ -10,7 +10,6 @@ import { useLoader } from "../../context/LoaderContext";
 
 const FrmPincodeList = () => {
   const { user } = useAuth();
-  console.log(user);
   const { showError, showSuccess, showWarning } = useNotification();
   const navigate = useNavigate();
   const confirm = useConfirm();
@@ -74,38 +73,38 @@ const FrmPincodeList = () => {
     }
   };
 
-  const handleDelete = async (pinCode) => {
-    const agreed = await confirm("Do you want to delete this pincode?");
+  // const handleDelete = async (pinCode) => {
+  //   const agreed = await confirm("Do you want to delete this pincode?");
 
-    if (!agreed) return;
+  //   if (!agreed) return;
 
-    try {
-      setLoader(true);
-      const payload = {
-        pincode: pinCode,
-      };
-      console.log(payload);
-      const response = await apiClient.delete("/assignPincode/deletePincode", {
-        data: payload,
-      });
+  //   try {
+  //     setLoader(true);
+  //     const payload = {
+  //       pincode: pinCode,
+  //     };
+  //     console.log(payload);
+  //     const response = await apiClient.delete("/assignPincode/deletePincode", {
+  //       data: payload,
+  //     });
 
-      if (response.success && response.message === "success") {
-        showSuccess(response.data?.message);
-        fetchAllPincodes();
-      } else {
-        showWarning(response?.message);
-      }
-    } catch (error) {
-      console.error(error);
-      showError(
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to delete the pincode",
-      );
-    } finally {
-      setLoader(false);
-    }
-  };
+  //     if (response.success && response.message === "success") {
+  //       showSuccess(response.data?.message);
+  //       fetchAllPincodes();
+  //     } else {
+  //       showWarning(response?.message);
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     showError(
+  //       error?.response?.data?.message ||
+  //       error?.message ||
+  //       "Failed to delete the pincode",
+  //     );
+  //   } finally {
+  //     setLoader(false);
+  //   }
+  // };
 
   const handleModifyStatus = async (pinCode) => {
     try {
@@ -122,8 +121,6 @@ const FrmPincodeList = () => {
       const response = await apiClient.delete("/assignPincode/changePincodeStatus", {
         data: payload
       });
-      console.log(response);
-      return;
       if (response.success && response.message === "success") {
         showSuccess(response.data?.message);
         setShowEditModal(false);
@@ -446,7 +443,6 @@ const FrmPincodeList = () => {
               </table>
             )}
           </div>
-          {console.log(paginatedData)}
           <div className="users-pagination">
             <div className="users-pagination-info">
               Showing{" "}
