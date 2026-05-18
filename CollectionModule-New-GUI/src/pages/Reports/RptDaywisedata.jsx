@@ -250,13 +250,16 @@ function RptDaywisedata() {
     dataLabels: {
       enabled: true,
       formatter: (val) => val.toLocaleString(),
-      offsetX: 10, 
+      offsetX: 15,
       style: { fontSize: "13px", fontWeight: "bold", colors: ["#333"] },
     },
     xaxis: {
       categories: pivotData.months,
       title: { text: "Unique Data Uploaded (Count)" },
       labels: { formatter: (val) => val.toLocaleString() },
+      min: 0,
+      max: Math.max(...pivotData.values) * 1.15,
+      tickAmount: 5,
     },
     yaxis: {
       title: { text: "Month" },
