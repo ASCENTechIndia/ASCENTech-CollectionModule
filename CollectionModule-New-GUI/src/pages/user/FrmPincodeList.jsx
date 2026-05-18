@@ -137,6 +137,8 @@ const FrmPincodeList = () => {
         error?.message ||
         "Failed to update status",
       );
+    } finally {
+      setLoader(false);
     }
   };
 
