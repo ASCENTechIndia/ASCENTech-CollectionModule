@@ -22,6 +22,7 @@ function AdminLayout() {
   const [adminMenuManualOpen, setAdminMenuManualOpen] = useState(false)
   const [userMenuManualOpen, setUserMenuManualOpen] = useState(false)
   const [pincodeMenuManualOpen, setPincodeMenuManualOpen] = useState(false)
+  const [agencyMenuManualOpen, setAgencyMenuManualOpen] = useState(false)
   const [theme, setTheme] = useState(() => {
     const savedTheme = localStorage.getItem('theme')
 
@@ -83,6 +84,7 @@ function AdminLayout() {
   const adminRouteActive = location.pathname.startsWith('/admin')
   const userRouteActive = location.pathname.startsWith('/user')
   const pincodeRouteActive = location.pathname.startsWith('/pincode')
+  const agencyRouteActive = location.pathname.startsWith('/admin') && location.pathname.includes('agency')
 
   const authMenuOpen = authRouteActive || authMenuManualOpen
   const formsMenuOpen = formsRouteActive || formsMenuManualOpen
@@ -96,6 +98,7 @@ function AdminLayout() {
   const adminMenuOpen = adminRouteActive || adminMenuManualOpen
   const userMenuOpen = userRouteActive || userMenuManualOpen
   const pincodeMenuOpen = pincodeRouteActive || pincodeMenuManualOpen
+  const agencyMenuOpen = agencyRouteActive || agencyMenuManualOpen
 
   const toggleSidebar = () => {
     // Debounce toggle to prevent rapid state changes during animations
@@ -176,6 +179,7 @@ function AdminLayout() {
         adminMenuOpen={adminMenuOpen}
         userMenuOpen={userMenuOpen}
         pincodeMenuOpen={pincodeMenuOpen}
+        agencyMenuOpen={agencyMenuOpen}
         onToggleAuthMenu={() => setAuthMenuManualOpen((value) => !value)}
         onToggleFormsMenu={() => setFormsMenuManualOpen((value) => !value)}
         onToggleComponentsMenu={() => setComponentsMenuManualOpen((value) => !value)}
@@ -188,6 +192,7 @@ function AdminLayout() {
         onToggleAdminMenu={() => setAdminMenuManualOpen((value) => !value)}
         onToggleUserMenu={() => setUserMenuManualOpen((value) => !value)}
         onTogglePincodeMenu={() => setPincodeMenuManualOpen((value) => !value)}
+        onToggleAgencyMenu={() => setAgencyMenuManualOpen((value) => !value)}
         onCloseMobile={() => setMobileOpen(false)}
       />
 

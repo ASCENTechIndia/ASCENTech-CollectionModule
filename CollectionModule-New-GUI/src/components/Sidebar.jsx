@@ -17,6 +17,10 @@ const pincodeMenuItems = [
    {to: '/pincode/FrmPincodeList', label: 'Pincode List' },
 ]
 
+const agencyMenuItems = [
+  { to: '/admin/agency-creation', label: 'Agency Creation' },
+]
+
 const adminMenuItems = [
   { to: '/admin/user-location-tracking', label: 'User Location Tracking' },
   { to: '/admin/last-login-history', label: 'Last Login History' },
@@ -109,6 +113,7 @@ function Sidebar({
   reportsMenuOpen,
   adminMenuOpen,
    pincodeMenuOpen,
+  agencyMenuOpen,
   // onToggleAuthMenu,
   onToggleUserMenu,
   // onToggleFormsMenu,
@@ -120,6 +125,7 @@ function Sidebar({
   onToggleReportsMenu,
   onToggleAdminMenu,
   onTogglePincodeMenu,
+  onToggleAgencyMenu,
   onCloseMobile,
   // userManagementMenuOpen,
   // onToggleuserManagementMenu
@@ -227,6 +233,20 @@ function Sidebar({
               </button>
               <ul className={`nav-submenu ${pincodeMenuOpen ? 'show' : ''}`} style={{ maxHeight: pincodeMenuOpen ? `${pincodeMenuItems.length * 36 + 20}px` : '0px' }}>
                 {pincodeMenuItems.map((item) => (
+                  <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
+                ))}
+              </ul>
+            </li>
+
+            <li className={`nav-item has-submenu ${agencyMenuOpen ? 'open' : ''}`}>
+              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleAgencyMenu} aria-expanded={agencyMenuOpen}>
+                <span className="nav-icon"><i className="ph-light ph-buildings" /></span>
+                <span className="nav-text">Agency Management</span>
+                <span className="nav-badge">{agencyMenuItems.length}</span>
+                <span className="nav-arrow"><i className="bi bi-chevron-right" /></span>
+              </button>
+              <ul className={`nav-submenu ${agencyMenuOpen ? 'show' : ''}`} style={{ maxHeight: agencyMenuOpen ? `${agencyMenuItems.length * 36 + 20}px` : '0px' }}>
+                {agencyMenuItems.map((item) => (
                   <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
                 ))}
               </ul>

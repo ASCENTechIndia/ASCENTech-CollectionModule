@@ -355,8 +355,11 @@ function FrmUserRouteReport() {
         <div className="card-body">
           <form onSubmit={handleFormSubmit(handleSearch)}>
             <div className="row g-3">
-              <div className="col-md-4 d-flex align-items-end">
+              <div className="col-md-4">
                 {/* 🔍 User search input (name or ID) – specifically for FOS ID */}
+                <label htmlFor="date" className="form-label">
+                  Search name or userId<span className="text-danger">*</span>
+                </label>
                 <div
                   style={{
                     width: "100%",

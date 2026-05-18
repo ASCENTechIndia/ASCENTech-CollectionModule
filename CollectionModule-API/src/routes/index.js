@@ -1,6 +1,7 @@
 const express = require('express');
 const authRoutes = require('../modules/auth/auth.routes');
 const usersRoutes = require('../modules/users/users.routes');
+const agencyRoutes = require('../modules/Agency/agency.routes');
 const assignPincode = require('../modules/AssignPincode/assignPincode.routes');
 const passwordRoutes = require('../modules/Password/Password.routes')
 const inactiveUserAccountsRoutes = require('../modules/InactiveUserAccounts/inactiveUserAccounts.routes');
@@ -24,6 +25,7 @@ router.get('/ready', (req, res) => {
 
 router.use('/auth', authRoutes);
 router.use('/users', usersRoutes);
+router.use('/agency', agencyRoutes);
 
 
 

@@ -304,8 +304,11 @@ function FrmInactiveUserPincodeHistory() {
                 )}
               </div>
 
-              <div className="col-md-6 d-flex align-items-end">
+              <div className="col-md-6">
                 {/* 🔍 User search input (name or ID) */}
+                <label htmlFor="endDate" className="form-label">
+                  Search name or userId<span className="text-danger">*</span>
+                </label>
                 <div style={{ width: "100%" }}>
                   <div className="input-group position-relative">
                     <span className="input-group-text bg-white border-end-0">
