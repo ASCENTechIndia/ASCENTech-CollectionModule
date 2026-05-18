@@ -72,6 +72,7 @@ import FrmImageUploadmobapp from './pages/Admin/FrmImageUploadmobapp'
 import FrmImageUploadMobApp2 from './pages/Admin/FrmImageUploadMobApp2'
 import TwoFactor from './pages/TwoFactor'
 import Settings from './pages/Settings'
+import FrmAgencyCreation from './pages/Admin/FrmAgencyCreation'
 
 function App() {
   return (
@@ -133,6 +134,7 @@ function App() {
         <Route path="admin/user-location-tracking" element={<FrmUserLocationTracking />} />
         <Route path="admin/last-login-history" element={<FrmLastLoginHistory />} />
         <Route path="admin/bucket-setter" element={<FrmBucketSetter />} />
+        <Route path="admin/agency-creation" element={<FrmAgencyCreation />} />
         <Route path="admin/contract-allocation" element={<FrmContractAllocation />} />
         <Route path="admin/distance-matrix" element={<FrmDistanceMatrix />} />
         <Route path="user/pin-allocation" element={<FrmUserPinAllocation />} />

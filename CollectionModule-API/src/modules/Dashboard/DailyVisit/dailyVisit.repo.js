@@ -239,7 +239,9 @@ function resolveDateRange(fromDateInput, toDateInput) {
   const procedureCurrentDate = isLegacyCurrentMonthDefaultRange ? now : toDate;
   // const numberOfDays = daySpan + 1;
   const numberOfDays = 30;
+  
 
+  
   return {
     fromDate,
     toDate,

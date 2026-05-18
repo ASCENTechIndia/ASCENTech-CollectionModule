@@ -7,14 +7,14 @@ async function deletePincodeHandler(req, res, next) {
     const { pincode } = req.body;
     const out = await deletePincode(pincode);
     if (out.isSuccess) {
-      logApiSuccess(req, 200, `Pincode deleted successfully`);
+      logApiSuccess(req, 200, out.message);
       return res.ok({ message: out.message , success: true });
     } else {
-      logApiError(req, 400, out.message, 'Delete pincode error');
+      logApiError(req, 400, out.message, 'Change pincode status error');
       return res.status(400).json({ message: out.message , success: false});
     }
   } catch (error) {
-    logApiError(req, 500, error.message, 'Delete pincode error');
+    logApiError(req, 500, error.message, 'Change pincode status error');
     return next(error);
   }
 }
