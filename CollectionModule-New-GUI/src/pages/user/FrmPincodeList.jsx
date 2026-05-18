@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { data, Link, useNavigate } from "react-router-dom";
 import { Eye, Edit, Search, Plus, MapPinX, MapPinCheck, MapPinned, Trash2, Pin, X } from "lucide-react";
 import apiClient from "../../services/apiClient";
 import { useAuth } from "../../context/AuthContext";
@@ -119,13 +119,16 @@ const FrmPincodeList = () => {
       const payload = {
         pincode: pinCode,
       };
-      const response = await apiClient.post("/assignPincode/changePincodeStatus", payload);
+      const response = await apiClient.delete("/assignPincode/changePincodeStatus", {
+        data: payload
+      });
       console.log(response);
       return;
       if (response.success && response.message === "success") {
         showSuccess(response.data?.message);
         setShowEditModal(false);
         setSelectedPincode(null);
+        setNewStatus("")
         fetchAllPincodes();
       } else {
         showWarning(response?.message);
@@ -562,6 +565,7 @@ const FrmPincodeList = () => {
                 <button type="button" className="btn-close" onClick={() => {
                   setShowEditModal(false);
                   setSelectedPincode(null);
+                  setNewStatus("")
                 }} />
               </div>
 
@@ -596,6 +600,7 @@ const FrmPincodeList = () => {
                 <button type="button" className="btn btn-secondary" onClick={() => {
                   setShowEditModal(false);
                   setSelectedPincode(null);
+                  setNewStatus("")
                 }}>
                   Cancel
                 </button>
