@@ -376,7 +376,16 @@ function FrmNonVisitDoneSummaryReport() {
   return (
     <div className="main-content page-non-visit-done-summary-report">
       <div className="page-header">
-        <h1 className="page-title">Non-Visit Done Summary Report</h1>
+        <h1 className="page-title">
+          Non-Visit Done Summary Report
+          <span className="info-icon">
+            <i className="bi bi-info-circle-fill text-muted"></i>
+            <span className="info-icon-text">
+              Summary of non‑visited cases – counts and amounts by payment
+              status and zone.
+            </span>
+          </span>
+        </h1>
       </div>
 
       {error && (

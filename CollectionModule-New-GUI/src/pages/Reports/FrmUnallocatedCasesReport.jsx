@@ -121,7 +121,15 @@ function FrmUnallocatedCasesReport() {
   return (
     <div className="main-content page-unallocated-cases-report">
       <div className="page-header">
-        <h1 className="page-title">Unallocated Cases Report</h1>
+        <h1 className="page-title">
+          Unallocated Cases Report
+          <span className="info-icon">
+            <i className="bi bi-info-circle-fill text-muted"></i>
+            <span className="info-icon-text">
+              Unassigned accounts with reason and pincode details.
+            </span>
+          </span>
+        </h1>
       </div>
 
       <div className="card mb-4">

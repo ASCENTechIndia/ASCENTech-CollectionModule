@@ -1,41 +1,60 @@
-import { useState, useRef, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAsRead, onToggleSidebar }) {
-  const navigate = useNavigate()
-  const { user, logout } = useAuth()
-  const [notificationsOpen, setNotificationsOpen] = useState(false)
-  const [userMenuOpen, setUserMenuOpen] = useState(false)
-  const notificationPanelRef = useRef(null)
-  const userMenuRef = useRef(null)
-  const displayName = user?.name || user?.userName || user?.fullName || user?.userId || 'User'
-  const displayEmail = user?.email || ''
-  const displayRole = user?.role || user?.designation || 'User'
-  const brandImage = user?.brandImage || null
+function Header({
+  theme,
+  onThemeToggle,
+  notifications,
+  onMarkAsRead,
+  onMarkAllAsRead,
+  onToggleSidebar,
+}) {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  console.log("user ", user);
+  const lastLoginDate = user?.lastLogin
+    .toString()
+    .split("T")[0]
+    .split("-")
+    .reverse()
+    .join("-");
+  const lastLoginTime = user?.lastLogin.toString().split("T")[1].split(".")[0];
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const notificationPanelRef = useRef(null);
+  const userMenuRef = useRef(null);
+  const displayName =
+    user?.name || user?.userName || user?.fullName || user?.userId || "User";
+  const displayEmail = user?.email || "";
+  const displayRole = user?.role || user?.designation || "User";
+  const brandImage = user?.brandImage || null;
 
-  const unreadCount = notifications.filter((item) => !item.read).length
+  const unreadCount = notifications.filter((item) => !item.read).length;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (notificationPanelRef.current && !notificationPanelRef.current.contains(event.target)) {
-        setNotificationsOpen(false)
+      if (
+        notificationPanelRef.current &&
+        !notificationPanelRef.current.contains(event.target)
+      ) {
+        setNotificationsOpen(false);
       }
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
-        setUserMenuOpen(false)
+        setUserMenuOpen(false);
       }
-    }
+    };
 
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleLogout = async () => {
-    setUserMenuOpen(false)
-    await logout()
-    navigate('/auth/login', { replace: true })
-  }
+    setUserMenuOpen(false);
+    await logout();
+    navigate("/auth/login", { replace: true });
+  };
 
   return (
     <header className="header">
@@ -46,20 +65,41 @@ function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAs
         </Link>
       </div>
 
-      <button className="sidebar-toggle" title="Toggle Sidebar" onClick={onToggleSidebar}>
+      <button
+        className="sidebar-toggle"
+        title="Toggle Sidebar"
+        onClick={onToggleSidebar}
+      >
         <i className="bi bi-layout-sidebar-inset" />
       </button>
 
       {brandImage && (
-        <div className="header-center" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', zIndex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', pointerEvents: 'none' }}>
+        <div
+          className="header-center"
+          style={{
+            position: "absolute",
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 1,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            pointerEvents: "none",
+          }}
+        >
           <img
             src={`data:image/png;base64,${brandImage}`}
             alt="Brand"
-            style={{ height: 48, maxWidth: 160, objectFit: 'contain', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
+            style={{
+              height: 48,
+              maxWidth: 160,
+              objectFit: "contain",
+              borderRadius: 8,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+            }}
           />
         </div>
       )}
-
 
       <div className="header-right">
         <div className="header-actions-desktop">
@@ -77,20 +117,35 @@ function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAs
                 title="Notifications"
               >
                 <i className="bi bi-bell" />
-                {unreadCount > 0 && <span className="header-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>}
+                {unreadCount > 0 && (
+                  <span className="header-badge">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
               </button>
               {notificationsOpen && (
                 <div
                   className="dropdown-menu dropdown-menu-end notification-menu show"
                   ref={notificationPanelRef}
-                  style={{ position: 'absolute', top: '100%', right: 0, zIndex: 1000 }}
+                  style={{
+                    position: "absolute",
+                    top: "100%",
+                    right: 0,
+                    zIndex: 1000,
+                  }}
                 >
                   <div className="notification-header">
                     <div>
                       <h6>Notifications</h6>
-                      <span className="notification-count">{unreadCount} unread</span>
+                      <span className="notification-count">
+                        {unreadCount} unread
+                      </span>
                     </div>
-                    <button type="button" className="notification-mark-read" onClick={onMarkAllAsRead}>
+                    <button
+                      type="button"
+                      className="notification-mark-read"
+                      onClick={onMarkAllAsRead}
+                    >
                       Mark all read
                     </button>
                   </div>
@@ -99,7 +154,7 @@ function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAs
                     {notifications.map((item) => (
                       <div
                         key={item.id}
-                        className={`notification-item ${item.read ? '' : 'unread'}`}
+                        className={`notification-item ${item.read ? "" : "unread"}`}
                         onClick={() => onMarkAsRead(item.id)}
                       >
                         <span className="notification-dot" />
@@ -108,7 +163,9 @@ function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAs
                         </div>
                         <div className="notification-content">
                           <div className="notification-title">{item.title}</div>
-                          <div className="notification-text">{item.message}</div>
+                          <div className="notification-text">
+                            {item.message}
+                          </div>
                           <span className="notification-time">{item.time}</span>
                         </div>
                       </div>
@@ -117,7 +174,8 @@ function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAs
 
                   <div className="notification-footer">
                     <Link to="/">
-                      Open notification center <i className="bi bi-arrow-right" />
+                      Open notification center{" "}
+                      <i className="bi bi-arrow-right" />
                     </Link>
                   </div>
                 </div>
@@ -132,18 +190,39 @@ function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAs
             <button
               className="dropdown-toggle user-trigger"
               onClick={() => setUserMenuOpen(!userMenuOpen)}
+              style={{ width: "180px" }}
             >
-              <img src="/assets/img/profile-img.jpg" alt="User" className="user-avatar" />
-              <div className="user-brief">
+              <img
+                src="/assets/img/profile-img.jpg"
+                alt="User"
+                className="user-avatar"
+              />
+              <div className="user-brief text-start">
                 <span className="user-name">{displayName}</span>
-                <span className="user-role">{displayRole}</span>
+                <span className="user-role">Last Login</span>
+                <span className="user-role">
+                  {lastLoginDate + " " + lastLoginTime}
+                </span>
               </div>
               <i className="bi bi-chevron-down user-chevron" />
             </button>
             {userMenuOpen && (
-              <div className="dropdown-menu dropdown-menu-end user-menu show" ref={userMenuRef} style={{ position: 'absolute', top: '100%', right: 0, zIndex: 1000 }}>
+              <div
+                className="dropdown-menu dropdown-menu-end user-menu show"
+                ref={userMenuRef}
+                style={{
+                  position: "absolute",
+                  top: "100%",
+                  right: 0,
+                  zIndex: 1000,
+                }}
+              >
                 <div className="user-menu-header">
-                  <img src="/assets/img/profile-img.jpg" alt="User" className="user-menu-avatar" />
+                  <img
+                    src="/assets/img/profile-img.jpg"
+                    alt="User"
+                    className="user-menu-avatar"
+                  />
                   <div className="user-menu-info">
                     <div className="user-menu-name">{displayName}</div>
                     <div className="user-menu-email">{displayEmail}</div>
@@ -156,13 +235,21 @@ function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAs
                     </span>
                     <span>My Profile</span>
                   </a>
-                  <Link to="/user/reset-password" className="user-menu-item" onClick={() => setUserMenuOpen(false)}>
+                  <Link
+                    to="/user/reset-password"
+                    className="user-menu-item"
+                    onClick={() => setUserMenuOpen(false)}
+                  >
                     <span className="user-menu-icon">
                       <i className="bi bi-key" />
                     </span>
                     <span>Reset Password</span>
                   </Link>
-                  <Link to="/user/change-password" className="user-menu-item" onClick={() => setUserMenuOpen(false)}>
+                  <Link
+                    to="/user/change-password"
+                    className="user-menu-item"
+                    onClick={() => setUserMenuOpen(false)}
+                  >
                     <span className="user-menu-icon">
                       <i className="bi bi-shield-lock" />
                     </span>
@@ -170,7 +257,11 @@ function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAs
                   </Link>
                 </div>
                 <div className="user-menu-footer">
-                  <button type="button" className="user-menu-logout" onClick={handleLogout}>
+                  <button
+                    type="button"
+                    className="user-menu-logout"
+                    onClick={handleLogout}
+                  >
                     <i className="bi bi-box-arrow-right" />
                     <span>Logout</span>
                   </button>
@@ -181,7 +272,7 @@ function Header({ theme, onThemeToggle, notifications, onMarkAsRead, onMarkAllAs
         </div>
       </div>
     </header>
-  )
+  );
 }
 
-export default Header
+export default Header;

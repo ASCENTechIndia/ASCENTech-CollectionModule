@@ -382,7 +382,16 @@ function FrmOverallPerformanceSummaryReport() {
   return (
     <div className="main-content page-overall-performance-summary-report">
       <div className="page-header">
-        <h1 className="page-title">Overall Performance Summary Report</h1>
+        <h1 className="page-title">
+          Overall Performance Summary Report
+          <span className="info-icon">
+            <i className="bi bi-info-circle-fill text-muted"></i>
+            <span className="info-icon-text">
+              Zone‑level summary of allocation, collection, and NPA metrics
+              (counts and amounts).
+            </span>
+          </span>
+        </h1>
       </div>
 
       <DataTableGrouped
