@@ -21,8 +21,6 @@ function Header({
     .reverse()
     .join("-");
   const lastLoginTime = user?.lastLogin.toString().split("T")[1].split(".")[0];
-  console.log("date :", lastLoginDate);
-  console.log("date :", lastLoginTime);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const notificationPanelRef = useRef(null);
