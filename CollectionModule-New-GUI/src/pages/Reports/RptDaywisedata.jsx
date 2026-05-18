@@ -217,12 +217,12 @@ function RptDaywisedata() {
     setPivotLoading(true);
     try {
       const response = await apiClient.get("/reports/lastThreeMonthPivot");
+      console.log("resp :", response);
       if (response?.success && Array.isArray(response.data)) {
         const months = response.data.map(
           (item) => item.MONTH_NAME?.trim() || "",
         );
         const values = response.data.map((item) => item.TOTAL_COUNT ?? 0);
-        console.log("month name :", months, values);
         setPivotData({ months, values });
       } else {
         showError("Failed to load pivot data");
@@ -243,37 +243,32 @@ function RptDaywisedata() {
     plotOptions: {
       bar: {
         horizontal: true,
-        dataLabels: {
-          position: "top",
-        },
+        dataLabels: { position: "top" },
+        barHeight: "60%",
       },
     },
     dataLabels: {
       enabled: true,
       formatter: (val) => val.toLocaleString(),
-      offsetX: 10,
-      style: { fontSize: "12px", fontWeight: "bold", colors: ["#0d6efd"] },
+      offsetX: 10, 
+      style: { fontSize: "13px", fontWeight: "bold", colors: ["#333"] },
     },
     xaxis: {
+      categories: pivotData.months,
       title: { text: "Unique Data Uploaded (Count)" },
-      labels: {
-        formatter: (val) => val.toLocaleString(),
-      },
+      labels: { formatter: (val) => val.toLocaleString() },
     },
     yaxis: {
       title: { text: "Month" },
-      categories: pivotData.months,
     },
     colors: ["#0d6efd"],
     title: {
-      text: "Last Three Month Unique Data Uploaded",
+      text: "",
       align: "center",
       style: { fontSize: "16px", fontWeight: "bold" },
     },
     tooltip: {
-      y: {
-        formatter: (val) => val.toLocaleString(),
-      },
+      y: { formatter: (val) => val.toLocaleString() },
     },
   };
 
@@ -424,6 +419,7 @@ function RptDaywisedata() {
           </div>
         </div>
       )}
+
       {showPivotModal && (
         <div
           className="modal show d-block"
@@ -453,15 +449,9 @@ function RptDaywisedata() {
                   <Chart
                     options={{
                       ...chartOptions,
-                      yaxis: {
-                        ...chartOptions?.yaxis,
-                        categories: pivotData.months.map((month) => {
-                          const trimmed = month.trim();
-
-                          const [monthName, year] = trimmed.split(/\s+/);
-                          const shortMonth = monthName.slice(0, 3);
-                          return `${month}`;
-                        }),
+                      xaxis: {
+                        ...chartOptions.xaxis,
+                        categories: pivotData.months,
                       },
                     }}
                     series={chartSeries}
