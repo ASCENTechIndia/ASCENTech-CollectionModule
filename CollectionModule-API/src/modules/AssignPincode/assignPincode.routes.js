@@ -14,7 +14,7 @@ router.get('/fetchUserPincodes', validate(userFindSchema, {source: 'query'}), us
 router.post('/assignPinCode', validate(pinCodeAssignSchema), pincodeAssignHandler);
 router.post('/insertPincodeMaster', validate(pincodeMasterInsertSchema), pincodeMasterInsertHandler);
 router.get('/fetchAllPincodesList', PincodeHandler);
-router.post('/changePincodeStatus', validate(pinCodeDeleteSchema), deletePincodeHandler);
+router.delete('/changePincodeStatus', validate(pinCodeDeleteSchema), deletePincodeHandler);
 
 module.exports = router;
 

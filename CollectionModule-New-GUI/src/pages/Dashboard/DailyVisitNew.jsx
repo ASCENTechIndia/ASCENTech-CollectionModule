@@ -521,8 +521,8 @@ const DailyVisitNew = () => {
         setDashboardData(null);
         showError(
           error?.response?.data?.message ||
-            error?.message ||
-            "Failed to load daily visit data",
+          error?.message ||
+          "Failed to load daily visit data",
         );
       } finally {
         setLoader(false);
@@ -541,6 +541,14 @@ const DailyVisitNew = () => {
   };
 
   const formatPercent = (value) => `${Number(value || 0).toFixed(2)}%`;
+
+  function convertToCrores(value) {
+    const num = Number(value);
+
+    if (isNaN(num)) return "Invalid number";
+
+    return (num / 10000000).toLocaleString("en-IN", { maximumFractionDigits: 2 });
+  }
 
   const summaryCards = [
     {
@@ -561,15 +569,15 @@ const DailyVisitNew = () => {
     },
     {
       label: "Total Collectable Amount",
-      value: `₹ ${formatNumber(dashboardData?.collection?.totalCollectableAmount)}`,
+      value: `₹ ${convertToCrores(dashboardData?.collection?.totalCollectableAmount)} Cr.`,
     },
     {
       label: "Total Collected Amount",
-      value: `₹ ${formatNumber(dashboardData?.collection?.totalCollectedAmount)}`,
+      value: `₹ ${convertToCrores(dashboardData?.collection?.totalCollectedAmount)} Cr.`,
     },
     {
       label: "Daily Avg. Collection Amt. (Collected Amt. / No. of Days)",
-      value: `₹ ${formatNumber(dashboardData?.collection?.dailyAvgCollectionAmount)}`,
+      value: `₹ ${convertToCrores(dashboardData?.collection?.dailyAvgCollectionAmount)} Cr.`,
     },
     {
       label: "Collection %",
@@ -603,7 +611,7 @@ const DailyVisitNew = () => {
     },
     {
       label: "Total Full Paid Amount",
-      value: `₹ ${formatNumber(dashboardData?.fullPayment?.totalFullPaidAmount)}`,
+      value: `₹ ${convertToCrores(dashboardData?.fullPayment?.totalFullPaidAmount)} Cr.`,
     },
     {
       label: "Total Full Paid Account",
@@ -872,6 +880,7 @@ const DailyVisitNew = () => {
               </div>
             </div>
           </div>
+          {console.log(dashboardData)}
           <div className="col-12 col-md-4 d-flex">
             <div className="card w-100 h-100">
               <div className="card-header">
@@ -940,7 +949,7 @@ const DailyVisitNew = () => {
                       "--funnel-width": `${Math.max(
                         0,
                         100 -
-                          (dashboardData?.allocation?.fosAssignedPercent || 0),
+                        (dashboardData?.allocation?.fosAssignedPercent || 0),
                       )}%`,
                     }}
                   >
@@ -950,7 +959,7 @@ const DailyVisitNew = () => {
                       <span className="funnel-value">{`${Math.max(
                         0,
                         100 -
-                          (dashboardData?.allocation?.fosAssignedPercent || 0),
+                        (dashboardData?.allocation?.fosAssignedPercent || 0),
                       )}%`}</span>
                     </div>
                   </div>
@@ -1207,6 +1216,9 @@ const DailyVisitNew = () => {
               <div className="card h-100">
                 <div className="card-header">
                   <h5 className="card-title mb-0">PTP Conversion Percent</h5>
+                  <button type="button" className="btn btn-primary btn-sm">
+                    AI Analyze
+                  </button>
                 </div>
                 <div className="card-body">
                   <Chart

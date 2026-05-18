@@ -4,7 +4,7 @@ const { authRequired } = require('../../middleware/auth');
 const { accAllocationSchema, dailyUploadSchema,pincodeHistorySchema,userRouteSchema, unallocatedCasesSchema
 } = require('./Reports.validation');
 const { accAllocationHandler, dailyUploadedReportHandler, pinCodeHistoryHandler, nonVisitDoneHandler,
-    overallPerformanceHandler, visitDoneHandler, smaSummaryHandler,   userRouteHandler
+    overallPerformanceHandler, visitDoneHandler, smaSummaryHandler, getLastThreeMonthPivotHandler,   userRouteHandler
   , userRouteExportHandler, unallocatedCasesHandler
 } = require('./Reports.controller');
 
@@ -17,6 +17,7 @@ router.get('/nonVisitDoneSummary', nonVisitDoneHandler);
 router.get('/overallPerformanceSummary', overallPerformanceHandler);
 router.get('/visitDoneSummary', visitDoneHandler);
 router.get('/smaSummary', smaSummaryHandler);
+router.get('/lastThreeMonthPivot', getLastThreeMonthPivotHandler);
 
 router.get(
   '/AccAllocationReport',

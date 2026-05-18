@@ -352,6 +352,36 @@ async function getSMASummary() {
   return result.rows || [];
 }
 
+async function getLastThreeMonthPivot() {
+  let sql = `
+SELECT 
+    TO_CHAR(month_list.month_date, 'Month YYYY') AS MONTH_NAME,
+    NVL(data.total_count, 0) AS TOTAL_COUNT
+FROM
+(
+    -- Generate current month and previous 2 months
+    SELECT ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 0)  AS month_date FROM dual
+    UNION ALL
+    SELECT ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -1) FROM dual
+    UNION ALL
+    SELECT ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -2) FROM dual
+) month_list
+LEFT JOIN
+(
+    SELECT 
+        TRUNC(CONTRACTUPLOADDATE, 'MM') AS month_date,
+        COUNT(DISTINCT CONTRACTNUMBER) AS total_count
+    FROM atbss.aoup_etech_contractuploadallocationdetails
+    GROUP BY TRUNC(CONTRACTUPLOADDATE, 'MM')
+) data
+ON month_list.month_date = data.month_date
+ORDER BY month_list.month_date DESC
+  `;
+  const binds = {};
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
 async function fetchUserRouteRows(filters) {
   const fosId = normalizeFosId(filters.fosId);
   const selectedDate = parseDateInput(filters.date);
@@ -494,7 +524,7 @@ async function getUnallocatedCases(filters) {
 
 module.exports = {
   accAllocationReport, getDailyUploadedReport, getpincodeHistoryReport, getnonvisitdoneSummary, overallPerformanceSummary,
-  getvisitdoneSummary, getSMASummary ,
+  getvisitdoneSummary, getSMASummary, getLastThreeMonthPivot,
   getUserRouteReport,
   getUserRouteExport, getUnallocatedCases
 };

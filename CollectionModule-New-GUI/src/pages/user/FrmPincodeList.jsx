@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { data, Link, useNavigate } from "react-router-dom";
 import { Eye, Edit, Search, Plus, MapPinX, MapPinCheck, MapPinned, Trash2, Pin, X } from "lucide-react";
 import apiClient from "../../services/apiClient";
 import { useAuth } from "../../context/AuthContext";
@@ -10,6 +10,7 @@ import { useLoader } from "../../context/LoaderContext";
 
 const FrmPincodeList = () => {
   const { user } = useAuth();
+  console.log(user);
   const { showError, showSuccess, showWarning } = useNotification();
   const navigate = useNavigate();
   const confirm = useConfirm();
@@ -25,11 +26,15 @@ const FrmPincodeList = () => {
     defaultValues: { pinCode: "" },
   });
   const [showModal, setShowModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState(1);
   const [tableData, setTableData] = useState([]);
+  const [selectedPincode, setSelectedPincode] = useState(null);
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [newStatus, setNewStatus] = useState("");
+  const [userDetails, setUserDetails] = useState({});
 
   const [page, setPage] = useState(1);
   const limit = 10; // fixed limit
@@ -61,8 +66,8 @@ const FrmPincodeList = () => {
       console.log(error);
       showError(
         error?.response?.data?.message ||
-          error?.message ||
-          "Failed to fetch pincodes",
+        error?.message ||
+        "Failed to fetch pincodes",
       );
     } finally {
       setLoader(false);
@@ -94,8 +99,46 @@ const FrmPincodeList = () => {
       console.error(error);
       showError(
         error?.response?.data?.message ||
-          error?.message ||
-          "Failed to delete the pincode",
+        error?.message ||
+        "Failed to delete the pincode",
+      );
+    } finally {
+      setLoader(false);
+    }
+  };
+
+  const handleModifyStatus = async (pinCode) => {
+    try {
+      if (!newStatus.trim().length) {
+        showWarning("Please select the status");
+        return;
+      }
+      const agreed = await confirm("Do you want to modify status?");
+      if (!agreed) return;
+      setLoader(true);
+      const payload = {
+        pincode: pinCode,
+      };
+      const response = await apiClient.delete("/assignPincode/changePincodeStatus", {
+        data: payload
+      });
+      console.log(response);
+      return;
+      if (response.success && response.message === "success") {
+        showSuccess(response.data?.message);
+        setShowEditModal(false);
+        setSelectedPincode(null);
+        setNewStatus("")
+        fetchAllPincodes();
+      } else {
+        showWarning(response?.message);
+      }
+    } catch (error) {
+      console.error(error);
+      showError(
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to update status",
       );
     } finally {
       setLoader(false);
@@ -123,8 +166,8 @@ const FrmPincodeList = () => {
       console.log(error);
       showError(
         error?.response?.data?.message ||
-          error?.message ||
-          "Failed to insert pincode",
+        error?.message ||
+        "Failed to insert pincode",
       );
     } finally {
       setLoader(false);
@@ -265,44 +308,44 @@ const FrmPincodeList = () => {
               </div>
             </div>
 
-                        <div className="users-toolbar-right">
-                            <div className="users-search" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                                <Search className="inline search-icon" size={16} />
-                                <input
-                                    type="text"
-                                    placeholder="Search pincode.."
-                                    value={searchTerm}
-                                    onChange={(e) => {
-                                        setSearchTerm(e.target.value);
-                                        setPage(1);
-                                    }}
-                                    style={{ paddingRight: searchTerm ? 28 : undefined }}
-                                />
-                                {searchTerm && (
-                                    <button
-                                        type="button"
-                                        aria-label="Clear search"
-                                        onClick={() => {
-                                            setSearchTerm("");
-                                            setPage(1);
-                                        }}
-                                        style={{
-                                            position: 'absolute',
-                                            right: 6,
-                                            background: 'none',
-                                            border: 'none',
-                                            padding: 0,
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            height: '100%'
-                                        }}
-                                    >
-                                        <X size={16} color="red" />
-                                    </button>
-                                )}
-                            </div>
+            <div className="users-toolbar-right">
+              <div className="users-search" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <Search className="inline search-icon" size={16} />
+                <input
+                  type="text"
+                  placeholder="Search pincode.."
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setPage(1);
+                  }}
+                  style={{ paddingRight: searchTerm ? 28 : undefined }}
+                />
+                {searchTerm && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setSearchTerm("");
+                      setPage(1);
+                    }}
+                    style={{
+                      position: 'absolute',
+                      right: 6,
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      height: '100%'
+                    }}
+                  >
+                    <X size={16} color="red" />
+                  </button>
+                )}
+              </div>
 
               {/* <div className="d-flex gap-2">
                                 <select style={dropdownStyle} value={userLevel} onChange={(e) => setUserLevel(e.target.value)}>
@@ -358,7 +401,7 @@ const FrmPincodeList = () => {
                       <tr key={index + 1}>
                         <td>
                           <span className="badge bg-primary text-white p-2 gap-2">
-                            <i class="bi bi-geo-fill"></i>
+                            <i className="bi bi-geo-fill"></i>
                             {pincode.VAR_PINCODE_NO}
                           </span>
                         </td>
@@ -384,13 +427,16 @@ const FrmPincodeList = () => {
                                                         </button> */}
                             <button
                               type="button"
-                              className="btn btn-danger btn-sm"
+                              className="btn btn-primary btn-sm"
                               onClick={() => {
-                                handleDelete(pincode.VAR_PINCODE_NO);
+                                // handleDelete(pincode.VAR_PINCODE_NO);
+                                setSelectedPincode(pincode)
+                                setShowEditModal(true);
                               }}
                             >
-                              <i class="bi bi-trash"></i>
-                              Delete
+                              {/* <i class="bi bi-trash"></i> */}
+                              <i class="bi bi-pencil-fill"></i>
+                              Edit
                             </button>
                           </div>
                         </td>
@@ -400,7 +446,7 @@ const FrmPincodeList = () => {
               </table>
             )}
           </div>
-
+          {console.log(paginatedData)}
           <div className="users-pagination">
             <div className="users-pagination-info">
               Showing{" "}
@@ -509,6 +555,107 @@ const FrmPincodeList = () => {
             style={{ zIndex: -1 }}
           ></div>
         </div>
+      )}
+      {showEditModal && (
+        <>
+          <div
+            className={`modal fade ${showEditModal ? "show d-block" : ""}`}
+            tabIndex="-1"
+            role="dialog"
+            style={{ zIndex: 1040 }}
+          >
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Modify Status</h5>
+
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => {
+                      setShowEditModal(false);
+                      setSelectedPincode(null);
+                      setNewStatus("");
+                    }}
+                  />
+                </div>
+
+                <div className="modal-body">
+                  <div className="row mb-3">
+                    <div className="col-6">
+                      Pincode: {selectedPincode?.VAR_PINCODE_NO}
+                    </div>
+
+                    <div className="col-6">
+                      Current Status:{" "}
+                      {selectedPincode?.VAR_PINCODE_ACTIVE === "Y"
+                        ? "Active"
+                        : "Inactive"}
+                    </div>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">
+                      New Status <span className="text-danger">*</span>
+                    </label>
+
+                    <select
+                      className="form-select"
+                      value={newStatus || ""}
+                      onChange={(e) => setNewStatus(e.target.value)}
+                    >
+                      <option value="">-- Select Status --</option>
+
+                      <option
+                        value="A"
+                        disabled={selectedPincode?.VAR_PINCODE_ACTIVE === "Y"}
+                      >
+                        Active
+                      </option>
+
+                      <option
+                        value="I"
+                        disabled={selectedPincode?.VAR_PINCODE_ACTIVE !== "Y"}
+                      >
+                        Inactive
+                      </option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="modal-footer justify-content-center">
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() =>
+                      handleModifyStatus(selectedPincode?.VAR_PINCODE_NO)
+                    }
+                  >
+                    Save
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => {
+                      setShowEditModal(false);
+                      setSelectedPincode(null);
+                      setNewStatus("");
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Backdrop */}
+          <div
+            className="modal-backdrop fade show"
+            style={{ zIndex: 1039 }}
+          ></div>
+        </>
       )}
     </div>
   );
