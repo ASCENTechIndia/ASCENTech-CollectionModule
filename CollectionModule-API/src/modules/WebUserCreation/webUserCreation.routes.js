@@ -51,7 +51,7 @@ const upload = multer({
 
 // Public endpoints for web user creation
 router.get('/form-options', getFormOptionsHandler);
-router.get('/branches', validate(getBranchesWebSchema, { source: 'query' }), getBranchesWebHandler);
+router.get('/branches', getBranchesWebHandler);
 router.get('/branch-by-id', validate(getUserDetailsByIdSchema, { source: 'query' }), getBranchByIdHandler);
 router.get('/roles', validate(getRolesWebSchema, { source: 'query' }), getRolesWebHandler);
 router.get('/employers', getEmployerListHandler);

@@ -48,9 +48,9 @@ async function getBranchesWebService(branchCategory, userLevel) {
     return {
       success: true,
       data: (branches.rows || []).map(row => ({
-        name: row.BRANCHNAME || row.name,
-        id: row.BRID || row.id,
-        code: row.BRANCHCODE || row.code,
+        name: row.NAME || row.name,
+        id: row.ID || row.id,
+        code: row.CODE || row.code,
       })),
     };
   } catch (error) {

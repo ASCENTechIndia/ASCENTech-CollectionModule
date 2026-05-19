@@ -43,9 +43,13 @@ async function getFormOptionsService(type = '') {
 async function getBranchesService(branchCategory, userLevel) {
   try {
     const branches = await getBranchesRepo(branchCategory, userLevel);
-    return {
+     return {
       success: true,
-      data: branches || [],
+      data: (branches.rows || []).map(row => ({
+        name: row.NAME || row.name,
+        id: row.ID || row.id,
+        code: row.CODE || row.code,
+      })),
     };
   } catch (error) {
     throw new AppError(`Failed to fetch branches: ${error.message}`, 400);
