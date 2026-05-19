@@ -13,6 +13,7 @@ const dailyVisitRoutes = require('../modules/Dashboard/DailyVisit/dailyVisit.rou
 const transactionReportRoutes = require('../modules/TransactionReport/TransactionReport.routes');
 const imageUploadMobAppRoutes = require('../modules/ImageUploadMobApp/ImageUploadMobApp.routes');
 const userCreationRoutes = require('../modules/UserCreation/userCreation.routes');
+const webCreationRoutes = require('../modules/WebUserCreation/webUserCreation.routes');
 const router = express.Router();
 
 router.get('/health', (req, res) => {
@@ -42,6 +43,7 @@ router.use('/disposition-dashboard', dispositionDashboardRoutes);
 router.use('/daily-visit', dailyVisitRoutes);
 router.use('/image-upload-mobapp', imageUploadMobAppRoutes);
 router.use('/user-creation', userCreationRoutes);
+router.use('/web-creation', webCreationRoutes);
 
 
 module.exports = router;
