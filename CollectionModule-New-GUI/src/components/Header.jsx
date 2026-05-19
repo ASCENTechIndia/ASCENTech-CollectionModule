@@ -13,7 +13,6 @@ function Header({
 }) {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  console.log("user ", user);
   const lastLoginDate = user?.lastLogin
     .toString()
     .split("T")[0]

@@ -73,74 +73,62 @@ const FrmPincodeList = () => {
     }
   };
 
-  // const handleDelete = async (pinCode) => {
-  //   const agreed = await confirm("Do you want to delete this pincode?");
-
-  //   if (!agreed) return;
-
-  //   try {
-  //     setLoader(true);
-  //     const payload = {
-  //       pincode: pinCode,
-  //     };
-  //     console.log(payload);
-  //     const response = await apiClient.delete("/assignPincode/deletePincode", {
-  //       data: payload,
-  //     });
-
-  //     if (response.success && response.message === "success") {
-  //       showSuccess(response.data?.message);
-  //       fetchAllPincodes();
-  //     } else {
-  //       showWarning(response?.message);
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //     showError(
-  //       error?.response?.data?.message ||
-  //       error?.message ||
-  //       "Failed to delete the pincode",
-  //     );
-  //   } finally {
-  //     setLoader(false);
-  //   }
-  // };
-
   const handleModifyStatus = async (pinCode) => {
-    try {
-      if (!newStatus.trim().length) {
-        showWarning("Please select the status");
-        return;
-      }
-      const agreed = await confirm("Do you want to modify status?");
-      if (!agreed) return;
-      setLoader(true);
-      const payload = {
-        pincode: pinCode,
-      };
-      const response = await apiClient.delete("/assignPincode/changePincodeStatus", {
-        data: payload
-      });
-      if (response.success && response.message === "success") {
-        showSuccess(response.data?.message);
-        setShowEditModal(false);
-        setSelectedPincode(null);
-        setNewStatus("")
-        fetchAllPincodes();
-      } else {
-        showWarning(response?.message);
-      }
-    } catch (error) {
-      console.error(error);
-      showError(
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to update status",
-      );
-    } finally {
-      setLoader(false);
+  try {
+    if (!newStatus?.trim()) {
+      showWarning("Please select the status");
+      return;
     }
-  };
+
+    const agreed = await confirm("Do you want to modify status?");
+    if (!agreed) return;
+
+    setLoader(true);
+
+    const payload = {
+      pincode: pinCode,
+      status: newStatus,
+    };
+
+    const response = await apiClient.delete(
+      "/assignPincode/changePincodeStatus",
+      {
+        data: payload,
+      }
+    );
+
+    console.log(response);
+
+    if (
+      response?.data?.success ||
+      response?.data?.message === "success"
+    ) {
+      showSuccess(
+        response?.data?.message || "Status updated successfully"
+      );
+
+      setShowEditModal(false);
+      setSelectedPincode(null);
+      setNewStatus("");
+
+      fetchAllPincodes();
+    } else {
+      showWarning(
+        response?.data?.message || "Failed to update status"
+      );
+    }
+  } catch (error) {
+    console.error(error);
+
+    showError(
+      error?.response?.data?.message ||
+      error?.message ||
+      "Failed to update status"
+    );
+  } finally {
+    setLoader(false);
+  }
+};
 
   const onModalSubmit = async (values) => {
     try {

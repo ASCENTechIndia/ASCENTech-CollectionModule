@@ -5,6 +5,7 @@ import apiClient from "../../services/apiClient";
 import { useNotification } from "../../context/useNotification";
 import DataTable from "../../components/Datatable";
 import { useLoader } from "../../context/LoaderContext";
+import Chart from "react-apexcharts";
 
 const MilestoneDate = ({ date }) => {
   if (!date) return <span>-</span>;
@@ -83,60 +84,11 @@ function RptDaywisedata() {
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState([]);
 
-  const [dateRangeOption, setDateRangeOption] = useState("currentMonth");
+  const [showPivotModal, setShowPivotModal] = useState(false);
+  const [pivotData, setPivotData] = useState({ months: [], values: [] });
+  const [pivotLoading, setPivotLoading] = useState(false);
 
   const getTodayDate = () => new Date().toISOString().split("T")[0];
-  const getFirstDay = (year, monthIndex) =>
-    `${year}-${String(monthIndex + 1).padStart(2, "0")}-01`;
-  const getLastDay = (year, monthIndex) => {
-    const lastDay = new Date(year, monthIndex + 1, 0).getDate();
-    return `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
-  };
-
-  const updateDatesFromOption = (option) => {
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth();
-
-    if (option === "currentMonth") {
-      const firstDay = getFirstDay(currentYear, currentMonth);
-      const todayDate = getTodayDate();
-      setStartDate(firstDay);
-      setEndDate(todayDate);
-      setValue("startDate", firstDay);
-      setValue("endDate", todayDate);
-    } else if (option === "lastMonth") {
-      const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-      const lastMonthIndex = currentMonth === 0 ? 11 : currentMonth - 1;
-      const firstDay = getFirstDay(lastMonthYear, lastMonthIndex);
-      const lastDay = getLastDay(lastMonthYear, lastMonthIndex);
-      setStartDate(firstDay);
-      setEndDate(lastDay);
-      setValue("startDate", firstDay);
-      setValue("endDate", lastDay);
-    } else if (option === "lastThreeMonths") {
-      let startYear = currentYear;
-      let startMonth = currentMonth - 2;
-      if (startMonth < 0) {
-        startYear = currentYear - 1;
-        startMonth += 12;
-      }
-      const startFirstDay = getFirstDay(startYear, startMonth);
-      const endYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-      const endMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-      const endLastDay = getLastDay(endYear, endMonth);
-      setStartDate(startFirstDay);
-      setEndDate(endLastDay);
-      setValue("startDate", startFirstDay);
-      setValue("endDate", endLastDay);
-    }
-  };
-
-  const handleDateRangeChange = (e) => {
-    const option = e.target.value;
-    setDateRangeOption(option);
-    updateDatesFromOption(option);
-  };
 
   useEffect(() => {
     const todayDate = getTodayDate();
@@ -144,46 +96,7 @@ function RptDaywisedata() {
     setEndDate(todayDate);
     setValue("startDate", todayDate);
     setValue("endDate", todayDate);
-    setDateRangeOption("currentMonth");
   }, []);
-
-  const columns = [
-    { label: "Contract Upload Date", sortable: true },
-    { label: "Account Type", sortable: true },
-    {
-      label: "EMI Amount",
-      sortable: true,
-      render: (value) =>
-        Number(value || 0).toLocaleString(undefined, {
-          maximumFractionDigits: 2,
-        }),
-    },
-    {
-      label: "DIFF IN INT CREDIT",
-      sortable: true,
-      render: (value) =>
-        Number(value || 0).toLocaleString(undefined, {
-          maximumFractionDigits: 2,
-        }),
-    },
-    {
-      label: "CAP UNPD INT",
-      sortable: true,
-      render: (value) =>
-        Number(value || 0).toLocaleString(undefined, {
-          maximumFractionDigits: 2,
-        }),
-    },
-    {
-      label: "COLLECTABLE AMOUNT",
-      sortable: true,
-      render: (value) =>
-        Number(value || 0).toLocaleString(undefined, {
-          maximumFractionDigits: 2,
-        }),
-    },
-    { label: "SMA Type", sortable: true },
-  ];
 
   const columns2 = [
     {
@@ -236,20 +149,6 @@ function RptDaywisedata() {
         ),
     },
   ];
-
-  const tableRows = useMemo(
-    () =>
-      rows.map((item) => [
-        item.uploadDate || "",
-        item.accountType || "",
-        item.emiAmount || 0,
-        item.diffInt || 0,
-        item.capUnpd || 0,
-        item.collectable || 0,
-        item.sma || "",
-      ]),
-    [rows],
-  );
 
   const handleSearch = async () => {
     const params = {
@@ -312,8 +211,71 @@ function RptDaywisedata() {
     setEndDate(todayDate);
     setValue("startDate", todayDate);
     setValue("endDate", todayDate);
-    setDateRangeOption("currentMonth");
   };
+
+  const handlePivotClick = async () => {
+    setPivotLoading(true);
+    try {
+      const response = await apiClient.get("/reports/lastThreeMonthPivot");
+      console.log("resp :", response);
+      if (response?.success && Array.isArray(response.data)) {
+        const months = response.data.map(
+          (item) => item.MONTH_NAME?.trim() || "",
+        );
+        const values = response.data.map((item) => item.TOTAL_COUNT ?? 0);
+        setPivotData({ months, values });
+      } else {
+        showError("Failed to load pivot data");
+      }
+    } catch (err) {
+      showError(err?.message || "API error");
+    } finally {
+      setPivotLoading(false);
+      setShowPivotModal(true);
+    }
+  };
+
+  const chartOptions = {
+    chart: {
+      type: "bar",
+      toolbar: { show: false },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        dataLabels: { position: "top" },
+        barHeight: "60%",
+      },
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: (val) => val.toLocaleString(),
+      offsetX: 15,
+      style: { fontSize: "13px", fontWeight: "bold", colors: ["#333"] },
+    },
+    xaxis: {
+      categories: pivotData.months,
+      title: { text: "Unique Data Uploaded (Count)" },
+      labels: { formatter: (val) => val.toLocaleString() },
+      min: 0,
+      max: Math.max(...pivotData.values) * 1.15,
+      tickAmount: 5,
+    },
+    yaxis: {
+      title: { text: "Month" },
+    },
+    colors: ["#0d6efd"],
+    title: {
+      text: "",
+      align: "center",
+      style: { fontSize: "16px", fontWeight: "bold" },
+    },
+    tooltip: {
+      y: { formatter: (val) => val.toLocaleString() },
+    },
+  };
+
+  const chartSeries = [{ name: "Uploads", data: pivotData.values }];
 
   return (
     <div className="main-content page-daywise-data-report">
@@ -332,8 +294,14 @@ function RptDaywisedata() {
       </div>
 
       <div className="card mb-4">
-        <div className="card-header">
+        <div className="card-header d-flex justify-content-between align-items-center">
           <h5 className="card-title mb-0">Search Filters</h5>
+          <button
+            className="btn btn-outline-primary btn-sm"
+            onClick={handlePivotClick}
+          >
+            Pivot
+          </button>
         </div>
         <div className="card-body">
           <form onSubmit={handleFormSubmit(handleSearch)}>
@@ -384,20 +352,7 @@ function RptDaywisedata() {
             </div>
 
             <div className="row g-3 mt-2">
-              <div className="col-md-4">
-                <label className="form-label">Date Range Preset</label>
-                <select
-                  className="form-select"
-                  value={dateRangeOption}
-                  onChange={handleDateRangeChange}
-                >
-                  <option value="currentMonth">Current Month</option>
-                  <option value="lastMonth">Last Month</option>
-                  <option value="lastThreeMonths">Last Three Months</option>
-                </select>
-              </div>
-
-              <div className="col-md-4">
+              <div className="col-md-6">
                 <label htmlFor="accountNo" className="form-label">
                   Account Number
                 </label>
@@ -413,7 +368,7 @@ function RptDaywisedata() {
                 />
               </div>
 
-              <div className="col-md-4">
+              <div className="col-md-6">
                 <label htmlFor="smaType" className="form-label">
                   SMA Type
                 </label>
@@ -464,6 +419,60 @@ function RptDaywisedata() {
               perPage={5}
               csvFilename="daily_uploaded_data_report.csv"
             />
+          </div>
+        </div>
+      )}
+
+      {showPivotModal && (
+        <div
+          className="modal show d-block"
+          tabIndex="-1"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        >
+          <div className="modal-dialog modal-dialog-centered modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  Last Three Month Unique Data Uploaded
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowPivotModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                {pivotLoading ? (
+                  <div className="text-center py-5">
+                    <div className="spinner-border text-primary" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                  </div>
+                ) : (
+                  <Chart
+                    options={{
+                      ...chartOptions,
+                      xaxis: {
+                        ...chartOptions.xaxis,
+                        categories: pivotData.months,
+                      },
+                    }}
+                    series={chartSeries}
+                    type="bar"
+                    height={350}
+                  />
+                )}
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowPivotModal(false)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
