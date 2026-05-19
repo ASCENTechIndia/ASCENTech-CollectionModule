@@ -12,7 +12,7 @@ const reportRoutes = require('../modules/Reports/Reports.routes');
 const dailyVisitRoutes = require('../modules/Dashboard/DailyVisit/dailyVisit.routes');
 const transactionReportRoutes = require('../modules/TransactionReport/TransactionReport.routes');
 const imageUploadMobAppRoutes = require('../modules/ImageUploadMobApp/ImageUploadMobApp.routes');
-
+const userCreationRoutes = require('../modules/UserCreation/userCreation.routes');
 const router = express.Router();
 
 router.get('/health', (req, res) => {
@@ -41,6 +41,7 @@ router.use('/active-agents', activeAgentsRoutes);
 router.use('/disposition-dashboard', dispositionDashboardRoutes);
 router.use('/daily-visit', dailyVisitRoutes);
 router.use('/image-upload-mobapp', imageUploadMobAppRoutes);
+router.use('/user-creation', userCreationRoutes);
 
 
 module.exports = router;

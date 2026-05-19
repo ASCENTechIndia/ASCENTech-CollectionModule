@@ -9,7 +9,7 @@ async function deletePincode(pincode) {
   const isSuccess = errorCode === '9999';
   return {
     isSuccess,
-    message: isSuccess ? 'Pincode deleted successfully' : errorMessage,
+    message: errorMessage,
     out,
   };
 }
