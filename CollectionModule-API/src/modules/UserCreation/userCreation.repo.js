@@ -93,7 +93,7 @@ async function getUserDetailsByIdRepo(userId) {
 async function createUserRepo(payload) {
   const statement = `
     BEGIN
-      aoup_user_ins_New(
+      aoup_user_ins_New_tata(
         :in_brid,
         :in_userid,
         :in_username,
