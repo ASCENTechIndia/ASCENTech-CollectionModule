@@ -20,7 +20,7 @@ async function getFormOptionsRepo(type = '') {
     productCategory: `SELECT var_productcategory_name as name, num_productcategory_id as id FROM aoup_productcategory_mas ORDER BY num_productcategory_id`,
     companyCode: `SELECT var_companycode_code as name, num_companycode_id as id FROM aoup_companycode_mas ORDER BY var_companycode_code`,
     employer: `SELECT var_employer_name as name, num_employer_id as id, var_employer_code as code FROM aoup_employer_mas ORDER BY var_employer_name`,
-    idProof: `SELECT var_idproof_name as name, num_idproof_id as id FROM aoup_idproof_mas ORDER BY num_idproof_id`,
+    idProof: `SELECT VAR_IDPROOF_NAME as name, NUM_IDPROOF_ID as id FROM aoup_idproof_mas ORDER BY NUM_IDPROOF_ID`,
     assetOwner: `SELECT var_assetowner_name as name, num_assetowner_id as id FROM aoup_assetowner_mas ORDER BY var_assetowner_name`,
     userRole: `SELECT var_userrole_name as name, num_userrole_id as id FROM aoup_userrole_mas ORDER BY num_userrole_id`,
     userDevice: `SELECT var_userdevice_name as name, num_userdevice_id as id FROM aoup_userdevice_mas ORDER BY num_userdevice_id`,
@@ -92,7 +92,7 @@ async function getUserDetailsByIdRepo(userId) {
 async function createUserRepo(payload) {
   const statement = `
     BEGIN
-      aoup_user_ins_New(
+      aoup_user_ins_New_tata(
         :in_brid,
         :in_userid,
         :in_username,
