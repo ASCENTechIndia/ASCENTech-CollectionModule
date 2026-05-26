@@ -41,7 +41,7 @@ async function getFormOptionsRepo(type = '') {
  */
 async function getBranchesWebRepo(branchCategory, userLevel) {
   const whereClause = branchCategory && userLevel ? ` WHERE compid = ${branchCategory}` : '';
-  const query = `SELECT branchname as name, brid as id, branchcode as code FROM branchlist${whereClause} ORDER BY branchname`;
+  const query = `SELECT branchname as name, brid as id, branchcode as code FROM branchlist_Tata${whereClause} ORDER BY branchname`;
   return executeQuery(query);
 }
 
@@ -66,7 +66,7 @@ async function getRolesWebRepo(branchCategory) {
     whereClause = `WHERE num_userrole_id IN (2, 5)`;
   }
   
-  const query = `SELECT var_userrole_name as name, num_userrole_id as id FROM aoup_userrole_mas ${whereClause} ORDER BY num_userrole_id`;
+  const query = `SELECT var_userrole_name as name, num_userrole_id as id FROM aoup_userrole_mas_Tata ${whereClause} ORDER BY num_userrole_id`;
   return executeQuery(query);
 }
 
