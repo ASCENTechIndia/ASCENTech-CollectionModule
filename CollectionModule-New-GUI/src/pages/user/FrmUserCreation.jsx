@@ -4,10 +4,14 @@ import { useNavigate } from "react-router-dom";
 import apiClient from "../../services/apiClient";
 import { Link } from "react-router-dom";
 import { useNotification } from "../../context/NotificationContext";
+import { useAuth } from "../../context/AuthContext";
 
 const FrmUserCreation = () => {
+  const { user } = useAuth();
+  const branchCategory = user?.compId;
+  const userLevel = user?.desgName;
   const navigate = useNavigate();
-  const { showError, showSuccess } = useNotification();
+  const { showError, showSuccess, showWarning } = useNotification();
   const [loadingDropdown, setLoadingDropdown] = useState(false);
   const {
     register,
@@ -100,8 +104,14 @@ const FrmUserCreation = () => {
 
   // Fetch branches
   const fetchBranches = async () => {
+    if (!branchCategory || !userLevel) {
+      showWarning("Branch category id or user level id is not set");
+      return;
+    }
     try {
-      const response = await apiClient.get("/web-creation/branches");
+      const response = await apiClient.get(
+        `/user-creation/branches?branchCategory=${branchCategory}&userLevel=${userLevel}`,
+      );
       if (response?.success && Array.isArray(response.data)) {
         const options = response.data.map((item) => ({
           value: item.id,
@@ -224,11 +234,17 @@ const FrmUserCreation = () => {
   useEffect(() => {
     const initialize = async () => {
       setLoadingDropdown(true);
-      await Promise.all([fetchDropdown(), fetchBranches()]);
+      await Promise.all([fetchDropdown()]);
       setLoadingDropdown(false);
     };
     initialize();
   }, []);
+
+  useEffect(() => {
+    if (branchCategory && userLevel) {
+      fetchBranches();
+    }
+  }, [branchCategory, userLevel]);
 
   return (
     <>
