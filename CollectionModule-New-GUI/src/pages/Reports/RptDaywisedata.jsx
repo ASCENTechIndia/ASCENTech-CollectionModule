@@ -217,7 +217,6 @@ function RptDaywisedata() {
     setPivotLoading(true);
     try {
       const response = await apiClient.get("/reports/lastThreeMonthPivot");
-      console.log("resp :", response);
       if (response?.success && Array.isArray(response.data)) {
         const months = response.data.map(
           (item) => item.MONTH_NAME?.trim() || "",

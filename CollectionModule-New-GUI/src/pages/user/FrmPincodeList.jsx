@@ -10,7 +10,6 @@ import { useLoader } from "../../context/LoaderContext";
 
 const FrmPincodeList = () => {
   const { user } = useAuth();
-  console.log(user);
   const { showError, showSuccess, showWarning } = useNotification();
   const navigate = useNavigate();
   const confirm = useConfirm();
@@ -47,7 +46,6 @@ const FrmPincodeList = () => {
       const response = await apiClient.get(
         "/assignPincode/fetchAllPincodesList",
       );
-      console.log(response);
 
       if (
         response.success &&
@@ -97,8 +95,6 @@ const FrmPincodeList = () => {
         data: payload,
       }
     );
-
-    console.log(response);
 
     if (
       response?.data?.success ||

@@ -30,7 +30,6 @@ const FrmUserList = () => {
       const res = await apiClient.get(
         `/users/getBranches/?brcategory=${brCategory}&userLevel=${userLevel}`
       );
-      //   console.log("res", res)
       if (res.success) {
         const options = res.data.map((i) => ({
           label: i.BRANCHNAME,
