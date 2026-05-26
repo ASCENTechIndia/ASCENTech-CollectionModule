@@ -87,12 +87,13 @@ async function getUserDetailsByIdRepo(userId) {
 }
 
 /**
- * Create new user using stored procedure
+ * Create new user using stored procedure (aoup_user_ins_New)
+ * Maps to .NET Insert method
  */
 async function createUserRepo(payload) {
   const statement = `
     BEGIN
-      aoup_user_ins_New_tata(
+      aoup_user_ins_New(
         :in_brid,
         :in_userid,
         :in_username,
@@ -118,7 +119,6 @@ async function createUserRepo(payload) {
         :in_compid,
         :in_insby,
         :in_Requeststatus,
-        :in_pincode,
         :Out_User,
         :Out_errorCode,
         :Out_ErrorMsg
@@ -152,7 +152,6 @@ async function createUserRepo(payload) {
     in_compid: payload.compid,
     in_insby: payload.insby,
     in_Requeststatus: normalizeNullable(payload.requeststatus) || 'A',
-    in_pincode: normalizeNullable(payload.pincode),
     Out_User: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 100 },
     Out_errorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
     Out_ErrorMsg: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 10000 },

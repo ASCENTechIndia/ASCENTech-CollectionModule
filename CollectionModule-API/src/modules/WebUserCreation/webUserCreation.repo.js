@@ -110,13 +110,13 @@ async function getUserDetailsByIdRepo(userId) {
 }
 
 /**
- * Create new web user using stored procedure (InsertWeb equivalent)
- * This procedure doesn't call external user management service
+ * Create new web user using stored procedure aoup_userweb_ins
+ * Maps to .NET InsertWeb method - used for /web-creation/create endpoint
  */
 async function createWebUserRepo(payload) {
   const statement = `
     BEGIN
-      aoup_user_ins_Web_tata(
+      aoup_userweb_ins(
         :in_brid,
         :in_userid,
         :in_username,
@@ -141,7 +141,6 @@ async function createWebUserRepo(payload) {
         :in_mode,
         :in_compid,
         :in_insby,
-        :in_Requeststatus,
         :Out_User,
         :Out_errorCode,
         :Out_ErrorMsg
@@ -174,7 +173,6 @@ async function createWebUserRepo(payload) {
     in_mode: payload.mode,
     in_compid: payload.compid,
     in_insby: payload.insby,
-    in_Requeststatus: normalizeNullable(payload.requeststatus) || 'A',
     Out_User: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 100 },
     Out_errorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
     Out_ErrorMsg: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 10000 },
