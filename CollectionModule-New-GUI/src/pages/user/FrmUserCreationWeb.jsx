@@ -563,7 +563,7 @@ const FrmUserCreationWeb = () => {
             <button
               type="button"
               className="btn btn-secondary"
-              onClick={() => navigate("/User/FrmUserList")}
+              onClick={() => navigate("/user/user-list")}
             >
               Close
             </button>

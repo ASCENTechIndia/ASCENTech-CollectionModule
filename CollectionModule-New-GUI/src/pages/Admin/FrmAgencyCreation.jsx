@@ -174,7 +174,7 @@ const FrmAgencyCreation = () => {
 
   const onSubmit = async (values) => {
     try {
-      // setLoader(true);
+      setLoader(true);
       // setLoading(true);
 
       // Prepare payload
@@ -206,7 +206,7 @@ const FrmAgencyCreation = () => {
       showError(error?.message || 'Failed to create agency. Please try again.');
     } finally {
       setLoader(false);
-      setLoading(false);
+      // setLoading(false);
     }
   };
 

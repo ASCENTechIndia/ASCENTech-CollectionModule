@@ -83,7 +83,7 @@ const FrmUserCreation = () => {
       if (res?.success && res?.data?.Out_errorCode === 9999) {
         window.alert(res.data.Out_ErrorMsg || "User created successfully");
         reset();
-        navigate("/User/FrmUserList");
+        navigate("/user/user-list");
       } else {
         window.alert(res?.data?.Out_ErrorMsg || "Something went wrong");
       }
@@ -687,7 +687,7 @@ const FrmUserCreation = () => {
             <button
               type="button"
               className="btn btn-secondary"
-              onClick={() => navigate("/User/FrmUserList")}
+              onClick={() => navigate("/user/user-list")}
             >
               Close
             </button>
