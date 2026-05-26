@@ -22,7 +22,7 @@ async function getFormOptionsRepo(type = '') {
     employer: `SELECT var_employer_name as name, num_employer_id as id, var_employer_code as code FROM aoup_employer_mas ORDER BY var_employer_name`,
     idProof: `SELECT VAR_IDPROOF_NAME as name, NUM_IDPROOF_ID as id FROM aoup_idproof_mas ORDER BY NUM_IDPROOF_ID`,
     assetOwner: `SELECT var_assetowner_name as name, num_assetowner_id as id FROM aoup_assetowner_mas ORDER BY var_assetowner_name`,
-    userRole: `SELECT var_userrole_name as name, num_userrole_id as id FROM aoup_userrole_mas ORDER BY num_userrole_id`,
+    userRole: `SELECT var_userrole_name as name, num_userrole_id as id FROM aoup_userrole_mas_Tata ORDER BY num_userrole_id`,
     userDevice: `SELECT var_userdevice_name as name, num_userdevice_id as id FROM aoup_userdevice_mas ORDER BY num_userdevice_id`,
   };
 
@@ -43,7 +43,7 @@ async function getFormOptionsRepo(type = '') {
  */
 async function getBranchesRepo(branchCategory, userLevel) {
   const whereClause = branchCategory && userLevel ? ` WHERE compid = ${branchCategory}` : '';
-  const query = `SELECT branchname as name, brid as id, branchcode as code FROM branchlist${whereClause} ORDER BY branchname`;
+  const query = `SELECT branchname as name, brid as id, branchcode as code FROM branchlist_Tata${whereClause} ORDER BY branchname`;
   return executeQuery(query);
 }
 
