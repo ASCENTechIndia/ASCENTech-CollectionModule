@@ -244,7 +244,7 @@ const UsersList = () => {
                     <span className="widget-stat-value">{counts.total}</span>
                   </div>
                 </div>
-                {isDisplayCount && (
+                {/* {isDisplayCount && (
                   <div>
                     <p className="m-0">
                       <span className="fw-bold">Web:</span> 100
@@ -253,7 +253,7 @@ const UsersList = () => {
                       <span className="fw-bold">Mobile:</span> 30
                     </p>
                   </div>
-                )}
+                )} */}
                 <div className="widget-stat-bar primary" />
               </div>
             </div>
@@ -270,7 +270,7 @@ const UsersList = () => {
                     <span className="widget-stat-value">{counts.active}</span>
                   </div>
                 </div>
-                {isDisplayCount && (
+                {/* {isDisplayCount && (
                   <div>
                     <p className="m-0">
                       <span className="fw-bold">Web:</span> 100
@@ -279,7 +279,7 @@ const UsersList = () => {
                       <span className="fw-bold">Mobile:</span> 30
                     </p>
                   </div>
-                )}
+                )} */}
                 <div className="widget-stat-bar warning" />
               </div>
             </div>
@@ -296,7 +296,7 @@ const UsersList = () => {
                     <span className="widget-stat-value">{counts.inactive}</span>
                   </div>
                 </div>
-                {isDisplayCount && (
+                {/* {isDisplayCount && (
                   <div>
                     <p className="m-0">
                       <span className="fw-bold">Web:</span> 100
@@ -305,7 +305,7 @@ const UsersList = () => {
                       <span className="fw-bold">Mobile:</span> 30
                     </p>
                   </div>
-                )}
+                )} */}
                 <div className="widget-stat-bar danger" />
               </div>
             </div>

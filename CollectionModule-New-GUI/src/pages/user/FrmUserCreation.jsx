@@ -57,40 +57,55 @@ const FrmUserCreation = () => {
 
   const onSubmit = async (values) => {
     try {
+      // Map React form values to API payload structure
       const payload = {
-        branchId: Number(values.branch),
-        in_userid: values.userId || "",
-        in_username: `${values.firstName} ${values.lastName}`,
-        firstName: values.firstName,
-        lastName: values.lastName,
-        mobileNo: values.mobileNumber,
-        emailId: values.emailId || "",
+        // User Details
+        firstname: values.firstName || "",
+        lastname: values.lastName || "",
+        userid: values.userId || "",
+        
+        // Contact Information
+        mobno: values.mobileNumber || "",
+        email: values.emailId || "",
         dob: values.dob || "",
-        userDeviceId: Number(values.userDevice),
-        idProofNo: values.idProofNo || "",
-        designationId: Number(values.userDesignation),
-        roleId: Number(values.userRole),
-        companyCodeId: Number(values.companyCode),
-        workingForId: Number(values.workingFor),
-        employerId: values.employerName ? Number(values.employerName) : 0,
+        
+        // Identification
+        prooftype: Number(values.userIdProof) || 0,
+        proofno: values.idProofNo || "",
+        
+        // Employment
         empcode: values.employeeCode || "",
-        collectionTeamId: Number(values.collectionTeam),
-        categoryId: Number(values.productCategorisation),
-        mode: 1,
-        idProofType: Number(values.userIdProof),
-        compId: 0,
-        requestStatus: "A",
-        assetOwnerId: values.assetOwner ? Number(values.assetOwner) : 0,
+        desgid: Number(values.userDesignation) || 0,
+        workid: Number(values.workingFor) || 0,
+        empid: values.employerName ? Number(values.employerName) : null,
+        
+        // Organization
+        brid: Number(values.branch) || 0,
+        compcode: Number(values.companyCode) || 0,
+        collectionid: Number(values.collectionTeam) || 0,
+        categoryid: Number(values.productCategorisation) || 0,
+        
+        // Access Control
+        usertypeid: Number(values.userDevice) || 0,
+        roleid: Number(values.userRole) || 0,
+        
+        // Status & Metadata
+        status: "A", // Active
+        mode: 1, // New user mode
+        compid: 0, // Company ID
+        requeststatus: "A", // Request status
+        
+        // Note: insby will be set by API from authenticated user context
       };
 
-      const res = await apiClient.post("/users/add-mobile-user", payload);
+      const res = await apiClient.post("/user-creation/create", payload);
 
-      if (res?.success && res?.data?.Out_errorCode === 9999) {
-        showSuccess(res.data.Out_ErrorMsg || "User created successfully");
+      if (res?.success) {
+        showSuccess(res.message || "User created successfully");
         reset();
-        navigate("/User/FrmUserList");
+        navigate("/user/user-list");
       } else {
-        showError(res?.data?.Out_ErrorMsg || "Something went wrong");
+        showError(res?.message || "Something went wrong");
       }
     } catch (error) {
       console.error(error);
@@ -717,7 +732,7 @@ const FrmUserCreation = () => {
                 <button
                   type="button"
                   className="btn btn-secondary"
-                  onClick={() => navigate("/User/FrmUserList")}
+                  onClick={() => navigate("/user/user-list")}
                 >
                   Close
                 </button>

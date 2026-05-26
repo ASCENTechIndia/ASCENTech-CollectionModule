@@ -75,26 +75,6 @@ const FrmUserCreationWeb = () => {
     }
   };
 
-  // Fetch roles (separate API)
-  const fetchRoles = async () => {
-    try {
-      const response = await apiClient.get(`/users/getRoles`, {});
-      if (response.success && Array.isArray(response.data)) {
-        const formattedOptions = response.data.map((item) => ({
-          label: item.VAR_USERROLE_NAME,
-          value: item.NUM_USERROLE_ID,
-        }));
-        setRoleOptions(formattedOptions);
-      } else {
-        setRoleOptions([]);
-      }
-    } catch (error) {
-      console.error(error);
-      setRoleOptions([]);
-      showError("Failed to load roles");
-    }
-  };
-
   // Fetch all form options from the new API
   const fetchFormOptions = async () => {
     try {
@@ -178,6 +158,16 @@ const FrmUserCreationWeb = () => {
           })),
         );
       } else setDeviceOptions([]);
+
+      // User Role
+      if (response?.userRole?.length) {
+        setRoleOptions(
+          response.userRole.map((item) => ({
+            value: item.id,
+            label: item.name,
+          })),
+        );
+      } else setRoleOptions([]);
     } catch (error) {
       console.error("Error fetching form options:", error);
       setWorkingForOptions([]);
@@ -194,47 +184,62 @@ const FrmUserCreationWeb = () => {
 
   const onSubmit = async (values) => {
     try {
+      // Map React form values to API payload structure
       const payload = {
-        in_brid: Number(values.branch),
-        in_userid: values.userId || "",
-        in_username: `${values.firstName.trim()} ${values.lastName.trim()}`,
-        in_userpwd: "",
-        in_mobno: Number(values.mobileNumber),
-        in_email: values.emailId || "",
-        in_usertypeid: Number(values.userDevice),
-        in_DOB: values.dob || null,
-        in_proofno: values.idProofNo || null,
-        in_desgid: Number(values.userDesignation),
-        in_roleid: Number(values.userRole),
-        in_compcode: Number(values.companyCode),
-        in_workid: Number(values.workingFor),
-        in_empid: Number(values.employerName),
-        in_collectionid: Number(values.collectionTeam),
-        in_categoryid: Number(values.productCategorisation),
-        in_mode: 1,
-        in_status: "A",
-        in_Empcode: values.employeeCode,
-        in_firstname: values.firstName.trim(),
-        in_lastname: values.lastName.trim(),
-        in_prooftype: Number(values.userIdProof) || 0,
-        in_compid: 0,
-        in_insby: userName,
+        // User Details
+        userid: values.userId || "",
+        firstname: values.firstName.trim() || "",
+        lastname: values.lastName.trim() || "",
+        
+        // Contact Information
+        mobno: values.mobileNumber || "",
+        email: values.emailId || "",
+        dob: values.dob || "",
+        
+        // Identification
+        prooftype: Number(values.userIdProof) || 0,
+        proofno: values.idProofNo || "",
+        
+        // Employment
+        empcode: values.employeeCode || "",
+        desgid: Number(values.userDesignation) || 0,
+        workid: Number(values.workingFor) || 0,
+        empid: values.employerName ? Number(values.employerName) : null,
+        
+        // Organization
+        brid: Number(values.branch) || 0,
+        compcode: Number(values.companyCode) || 0,
+        collectionid: Number(values.collectionTeam) || 0,
+        categoryid: Number(values.productCategorisation) || 0,
+        
+        // Access Control
+        usertypeid: Number(values.userDevice) || 0,
+        roleid: Number(values.userRole) || 0,
+        
+        // Status & Metadata
+        status: "A", // Active
+        mode: 1, // New user mode
+        compid: 0, // Company ID
+        requeststatus: "A", // Request approval status
+        
+        // Note: insby will be set by API from authenticated user context
       };
 
-      const response = await apiClient.post("/users/createWebUser", payload);
+      const response = await apiClient.post("/web-creation/create", payload);
 
-      if (response?.data?.Out_errorCode === 9999) {
-        showSuccess(response.data.Out_ErrorMsg || "User created successfully");
+      if (response?.success) {
+        showSuccess(response.message || "Web user created successfully");
         reset();
+        navigate("/user/user-list");
       } else {
-        showError(response?.data?.Out_ErrorMsg || "Something went wrong");
+        showError(response?.message || "Something went wrong");
       }
     } catch (error) {
       console.error(error?.response?.data);
       showError(
         error?.response?.data?.message ||
           error?.message ||
-          "Failed to create user",
+          "Failed to create web user",
       );
     }
   };
@@ -242,7 +247,7 @@ const FrmUserCreationWeb = () => {
   useEffect(() => {
     const initializeDropdowns = async () => {
       setLoadingDropdown(true);
-      await Promise.all([fetchBranches(), fetchRoles(), fetchFormOptions()]);
+      await Promise.all([fetchBranches(), fetchFormOptions()]);
       setLoadingDropdown(false);
     };
     initializeDropdowns();
@@ -699,7 +704,7 @@ const FrmUserCreationWeb = () => {
                 <button
                   type="button"
                   className="btn btn-secondary"
-                  onClick={() => navigate("/User/FrmUserList")}
+                  onClick={() => navigate("/user/user-list")}
                 >
                   Close
                 </button>
