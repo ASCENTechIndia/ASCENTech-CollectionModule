@@ -101,7 +101,7 @@ async function createUserHandler(req, res, next) {
     const payload = req.body;
 
     // Add user info from authenticated request
-    payload.insby = req.user?.userId || 'system';
+    payload.insby = 'system';
     payload.mode = 1; // New user mode
 
     const result = await createUserService(payload);

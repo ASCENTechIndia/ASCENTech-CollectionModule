@@ -16,6 +16,7 @@ const FrmUserCreation = () => {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
     reset,
   } = useForm({
@@ -31,7 +32,7 @@ const FrmUserCreation = () => {
       branch: "",
       productCategorisation: "",
       collectionTeam: "",
-      userDevice: "",
+      userDevice: "1",
       userIdProof: "",
       uploadIdProof: "",
       idProofNo: "",
@@ -39,7 +40,6 @@ const FrmUserCreation = () => {
       userRole: "",
       employerName: "",
       companyCode: "",
-      assetOwner: "",
     },
   });
 
@@ -53,7 +53,6 @@ const FrmUserCreation = () => {
   const [employerNameDropdown, setEmployerNameDropdown] = useState([]);
   const [companyCodeDropdown, setCompanyCodeDropdown] = useState([]);
   const [branchDropdown, setBranchDropdown] = useState([]);
-  const [assetOwnerDropdown, setAssetOwnerDropdown] = useState([]);
 
   const onSubmit = async (values) => {
     try {
@@ -63,38 +62,38 @@ const FrmUserCreation = () => {
         firstname: values.firstName || "",
         lastname: values.lastName || "",
         userid: values.userId || "",
-        
+
         // Contact Information
         mobno: values.mobileNumber || "",
         email: values.emailId || "",
         dob: values.dob || "",
-        
+
         // Identification
         prooftype: Number(values.userIdProof) || 0,
         proofno: values.idProofNo || "",
-        
+
         // Employment
         empcode: values.employeeCode || "",
         desgid: Number(values.userDesignation) || 0,
         workid: Number(values.workingFor) || 0,
         empid: values.employerName ? Number(values.employerName) : null,
-        
+
         // Organization
         brid: Number(values.branch) || 0,
         compcode: Number(values.companyCode) || 0,
         collectionid: Number(values.collectionTeam) || 0,
         categoryid: Number(values.productCategorisation) || 0,
-        
+
         // Access Control
         usertypeid: Number(values.userDevice) || 0,
         roleid: Number(values.userRole) || 0,
-        
+
         // Status & Metadata
         status: "A", // Active
         mode: 1, // New user mode
         compid: 0, // Company ID
         requeststatus: "A", // Request status
-        
+
         // Note: insby will be set by API from authenticated user context
       };
 
@@ -209,7 +208,7 @@ const FrmUserCreation = () => {
       if (res?.employer?.length) {
         setEmployerNameDropdown(
           res.employer.map((item, idx) => ({
-            value: item.name,
+            value: item.id,
             label: item.name,
           })),
         );
@@ -221,13 +220,6 @@ const FrmUserCreation = () => {
           res.companyCode.map((item) => ({ value: item.id, label: item.name })),
         );
       } else setCompanyCodeDropdown([]);
-
-      // Asset Owner
-      if (res?.assetOwner?.length) {
-        setAssetOwnerDropdown(
-          res.assetOwner.map((item) => ({ value: item.id, label: item.name })),
-        );
-      } else setAssetOwnerDropdown([]);
     } catch (error) {
       console.error(error);
       showError(error.message || "Failed to fetch form options");
@@ -240,7 +232,6 @@ const FrmUserCreation = () => {
       setUserIdProofDropdown([]);
       setEmployerNameDropdown([]);
       setCompanyCodeDropdown([]);
-      setAssetOwnerDropdown([]);
     } finally {
       setLoadingDropdown(false);
     }
@@ -260,6 +251,17 @@ const FrmUserCreation = () => {
       fetchBranches();
     }
   }, [branchCategory, userLevel]);
+
+  useEffect(() => {
+    if (userDeviceDropdown.length > 0) {
+      setValue("userDevice", "1", { shouldValidate: false });
+    }
+  }, [userDeviceDropdown]);
+  useEffect(() => {
+    if (userRoleDropdown.length > 0) {
+      setValue("userRole", "1", { shouldValidate: false });
+    }
+  }, [userRoleDropdown]);
 
   return (
     <>
@@ -521,27 +523,6 @@ const FrmUserCreation = () => {
                     {errors.employerName && (
                       <div className="invalid-feedback">
                         {errors.employerName.message}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Asset Owner */}
-                  <div className="mb-3">
-                    <label className="form-label">Asset Owner</label>
-                    <select
-                      {...register("assetOwner")}
-                      className={`form-select ${errors.assetOwner ? "is-invalid" : ""}`}
-                    >
-                      <option value="">-- Select Option --</option>
-                      {assetOwnerDropdown.map((item) => (
-                        <option value={item.value} key={item.value}>
-                          {item.label}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.assetOwner && (
-                      <div className="invalid-feedback">
-                        {errors.assetOwner.message}
                       </div>
                     )}
                   </div>
