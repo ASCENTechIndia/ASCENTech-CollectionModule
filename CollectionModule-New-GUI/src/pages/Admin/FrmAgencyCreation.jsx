@@ -5,7 +5,7 @@ import { useNotification } from '../../context/useNotification';
 import { useLoader } from '../../context/LoaderContext';
 
 const FrmAgencyCreation = () => {
-  const { showSuccess, showError } = useNotification();
+  const { showSuccess, showError, showWarning } = useNotification();
   const { setLoader } = useLoader();
 
   const {
@@ -20,8 +20,8 @@ const FrmAgencyCreation = () => {
       agencyName: '',
       stateID: '',
       districtID: '',
-      villageName: '',
-      products: '0',
+      cityName: '',
+      products: '',
       productOptions: [],
       smaBucket: [],
       address: '',
@@ -30,6 +30,7 @@ const FrmAgencyCreation = () => {
 
   const [states, setStates] = useState([]);
   const [districts, setDistricts] = useState([]);
+  const [productOptions, setProductOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingInitial, setLoadingInitial] = useState(true);
 
@@ -37,99 +38,160 @@ const FrmAgencyCreation = () => {
   const selectedProductOptions = watch('productOptions');
 
   // Product options mapping
-  const productOptionsMap = {
-    '0': [],
-    '1': [
-      { value: 'Office', label: 'Office' },
-      { value: 'Shop', label: 'Shop' },
-      { value: 'Mall', label: 'Mall' },
-    ],
-    '2': [
-      { value: 'House', label: 'House' },
-      { value: 'Flat', label: 'Flat' },
-      { value: 'Bungalow', label: 'Bungalow' },
-    ],
-    '3': [
-      { value: 'Truck', label: 'Truck' },
-      { value: 'Bus', label: 'Bus' },
-      { value: 'Taxi', label: 'Taxi' },
-    ],
-  };
+  // const productOptionsMap = {
+  //   '0': [],
+  //   '1': [
+  //     { value: 'Office', label: 'Office' },
+  //     { value: 'Shop', label: 'Shop' },
+  //     { value: 'Mall', label: 'Mall' },
+  //   ],
+  //   '2': [
+  //     { value: 'House', label: 'House' },
+  //     { value: 'Flat', label: 'Flat' },
+  //     { value: 'Bungalow', label: 'Bungalow' },
+  //   ],
+  //   '3': [
+  //     { value: 'Truck', label: 'Truck' },
+  //     { value: 'Bus', label: 'Bus' },
+  //     { value: 'Taxi', label: 'Taxi' },
+  //   ],
+  // };
 
-  const smaOptions = [
-    { value: 'ALL SMA', label: 'ALL SMA' },
-    { value: 'SMA0', label: 'SMA0' },
-    { value: 'SMA1', label: 'SMA1' },
-    { value: 'SMA2', label: 'SMA2' },
-  ];
+  const [smaOptions, setSMAOptions] = useState([]);
 
   // Fetch states on component mount
-  // useEffect(() => {
-  //   const fetchStates = async () => {
-  //     try {
-  //       setLoadingInitial(true);
-  //       const response = await apiClient.get('/agency/states');
+  useEffect(() => {
+    const fetchStates = async () => {
+      try {
+        setLoader(true);
+        const response = await apiClient.get('/agency-creation/states');
+        if (response?.length > 0) {
+          setStates(response);
+        } else {
+          showError('Failed to load states');
+        }
+      } catch (error) {
+        console.error(error);
+        showError(error?.message || 'Failed to load states');
+      } finally {
+        setLoader(false);
+      }
+    };
 
-  //       if (response?.success && response?.data) {
-  //         setStates(response.data);
-  //       } else {
-  //         showError('Failed to load states');
-  //       }
-  //     } catch (error) {
-  //       console.error(error);
-  //       showError(error?.message || 'Failed to load states');
-  //     } finally {
-  //       setLoadingInitial(false);
-  //     }
-  //   };
+    const fetchSMAOptions = async () => {
+      try {
+        setLoader(true);
 
-  //   fetchStates();
-  // }, []);
+        const response = await apiClient.get(`/agency-creation/sma-buckets`);
+
+        if (response.length > 0) {
+          setSMAOptions(response);
+        } else {
+          showWarning("Failed to fetch SMA options");
+          setSMAOptions([]);
+        }
+      } catch (error) {
+        console.error(error);
+        showError(
+          error?.response?.data?.message ||
+          error?.message ||
+          "Failed to fetch SMA options",
+        );
+        setSMAOptions([]);
+      } finally {
+        setLoader(false);
+      }
+    }
+
+    fetchStates();
+    fetchSMAOptions();
+  }, []);
 
   // Fetch districts when state changes
   const selectedState = watch('stateID');
-  // useEffect(() => {
-  //   const fetchDistricts = async () => {
-  //     if (selectedState) {
-  //       try {
-  //         const response = await apiClient.get('/agency/districts', {
-  //           params: { stateID: selectedState },
-  //         });
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      if (selectedState) {
+        try {
+          const response = await apiClient.get(`/agency-creation/districts?stateId=${selectedState}`, {
+            params: { stateID: selectedState },
+          });
 
-  //         if (response?.success && response?.data) {
-  //           setDistricts(response.data);
-  //         } else {
-  //           setDistricts([]);
-  //         }
-  //       } catch (error) {
-  //         console.error(error);
-  //         setDistricts([]);
-  //       }
-  //     } else {
-  //       setDistricts([]);
-  //     }
-  //   };
+          if (response?.length > 0) {
+            setDistricts(response);
+          } else {
+            setDistricts([]);
+          }
+        } catch (error) {
+          console.error(error);
+          showError(
+            error?.response?.data?.message ||
+            error?.message ||
+            "Failed to fetch districts options",
+          );
+          setDistricts([]);
+        }
+      } else {
+        setDistricts([]);
+      }
+    };
 
-  //   fetchDistricts();
-  // }, [selectedState]);
+    fetchDistricts();
+  }, [selectedState]);
+
+  useEffect(() => {
+    const fetchProductOptions = async () => {
+      if (selectedProduct) {
+        try {
+          setLoader(true);
+          const response = await apiClient.get(`/agency-creation/product-options`, {
+            params: { mainProduct: Number(selectedProduct) },
+          });
+
+          if (response?.length > 0) {
+            setProductOptions(response);
+          } else {
+            setProductOptions([]);
+          }
+        } catch (error) {
+          console.error(error);
+          setProductOptions([]);
+          showError(
+            error?.response?.data?.message ||
+            error?.message ||
+            "Failed to fetch product options",
+          );
+        } finally {
+          setLoader(false);
+        }
+      } else {
+        setProductOptions([]);
+      }
+    }
+
+    fetchProductOptions();
+  }, [selectedProduct]);
 
   const onSubmit = async (values) => {
     try {
-      setLoader(true);
-      setLoading(true);
+      // setLoader(true);
+      // setLoading(true);
 
       // Prepare payload
       const payload = {
         agencyName: values.agencyName,
         stateID: parseInt(values.stateID),
         districtID: parseInt(values.districtID),
-        villageName: values.villageName,
+        cityName: values.cityName,
         address: values.address,
         products: (values.productOptions || []).join(','),
         smaBucket: (values.smaBucket || []).join(','),
       };
 
-      const response = await apiClient.post('/agency', payload);
+      console.log(payload);
+      return;
+
+      const response = await apiClient.post('/agency-creation/create', payload);
 
       if (response?.success) {
         showSuccess('Agency created successfully!');
@@ -175,7 +237,7 @@ const FrmAgencyCreation = () => {
             <div className="row g-3">
               {/* Agency Name */}
               <div className="col-12 col-md-6">
-                <label className="form-label">Agency Name *</label>
+                <label className="form-label">Agency Name <span className='text-danger'>*</span></label>
                 <input
                   type="text"
                   className={`form-control ${errors.agencyName ? 'is-invalid' : ''}`}
@@ -183,8 +245,8 @@ const FrmAgencyCreation = () => {
                   {...register('agencyName', {
                     required: 'Agency Name is required',
                     minLength: {
-                      value: 2,
-                      message: 'Agency Name must be at least 2 characters',
+                      value: 3,
+                      message: 'Agency Name must be at least 3 characters',
                     },
                   })}
                 />
@@ -195,7 +257,7 @@ const FrmAgencyCreation = () => {
 
               {/* State */}
               <div className="col-12 col-md-6">
-                <label className="form-label">Select State *</label>
+                <label className="form-label">Select State <span className='text-danger'>*</span></label>
                 <select
                   className={`form-select ${errors.stateID ? 'is-invalid' : ''}`}
                   {...register('stateID', {
@@ -204,8 +266,8 @@ const FrmAgencyCreation = () => {
                 >
                   <option value="">-- Select State --</option>
                   {states.map((state) => (
-                    <option key={state.STATEID} value={state.STATEID}>
-                      {state.STATENAME}
+                    <option key={state.id} value={state.id}>
+                      {state.name}
                     </option>
                   ))}
                 </select>
@@ -216,7 +278,7 @@ const FrmAgencyCreation = () => {
 
               {/* District */}
               <div className="col-12 col-md-6">
-                <label className="form-label">Select District *</label>
+                <label className="form-label">Select District <span className='text-danger'>*</span></label>
                 <select
                   className={`form-select ${errors.districtID ? 'is-invalid' : ''}`}
                   {...register('districtID', {
@@ -226,8 +288,8 @@ const FrmAgencyCreation = () => {
                 >
                   <option value="">-- Select District --</option>
                   {districts.map((district) => (
-                    <option key={district.DISTRICTID} value={district.DISTRICTID}>
-                      {district.DISTRICTNAME}
+                    <option key={district.id} value={district.id}>
+                      {district.name}
                     </option>
                   ))}
                 </select>
@@ -238,30 +300,30 @@ const FrmAgencyCreation = () => {
 
               {/* Agency City/Village */}
               <div className="col-12 col-md-6">
-                <label className="form-label">Agency City *</label>
+                <label className="form-label">Agency City <span className='text-danger'>*</span></label>
                 <input
                   type="text"
-                  className={`form-control ${errors.villageName ? 'is-invalid' : ''}`}
+                  className={`form-control ${errors.cityName ? 'is-invalid' : ''}`}
                   placeholder="Enter city/village name"
-                  {...register('villageName', {
+                  {...register('cityName', {
                     required: 'City/Village is required',
                   })}
                 />
-                {errors.villageName && (
-                  <div className="invalid-feedback d-block">{errors.villageName.message}</div>
+                {errors.cityName && (
+                  <div className="invalid-feedback d-block">{errors.cityName.message}</div>
                 )}
               </div>
 
               {/* Agency Products */}
               <div className="col-12 col-md-6">
-                <label className="form-label">Agency Products *</label>
+                <label className="form-label">Agency Products <span className='text-danger'>*</span></label>
                 <select
                   className={`form-select ${errors.products ? 'is-invalid' : ''}`}
                   {...register('products', {
                     required: 'Product category is required',
                   })}
                 >
-                  <option value="0">-- Select Main Product --</option>
+                  <option value="">-- Select Main Product --</option>
                   <option value="1">Commercial</option>
                   <option value="2">Non Commercial</option>
                   <option value="3">Transport</option>
@@ -273,10 +335,10 @@ const FrmAgencyCreation = () => {
 
               {/* Product Options (Checkboxes) */}
               <div className="col-12 col-md-6">
-                <label className="form-label">Select Options *</label>
+                <label className="form-label">Select Options <span className='text-danger'>*</span></label>
                 <div className={`border rounded p-3 ${errors.productOptions ? 'border-danger' : ''}`}>
-                  {productOptionsMap[selectedProduct]?.length > 0 ? (
-                    productOptionsMap[selectedProduct].map((option) => (
+                  {productOptions?.length > 0 ? (
+                    productOptions.map((option) => (
                       <div key={option.value} className="form-check">
                         <input
                           type="checkbox"
@@ -286,7 +348,7 @@ const FrmAgencyCreation = () => {
                           {...register('productOptions')}
                         />
                         <label className="form-check-label" htmlFor={`option-${option.value}`}>
-                          {option.label}
+                          {option.name}
                         </label>
                       </div>
                     ))
@@ -301,19 +363,19 @@ const FrmAgencyCreation = () => {
 
               {/* SMA Bucket */}
               <div className="col-12 col-md-6">
-                <label className="form-label">Select SMA Bucket *</label>
+                <label className="form-label">Select SMA Bucket <span className='text-danger'>*</span></label>
                 <div className={`border rounded p-3 ${errors.smaBucket ? 'border-danger' : ''}`}>
                   {smaOptions.map((option) => (
-                    <div key={option.value} className="form-check">
+                    <div key={option.id} className="form-check">
                       <input
                         type="checkbox"
                         className="form-check-input"
-                        id={`sma-${option.value}`}
-                        value={option.value}
+                        id={`sma-${option.id}`}
+                        value={option.id}
                         {...register('smaBucket')}
                       />
-                      <label className="form-check-label" htmlFor={`sma-${option.value}`}>
-                        {option.label}
+                      <label className="form-check-label" htmlFor={`sma-${option.id}`}>
+                        {option.name}
                       </label>
                     </div>
                   ))}
@@ -325,7 +387,7 @@ const FrmAgencyCreation = () => {
 
               {/* Agency Address */}
               <div className="col-12">
-                <label className="form-label">Agency Address *</label>
+                <label className="form-label">Agency Address <span className='text-danger'>*</span></label>
                 <textarea
                   className={`form-control ${errors.address ? 'is-invalid' : ''}`}
                   placeholder="Enter agency address"
