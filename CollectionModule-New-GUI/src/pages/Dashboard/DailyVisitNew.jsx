@@ -880,7 +880,6 @@ const DailyVisitNew = () => {
               </div>
             </div>
           </div>
-          {console.log(dashboardData)}
           <div className="col-12 col-md-4 d-flex">
             <div className="card w-100 h-100">
               <div className="card-header">

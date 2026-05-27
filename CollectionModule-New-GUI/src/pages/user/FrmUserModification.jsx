@@ -34,7 +34,6 @@ const FrmUserModification = () => {
     try {
       const response = await apiClient.get(`/users/search-by-userid?userId=${userId}`)
       if (response?.success) {
-        console.log("hearch res :", response)
         setUserDetails(response.data)
         setValue('userName', response.data.userName)
         setValue('userCurrentStatus', response.data.currentStatus)
@@ -63,7 +62,6 @@ const FrmUserModification = () => {
         insBy: webUserId,
       }
       const response = await apiClient.post('/users/modify-status-submit', payload)
-      console.log("response :", response)
       if (response.success && response.data.out_ErrorCode === -100) {
         showSuccess(response.data.out_ErrorMsg || 'User status updated successfully')
         setOpenModifyStatusModal(false)

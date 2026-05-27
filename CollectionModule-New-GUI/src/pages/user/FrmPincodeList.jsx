@@ -46,7 +46,6 @@ const FrmPincodeList = () => {
       const response = await apiClient.get(
         "/assignPincode/fetchAllPincodesList",
       );
-      console.log(response);
 
       if (
         response.success &&
@@ -96,8 +95,6 @@ const FrmPincodeList = () => {
         data: payload,
       }
     );
-
-    console.log(response);
 
     if (
       response?.data?.success ||

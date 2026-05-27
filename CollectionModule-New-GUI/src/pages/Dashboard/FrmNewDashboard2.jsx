@@ -286,8 +286,6 @@ const FrmNewDashboard2 = () => {
 
             const response = await apiClient.get(`/disposition-dashboard/report?month=${month}&year=${year}&userId=${userNo}&brCategory=${brCategory}&userOf=${userOf ?? 0}`, {});
 
-            console.log(response);
-
             if (response.success) {
                 setAgentChartData({
                     labels: response.data.chart1.labels,

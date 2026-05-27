@@ -321,7 +321,6 @@ function FrmUserRouteReport() {
       const apiCoordinates = getCoordinates(apiData?.coordinates);
 
       if (success && apiRows.length > 0) {
-        console.log("api rows :", apiRows);
         setRows(apiRows);
         setCoordinates(apiCoordinates);
         showSuccess(`Found ${apiRows.length} records`);
