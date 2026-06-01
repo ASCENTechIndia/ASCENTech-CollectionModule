@@ -38,8 +38,11 @@ const FrmUserCreationWeb = () => {
 
   const navigate = useNavigate();
   const { user } = useAuth();
+  console.log("usre :", user)
+  const userId = user?.id;
   const { showError, showSuccess } = useNotification();
   const userName = user?.userName;
+  const branchCategory = user?.brCategory;
 
   const [loadingDropdown, setLoadingDropdown] = useState(false);
   const [branchOptions, setBranchOptions] = useState([]);
@@ -72,6 +75,29 @@ const FrmUserCreationWeb = () => {
       console.error(error);
       setBranchOptions([]);
       showError(error?.message || "Failed to load branches");
+    }
+  };
+
+  // Fetch User Roles
+  const fetchUserRoles = async () => {
+    try {
+      const response = await apiClient.get(
+        `/web-creation/roles?branchCategory=${branchCategory}`,
+      );
+      if (response?.success && Array.isArray(response.data)) {
+        const roles = response.data.map((item) => ({
+          label: item.name,
+          value: item.id,
+        }));
+        setRoleOptions(roles);
+      } else {
+        setRoleOptions([]);
+        showError("User roles not available");
+      }
+    } catch (error) {
+      console.error(error);
+      setRoleOptions([]);
+      showError(error?.message || "Failed to load user roles");
     }
   };
 
@@ -158,16 +184,6 @@ const FrmUserCreationWeb = () => {
           })),
         );
       } else setDeviceOptions([]);
-
-      // User Role
-      if (response?.userRole?.length) {
-        setRoleOptions(
-          response.userRole.map((item) => ({
-            value: item.id,
-            label: item.name,
-          })),
-        );
-      } else setRoleOptions([]);
     } catch (error) {
       console.error("Error fetching form options:", error);
       setWorkingForOptions([]);
@@ -182,50 +198,84 @@ const FrmUserCreationWeb = () => {
     }
   };
 
+  const formatDateToDMY = (dateStr) => {
+    if (!dateStr || typeof dateStr !== "string") return "";
+
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    // Split the string by the hyphen ("YYYY-MM-DD")
+    const parts = dateStr.split("-");
+    if (parts.length !== 3) return dateStr; // Fallback if input format is wrong
+
+    const year = parts[0];
+    const monthIndex = parseInt(parts[1], 10) - 1; // Subtract 1 for zero-indexed array
+    const day = parts[2]; // Keeps the leading zero intact (e.g., "05")
+
+    // Safety check for valid month numbers
+    if (monthIndex < 0 || monthIndex > 11) return dateStr;
+
+    return `${day}-${months[monthIndex]}-${year}`;
+  };
+
   const onSubmit = async (values) => {
     try {
       // Map React form values to API payload structure
-      const payload = {
+      let payload = {
         // User Details
         userid: values.userId || "",
         firstname: values.firstName.trim() || "",
         lastname: values.lastName.trim() || "",
-        
+
         // Contact Information
         mobno: values.mobileNumber || "",
         email: values.emailId || "",
-        dob: values.dob || "",
-        
+        dob: formatDateToDMY(values.dob) || "",
+
         // Identification
         prooftype: Number(values.userIdProof) || 0,
         proofno: values.idProofNo || "",
-        
+
         // Employment
         empcode: values.employeeCode || "",
         desgid: Number(values.userDesignation) || 0,
         workid: Number(values.workingFor) || 0,
         empid: values.employerName ? Number(values.employerName) : null,
-        
+
         // Organization
         brid: Number(values.branch) || 0,
         compcode: Number(values.companyCode) || 0,
         collectionid: Number(values.collectionTeam) || 0,
         categoryid: Number(values.productCategorisation) || 0,
-        
+
         // Access Control
         usertypeid: Number(values.userDevice) || 0,
         roleid: Number(values.userRole) || 0,
-        
+
         // Status & Metadata
         status: "A", // Active
         mode: 1, // New user mode
         compid: 0, // Company ID
-        requeststatus: "A", // Request approval status
-        
-        // Note: insby will be set by API from authenticated user context
+        requeststatus: "A", // Request approval status`
+        insby: userId
       };
 
+      console.log("payload ", payload);
+
       const response = await apiClient.post("/web-creation/create", payload);
+      console.log("res :", response);
 
       if (response?.success) {
         showSuccess(response.message || "Web user created successfully");
@@ -247,7 +297,11 @@ const FrmUserCreationWeb = () => {
   useEffect(() => {
     const initializeDropdowns = async () => {
       setLoadingDropdown(true);
-      await Promise.all([fetchBranches(), fetchFormOptions()]);
+      await Promise.all([
+        fetchBranches(),
+        fetchUserRoles(),
+        fetchFormOptions(),
+      ]);
       setLoadingDropdown(false);
     };
     initializeDropdowns();
@@ -287,9 +341,10 @@ const FrmUserCreationWeb = () => {
                       User ID <span className="text-danger">*</span>
                     </label>
                     <input
-                      {...register("userId", {
-                        required: "User ID is required",
-                      })}
+                      {...register("userId")}
+                      // {...register("userId", {
+                      //   required: "User ID is required",
+                      // })}
                       className={`form-control ${errors.userId ? "is-invalid" : ""}`}
                     />
                     {errors.userId && (

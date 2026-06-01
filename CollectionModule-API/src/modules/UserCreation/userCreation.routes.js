@@ -53,7 +53,7 @@ router.get('/user-status', getUserStatusHandler);
 
 // Protected routes (auth required)
 router.post('/validate', authRequired, validate(createUserSchema), validateUserHandler);
-router.post('/create', validate(createUserSchema), createUserHandler);
+router.post('/create', authRequired, validate(createUserSchema), createUserHandler);
 router.put('/update', authRequired, validate(updateUserSchema), updateUserHandler);
 router.post('/upload-image', authRequired, upload.single('file'), uploadUserImageHandler);
 

@@ -41,7 +41,7 @@ async function getFormOptionsRepo(type = '') {
  */
 async function getBranchesWebRepo(branchCategory, userLevel) {
   const whereClause = branchCategory && userLevel ? ` WHERE compid = ${branchCategory}` : '';
-  const query = `SELECT branchname as name, brid as id, branchcode as code FROM branchlist_Tata${whereClause} ORDER BY branchname`;
+  const query = `SELECT branchname as name, brid as id, branchcode as code FROM branchlist${whereClause} ORDER BY branchname`;
   return executeQuery(query);
 }
 
@@ -178,7 +178,11 @@ async function createWebUserRepo(payload) {
     Out_ErrorMsg: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 10000 },
   };
 
+  console.log("bind payload :", binds)
+
   const result = await executeProcedure({ statement, binds, useTx: false });
+
+  console.log("resultss :", result)
   return result.outBinds;
 }
 
@@ -288,15 +292,36 @@ async function getEmployerListRepo() {
 /**
  * Validate ID proof format based on type
  */
+// function validateIdProofFormat(proofType, proofNo) {
+//   const idProofTypes = {
+//     1: { name: 'PAN', regex: /^([a-zA-Z]){5}([0-9]){4}([a-zA-Z]){1}$/ },
+//     2: { name: 'Aadhaar', regex: /^[0-9]{12}$/ },
+//     3: { name: 'Passport', regex: /^([a-zA-Z]){1}([0-9]){7}$/ },
+//   };
+
+//   if (!idProofTypes[proofType]) {
+//     return { valid: false, message: 'Invalid proof type' };
+//   }
+
+//   const type = idProofTypes[proofType];
+//   if (!type.regex.test(proofNo)) {
+//     return { valid: false, message: `Invalid ${type.name} format` };
+//   }
+
+//   return { valid: true, message: 'Valid proof format' };
+// }
 function validateIdProofFormat(proofType, proofNo) {
   const idProofTypes = {
-    1: { name: 'PAN', regex: /^([a-zA-Z]){5}([0-9]){4}([a-zA-Z]){1}$/ },
-    2: { name: 'Aadhaar', regex: /^[0-9]{12}$/ },
-    3: { name: 'Passport', regex: /^([a-zA-Z]){1}([0-9]){7}$/ },
+    1: { name: "PAN", regex: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/ },
+    2: { name: "Driving License", regex: /^[A-Z]{2}[0-9]{13}$/ },
+    3: { name: "Voter ID", regex: /^[A-Z]{3}[0-9]{7}$/ },
+    4: { name: "Aadhar", regex: /^[0-9]{12}$/ }, 
+    5: { name: "Passport", regex: /^[A-Z]{1}[0-9]{7}$/ },
+    6: { name: "Bank Statement", regex: /^[A-Za-z0-9]{8,20}$/ }, 
   };
 
   if (!idProofTypes[proofType]) {
-    return { valid: false, message: 'Invalid proof type' };
+    return { valid: false, message: "Invalid proof type" };
   }
 
   const type = idProofTypes[proofType];
@@ -304,7 +329,7 @@ function validateIdProofFormat(proofType, proofNo) {
     return { valid: false, message: `Invalid ${type.name} format` };
   }
 
-  return { valid: true, message: 'Valid proof format' };
+  return { valid: true, message: "Valid proof format" };
 }
 
 /**

@@ -1,3 +1,4 @@
+
 const { executeQuery } = require('../../../db/queryExecutor');
 
 function normalizeUserId(userId) {

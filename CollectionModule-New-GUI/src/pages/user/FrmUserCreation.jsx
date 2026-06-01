@@ -8,6 +8,8 @@ import { useAuth } from "../../context/AuthContext";
 
 const FrmUserCreation = () => {
   const { user } = useAuth();
+  console.log("user :", user);
+  const userId = user?.id;
   const branchCategory = user?.compId;
   const userLevel = user?.desgName;
   const navigate = useNavigate();
@@ -54,6 +56,38 @@ const FrmUserCreation = () => {
   const [companyCodeDropdown, setCompanyCodeDropdown] = useState([]);
   const [branchDropdown, setBranchDropdown] = useState([]);
 
+  const formatDateToDMY = (dateStr) => {
+    if (!dateStr || typeof dateStr !== "string") return "";
+
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    // Split the string by the hyphen ("YYYY-MM-DD")
+    const parts = dateStr.split("-");
+    if (parts.length !== 3) return dateStr; // Fallback if input format is wrong
+
+    const year = parts[0];
+    const monthIndex = parseInt(parts[1], 10) - 1; // Subtract 1 for zero-indexed array
+    const day = parts[2]; // Keeps the leading zero intact (e.g., "05")
+
+    // Safety check for valid month numbers
+    if (monthIndex < 0 || monthIndex > 11) return dateStr;
+
+    return `${day}-${months[monthIndex]}-${year}`;
+  };
+
   const onSubmit = async (values) => {
     try {
       // Map React form values to API payload structure
@@ -66,7 +100,7 @@ const FrmUserCreation = () => {
         // Contact Information
         mobno: values.mobileNumber || "",
         email: values.emailId || "",
-        dob: values.dob || "",
+        dob: formatDateToDMY(values.dob) || "",
 
         // Identification
         prooftype: Number(values.userIdProof) || 0,
@@ -93,8 +127,7 @@ const FrmUserCreation = () => {
         mode: 1, // New user mode
         compid: 0, // Company ID
         requeststatus: "A", // Request status
-
-        // Note: insby will be set by API from authenticated user context
+        insby: userId,
       };
 
       const res = await apiClient.post("/user-creation/create", payload);
@@ -118,6 +151,7 @@ const FrmUserCreation = () => {
 
   // Fetch branches
   const fetchBranches = async () => {
+    console.log("category :", branchCategory, userLevel);
     if (!branchCategory || !userLevel) {
       showWarning("Branch category id or user level id is not set");
       return;
@@ -126,6 +160,7 @@ const FrmUserCreation = () => {
       const response = await apiClient.get(
         `/user-creation/branches?branchCategory=${branchCategory}&userLevel=${userLevel}`,
       );
+      console.log("resp branch:", response);
       if (response?.success && Array.isArray(response.data)) {
         const options = response.data.map((item) => ({
           value: item.id,
@@ -247,6 +282,7 @@ const FrmUserCreation = () => {
   }, []);
 
   useEffect(() => {
+    console.log("branch ", branchCategory, userLevel);
     if (branchCategory && userLevel) {
       fetchBranches();
     }

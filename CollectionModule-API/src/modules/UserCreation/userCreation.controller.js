@@ -98,12 +98,14 @@ async function validateUserHandler(req, res, next) {
  */
 async function createUserHandler(req, res, next) {
   try {
-    const payload = req.body;
+    console.log("running this file")
+    let payload = req.body;
 
     // Add user info from authenticated request
-    payload.insby = 'system';
+    // payload.insby = req.user?.userId || 'system';
     payload.mode = 1; // New user mode
 
+    console.log("mobile payload :", payload)
     const result = await createUserService(payload);
 
     const auditData = {

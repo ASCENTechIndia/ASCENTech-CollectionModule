@@ -164,7 +164,6 @@ async function createWebUserHandler(req, res, next) {
     const payload = req.body;
 
     // Add user info from authenticated request
-    payload.insby = req.user?.userId || 'system';
     payload.mode = 1; // New user mode
 
     const result = await createWebUserService(payload);

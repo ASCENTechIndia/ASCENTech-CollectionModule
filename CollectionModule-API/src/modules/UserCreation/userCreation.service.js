@@ -9,7 +9,7 @@ const {
   calculateAge,
   checkUserAuthorizationRepo,
 } = require('./userCreation.repo');
-const AppError = require('../../utils/app-error');
+const {AppError} = require('../../utils/app-error');
 
 /**
  * Get all form options for user creation
@@ -200,9 +200,10 @@ async function createUserService(payload) {
       data: result,
     };
   } catch (error) {
-    throw error instanceof AppError
-      ? error
-      : new AppError(`User creation failed: ${error.message}`, 400);
+    throw new AppError(`User creation failed: ${error.message}`, 400);
+    // throw error instanceof AppError
+    //   ? error
+    //   : new AppError(`User creation failed: ${error.message}`, 400);
   }
 }
 

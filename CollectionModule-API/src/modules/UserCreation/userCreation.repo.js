@@ -43,7 +43,7 @@ async function getFormOptionsRepo(type = '') {
  */
 async function getBranchesRepo(branchCategory, userLevel) {
   const whereClause = branchCategory && userLevel ? ` WHERE compid = ${branchCategory}` : '';
-  const query = `SELECT branchname as name, brid as id, branchcode as code FROM branchlist_Tata${whereClause} ORDER BY branchname`;
+  const query = `SELECT branchname as name, brid as id, branchcode as code FROM branchlist${whereClause} ORDER BY branchname`;
   return executeQuery(query);
 }
 
@@ -93,7 +93,7 @@ async function getUserDetailsByIdRepo(userId) {
 async function createUserRepo(payload) {
   const statement = `
     BEGIN
-      aoup_user_ins_New_tata(
+      aoup_user_ins_New(
         :in_brid,
         :in_userid,
         :in_username,
@@ -125,7 +125,7 @@ async function createUserRepo(payload) {
       );
     END;
   `;
-
+  
   const binds = {
     in_brid: payload.brid,
     in_userid: normalizeNullable(payload.userid),
@@ -156,6 +156,8 @@ async function createUserRepo(payload) {
     Out_errorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
     Out_ErrorMsg: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 10000 },
   };
+
+  console.log("bind pyalod :", binds)
 
   const result = await executeProcedure({ statement, binds, useTx: false });
   return result.outBinds;
@@ -261,9 +263,12 @@ async function uploadUserImageRepo(userId, imageData, imageType, imagePosition =
  */
 function validateIdProofFormat(proofType, proofNo) {
   const idProofTypes = {
-    1: { name: 'PAN', regex: /^([a-zA-Z]){5}([0-9]){4}([a-zA-Z]){1}$/ },
-    2: { name: 'Aadhaar', regex: /^[0-9]{12}$/ },
-    3: { name: 'Passport', regex: /^([a-zA-Z]){1}([0-9]){7}$/ },
+    1: { name: "PAN", regex: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/ },
+    2: { name: "Driving License", regex: /^[A-Z]{2}[0-9]{13}$/ },
+    3: { name: "Voter ID", regex: /^[A-Z]{3}[0-9]{7}$/ },
+    4: { name: "Aadhar", regex: /^[0-9]{12}$/ }, 
+    5: { name: "Passport", regex: /^[A-Z]{1}[0-9]{7}$/ },
+    6: { name: "Bank Statement", regex: /^[A-Za-z0-9]{8,20}$/ }, 
   };
 
   if (!idProofTypes[proofType]) {

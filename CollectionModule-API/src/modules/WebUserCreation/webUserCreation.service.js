@@ -11,7 +11,7 @@ const {
   validateIdProofFormat,
   calculateAge,
 } = require('./webUserCreation.repo');
-const AppError = require('../../utils/app-error');
+const { AppError } = require("../../utils/app-error.js")
 
 /**
  * Get all form options for web user creation
@@ -237,10 +237,13 @@ async function validateWebUserInputService(payload) {
 async function createWebUserService(payload) {
   try {
     // Validate input
+    console.log("payloadd :", payload)
     await validateWebUserInputService(payload);
 
     // Create user via stored procedure
     const result = await createWebUserRepo(payload);
+
+    console.log("service file result :", result)
 
     if (!result) {
       throw new AppError('Failed to create user', 400);
@@ -248,7 +251,7 @@ async function createWebUserService(payload) {
 
     const isSuccess = String(result.Out_errorCode) === '-100';
     if (!isSuccess) {
-      throw new AppError(result.Out_ErrorMsg || 'User creation failed', 400);
+      return new AppError(result.Out_ErrorMsg || 'User creation failed', 400);
     }
 
     return {
@@ -258,9 +261,11 @@ async function createWebUserService(payload) {
       data: result,
     };
   } catch (error) {
-    throw error instanceof AppError
-      ? error
-      : new AppError(`User creation failed: ${error.message}`, 400);
+    console.log("errur :", error)
+    throw new AppError(`User creation failed: ${error.message}`, 400);
+    // throw error instanceof AppError
+    //   ? error
+    //   : new AppError(`User creation failed: ${error.message}`, 400);
   }
 }
 
