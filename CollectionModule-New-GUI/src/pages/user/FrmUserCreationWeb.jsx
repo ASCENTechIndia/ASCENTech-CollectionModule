@@ -38,6 +38,7 @@ const FrmUserCreationWeb = () => {
 
   const navigate = useNavigate();
   const { user } = useAuth();
+  const brcategory = user?.brCategory;
   const { showError, showSuccess } = useNotification();
   const userName = user?.userName;
 
@@ -79,6 +80,8 @@ const FrmUserCreationWeb = () => {
   const fetchFormOptions = async () => {
     try {
       const response = await apiClient.get(`/web-creation/form-options`, {});
+      const rolesResponse = await apiClient.get(`/web-creation/roles?branchCategory=${brcategory}`);
+      console.log(response);
       // Working For
       if (response?.workingFor?.length) {
         setWorkingForOptions(
@@ -133,7 +136,7 @@ const FrmUserCreationWeb = () => {
       if (response?.employer?.length) {
         setEmployerNameOptions(
           response.employer.map((item, idx) => ({
-            value: item.name,
+            value: item.id,
             label: item.name,
           })),
         );
@@ -160,9 +163,9 @@ const FrmUserCreationWeb = () => {
       } else setDeviceOptions([]);
 
       // User Role
-      if (response?.userRole?.length) {
+      if (rolesResponse?.data?.length) {
         setRoleOptions(
-          response.userRole.map((item) => ({
+          rolesResponse.data.map((item) => ({
             value: item.id,
             label: item.name,
           })),
@@ -190,40 +193,43 @@ const FrmUserCreationWeb = () => {
         userid: values.userId || "",
         firstname: values.firstName.trim() || "",
         lastname: values.lastName.trim() || "",
-        
+
         // Contact Information
         mobno: values.mobileNumber || "",
         email: values.emailId || "",
         dob: values.dob || "",
-        
+
         // Identification
         prooftype: Number(values.userIdProof) || 0,
         proofno: values.idProofNo || "",
-        
+
         // Employment
         empcode: values.employeeCode || "",
         desgid: Number(values.userDesignation) || 0,
         workid: Number(values.workingFor) || 0,
         empid: values.employerName ? Number(values.employerName) : null,
-        
+
         // Organization
         brid: Number(values.branch) || 0,
         compcode: Number(values.companyCode) || 0,
         collectionid: Number(values.collectionTeam) || 0,
         categoryid: Number(values.productCategorisation) || 0,
-        
+
         // Access Control
         usertypeid: Number(values.userDevice) || 0,
         roleid: Number(values.userRole) || 0,
-        
+
         // Status & Metadata
         status: "A", // Active
         mode: 1, // New user mode
         compid: 0, // Company ID
         requeststatus: "A", // Request approval status
-        
+
         // Note: insby will be set by API from authenticated user context
       };
+
+      console.log(payload);
+      return;
 
       const response = await apiClient.post("/web-creation/create", payload);
 
@@ -238,8 +244,8 @@ const FrmUserCreationWeb = () => {
       console.error(error?.response?.data);
       showError(
         error?.response?.data?.message ||
-          error?.message ||
-          "Failed to create web user",
+        error?.message ||
+        "Failed to create web user",
       );
     }
   };

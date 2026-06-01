@@ -96,7 +96,8 @@ const FrmUserCreation = () => {
 
         // Note: insby will be set by API from authenticated user context
       };
-
+      console.log(payload);
+      return;
       const res = await apiClient.post("/user-creation/create", payload);
 
       if (res?.success) {
@@ -148,7 +149,7 @@ const FrmUserCreation = () => {
     setLoadingDropdown(true);
     try {
       const res = await apiClient.get("/user-creation/form-options");
-
+      console.log(res);
       // Working For
       if (res?.workingFor?.length) {
         setWorkingDropdown(
