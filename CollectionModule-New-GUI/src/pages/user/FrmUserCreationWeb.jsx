@@ -105,6 +105,8 @@ const FrmUserCreationWeb = () => {
   const fetchFormOptions = async () => {
     try {
       const response = await apiClient.get(`/web-creation/form-options`, {});
+      const rolesResponse = await apiClient.get(`/web-creation/roles?branchCategory=${brcategory}`);
+      console.log(response);
       // Working For
       if (response?.workingFor?.length) {
         setWorkingForOptions(
@@ -159,7 +161,7 @@ const FrmUserCreationWeb = () => {
       if (response?.employer?.length) {
         setEmployerNameOptions(
           response.employer.map((item, idx) => ({
-            value: item.name,
+            value: item.id,
             label: item.name,
           })),
         );
@@ -248,6 +250,7 @@ const FrmUserCreationWeb = () => {
         prooftype: Number(values.userIdProof) || 0,
         proofno: values.idProofNo || "",
 
+
         // Employment
         empcode: values.employeeCode || "",
         desgid: Number(values.userDesignation) || 0,
@@ -288,8 +291,8 @@ const FrmUserCreationWeb = () => {
       console.error(error?.response?.data);
       showError(
         error?.response?.data?.message ||
-          error?.message ||
-          "Failed to create web user",
+        error?.message ||
+        "Failed to create web user",
       );
     }
   };
