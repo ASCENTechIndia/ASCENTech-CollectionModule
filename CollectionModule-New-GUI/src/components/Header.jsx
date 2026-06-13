@@ -14,12 +14,12 @@ function Header({
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const lastLoginDate = user?.lastLogin
-    .toString()
-    .split("T")[0]
-    .split("-")
-    .reverse()
-    .join("-");
-  const lastLoginTime = user?.lastLogin.toString().split("T")[1].split(".")[0];
+  ? user.lastLogin.split("T")[0].split("-").reverse().join("-")
+  : "";
+
+const lastLoginTime = user?.lastLogin
+  ? user.lastLogin.split("T")[1].split(".")[0]
+  : "";
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const notificationPanelRef = useRef(null);

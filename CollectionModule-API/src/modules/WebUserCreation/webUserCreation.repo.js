@@ -40,9 +40,8 @@ async function getFormOptionsRepo(type = '') {
  * Get branches for web user creation based on category and user level
  */
 async function getBranchesWebRepo(branchCategory, userLevel) {
-  const whereClause = branchCategory && userLevel ? ` WHERE compid = ${branchCategory}` : '';
-  const query = `SELECT branchname as name, brid as id, branchcode as code FROM cls
-  ${whereClause} ORDER BY branchname`;
+ const whereClause = branchCategory && userLevel ? ` WHERE compid = ${branchCategory}` : '';
+  const query = `SELECT branchname as name, brid as id, branchcode as code FROM branchlist${whereClause} ORDER BY branchname`;
   return executeQuery(query);
 }
 

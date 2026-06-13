@@ -105,7 +105,7 @@ const FrmUserCreationWeb = () => {
   const fetchFormOptions = async () => {
     try {
       const response = await apiClient.get(`/web-creation/form-options`, {});
-      const rolesResponse = await apiClient.get(`/web-creation/roles?branchCategory=${brcategory}`);
+      const rolesResponse = await apiClient.get(`/web-creation/roles?branchCategory=${branchCategory}`);
       console.log(response);
       // Working For
       if (response?.workingFor?.length) {
