@@ -23,6 +23,8 @@ function AdminLayout() {
   const [userMenuManualOpen, setUserMenuManualOpen] = useState(false)
   const [pincodeMenuManualOpen, setPincodeMenuManualOpen] = useState(false)
   const [agencyMenuManualOpen, setAgencyMenuManualOpen] = useState(false)
+  const [companyMenuManualOpen, setCompanyMenuManualOpen] = useState(false)
+  const [fosMenuManualOpen, setFosMenuManualOpen] = useState(false)
   const [theme, setTheme] = useState(() => {
     const savedTheme = localStorage.getItem('theme')
 
@@ -85,6 +87,8 @@ function AdminLayout() {
   const userRouteActive = location.pathname.startsWith('/user')
   const pincodeRouteActive = location.pathname.startsWith('/pincode')
   const agencyRouteActive = location.pathname.startsWith('/admin') && location.pathname.includes('agency')
+  const companyRouteActive = location.pathname.startsWith('/admin') && location.pathname.includes('company')
+  const fosRouteActive = location.pathname.startsWith('/admin') && location.pathname.includes('fos')
 
   const authMenuOpen = authRouteActive || authMenuManualOpen
   const formsMenuOpen = formsRouteActive || formsMenuManualOpen
@@ -99,6 +103,8 @@ function AdminLayout() {
   const userMenuOpen = userRouteActive || userMenuManualOpen
   const pincodeMenuOpen = pincodeRouteActive || pincodeMenuManualOpen
   const agencyMenuOpen = agencyRouteActive || agencyMenuManualOpen
+  const companyMenuOpen = companyRouteActive || companyMenuManualOpen
+  const fosMenuOpen = fosRouteActive || fosMenuManualOpen
 
   const toggleSidebar = () => {
     // Debounce toggle to prevent rapid state changes during animations
@@ -180,6 +186,8 @@ function AdminLayout() {
         userMenuOpen={userMenuOpen}
         pincodeMenuOpen={pincodeMenuOpen}
         agencyMenuOpen={agencyMenuOpen}
+        companyMenuOpen={companyMenuOpen}
+        fosMenuOpen={fosMenuOpen}
         onToggleAuthMenu={() => setAuthMenuManualOpen((value) => !value)}
         onToggleFormsMenu={() => setFormsMenuManualOpen((value) => !value)}
         onToggleComponentsMenu={() => setComponentsMenuManualOpen((value) => !value)}
@@ -193,6 +201,8 @@ function AdminLayout() {
         onToggleUserMenu={() => setUserMenuManualOpen((value) => !value)}
         onTogglePincodeMenu={() => setPincodeMenuManualOpen((value) => !value)}
         onToggleAgencyMenu={() => setAgencyMenuManualOpen((value) => !value)}
+        onToggleCompanyMenu={() => setCompanyMenuManualOpen((value) => !value)}
+        onToggleFosMenu={() => setFosMenuManualOpen((value) => !value)}
         onCloseMobile={() => setMobileOpen(false)}
       />
 

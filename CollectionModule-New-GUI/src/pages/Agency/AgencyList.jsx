@@ -207,7 +207,7 @@ const AgencyList = () => {
               className="btn btn-primary btn-sm"
               onClick={() =>
                 navigate(
-                  "/masters/agency/create"
+                  "/admin/agency-creation2"
                 )
               }
             >

@@ -183,7 +183,7 @@ const FOSList = () => {
         <div className="page-header users-page-header">
           <div>
             <h1 className="page-title">
-              Field Officer (FOS)
+              FOS List
             </h1>
           </div>
 
@@ -191,7 +191,7 @@ const FOSList = () => {
             <button
               className="btn btn-primary btn-sm"
               onClick={() =>
-                navigate("/masters/fos/create")
+                navigate("/admin/fos-creation")
               }
             >
               <UserPlus

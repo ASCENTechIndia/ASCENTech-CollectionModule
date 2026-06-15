@@ -40,6 +40,11 @@ import FrmUserPinAllocation from './pages/user/FrmUserPinAllocation'
 import FrmUnassignCases from './pages/user/FrmUnassignCases'
 import FrmResetPassword from './pages/user/FrmResetPassword'
 import FrmChangePassword from './pages/user/FrmChangePassword'
+import FrmCompanyCreation from './pages/Company/FrmCompanyCreation'
+import CompanyList from './pages/Company/CompanyList'
+import  AgencyList from './pages/Agency/AgencyList'
+import FrmFosCreation from './pages/Fos/FrmFosCreation'
+import FosList from './pages/Fos/FosList'
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth()
@@ -73,6 +78,7 @@ import FrmImageUploadMobApp2 from './pages/Admin/FrmImageUploadMobApp2'
 import TwoFactor from './pages/TwoFactor'
 import Settings from './pages/Settings'
 import FrmAgencyCreation from './pages/Admin/FrmAgencyCreation'
+import FrmAgencyCreation2 from './pages/Agency/FrmAgencyCreation'
 
 function App() {
   return (
@@ -135,6 +141,12 @@ function App() {
         <Route path="admin/last-login-history" element={<FrmLastLoginHistory />} />
         <Route path="admin/bucket-setter" element={<FrmBucketSetter />} />
         <Route path="admin/agency-creation" element={<FrmAgencyCreation />} />
+        <Route path="admin/agency-creation2" element={<FrmAgencyCreation2 />} />
+        <Route path="admin/company-creation" element={<FrmCompanyCreation />} />
+        <Route path="admin/fos-creation" element={<FrmFosCreation />} />
+        <Route path="admin/fos-list" element={<FosList />} />
+        <Route path="admin/company-list" element={<CompanyList />} />
+        <Route path="admin/agency-list" element={<AgencyList />} />
         <Route path="admin/contract-allocation" element={<FrmContractAllocation />} />
         <Route path="admin/distance-matrix" element={<FrmDistanceMatrix />} />
         <Route path="user/pin-allocation" element={<FrmUserPinAllocation />} />

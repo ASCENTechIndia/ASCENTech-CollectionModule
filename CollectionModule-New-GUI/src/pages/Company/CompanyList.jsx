@@ -125,7 +125,7 @@ const CompanyList = () => {
             <button
               className="btn btn-primary btn-sm"
               onClick={() =>
-                navigate("/masters/company/create")
+                navigate("/admin/company-creation")
               }
             >
               <Building2

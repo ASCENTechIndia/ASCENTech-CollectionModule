@@ -18,7 +18,19 @@ const pincodeMenuItems = [
 ]
 
 const agencyMenuItems = [
-  { to: '/admin/agency-creation', label: 'Agency Creation' },
+  { to: '/admin/agency-creation', label: 'Agency Creation Old' },
+  { to: '/admin/agency-creation2', label: 'Agency Creation New' },
+  { to: '/admin/agency-list', label: 'Agency List' },
+]
+
+const companyMenuItems = [
+  { to: '/admin/company-creation', label: 'Company Creation' },
+  { to: '/admin/company-list', label: 'Company List' },
+]
+
+const fosMenuItems = [
+  { to: '/admin/fos-creation', label: 'FOS Creation' },
+  { to: '/admin/fos-list', label: 'FOS List' },
 ]
 
 const adminMenuItems = [
@@ -114,6 +126,8 @@ function Sidebar({
   adminMenuOpen,
    pincodeMenuOpen,
   agencyMenuOpen,
+  companyMenuOpen,
+  fosMenuOpen,
   // onToggleAuthMenu,
   onToggleUserMenu,
   // onToggleFormsMenu,
@@ -126,6 +140,8 @@ function Sidebar({
   onToggleAdminMenu,
   onTogglePincodeMenu,
   onToggleAgencyMenu,
+  onToggleCompanyMenu,
+  onToggleFosMenu,
   onCloseMobile,
   // userManagementMenuOpen,
   // onToggleuserManagementMenu
@@ -238,6 +254,20 @@ function Sidebar({
               </ul>
             </li>
 
+              <li className={`nav-item has-submenu ${companyMenuOpen ? 'open' : ''}`}>
+              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleCompanyMenu} aria-expanded={companyMenuOpen}>
+                <span className="nav-icon"><i className="ph-light ph-buildings" /></span>
+                <span className="nav-text">Company Management</span>
+                <span className="nav-badge">{companyMenuItems.length}</span>
+                <span className="nav-arrow"><i className="bi bi-chevron-right" /></span>
+              </button>
+              <ul className={`nav-submenu ${companyMenuOpen ? 'show' : ''}`} style={{ maxHeight: companyMenuOpen ? `${companyMenuItems.length * 36 + 20}px` : '0px' }}>
+                {companyMenuItems.map((item) => (
+                  <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
+                ))}
+              </ul>
+            </li>
+
             <li className={`nav-item has-submenu ${agencyMenuOpen ? 'open' : ''}`}>
               <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleAgencyMenu} aria-expanded={agencyMenuOpen}>
                 <span className="nav-icon"><i className="ph-light ph-buildings" /></span>
@@ -247,6 +277,20 @@ function Sidebar({
               </button>
               <ul className={`nav-submenu ${agencyMenuOpen ? 'show' : ''}`} style={{ maxHeight: agencyMenuOpen ? `${agencyMenuItems.length * 36 + 20}px` : '0px' }}>
                 {agencyMenuItems.map((item) => (
+                  <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
+                ))}
+              </ul>
+            </li>
+
+              <li className={`nav-item has-submenu ${fosMenuOpen ? 'open' : ''}`}>
+              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleFosMenu} aria-expanded={fosMenuOpen}>
+                <span className="nav-icon"><i className="ph-light ph-buildings" /></span>
+                <span className="nav-text">FOS Management</span>
+                <span className="nav-badge">{fosMenuItems.length}</span>
+                <span className="nav-arrow"><i className="bi bi-chevron-right" /></span>
+              </button>
+              <ul className={`nav-submenu ${fosMenuOpen ? 'show' : ''}`} style={{ maxHeight: fosMenuOpen ? `${fosMenuItems.length * 36 + 20}px` : '0px' }}>
+                {fosMenuItems.map((item) => (
                   <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
                 ))}
               </ul>
