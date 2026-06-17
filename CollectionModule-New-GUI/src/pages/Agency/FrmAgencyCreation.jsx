@@ -1,7 +1,12 @@
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { useNotification } from "../../context/NotificationContext";
 
 const FrmAgencyCreation = () => {
+  const { user } = useAuth();
+  const { showSuccess, showError } = useNotification();
+  const username = user?.userName;
   const navigate = useNavigate();
 
   const {
@@ -16,6 +21,10 @@ const FrmAgencyCreation = () => {
       status: "active",
       licenseNo: "",
       licenseExpiry: "",
+      city: "",
+      state: "",
+      country: "",
+      pincode: "",
 
       maxCases: "",
       currentCases: "",
@@ -28,14 +37,16 @@ const FrmAgencyCreation = () => {
       address: "",
       coverageZones: "",
       slaConfig: "",
+      configuration: []
     },
   });
 
   const onSubmit = async (values) => {
     const payload = {
+      username,
       code: values.code,
       name: values.name,
-      agency_type: values.agencyType,
+      agencytype: values.agencyType,
       status: values.status,
 
       license_no: values.licenseNo,
@@ -45,26 +56,34 @@ const FrmAgencyCreation = () => {
         .split(",")
         .map((x) => x.trim()),
 
-      capacity: {
-        max_cases: Number(values.maxCases),
-        current_cases: Number(values.currentCases),
-        max_fos: Number(values.maxFos),
-      },
+      max_cases: Number(values.maxCases),
+      current_cases: Number(values.currentCases),
+      max_fos: Number(values.maxFos),
 
-      contact: {
-        contact_person: values.contactPerson,
-        email: values.email,
-        mobile: values.mobile,
-      },
+      // contact_person: values.contactPerson,
+      city: values.city,
+      state: values.state,
+      pincode: values.pincode,
+      country: values.country,
+      email: values.email,
+      mobile: values.mobile,
 
       address: values.address,
 
-      sla_config: {
-        config: values.slaConfig,
-      },
+      sla_config: values.slaConfig,
+      config: values.configuration
     };
 
     console.log(payload);
+    return;
+
+    // const response = await apiClient.post("", payload);
+    // console.log(response);
+
+    // if (response.success) {
+    //   reset();
+    //   showSuccess();
+    // }
   };
 
   return (
@@ -90,13 +109,10 @@ const FrmAgencyCreation = () => {
                   </label>
 
                   <input
-                    {...register("code", {
-                      required: "Agency Code required",
-                    })}
-                    className={`form-control ${
-                      errors.code ? "is-invalid" : ""
-                    }`}
+                    {...register("code", { required: "Agency Code is required" })}
+                    className={`form-control ${errors.code ? "is-invalid" : ""}`}
                   />
+                  <div className="invalid-feedback">{errors.code?.message}</div>
                 </div>
 
                 <div className="mb-3">
@@ -105,11 +121,10 @@ const FrmAgencyCreation = () => {
                   </label>
 
                   <input
-                    {...register("name", {
-                      required: "Agency Name required",
-                    })}
-                    className="form-control"
+                    {...register("name", { required: "Agency Name is required" })}
+                    className={`form-control ${errors.name ? "is-invalid" : ""}`}
                   />
+                  <div className="invalid-feedback">{errors.name?.message}</div>
                 </div>
 
                 <div className="mb-3">
@@ -118,19 +133,12 @@ const FrmAgencyCreation = () => {
                   </label>
 
                   <select
-                    {...register("agencyType", {
-                      required: true,
-                    })}
-                    className="form-select"
+                    {...register("agencyType", { required: "Agency Type is required" })}
+                    className={`form-select ${errors.agencyType ? "is-invalid" : ""}`}
                   >
-                    <option value="">Select</option>
-                    <option value="primary">Primary</option>
-                    <option value="secondary">Secondary</option>
-                    <option value="legal">Legal</option>
-                    <option value="skip_trace">
-                      Skip Trace
-                    </option>
+                    <option value="">SELECT</option>
                   </select>
+                  <div className="invalid-feedback">{errors.agencyType?.message}</div>
                 </div>
 
                 <div className="mb-3">
@@ -139,9 +147,11 @@ const FrmAgencyCreation = () => {
                   </label>
 
                   <input
-                    {...register("licenseNo")}
-                    className="form-control"
+                    {...register("licenseNo", { required: "License Number is required" })}
+                    className={`form-control ${errors.licenseNo ? "is-invalid" : ""}`}
                   />
+                  <div className="invalid-feedback">{errors.licenseNo?.message}</div>
+
                 </div>
 
                 <div className="mb-3">
@@ -149,11 +159,60 @@ const FrmAgencyCreation = () => {
                     License Expiry
                   </label>
 
+                  <input type="date" {...register("licenseExpiry", { required: "License Expiry is required" })} className={`form-control ${errors.licenseExpiry ? "is-invalid" : ""}`} />
+                  <div className="invalid-feedback">{errors.licenseExpiry?.message}</div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">
+                    City
+                  </label>
+
                   <input
-                    type="date"
-                    {...register("licenseExpiry")}
-                    className="form-control"
+                    {...register("city", { required: "City is required" })}
+                    className={`form-control ${errors.city ? "is-invalid" : ""}`}
                   />
+                  <div className="invalid-feedback">{errors.city?.message}</div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">
+                    State
+                  </label>
+
+                  <input
+                    {...register("state", { required: "State is required" })}
+                    className={`form-control ${errors.state ? "is-invalid" : ""}`}
+                  />
+                  <div className="invalid-feedback">{errors.state?.message}</div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">
+                    Country
+                  </label>
+
+                  <input
+                    {...register("country", { required: "Country is required" })}
+                    className={`form-control ${errors.country ? "is-invalid" : ""}`}
+                  />
+                  <div className="invalid-feedback">{errors.country?.message}</div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">
+                    Pincode
+                  </label>
+
+                  <input
+                    maxLength={6}
+                    onInput={(e) => {
+                      e.target.value = e.target.value.replace(/\D/g, "");
+                    }}
+                    {...register("pincode", { required: "Pincode is required" })}
+                    className={`form-control ${errors.pincode ? "is-invalid" : ""}`}
+                  />
+                  <div className="invalid-feedback">{errors.pincode?.message}</div>
                 </div>
 
               </div>
@@ -166,14 +225,15 @@ const FrmAgencyCreation = () => {
                   </label>
 
                   <select
-                    {...register("status")}
-                    className="form-select"
+                    {...register("status", { required: "Status is required" })}
+                    className={`form-select ${errors.status ? "is-invalid" : ""}`}
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                     <option value="suspended">Suspended</option>
                     <option value="onboarding">Onboarding</option>
                   </select>
+                  <div className="invalid-feedback">{errors.status?.message}</div>
                 </div>
 
                 <div className="mb-3">
@@ -184,9 +244,10 @@ const FrmAgencyCreation = () => {
                   <textarea
                     rows="3"
                     placeholder="Mumbai,Pune,Thane"
-                    {...register("coverageZones")}
-                    className="form-control"
+                    {...register("coverageZones", { required: "Coverage Zones are required" })}
+                    className={`form-control ${errors.coverageZones ? "is-invalid" : ""}`}
                   />
+                  <div className="invalid-feedback">{errors.coverageZones?.message}</div>
                 </div>
 
                 <div className="mb-3">
@@ -196,9 +257,10 @@ const FrmAgencyCreation = () => {
 
                   <textarea
                     rows="3"
-                    {...register("address")}
-                    className="form-control"
+                    {...register("address", { required: "Address is required" })}
+                    className={`form-control ${errors.address ? "is-invalid" : ""}`}
                   />
+                  <div className="invalid-feedback">{errors.address?.message}</div>
                 </div>
 
               </div>
@@ -219,9 +281,10 @@ const FrmAgencyCreation = () => {
 
                   <input
                     type="number"
-                    {...register("maxCases")}
-                    className="form-control"
+                    {...register("maxCases", { required: "Max Cases is required" })}
+                    className={`form-control ${errors.maxCases ? "is-invalid" : ""}`}
                   />
+                  <div className="invalid-feedback">{errors.maxCases?.message}</div>
                 </div>
               </div>
 
@@ -233,9 +296,10 @@ const FrmAgencyCreation = () => {
 
                   <input
                     type="number"
-                    {...register("currentCases")}
-                    className="form-control"
+                    {...register("currentCases", { required: "Current Cases is required" })}
+                    className={`form-control ${errors.currentCases ? "is-invalid" : ""}`}
                   />
+                  <div className="invalid-feedback">{errors.currentCases?.message}</div>
                 </div>
               </div>
 
@@ -247,9 +311,10 @@ const FrmAgencyCreation = () => {
 
                   <input
                     type="number"
-                    {...register("maxFos")}
-                    className="form-control"
+                    {...register("maxFos", { required: "Max FOS is required" })}
+                    className={`form-control ${errors.maxFos ? "is-invalid" : ""}`}
                   />
+                  <div className="invalid-feedback">{errors.maxFos?.message}</div>
                 </div>
               </div>
 
@@ -261,28 +326,30 @@ const FrmAgencyCreation = () => {
 
             <div className="row">
 
-              <div className="col-md-4">
+              {/* <div className="col-md-4">
                 <input
                   placeholder="Contact Person"
                   {...register("contactPerson")}
                   className="form-control"
                 />
-              </div>
+              </div> */}
 
-              <div className="col-md-4">
+              <div className="col-md-6">
                 <input
                   placeholder="Email"
-                  {...register("email")}
-                  className="form-control"
+                  {...register("email", { required: "Email is required" })}
+                  className={`form-control ${errors.email ? "is-invalid" : ""}`}
                 />
+                <div className="invalid-feedback">{errors.email?.message}</div>
               </div>
 
-              <div className="col-md-4">
+              <div className="col-md-6">
                 <input
                   placeholder="Mobile"
-                  {...register("mobile")}
-                  className="form-control"
+                  {...register("mobile", { required: "Mobile is required" })}
+                  className={`form-control ${errors.mobile ? "is-invalid" : ""}`}
                 />
+                <div className="invalid-feedback">{errors.mobile?.message}</div>
               </div>
 
             </div>
@@ -294,9 +361,26 @@ const FrmAgencyCreation = () => {
 
               <textarea
                 rows="3"
-                {...register("slaConfig")}
-                className="form-control"
+                {...register("slaConfig", { required: "SLA Config is required" })}
+                className={`form-control ${errors.slaConfig ? "is-invalid" : ""}`}
               />
+              <div className="invalid-feedback">{errors.slaConfig?.message}</div>
+            </div>
+
+            <div className="mt-3">
+              <label className="form-label">
+                Configuration
+              </label>
+              <select
+                multiple
+                {...register("configuration", { required: "Config is required" })}
+                className={`form-select ${errors.configuration ? "is-invalid" : ""}`}
+              >
+                <option value="">Select</option>
+                <option value="TC">Test Config</option>
+                <option value="DC">Demo Config</option>
+              </select>
+              <div className="invalid-feedback">{errors.configuration?.message}</div>
             </div>
 
             <div className="text-center mt-4">

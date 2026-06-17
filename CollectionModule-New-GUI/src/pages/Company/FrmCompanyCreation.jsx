@@ -1,12 +1,26 @@
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import apiClient from "../../services/apiClient";
+import { useNotification } from "../../context/NotificationContext";
+
+const branchOptions = [
+  { value: "1", label: "Branch 1" },
+  { value: "2", label: "Branch 2" },
+];
 
 const FrmCompanyCreation = () => {
   const navigate = useNavigate();
-
+  const { user } = useAuth();
+  const username = user?.userName;
+  const brCategory = user?.brCategory;
+  const { showError, showSuccess } = useNotification();
   const {
     register,
     handleSubmit,
+    // setValue,
+    watch,
+    reset,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -20,54 +34,112 @@ const FrmCompanyCreation = () => {
       gst: "",
       cin: "",
 
+      remark: "",
+      branch: "",
+      logo: "",
+      operatorId: "",
+
       addressLine1: "",
-      city: "",
-      state: "",
-      country: "India",
+      ishoBranch: "",
+      // city: "",
+      // state: "",
+      // country: "India",
 
       primaryEmail: "",
-      escalationEmail: "",
+      // escalationEmail: "",
+      configuration: [],
       phone: "",
 
-      brandingTheme: "",
-      slaDefault: "",
+      // brandingTheme: "",
+      // slaDefault: "",
     },
   });
 
+  // const handleLogoChange = (e) => {
+  //   const file = e.target.files[0];
+
+  //   if (file) {
+  //     setValue("logo", file, {
+  //       shouldValidate: true,
+  //     });
+  //   }
+  // };
+
+  const selectedLogo = watch("logo");
+  const selectedBranch = watch("branch");
+  const selectedBranchLabel =
+    branchOptions.find((b) => b.value === selectedBranch)?.label;
+  const file = selectedLogo?.[0];
+
+  const formatFileSize = (bytes) => {
+    if (!bytes) return "";
+
+    if (bytes < 1024) return `${bytes} B`;
+
+    if (bytes < 1024 * 1024)
+      return `${(bytes / 1024).toFixed(1)} KB`;
+
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+  };
+
+  const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.readAsDataURL(file);
+
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
   const onSubmit = async (values) => {
-    const payload = {
-      code: values.code,
-      name: values.name,
-      legal_name: values.legalName,
-      company_type: values.companyType,
-      status: values.status,
+    try {
+      const file = values.logo?.[0];
 
-      identifiers: {
-        pan: values.pan,
-        gst: values.gst,
+      let logoBase64 = "";
+
+      if (file) {
+        logoBase64 = await convertToBase64(file);
+      }
+
+      const payload = {
+        username,
+        compid: values.code,
         cin: values.cin,
-      },
+        compname: values.name,
+        status: values.status,
+        legalname: values.legalName,
+        email: values.primaryEmail,
+        companytype: values.companyType,
+        upassoperid: values.operatorId,
+        pan: values.pan,
+        ishobranch: values.ishoBranch,
+        address: values.addressLine1,
+        gst: values.gst,
+        remark: values.remark,
+        mobileno: values.phone,
+        branchname: selectedBranchLabel,
+        brcategory: brCategory,
+        logo: logoBase64,
+        branchcode: values.branch,
+        config: values.configuration
+      };
 
-      address: {
-        line1: values.addressLine1,
-        city: values.city,
-        state: values.state,
-        country: values.country,
-      },
+      console.log(payload);
+      return;
 
-      contact: {
-        primary_email: values.primaryEmail,
-        escalation_email: values.escalationEmail,
-        phone: values.phone,
-      },
+      // const response = await apiClient.post("", payload);
+      // console.log(response);
 
-      config: {
-        branding_theme: values.brandingTheme,
-        sla_default: values.slaDefault,
-      },
-    };
+      // if (response.success) {
+      //   reset();
+      //   showSuccess("")
+      // }
 
-    console.log(payload);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -96,9 +168,8 @@ const FrmCompanyCreation = () => {
                     {...register("code", {
                       required: "Company Code required",
                     })}
-                    className={`form-control ${
-                      errors.code ? "is-invalid" : ""
-                    }`}
+                    className={`form-control ${errors.code ? "is-invalid" : ""
+                      }`}
                   />
 
                   <div className="invalid-feedback">
@@ -115,10 +186,12 @@ const FrmCompanyCreation = () => {
                     {...register("name", {
                       required: "Company Name required",
                     })}
-                    className={`form-control ${
-                      errors.name ? "is-invalid" : ""
-                    }`}
+                    className={`form-control ${errors.name ? "is-invalid" : ""
+                      }`}
                   />
+                  <div className="invalid-feedback">
+                    {errors.name?.message}
+                  </div>
                 </div>
 
                 <div className="mb-3">
@@ -127,9 +200,15 @@ const FrmCompanyCreation = () => {
                   </label>
 
                   <input
-                    {...register("legalName")}
-                    className="form-control"
+                    {...register("legalName", {
+                      required: "Legal Name required",
+                    })}
+                    className={`form-control ${errors.legalName ? "is-invalid" : ""
+                      }`}
                   />
+                  <div className="invalid-feedback">
+                    {errors.legalName?.message}
+                  </div>
                 </div>
 
                 <div className="mb-3">
@@ -139,9 +218,10 @@ const FrmCompanyCreation = () => {
 
                   <select
                     {...register("companyType", {
-                      required: true,
+                      required: "Company Type is required",
                     })}
-                    className="form-select"
+                    className={`form-select ${errors.companyType ? "is-invalid" : ""
+                      }`}
                   >
                     <option value="">Select</option>
                     <option value="bank">Bank</option>
@@ -150,6 +230,10 @@ const FrmCompanyCreation = () => {
                     <option value="utility">Utility</option>
                     <option value="telecom">Telecom</option>
                   </select>
+
+                  <div className="invalid-feedback">
+                    {errors.companyType?.message}
+                  </div>
                 </div>
 
                 <div className="mb-3">
@@ -158,9 +242,20 @@ const FrmCompanyCreation = () => {
                   </label>
 
                   <input
-                    {...register("pan")}
-                    className="form-control"
+                    {...register("pan", {
+                      required: "PAN is required",
+                    })}
+                    // maxLength={10}
+                    onInput={(e) => {
+                      e.target.value = e.target.value
+                        .replace(/[^a-zA-Z0-9]/g, ""); // remove special characters        
+                    }}
+                    className={`form-control ${errors.pan ? "is-invalid" : ""
+                      }`}
                   />
+                  <div className="invalid-feedback">
+                    {errors.pan?.message}
+                  </div>
                 </div>
 
                 <div className="mb-3">
@@ -169,20 +264,116 @@ const FrmCompanyCreation = () => {
                   </label>
 
                   <input
-                    {...register("gst")}
-                    className="form-control"
+                    {...register("gst", {
+                      required: "GST is required",
+                    })}
+                    onInput={(e) => {
+                      e.target.value = e.target.value
+                        .replace(/[^a-zA-Z0-9]/g, ""); // remove special characters        
+                    }}
+                    className={`form-control ${errors.gst ? "is-invalid" : ""
+                      }`}
                   />
+                  <div className="invalid-feedback">
+                    {errors.gst?.message}
+                  </div>
                 </div>
 
-                 <div className="mb-3">
+                <div className="mb-3">
                   <label className="form-label">
                     Phone
                   </label>
 
                   <input
-                    {...register("phone")}
-                    className="form-control"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={10}
+                    {...register("phone", {
+                      required: "Mobile number is required"
+                    })}
+                    onInput={(e) => {
+                      e.target.value = e.target.value.replace(/\D/g, "");
+                    }}
+                    className={`form-control ${errors.phone ? "is-invalid" : ""
+                      }`}
                   />
+                  <div className="invalid-feedback">
+                    {errors.phone?.message}
+                  </div>
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">
+                    Branch Name
+                  </label>
+
+                  {/* <input
+                    {...register("branch")}
+                    className="form-control"
+                  /> */}
+
+                  <select
+                    {...register("branch", {
+                      required: "Branch is required"
+                    })}
+                    className={`form-select ${errors.branch ? "is-invalid" : ""
+                      }`}
+                  >
+                    <option value="">SELECT</option>
+                    {branchOptions.map((b) => (
+                      <option key={b.value} value={b.value}>
+                        {b.label}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="invalid-feedback">
+                    {errors.branch?.message}
+                  </div>
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Logo</label>
+
+                  <label
+                    htmlFor="logoInput"
+                    className="upload-dropzone d-flex align-items-center p-2 border rounded"
+                    style={{
+                      cursor: "pointer",
+                      backgroundColor: "#f8f9fa",
+                    }}
+                  >
+                    <div className="me-2">
+                      <i className="bi bi-cloud-arrow-up fs-4 text-primary"></i>
+                    </div>
+
+                    <div>
+                      {file ? (
+                        <>
+                          <div>{file.name}</div>
+
+                          <small className="text-muted">
+                            {formatFileSize(file.size)}
+                          </small>
+                        </>
+                      ) : (
+                        <span>Click to upload logo</span>
+                      )}
+                    </div>
+                  </label>
+
+                  <input
+                    id="logoInput"
+                    type="file"
+                    hidden
+                    accept="image/*"
+                    {...register("logo", {
+                      required: "Please select a logo file",
+                    })}
+                  />
+
+                  {errors.logo && (
+                    <div className="text-danger">
+                      <small>{errors.logo.message}</small>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -195,9 +386,15 @@ const FrmCompanyCreation = () => {
                   </label>
 
                   <input
-                    {...register("cin")}
-                    className="form-control"
+                    {...register("cin", {
+                      required: "CIN is required"
+                    })}
+                    className={`form-control ${errors.cin ? "is-invalid" : ""
+                      }`}
                   />
+                  <div className="invalid-feedback">
+                    {errors.cin?.message}
+                  </div>
                 </div>
 
                 <div className="mb-3">
@@ -206,17 +403,23 @@ const FrmCompanyCreation = () => {
                   </label>
 
                   <select
-                    {...register("status")}
-                    className="form-select"
+                    {...register("status", {
+                      required: "Status is required"
+                    })}
+                    className={`form-select ${errors.status ? "is-invalid" : ""
+                      }`}
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                     <option value="suspended">Suspended</option>
                     <option value="onboarding">Onboarding</option>
                   </select>
+                  <div className="invalid-feedback">
+                    {errors.status?.message}
+                  </div>
                 </div>
 
-                  <div className="mb-3">
+                {/* <div className="mb-3">
                     <label className="form-label">
                       City
                     </label>
@@ -247,7 +450,7 @@ const FrmCompanyCreation = () => {
                     {...register("country")}
                     className="form-control"
                   />
-                </div>
+                </div> */}
 
                 <div className="mb-3">
                   <label className="form-label">
@@ -256,9 +459,53 @@ const FrmCompanyCreation = () => {
 
                   <input
                     type="email"
-                    {...register("primaryEmail")}
-                    className="form-control"
+                    {...register("primaryEmail", {
+                      required: "Email is required"
+                    })}
+                    className={`form-control ${errors.primaryEmail ? "is-invalid" : ""
+                      }`}
                   />
+                  <div className="invalid-feedback">
+                    {errors.primaryEmail?.message}
+                  </div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">
+                    UPass Operator ID
+                  </label>
+                  <select
+                    {...register("operatorId", {
+                      required: "UPass Operator ID is required",
+                    })}
+                    className={`form-select ${errors.operatorId ? "is-invalid" : ""
+                      }`}
+                  >
+                    <option value="">Select</option>
+                    <option value="E1">Emp 1</option>
+                  </select>
+                  <div className="invalid-feedback">
+                    {errors.operatorId?.message}
+                  </div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">
+                    IshoBranch
+                  </label>
+                  <select
+                    {...register("ishoBranch", {
+                      required: "IshoBranch is required",
+                    })}
+                    className={`form-select ${errors.ishoBranch ? "is-invalid" : ""
+                      }`}
+                  >
+                    <option value="">Select</option>
+                    <option value="B1">B1</option>
+                  </select>
+                  <div className="invalid-feedback">
+                    {errors.ishoBranch?.message}
+                  </div>
                 </div>
 
                 <div className="mb-3">
@@ -268,12 +515,35 @@ const FrmCompanyCreation = () => {
 
                   <textarea
                     rows="3"
-                    {...register("addressLine1")}
-                    className="form-control"
+                    {...register("addressLine1", {
+                      required: "Address is required"
+                    })}
+                    className={`form-control ${errors.addressLine1 ? "is-invalid" : ""
+                      }`}
                   />
+                  <div className="invalid-feedback">
+                    {errors.addressLine1?.message}
+                  </div>
                 </div>
 
-               
+                <div className="mb-3">
+                  <label className="form-label">
+                    Remark
+                  </label>
+
+                  <textarea
+                    rows="3"
+                    {...register("remark", {
+                      required: "Remark is required"
+                    })}
+                    className={`form-control ${errors.remark ? "is-invalid" : ""
+                      }`}
+                  />
+                  <div className="invalid-feedback">
+                    {errors.remark?.message}
+                  </div>
+                </div>
+
               </div>
             </div>
 
@@ -287,17 +557,33 @@ const FrmCompanyCreation = () => {
               <div className="col-md-6">
                 <div className="mb-3">
                   <label className="form-label">
-                    Escalation Email
+                    Configuration
                   </label>
 
-                  <input
+                  {/* <input
                     {...register("escalationEmail")}
                     className="form-control"
-                  />
+                  /> */}
+
+                  <select
+                    multiple
+                    {...register("configuration", {
+                      required: "Configuration is required",
+                    })}
+                    className={`form-select ${errors.configuration ? "is-invalid" : ""
+                      }`}
+                  >
+                    <option value="">Select</option>
+                    <option value="TC">Test Config</option>
+                    <option value="DC">Demo Config</option>
+                  </select>
+                  <div className="invalid-feedback">
+                    {errors.configuration?.message}
+                  </div>
                 </div>
               </div>
 
-              <div className="col-md-3">
+              {/* <div className="col-md-3">
                 <div className="mb-3">
                   <label className="form-label">
                     Branding Theme
@@ -308,9 +594,9 @@ const FrmCompanyCreation = () => {
                     className="form-control"
                   />
                 </div>
-              </div>
+              </div> */}
 
-              <div className="col-md-3">
+              {/* <div className="col-md-3">
                 <div className="mb-3">
                   <label className="form-label">
                     SLA Default
@@ -321,7 +607,7 @@ const FrmCompanyCreation = () => {
                     className="form-control"
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
 
             <div className="text-center mt-4">
