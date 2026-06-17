@@ -173,6 +173,17 @@ const FrmCompanyCreation = () => {
                     className="form-control"
                   />
                 </div>
+
+                 <div className="mb-3">
+                  <label className="form-label">
+                    Phone
+                  </label>
+
+                  <input
+                    {...register("phone")}
+                    className="form-control"
+                  />
+                </div>
               </div>
 
               {/* RIGHT */}
@@ -205,20 +216,7 @@ const FrmCompanyCreation = () => {
                   </select>
                 </div>
 
-                <div className="mb-3">
-                  <label className="form-label">
-                    Address
-                  </label>
-
-                  <textarea
-                    rows="3"
-                    {...register("addressLine1")}
-                    className="form-control"
-                  />
-                </div>
-
-                <div className="row">
-                  <div className="col-md-6 mb-3">
+                  <div className="mb-3">
                     <label className="form-label">
                       City
                     </label>
@@ -229,7 +227,7 @@ const FrmCompanyCreation = () => {
                     />
                   </div>
 
-                  <div className="col-md-6 mb-3">
+                  <div className="mb-3">
                     <label className="form-label">
                       State
                     </label>
@@ -239,7 +237,6 @@ const FrmCompanyCreation = () => {
                       className="form-control"
                     />
                   </div>
-                </div>
 
                 <div className="mb-3">
                   <label className="form-label">
@@ -266,14 +263,17 @@ const FrmCompanyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    Phone
+                    Address
                   </label>
 
-                  <input
-                    {...register("phone")}
+                  <textarea
+                    rows="3"
+                    {...register("addressLine1")}
                     className="form-control"
                   />
                 </div>
+
+               
               </div>
             </div>
 
