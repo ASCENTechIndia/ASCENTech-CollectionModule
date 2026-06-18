@@ -10,6 +10,7 @@ const {
   getTotalAgenciesRepo,
   deleteAgencyRepo,
   agencyNameExistsRepo,
+  createAgencyRepoNew
 } = require('./agencyCreation.repo');
 const AppError = require('../../utils/app-error');
 
@@ -341,6 +342,45 @@ async function deleteAgencyService(agencyId) {
   }
 }
 
+async function createAgencyServiceNew(payload) {
+  try {
+
+    await validateAgencyInputService(payload);
+
+    const result = await createAgencyRepoNew(payload);
+
+    if (!result) {
+      throw new AppError(
+        "Failed to create agency",
+        400
+      );
+    }
+
+    const isSuccess =
+      String(result.out_ErrorCode) === "-100";
+
+    if (!isSuccess) {
+      throw new AppError(
+        result.out_ErrorMsg ||
+        "Agency creation failed",
+        400
+      );
+    }
+
+    return {
+      success: true,
+      message: result.out_ErrorMsg,
+      data: result,
+    };
+
+  } catch (error) {
+    throw new AppError(
+      `Agency creation failed: ${error.message}`,
+      400
+    );
+  }
+}
+
 module.exports = {
   getStatesService,
   getDistrictsByStateService,
@@ -352,4 +392,5 @@ module.exports = {
   getAgencyService,
   getAgenciesService,
   deleteAgencyService,
+  createAgencyServiceNew
 };

@@ -40,6 +40,52 @@ const validateAgencyNameSchema = z.object({
   agencyName: z.string().trim().min(3, 'Agency name must be at least 3 characters'),
 });
 
+const agencyBaseSchema = z.object({
+  id: z.coerce.number().int("Agency ID must be a number"),
+
+  code: z.string().trim().min(1, "Agency code is required"),
+
+  name: z.string().trim().min(1, "Agency name is required"),
+
+  type: nullableString,
+
+  status: nullableString,
+
+  licenseNo: nullableString,
+
+  licenseExpiry: nullableString,
+
+  coverageZones: nullableString,
+
+  maxCases: nullableNumber,
+
+  currentCases: nullableNumber,
+
+  maxFos: nullableNumber,
+
+  slaConfig: nullableString,
+
+  contactEmail: nullableString,
+
+  contactPhone: nullableNumber,
+
+  address1: nullableString,
+
+  city: nullableString,
+
+  state: nullableString,
+
+  pincode: nullableString,
+
+  country: nullableString,
+
+  config: nullableString,
+
+  username: z.string().trim().min(1, "Username is required"),
+});
+
+const createAgencySchemaNew = agencyBaseSchema;
+
 module.exports = {
   getStatesSchema,
   getDistrictsByStateSchema,
@@ -48,4 +94,5 @@ module.exports = {
   createAgencySchema,
   updateAgencySchema,
   validateAgencyNameSchema,
+  createAgencySchemaNew
 };
