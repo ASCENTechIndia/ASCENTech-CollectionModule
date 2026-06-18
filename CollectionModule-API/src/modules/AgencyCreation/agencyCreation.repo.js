@@ -1,4 +1,14 @@
+const oracledb = require('oracledb');
+const { executeProcedure } = require('../../db/procedureExecutor');
 const { executeQuery } = require('../../db/queryExecutor');
+
+function normalizeNullable(value) {
+  if (value === null || value === undefined || value === '') {
+    return null;
+  }
+  return value;
+}
+
 
 /**
  * Get all states
@@ -22,7 +32,7 @@ async function getDistrictsByStateRepo(stateId) {
 async function getDistrictByIdRepo(districtId) {
   const query = `SELECT DistrictID as id, DistrictName as name, StateID as stateId FROM Districts WHERE DistrictID = ${districtId}`;
   const result = await executeQuery(query);
-  return result && result.length > 0 ? result[0] : null;
+  return result && result.rows && result.rows.length > 0 ? result.rows[0] : null;
 }
 
 /**
@@ -45,8 +55,8 @@ async function createAgencyRepo(payload) {
   const smaBucket = (payload.smaBucket || '').replace(/'/g, "''");
 
   const query = `
-    INSERT INTO Agencies (AgencyName, StateID, DistrictID, VillageName, Address, PRODUCTS, SMA_BUCKET)
-    VALUES ('${agencyName}', ${payload.stateId}, ${payload.districtId}, '${city}', '${address}', '${products}', '${smaBucket}')
+    INSERT INTO Agencies (AgencyName, StateID, DistrictID, TAHSILID, VillageName, Address, PRODUCTS, SMA_BUCKET)
+    VALUES ('${agencyName}', ${payload.stateId}, ${payload.districtId}, 0, '${city}', '${address}', '${products}', '${smaBucket}')
   `;
 
   return executeQuery(query);
@@ -125,9 +135,9 @@ async function getAgenciesRepo(pageNumber = 1, pageSize = 10) {
  * Get total agency count
  */
 async function getTotalAgenciesRepo() {
-  const query = `SELECT COUNT(*) as total FROM Agencies`;
+  const query = `SELECT COUNT(*) as TOTAL FROM Agencies`;
   const result = await executeQuery(query);
-  return result && result.length > 0 ? result[0].TOTAL : 0;
+  return result && result.rows && result.rows.length > 0 ? result.rows[0].TOTAL : 0;
 }
 
 /**
@@ -143,9 +153,9 @@ async function deleteAgencyRepo(agencyId) {
  */
 async function agencyNameExistsRepo(agencyName) {
   const escapedName = agencyName.replace(/'/g, "''");
-  const query = `SELECT COUNT(*) as count FROM Agencies WHERE UPPER(AgencyName) = UPPER('${escapedName}')`;
+  const query = `SELECT COUNT(*) as COUNT FROM Agencies WHERE UPPER(AgencyName) = UPPER('${escapedName}')`;
   const result = await executeQuery(query);
-  return result && result.length > 0 ? result[0].COUNT > 0 : false;
+  return result && result.rows && result.rows.length > 0 ? result.rows[0].COUNT > 0 : false;
 }
 
 async function createAgencyRepoNew(payload) {
@@ -197,7 +207,7 @@ async function createAgencyRepoNew(payload) {
       normalizeNullable(payload.licenseNo),
 
     in_dat_agencymst_license_expiry:
-      normalizeNullable(payload.licenseExpiry),
+      payload.licenseExpiry ? new Date(payload.licenseExpiry) : null,
 
     in_var_agencymst_coverage_zones:
       normalizeNullable(payload.coverageZones),

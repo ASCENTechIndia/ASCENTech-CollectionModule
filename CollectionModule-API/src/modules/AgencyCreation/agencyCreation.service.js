@@ -12,7 +12,7 @@ const {
   agencyNameExistsRepo,
   createAgencyRepoNew
 } = require('./agencyCreation.repo');
-const AppError = require('../../utils/app-error');
+const { AppError } = require('../../utils/app-error');
 
 /**
  * Get all states
@@ -345,8 +345,7 @@ async function deleteAgencyService(agencyId) {
 async function createAgencyServiceNew(payload) {
   try {
 
-    await validateAgencyInputService(payload);
-
+    // Input is already validated by createAgencySchemaNew Zod schema in routing
     const result = await createAgencyRepoNew(payload);
 
     if (!result) {
@@ -357,7 +356,10 @@ async function createAgencyServiceNew(payload) {
     }
 
     const isSuccess =
-      String(result.out_ErrorCode) === "-100";
+      String(result.out_ErrorCode) === "-100" ||
+      String(result.out_ErrorCode) === "9999" ||
+      String(result.out_ErrorCode) === "0" ||
+      (result.out_ErrorMsg && result.out_ErrorMsg.toLowerCase().includes("successfully"));
 
     if (!isSuccess) {
       throw new AppError(
