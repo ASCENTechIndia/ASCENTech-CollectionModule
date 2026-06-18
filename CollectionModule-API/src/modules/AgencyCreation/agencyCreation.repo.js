@@ -148,6 +148,122 @@ async function agencyNameExistsRepo(agencyName) {
   return result && result.length > 0 ? result[0].COUNT > 0 : false;
 }
 
+async function createAgencyRepoNew(payload) {
+
+  const statement = `
+    BEGIN
+      AOUP_AGENCY_MASTER_INS_UPD(
+        :in_num_agencymst_id,
+        :in_var_agencymst_code,
+        :in_var_agencymst_name,
+        :in_var_agencymst_type,
+        :in_var_agencymst_status,
+        :in_var_agencymst_license_no,
+        :in_dat_agencymst_license_expiry,
+        :in_var_agencymst_coverage_zones,
+        :in_num_agencymst_max_cases,
+        :in_num_agencymst_current_cases,
+        :in_num_agencymst_max_fos,
+        :in_clob_agencymst_sla_config,
+        :in_var_agencymst_contact_email,
+        :in_num_agencymst_contact_phone,
+        :in_var_agencymst_address1,
+        :in_var_agencymst_city,
+        :in_var_agencymst_state,
+        :in_var_agencymst_pincode,
+        :in_var_agencymst_country,
+        :in_clob_agencymst_config,
+        :in_username,
+        :out_ErrorCode,
+        :out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_num_agencymst_id: payload.id,
+
+    in_var_agencymst_code: payload.code,
+
+    in_var_agencymst_name: payload.name,
+
+    in_var_agencymst_type:
+      normalizeNullable(payload.type),
+
+    in_var_agencymst_status:
+      normalizeNullable(payload.status),
+
+    in_var_agencymst_license_no:
+      normalizeNullable(payload.licenseNo),
+
+    in_dat_agencymst_license_expiry:
+      normalizeNullable(payload.licenseExpiry),
+
+    in_var_agencymst_coverage_zones:
+      normalizeNullable(payload.coverageZones),
+
+    in_num_agencymst_max_cases:
+      normalizeNullable(payload.maxCases),
+
+    in_num_agencymst_current_cases:
+      normalizeNullable(payload.currentCases),
+
+    in_num_agencymst_max_fos:
+      normalizeNullable(payload.maxFos),
+
+    in_clob_agencymst_sla_config:
+      normalizeNullable(payload.slaConfig),
+
+    in_var_agencymst_contact_email:
+      normalizeNullable(payload.contactEmail),
+
+    in_num_agencymst_contact_phone:
+      normalizeNullable(payload.contactPhone),
+
+    in_var_agencymst_address1:
+      normalizeNullable(payload.address1),
+
+    in_var_agencymst_city:
+      normalizeNullable(payload.city),
+
+    in_var_agencymst_state:
+      normalizeNullable(payload.state),
+
+    in_var_agencymst_pincode:
+      normalizeNullable(payload.pincode),
+
+    in_var_agencymst_country:
+      normalizeNullable(payload.country),
+
+    in_clob_agencymst_config:
+      normalizeNullable(payload.config),
+
+    in_username: payload.username,
+
+    out_ErrorCode: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 100,
+    },
+
+    out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 4000,
+    },
+  };
+
+  console.log("Agency Bind Payload:", binds);
+
+  const result = await executeProcedure({
+    statement,
+    binds,
+    useTx: false,
+  });
+
+  return result.outBinds;
+}
+
 module.exports = {
   getStatesRepo,
   getDistrictsByStateRepo,
@@ -160,4 +276,5 @@ module.exports = {
   getTotalAgenciesRepo,
   deleteAgencyRepo,
   agencyNameExistsRepo,
+  createAgencyRepoNew
 };

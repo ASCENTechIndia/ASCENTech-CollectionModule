@@ -9,6 +9,7 @@ const {
   getAgencyService,
   getAgenciesService,
   deleteAgencyService,
+  createAgencyServiceNew
 } = require('./agencyCreation.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -276,6 +277,63 @@ async function deleteAgencyHandler(req, res, next) {
   }
 }
 
+async function createAgencyHandlerNew(req, res, next) {
+  try {
+    const payload = req.body;
+
+    const result = await createAgencyServiceNew(payload);
+
+    auditLog({
+      action: "AGENCY_CREATION",
+      actor: req.user?.userId || "system",
+      module: "agencyMaster",
+      entityId: payload.id,
+      status: result.success ? "SUCCESS" : "FAILED",
+      details: {
+        agencyCode: payload.code,
+        agencyName: payload.name,
+        errorCode: result.data?.out_ErrorCode,
+        errorMsg: result.data?.out_ErrorMsg,
+      },
+      requestMeta: requestMeta(req),
+    });
+
+    logApiSuccess(
+      req,
+      201,
+      result,
+      `Agency created successfully`
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: result.message,
+    });
+
+  } catch (error) {
+
+    logApiError(
+      req,
+      error.statusCode || 400,
+      error.message,
+      "Agency creation failed"
+    );
+
+    auditLog({
+      action: "AGENCY_CREATION",
+      actor: req.user?.userId || "system",
+      module: "agencyMaster",
+      status: "FAILED",
+      details: {
+        error: error.message,
+      },
+      requestMeta: requestMeta(req),
+    });
+
+    return next(error);
+  }
+}
+
 module.exports = {
   getStatesHandler,
   getDistrictsByStateHandler,
@@ -287,4 +345,5 @@ module.exports = {
   getAgencyHandler,
   getAgenciesHandler,
   deleteAgencyHandler,
+  createAgencyHandlerNew
 };

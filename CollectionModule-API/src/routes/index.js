@@ -14,6 +14,7 @@ const imageUploadMobAppRoutes = require('../modules/ImageUploadMobApp/ImageUploa
 const userCreationRoutes = require('../modules/UserCreation/userCreation.routes');
 const webCreationRoutes = require('../modules/WebUserCreation/webUserCreation.routes');
 const agencyCreationRoutes = require('../modules/AgencyCreation/agencyCreation.routes');
+const companyRoutes = require('../modules/Company/company.routes');
 const router = express.Router();
 
 router.get('/health', (req, res) => {
@@ -44,6 +45,6 @@ router.use('/image-upload-mobapp', imageUploadMobAppRoutes);
 router.use('/user-creation', userCreationRoutes);
 router.use('/web-creation', webCreationRoutes);
 router.use('/agency-creation', agencyCreationRoutes);
-
+router.use('/company', companyRoutes);
 
 module.exports = router;

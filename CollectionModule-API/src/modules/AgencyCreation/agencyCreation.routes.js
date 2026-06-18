@@ -9,6 +9,7 @@ const {
   createAgencySchema,
   updateAgencySchema,
   validateAgencyNameSchema,
+  createAgencySchemaNew
 } = require('./agencyCreation.validation');
 const {
   getStatesHandler,
@@ -21,6 +22,7 @@ const {
   getAgencyHandler,
   getAgenciesHandler,
   deleteAgencyHandler,
+  createAgencyHandlerNew
 } = require('./agencyCreation.controller');
 
 const router = express.Router();
@@ -38,5 +40,5 @@ router.post('/validate', authRequired, validate(createAgencySchema, { source: 'b
 router.post('/create', authRequired, validate(createAgencySchema, { source: 'body' }), createAgencyHandler);
 router.put('/update', authRequired, validate(updateAgencySchema, { source: 'body' }), updateAgencyHandler);
 router.delete('/delete', authRequired, deleteAgencyHandler);
-
+router.post('/create-new', authRequired, validate(createAgencySchemaNew, { source: 'body' }), createAgencyHandlerNew);
 module.exports = router;
