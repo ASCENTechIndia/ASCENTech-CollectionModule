@@ -137,6 +137,7 @@ const FrmAgencyCreation = () => {
                     className={`form-select ${errors.agencyType ? "is-invalid" : ""}`}
                   >
                     <option value="">SELECT</option>
+                    <option value="1">Type 1</option>
                   </select>
                   <div className="invalid-feedback">{errors.agencyType?.message}</div>
                 </div>
