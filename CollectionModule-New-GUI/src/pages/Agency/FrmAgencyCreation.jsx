@@ -2,9 +2,11 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useNotification } from "../../context/NotificationContext";
+import apiClient from "../../services/apiClient";
 
 const FrmAgencyCreation = () => {
   const { user } = useAuth();
+  console.log(user);
   const { showSuccess, showError } = useNotification();
   const username = user?.userName;
   const navigate = useNavigate();
@@ -12,6 +14,7 @@ const FrmAgencyCreation = () => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -58,10 +61,12 @@ const FrmAgencyCreation = () => {
 
   const onSubmit = async (values) => {
     const payload = {
-      username,
+      username: "456",
+      id: Number(values.id),
       code: values.code,
       name: values.name,
       type: values.agencyType,
+      // type: "collection",
       status: values.status,
 
       licenseNo: values.licenseNo,
@@ -81,24 +86,26 @@ const FrmAgencyCreation = () => {
       pincode: values.pincode,
       country: values.country,
       contactEmail: values.email,
-      contactPhone: values.mobile,
+      contactPhone: Number(values.mobile),
 
       address1: values.address,
 
-      slaConfig: values.slaConfig,
-      config: values.configuration
+      slaConfig: "",
+      // slaConfig: values.slaConfig,
+      // config: values.configuration
+      config: ""
     };
 
     console.log(payload);
-    return;
+    // return;
 
-    // const response = await apiClient.post("", payload);
-    // console.log(response);
+    const response = await apiClient.post("/agency-creation/create-new", payload);
+    console.log(response);
 
-    // if (response.success) {
-    //   reset();
-    //   showSuccess();
-    // }
+    if (response.success) {
+      reset();
+      showSuccess(response.message);
+    }
   };
 
   return (
@@ -377,6 +384,7 @@ const FrmAgencyCreation = () => {
               <div className="col-md-6">
                 <input
                   placeholder="Mobile"
+                  maxLength={10}
                   {...register("mobile", { required: "Mobile is required" })}
                   className={`form-control ${errors.mobile ? "is-invalid" : ""}`}
                 />
