@@ -15,6 +15,7 @@ const FrmAgencyCreation = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
+      id: "",
       code: "",
       name: "",
       agencyType: "",
@@ -41,36 +42,50 @@ const FrmAgencyCreation = () => {
     },
   });
 
+  const formatDate = (date) => {
+    if (!date) return "";
+
+    const d = new Date(date);
+
+    const year = d.getFullYear();
+
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+
+    const day = String(d.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
   const onSubmit = async (values) => {
     const payload = {
       username,
       code: values.code,
       name: values.name,
-      agencytype: values.agencyType,
+      type: values.agencyType,
       status: values.status,
 
-      license_no: values.licenseNo,
-      license_expiry: values.licenseExpiry,
+      licenseNo: values.licenseNo,
+      licenseExpiry: formatDate(values.licenseExpiry),
 
-      coverage_zones: values.coverageZones
-        .split(",")
-        .map((x) => x.trim()),
+      coverageZones: values.coverageZones,
+      // .split(",")
+      // .map((x) => x.trim()),
 
-      max_cases: Number(values.maxCases),
-      current_cases: Number(values.currentCases),
-      max_fos: Number(values.maxFos),
+      maxCases: Number(values.maxCases),
+      currentCases: Number(values.currentCases),
+      maxFos: Number(values.maxFos),
 
       // contact_person: values.contactPerson,
       city: values.city,
       state: values.state,
       pincode: values.pincode,
       country: values.country,
-      email: values.email,
-      mobile: values.mobile,
+      contactEmail: values.email,
+      contactPhone: values.mobile,
 
-      address: values.address,
+      address1: values.address,
 
-      sla_config: values.slaConfig,
+      slaConfig: values.slaConfig,
       config: values.configuration
     };
 
@@ -105,7 +120,7 @@ const FrmAgencyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    Agency Code *
+                    Agency Code <span className="text-danger">*</span>
                   </label>
 
                   <input
@@ -117,7 +132,7 @@ const FrmAgencyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    Agency Name *
+                    Agency Name <span className="text-danger">*</span>
                   </label>
 
                   <input
@@ -129,7 +144,7 @@ const FrmAgencyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    Agency Type *
+                    Agency Type <span className="text-danger">*</span>
                   </label>
 
                   <select
@@ -144,7 +159,7 @@ const FrmAgencyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    License No
+                    License No <span className="text-danger">*</span>
                   </label>
 
                   <input
@@ -157,7 +172,7 @@ const FrmAgencyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    License Expiry
+                    License Expiry <span className="text-danger">*</span>
                   </label>
 
                   <input type="date" {...register("licenseExpiry", { required: "License Expiry is required" })} className={`form-control ${errors.licenseExpiry ? "is-invalid" : ""}`} />
@@ -166,7 +181,7 @@ const FrmAgencyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    City
+                    City <span className="text-danger">*</span>
                   </label>
 
                   <input
@@ -178,7 +193,7 @@ const FrmAgencyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    State
+                    State <span className="text-danger">*</span>
                   </label>
 
                   <input
@@ -190,7 +205,7 @@ const FrmAgencyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    Country
+                    Country <span className="text-danger">*</span>
                   </label>
 
                   <input
@@ -202,7 +217,7 @@ const FrmAgencyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    Pincode
+                    Pincode <span className="text-danger">*</span>
                   </label>
 
                   <input
@@ -222,7 +237,22 @@ const FrmAgencyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    Status
+                    Agency ID
+                  </label>
+                  <input
+                    // maxLength={6}
+                    onInput={(e) => {
+                      e.target.value = e.target.value.replace(/\D/g, "");
+                    }}
+                    {...register("id", { required: "ID is required" })}
+                    className={`form-control ${errors.id ? "is-invalid" : ""}`}
+                  />
+                  <div className="invalid-feedback">{errors.id?.message}</div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">
+                    Status <span className="text-danger">*</span>
                   </label>
 
                   <select
@@ -239,7 +269,7 @@ const FrmAgencyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    Coverage Zones
+                    Coverage Zones <span className="text-danger">*</span>
                   </label>
 
                   <textarea
@@ -253,7 +283,7 @@ const FrmAgencyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    Address
+                    Address <span className="text-danger">*</span>
                   </label>
 
                   <textarea
@@ -277,7 +307,7 @@ const FrmAgencyCreation = () => {
               <div className="col-md-4">
                 <div className="mb-3">
                   <label className="form-label">
-                    Max Cases
+                    Max Cases <span className="text-danger">*</span>
                   </label>
 
                   <input
@@ -292,7 +322,7 @@ const FrmAgencyCreation = () => {
               <div className="col-md-4">
                 <div className="mb-3">
                   <label className="form-label">
-                    Current Cases
+                    Current Cases <span className="text-danger">*</span>
                   </label>
 
                   <input
@@ -307,7 +337,7 @@ const FrmAgencyCreation = () => {
               <div className="col-md-4">
                 <div className="mb-3">
                   <label className="form-label">
-                    Max FOS
+                    Max FOS <span className="text-danger">*</span>
                   </label>
 
                   <input
@@ -357,7 +387,7 @@ const FrmAgencyCreation = () => {
 
             <div className="mt-3">
               <label className="form-label">
-                SLA Config
+                SLA Config <span className="text-danger">*</span>
               </label>
 
               <textarea
@@ -370,7 +400,7 @@ const FrmAgencyCreation = () => {
 
             <div className="mt-3">
               <label className="form-label">
-                Configuration
+                Configuration <span className="text-danger">*</span>
               </label>
               <select
                 multiple

@@ -103,39 +103,39 @@ const FrmCompanyCreation = () => {
         logoBase64 = await convertToBase64(file);
       }
 
+      const configStr = values.configuration.join(",");
+
       const payload = {
         username,
-        compid: values.code,
+        compid: Number(values.code),
         cin: values.cin,
         compname: values.name,
         status: values.status,
         legalname: values.legalName,
         email: values.primaryEmail,
         companytype: values.companyType,
-        upassoperid: values.operatorId,
+        upassoperid: Number(values.operatorId),
         pan: values.pan,
         ishobranch: values.ishoBranch,
         address: values.addressLine1,
         gst: values.gst,
         remark: values.remark,
-        mobileno: values.phone,
+        mobileno: Number(values.phone),
         branchname: selectedBranchLabel,
-        brcategory: brCategory,
-        logo: logoBase64,
+        brcategory: Number(brCategory),
+        logo: "",
         branchcode: values.branch,
-        config: values.configuration
+        config: "",
+        parentid: 2,
+        insby: "ADMIN",
       };
 
-      console.log(payload);
-      return;
+      const response = await apiClient.post("/company/create", payload);
 
-      // const response = await apiClient.post("", payload);
-      // console.log(response);
-
-      // if (response.success) {
-      //   reset();
-      //   showSuccess("")
-      // }
+      if (response.success) {
+        reset();
+        showSuccess(response.message);
+      }
 
     } catch (error) {
       console.error(error);
@@ -161,12 +161,12 @@ const FrmCompanyCreation = () => {
               <div className="col-md-6">
                 <div className="mb-3">
                   <label className="form-label">
-                    Company Code *
+                    Company Code <span className="text-danger">*</span>
                   </label>
 
                   <input
                     {...register("code", {
-                      required: "Company Code required",
+                      required: "Company Code is required",
                     })}
                     className={`form-control ${errors.code ? "is-invalid" : ""
                       }`}
@@ -179,12 +179,12 @@ const FrmCompanyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    Company Name *
+                    Company Name <span className="text-danger">*</span>
                   </label>
 
                   <input
                     {...register("name", {
-                      required: "Company Name required",
+                      required: "Company Name is required",
                     })}
                     className={`form-control ${errors.name ? "is-invalid" : ""
                       }`}
@@ -196,12 +196,12 @@ const FrmCompanyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    Legal Name
+                    Legal Name <span className="text-danger">*</span>
                   </label>
 
                   <input
                     {...register("legalName", {
-                      required: "Legal Name required",
+                      required: "Legal Name is required",
                     })}
                     className={`form-control ${errors.legalName ? "is-invalid" : ""
                       }`}
@@ -213,7 +213,7 @@ const FrmCompanyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    Company Type *
+                    Company Type <span className="text-danger">*</span>
                   </label>
 
                   <select
@@ -238,17 +238,17 @@ const FrmCompanyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    PAN
+                    PAN <span className="text-danger">*</span>
                   </label>
 
                   <input
                     {...register("pan", {
                       required: "PAN is required",
                     })}
-                    // maxLength={10}
+                    maxLength={10}
                     onInput={(e) => {
                       e.target.value = e.target.value
-                        .replace(/[^a-zA-Z0-9]/g, ""); // remove special characters        
+                        .replace(/[^a-zA-Z0-9]/g, "");
                     }}
                     className={`form-control ${errors.pan ? "is-invalid" : ""
                       }`}
@@ -260,16 +260,17 @@ const FrmCompanyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    GST
+                    GST <span className="text-danger">*</span>
                   </label>
 
                   <input
                     {...register("gst", {
                       required: "GST is required",
                     })}
+                    maxLength={15}
                     onInput={(e) => {
                       e.target.value = e.target.value
-                        .replace(/[^a-zA-Z0-9]/g, ""); // remove special characters        
+                        .replace(/[^a-zA-Z0-9]/g, "");
                     }}
                     className={`form-control ${errors.gst ? "is-invalid" : ""
                       }`}
@@ -281,7 +282,7 @@ const FrmCompanyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    Phone
+                    Phone <span className="text-danger">*</span>
                   </label>
 
                   <input
@@ -303,7 +304,7 @@ const FrmCompanyCreation = () => {
                 </div>
                 <div className="mb-3">
                   <label className="form-label">
-                    Branch Name
+                    Branch Name <span className="text-danger">*</span>
                   </label>
 
                   {/* <input
@@ -330,7 +331,7 @@ const FrmCompanyCreation = () => {
                   </div>
                 </div>
                 <div className="mb-3">
-                  <label className="form-label">Logo</label>
+                  <label className="form-label">Logo <span className="text-danger">*</span></label>
 
                   <label
                     htmlFor="logoInput"
@@ -382,7 +383,7 @@ const FrmCompanyCreation = () => {
               <div className="col-md-6">
                 <div className="mb-3">
                   <label className="form-label">
-                    CIN
+                    CIN <span className="text-danger">*</span>
                   </label>
 
                   <input
@@ -399,7 +400,7 @@ const FrmCompanyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    Status
+                    Status <span className="text-danger">*</span>
                   </label>
 
                   <select
@@ -454,7 +455,7 @@ const FrmCompanyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    Primary Email
+                    Primary Email <span className="text-danger">*</span>
                   </label>
 
                   <input
@@ -472,7 +473,7 @@ const FrmCompanyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    UPass Operator ID
+                    UPass Operator ID <span className="text-danger">*</span>
                   </label>
                   <select
                     {...register("operatorId", {
@@ -482,7 +483,7 @@ const FrmCompanyCreation = () => {
                       }`}
                   >
                     <option value="">Select</option>
-                    <option value="E1">Emp 1</option>
+                    <option value="1">Emp 1</option>
                   </select>
                   <div className="invalid-feedback">
                     {errors.operatorId?.message}
@@ -491,7 +492,7 @@ const FrmCompanyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    IshoBranch
+                    Head Office Branch <span className="text-danger">*</span>
                   </label>
                   <select
                     {...register("ishoBranch", {
@@ -501,7 +502,8 @@ const FrmCompanyCreation = () => {
                       }`}
                   >
                     <option value="">Select</option>
-                    <option value="B1">B1</option>
+                    <option value="Y">Yes</option>
+                    <option value="N">No</option>
                   </select>
                   <div className="invalid-feedback">
                     {errors.ishoBranch?.message}
@@ -510,7 +512,7 @@ const FrmCompanyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    Address
+                    Address <span className="text-danger">*</span>
                   </label>
 
                   <textarea
@@ -528,7 +530,7 @@ const FrmCompanyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    Remark
+                    Remark <span className="text-danger">*</span>
                   </label>
 
                   <textarea
@@ -557,7 +559,7 @@ const FrmCompanyCreation = () => {
               <div className="col-md-6">
                 <div className="mb-3">
                   <label className="form-label">
-                    Configuration
+                    Configuration <span className="text-danger">*</span>
                   </label>
 
                   {/* <input
