@@ -8,7 +8,7 @@ import { useAuth } from "../../context/AuthContext";
 
 const FrmUserCreation = () => {
   const { user } = useAuth();
-  console.log("user :", user);
+  // console.log("user :", user);
   const userId = user?.id;
   const branchCategory = user?.compId;
   const userLevel = user?.desgName;
@@ -152,7 +152,7 @@ const FrmUserCreation = () => {
 
   // Fetch branches
   const fetchBranches = async () => {
-    console.log("category :", branchCategory, userLevel);
+    // console.log("category :", branchCategory, userLevel);
     if (!branchCategory || !userLevel) {
       showWarning("Branch category id or user level id is not set");
       return;
@@ -161,7 +161,7 @@ const FrmUserCreation = () => {
       const response = await apiClient.get(
         `/user-creation/branches?branchCategory=${branchCategory}&userLevel=${userLevel}`,
       );
-      console.log("resp branch:", response);
+      // console.log("resp branch:", response);
       if (response?.success && Array.isArray(response.data)) {
         const options = response.data.map((item) => ({
           value: item.id,
@@ -184,7 +184,7 @@ const FrmUserCreation = () => {
     setLoadingDropdown(true);
     try {
       const res = await apiClient.get("/user-creation/form-options");
-      console.log(res);
+      // console.log(res);
       // Working For
       if (res?.workingFor?.length) {
         setWorkingDropdown(
@@ -283,7 +283,7 @@ const FrmUserCreation = () => {
   }, []);
 
   useEffect(() => {
-    console.log("branch ", branchCategory, userLevel);
+    // console.log("branch ", branchCategory, userLevel);
     if (branchCategory && userLevel) {
       fetchBranches();
     }
