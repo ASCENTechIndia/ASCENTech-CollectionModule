@@ -13,7 +13,7 @@ const {
 } = require('./agencyCreation.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
-const AppError = require('../../utils/app-error');
+const { AppError } = require('../../utils/app-error');
 
 function requestMeta(req) {
   return {
