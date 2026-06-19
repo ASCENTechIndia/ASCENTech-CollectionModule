@@ -96,11 +96,7 @@ const FrmAgencyCreation = () => {
       config: ""
     };
 
-    console.log(payload);
-    // return;
-
     const response = await apiClient.post("/agency-creation/create-new", payload);
-    console.log(response);
 
     if (response.success) {
       reset();
