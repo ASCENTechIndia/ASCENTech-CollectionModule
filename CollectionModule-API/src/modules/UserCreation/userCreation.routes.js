@@ -58,7 +58,7 @@ router.get('/user-status', validate(getUserStatusSchema, { source: 'query' }), g
 // Protected routes (auth required)
 router.post('/validate', authRequired, validate(createUserSchema, { source: 'body' }), validateUserHandler);
 router.post('/create', authRequired, validate(createUserSchema, { source: 'body' }), createUserHandler);
-router.post('/create-new', authRequired, validate(createUserSchemaNew, { source: 'body' }), createUserNewHandler);
+router.post('/create-new', validate(createUserSchemaNew, { source: 'body' }), createUserNewHandler);
 router.put('/update', authRequired, validate(updateUserSchema, { source: 'body' }), updateUserHandler);
 router.post(
   '/upload-image',

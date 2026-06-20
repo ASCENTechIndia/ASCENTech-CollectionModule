@@ -13,7 +13,7 @@ const FrmUserCreation = () => {
   const userId = user?.id;
   // console.log(userId.split("E")[1]);
   const branchCategory = user?.compId;
-  const userLevel = user?.desgName;
+  const userLevel = user?.desgId;
   const navigate = useNavigate();
   const { showError, showSuccess, showWarning } = useNotification();
   const [loadingDropdown, setLoadingDropdown] = useState(false);
@@ -108,9 +108,9 @@ const FrmUserCreation = () => {
 
       const payload1 = {
         in_brid: Number(values.branch),
-        in_userid: values.userId || "",
+        in_userid: null,
         in_username: values.firstName.trim() + " " + values.lastName.trim(),
-        in_userpwd: "",
+        in_userpwd: null,
         in_mobno: Number(values.mobileNumber),
         in_email: values.emailId,
         in_usertypeid: 1,
@@ -187,7 +187,7 @@ const FrmUserCreation = () => {
       // };
       // console.log(payload);
 
-      const res = await apiClient.post("/user-creation/create", payload1);
+      const res = await apiClient.post("/user-creation/create-new", payload1);
       console.log(res);
       return;
       // if (res?.success) {
@@ -214,7 +214,7 @@ const FrmUserCreation = () => {
       showWarning("Branch category id or user level id is not set");
       return;
     }
-    console.log(branchCategory, userLevel);
+
     try {
       const response = await apiClient.get(
         `/user-creation/branches?branchCategory=${branchCategory}&userLevel=${userLevel}`,
@@ -547,7 +547,9 @@ const FrmUserCreation = () => {
                   <div className="mb-3">
                     <label className="form-label">Collection Team</label>
                     <select
-                      {...register("collectionTeam")}
+                      {...register("collectionTeam", {
+                        required: "Collection Team is required"
+                      })}
                       className={`form-select ${errors.collectionTeam ? "is-invalid" : ""}`}
                     >
                       <option value="">-- Select Option --</option>
@@ -593,7 +595,9 @@ const FrmUserCreation = () => {
                   <div className="mb-3">
                     <label className="form-label">User ID Proof</label>
                     <select
-                      {...register("userIdProof")}
+                      {...register("userIdProof", {
+                        required: "User ID Proof is required"
+                      })}
                       className={`form-select ${errors.userIdProof ? "is-invalid" : ""}`}
                     >
                       <option value="">-- Select Option --</option>
@@ -614,7 +618,9 @@ const FrmUserCreation = () => {
                   <div className="mb-3">
                     <label className="form-label">ID Proof No.</label>
                     <input
-                      {...register("idProofNo")}
+                      {...register("idProofNo", {
+                        required: "ID Proof Number is required"
+                      })}
                       className={`form-control ${errors.idProofNo ? "is-invalid" : ""}`}
                     />
                     {errors.idProofNo && (
@@ -628,7 +634,9 @@ const FrmUserCreation = () => {
                   <div className="mb-3">
                     <label className="form-label">Employer Name</label>
                     <select
-                      {...register("employerName")}
+                      {...register("employerName", {
+                        required: "Employer Name is required"
+                      })}
                       className={`form-select ${errors.employerName ? "is-invalid" : ""}`}
                     >
                       <option value="">-- Select Option --</option>
@@ -649,42 +657,76 @@ const FrmUserCreation = () => {
                       Request Status
                     </label>
                     <select
-                      {...register("requestStatus")}
+                      {...register("requestStatus", {
+                        required: "Status is required"
+                      })}
                       className={`form-select ${errors.requestStatus ? "is-invalid" : ""}`}
                     >
                       <option value="">--SELECT--</option>
                       <option value="P">P</option>
                     </select>
+                    {errors.requestStatus && (
+                      <div className="invalid-feedback">
+                        {errors.requestStatus.message}
+                      </div>
+                    )}
                   </div>
                   <div className="mb-3">
                     <label className="form-label">
                       Whatsapp Number
                     </label>
                     <input type="text"
-                      {...register("whatsappNumber")}
+                      {...register("whatsappNumber", {
+                        required: "Whatsapp number is required"
+                      })}
                       className={`form-control ${errors.requestStatus ? "is-invalid" : ""}`}
+                      onInput={(e) => {
+                        e.target.value = e.target.value.replace(/\D/g, "");
+                      }}
                     />
+                    {errors.whatsappNumber && (
+                      <div className="invalid-feedback">
+                        {errors.whatsappNumber.message}
+                      </div>
+                    )}
                   </div>
                   <div className="mb-3">
                     <label className="form-label">
                       Geo Zones
                     </label>
                     <select
-                      {...register("geoZones")}
+                      {...register("geoZones", {
+                        required: "Geo Zones is required"
+                      })}
                       className={`form-select ${errors.requestStatus ? "is-invalid" : ""}`}
                     >
                       <option value="">--SELECT--</option>
                       <option value="Zone-A">Zone A</option>
                     </select>
+                    {errors.geoZones && (
+                      <div className="invalid-feedback">
+                        {errors.geoZones.message}
+                      </div>
+                    )}
                   </div>
                   <div className="mb-3">
                     <label className="form-label">
                       Current Open Cases
                     </label>
                     <input type="text"
-                      {...register("openCases")}
+                      {...register("openCases", {
+                        required: "Current Open Cases is required"
+                      })}
                       className={`form-control ${errors.openCases ? "is-invalid" : ""}`}
+                      onInput={(e) => {
+                        e.target.value = e.target.value.replace(/\D/g, "");
+                      }}
                     />
+                    {errors.openCases && (
+                      <div className="invalid-feedback">
+                        {errors.openCases.message}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -716,7 +758,9 @@ const FrmUserCreation = () => {
                     <label className="form-label">User D.O.B.</label>
                     <input
                       type="date"
-                      {...register("dob")}
+                      {...register("dob", {
+                        required: "DOB is required"
+                      })}
                       className={`form-control ${errors.dob ? "is-invalid" : ""}`}
                     />
                     {errors.dob && (
@@ -736,6 +780,7 @@ const FrmUserCreation = () => {
                           value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                           message: "Enter valid email address",
                         },
+                        required: "Email ID is required"
                       })}
                       className={`form-control ${errors.emailId ? "is-invalid" : ""}`}
                     />
@@ -775,7 +820,9 @@ const FrmUserCreation = () => {
                   <div className="mb-3">
                     <label className="form-label">Product Categorisation</label>
                     <select
-                      {...register("productCategorisation")}
+                      {...register("productCategorisation", {
+                        required: "Product Category is required"
+                      })}
                       className={`form-select ${errors.productCategorisation ? "is-invalid" : ""}`}
                     >
                       <option value="">-- Select Option --</option>
@@ -833,7 +880,7 @@ const FrmUserCreation = () => {
                   </div> */}
 
                   {/* User ID */}
-                  <div className="mb-3">
+                  {/* <div className="mb-3">
                     <label className="form-label">User ID</label>
                     <input
                       {...register("userId")}
@@ -844,13 +891,15 @@ const FrmUserCreation = () => {
                         {errors.userId.message}
                       </div>
                     )}
-                  </div>
+                  </div> */}
 
                   {/* Company Code */}
                   <div className="mb-3">
                     <label className="form-label">Company Code</label>
                     <select
-                      {...register("companyCode")}
+                      {...register("companyCode", {
+                        required: "Company code is required"
+                      })}
                       className={`form-select ${errors.companyCode ? "is-invalid" : ""}`}
                     >
                       <option value="">-- Select Option --</option>
@@ -872,11 +921,13 @@ const FrmUserCreation = () => {
                       Team Lead
                     </label>
                     <select
-                      {...register("teamLead")}
+                      {...register("teamLead", {
+                        required: "Team Lead is required"
+                      })}
                       className={`form-select ${errors.teamLead ? "is-invalid" : ""}`}
                     >
                       <option value="">--SELECT--</option>
-                      <option value="1">Sam</option>
+                      <option value="sam">Sam</option>
                     </select>
                     {errors.teamLead && (
                       <div className="invalid-feedback">
@@ -890,7 +941,9 @@ const FrmUserCreation = () => {
                       Skills
                     </label>
                     <select
-                      {...register("skills")}
+                      {...register("skills", {
+                        required: "Skills is required"
+                      })}
                       className={`form-select ${errors.skills ? "is-invalid" : ""}`}
                     >
                       <option value="">--SELECT--</option>
@@ -912,6 +965,9 @@ const FrmUserCreation = () => {
                         required: "Max Cases is required"
                       })}
                       className={`form-control ${errors.maxCases ? "is-invalid" : ""}`}
+                      onInput={(e) => {
+                        e.target.value = e.target.value.replace(/\D/g, "");
+                      }}
                     />
                     {errors.maxCases && (
                       <div className="invalid-feedback">
@@ -924,29 +980,52 @@ const FrmUserCreation = () => {
                       Aadhaar Number
                     </label>
                     <input type="text"
+                      maxLength={12}
                       {...register("aadharNo", {
                         required: "Aadhar number is required"
                       })}
                       className={`form-control ${errors.aadharNo ? "is-invalid" : ""}`}
+                      onInput={(e) => {
+                        e.target.value = e.target.value.replace(/\D/g, "");
+                      }}
                     />
+                    {errors.aadharNo && (
+                      <div className="invalid-feedback">
+                        {errors.aadharNo.message}
+                      </div>
+                    )}
                   </div>
                   <div className="mb-3">
                     <label className="form-label">
                       Exit Date
                     </label>
                     <input type="date"
-                      {...register("exitDate")}
+                      {...register("exitDate", {
+                        required: "Exit Date is required"
+                      })}
                       className={`form-control ${errors.exitDate ? "is-invalid" : ""}`}
                     />
+                    {errors.exitDate && (
+                      <div className="invalid-feedback">
+                        {errors.exitDate.message}
+                      </div>
+                    )}
                   </div>
                   <div className="mb-3">
                     <label className="form-label">
                       Joining Date
                     </label>
                     <input type="date"
-                      {...register("joiningDate")}
+                      {...register("joiningDate", {
+                        required: "Joining Date is required"
+                      })}
                       className={`form-control ${errors.joiningDate ? "is-invalid" : ""}`}
                     />
+                    {errors.exitDate && (
+                      <div className="invalid-feedback">
+                        {errors.exitDate.message}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
