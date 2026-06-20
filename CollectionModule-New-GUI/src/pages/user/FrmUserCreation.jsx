@@ -125,8 +125,8 @@ const FrmUserCreation = () => {
         in_categoryid: Number(values.productCategorisation),
         in_status: "A",
         in_Empcode: values.pincode,
-        in_firstname: values.firstName,
-        in_lastname: values.lastName,
+        in_firstname: values.firstName.trim(),
+        in_lastname: values.lastName.trim(),
         in_prooftype: Number(values.userIdProof),
         in_mode: 1,
         in_compid: Number(values.companyCode),
@@ -145,7 +145,7 @@ const FrmUserCreation = () => {
       }
 
       console.log(payload1);
-      return;
+
       // Map React form values to API payload structure
       // const payload = {
       //   // User Details
@@ -186,16 +186,16 @@ const FrmUserCreation = () => {
       //   insby: userId,
       // };
       // console.log(payload);
-      return;
-      const res = await apiClient.post("/user-creation/create", payload);
 
-      if (res?.success) {
-        showSuccess(res.message || "User created successfully");
-        reset();
-        navigate("/user/user-list");
-      } else {
-        showError(res?.message || "Something went wrong");
-      }
+      const res = await apiClient.post("/user-creation/create", payload1);
+      console.log(res);
+      // if (res?.success) {
+      //   showSuccess(res.message || "User created successfully");
+      //   reset();
+      //   navigate("/user/user-list");
+      // } else {
+      //   showError(res?.message || "Something went wrong");
+      // }
     } catch (error) {
       console.error(error);
       showError(
@@ -329,7 +329,7 @@ const FrmUserCreation = () => {
     }
   };
 
-  
+
 
   useEffect(() => {
     const initialize = async () => {
@@ -697,6 +697,9 @@ const FrmUserCreation = () => {
                       {...register("empid", {
                         required: "Employee ID is required",
                       })}
+                      onInput={(e) => {
+                        e.target.value = e.target.value.replace(/\D/g, "");
+                      }}
                       className={`form-control ${errors.empid ? "is-invalid" : ""}`}
                     />
                     {errors.empid && (
