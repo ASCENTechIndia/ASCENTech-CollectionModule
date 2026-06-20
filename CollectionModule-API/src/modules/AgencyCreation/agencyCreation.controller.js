@@ -23,6 +23,23 @@ function requestMeta(req) {
   };
 }
 
+function formatDateToDDMMMYY(dateString) {
+  if (!dateString) return "";
+
+  const date = new Date(dateString);
+
+  const months = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  ];
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = months[date.getMonth()];
+  const year = String(date.getFullYear()).slice(-2);
+
+  return `${day}-${month}-${year}`;
+}
+
 /**
  * Get all states
  */
@@ -280,6 +297,10 @@ async function deleteAgencyHandler(req, res, next) {
 async function createAgencyHandlerNew(req, res, next) {
   try {
     const payload = req.body;
+
+    payload.licenseExpiry = formatDateToDDMMMYY(
+      payload.licenseExpiry
+    );
 
     const result = await createAgencyServiceNew(payload);
 

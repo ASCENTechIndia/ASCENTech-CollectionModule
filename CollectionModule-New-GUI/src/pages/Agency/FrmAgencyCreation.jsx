@@ -1,21 +1,34 @@
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { useNotification } from "../../context/NotificationContext";
+import apiClient from "../../services/apiClient";
 
 const FrmAgencyCreation = () => {
+  const { user } = useAuth();
+  console.log(user);
+  const { showSuccess, showError } = useNotification();
+  const username = user?.userName;
   const navigate = useNavigate();
 
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm({
     defaultValues: {
+      id: "",
       code: "",
       name: "",
       agencyType: "",
       status: "active",
       licenseNo: "",
       licenseExpiry: "",
+      city: "",
+      state: "",
+      country: "",
+      pincode: "",
 
       maxCases: "",
       currentCases: "",
@@ -28,43 +41,67 @@ const FrmAgencyCreation = () => {
       address: "",
       coverageZones: "",
       slaConfig: "",
+      configuration: []
     },
   });
 
+  const formatDate = (date) => {
+    if (!date) return "";
+
+    const d = new Date(date);
+
+    const year = d.getFullYear();
+
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+
+    const day = String(d.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
   const onSubmit = async (values) => {
     const payload = {
+      username: "23",
+      id: Number(values.id),
       code: values.code,
       name: values.name,
-      agency_type: values.agencyType,
+      type: values.agencyType,
+      // type: "collection",
       status: values.status,
 
-      license_no: values.licenseNo,
-      license_expiry: values.licenseExpiry,
+      licenseNo: values.licenseNo,
+      licenseExpiry: formatDate(values.licenseExpiry),
 
-      coverage_zones: values.coverageZones
-        .split(",")
-        .map((x) => x.trim()),
+      coverageZones: values.coverageZones,
+      // .split(",")
+      // .map((x) => x.trim()),
 
-      capacity: {
-        max_cases: Number(values.maxCases),
-        current_cases: Number(values.currentCases),
-        max_fos: Number(values.maxFos),
-      },
+      maxCases: Number(values.maxCases),
+      currentCases: Number(values.currentCases),
+      maxFos: Number(values.maxFos),
 
-      contact: {
-        contact_person: values.contactPerson,
-        email: values.email,
-        mobile: values.mobile,
-      },
+      // contact_person: values.contactPerson,
+      city: values.city,
+      state: values.state,
+      pincode: values.pincode,
+      country: values.country,
+      contactEmail: values.email,
+      contactPhone: Number(values.mobile),
 
-      address: values.address,
+      address1: values.address,
 
-      sla_config: {
-        config: values.slaConfig,
-      },
+      slaConfig: "",
+      // slaConfig: values.slaConfig,
+      // config: values.configuration
+      config: ""
     };
 
-    console.log(payload);
+    const response = await apiClient.post("/agency-creation/create-new", payload);
+
+    if (response.success) {
+      reset();
+      showSuccess(response.message);
+    }
   };
 
   return (
@@ -86,74 +123,115 @@ const FrmAgencyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    Agency Code *
+                    Agency Code <span className="text-danger">*</span>
                   </label>
 
                   <input
-                    {...register("code", {
-                      required: "Agency Code required",
-                    })}
-                    className={`form-control ${
-                      errors.code ? "is-invalid" : ""
-                    }`}
+                    {...register("code", { required: "Agency Code is required" })}
+                    className={`form-control ${errors.code ? "is-invalid" : ""}`}
                   />
+                  <div className="invalid-feedback">{errors.code?.message}</div>
                 </div>
 
                 <div className="mb-3">
                   <label className="form-label">
-                    Agency Name *
+                    Agency Name <span className="text-danger">*</span>
                   </label>
 
                   <input
-                    {...register("name", {
-                      required: "Agency Name required",
-                    })}
-                    className="form-control"
+                    {...register("name", { required: "Agency Name is required" })}
+                    className={`form-control ${errors.name ? "is-invalid" : ""}`}
                   />
+                  <div className="invalid-feedback">{errors.name?.message}</div>
                 </div>
 
                 <div className="mb-3">
                   <label className="form-label">
-                    Agency Type *
+                    Agency Type <span className="text-danger">*</span>
                   </label>
 
                   <select
-                    {...register("agencyType", {
-                      required: true,
-                    })}
-                    className="form-select"
+                    {...register("agencyType", { required: "Agency Type is required" })}
+                    className={`form-select ${errors.agencyType ? "is-invalid" : ""}`}
                   >
-                    <option value="">Select</option>
-                    <option value="primary">Primary</option>
-                    <option value="secondary">Secondary</option>
-                    <option value="legal">Legal</option>
-                    <option value="skip_trace">
-                      Skip Trace
-                    </option>
+                    <option value="">SELECT</option>
+                    <option value="1">Type 1</option>
                   </select>
+                  <div className="invalid-feedback">{errors.agencyType?.message}</div>
                 </div>
 
                 <div className="mb-3">
                   <label className="form-label">
-                    License No
+                    License No <span className="text-danger">*</span>
                   </label>
 
                   <input
-                    {...register("licenseNo")}
-                    className="form-control"
+                    {...register("licenseNo", { required: "License Number is required" })}
+                    className={`form-control ${errors.licenseNo ? "is-invalid" : ""}`}
                   />
+                  <div className="invalid-feedback">{errors.licenseNo?.message}</div>
+
                 </div>
 
                 <div className="mb-3">
                   <label className="form-label">
-                    License Expiry
+                    License Expiry <span className="text-danger">*</span>
+                  </label>
+
+                  <input type="date" {...register("licenseExpiry", { required: "License Expiry is required" })} className={`form-control ${errors.licenseExpiry ? "is-invalid" : ""}`} />
+                  <div className="invalid-feedback">{errors.licenseExpiry?.message}</div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">
+                    City <span className="text-danger">*</span>
                   </label>
 
                   <input
-                    type="date"
-                    {...register("licenseExpiry")}
-                    className="form-control"
+                    {...register("city", { required: "City is required" })}
+                    className={`form-control ${errors.city ? "is-invalid" : ""}`}
                   />
+                  <div className="invalid-feedback">{errors.city?.message}</div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">
+                    State <span className="text-danger">*</span>
+                  </label>
+
+                  <input
+                    {...register("state", { required: "State is required" })}
+                    className={`form-control ${errors.state ? "is-invalid" : ""}`}
+                  />
+                  <div className="invalid-feedback">{errors.state?.message}</div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">
+                    Country <span className="text-danger">*</span>
+                  </label>
+
+                  <input
+                    {...register("country", { required: "Country is required" })}
+                    className={`form-control ${errors.country ? "is-invalid" : ""}`}
+                  />
+                  <div className="invalid-feedback">{errors.country?.message}</div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">
+                    Pincode <span className="text-danger">*</span>
+                  </label>
+
+                  <input
+                    maxLength={6}
+                    onInput={(e) => {
+                      e.target.value = e.target.value.replace(/\D/g, "");
+                    }}
+                    {...register("pincode", { required: "Pincode is required" })}
+                    className={`form-control ${errors.pincode ? "is-invalid" : ""}`}
+                  />
+                  <div className="invalid-feedback">{errors.pincode?.message}</div>
                 </div>
 
               </div>
@@ -162,43 +240,61 @@ const FrmAgencyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    Status
+                    Agency ID
+                  </label>
+                  <input
+                    // maxLength={6}
+                    onInput={(e) => {
+                      e.target.value = e.target.value.replace(/\D/g, "");
+                    }}
+                    {...register("id", { required: "ID is required" })}
+                    className={`form-control ${errors.id ? "is-invalid" : ""}`}
+                  />
+                  <div className="invalid-feedback">{errors.id?.message}</div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">
+                    Status <span className="text-danger">*</span>
                   </label>
 
                   <select
-                    {...register("status")}
-                    className="form-select"
+                    {...register("status", { required: "Status is required" })}
+                    className={`form-select ${errors.status ? "is-invalid" : ""}`}
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                     <option value="suspended">Suspended</option>
                     <option value="onboarding">Onboarding</option>
                   </select>
+                  <div className="invalid-feedback">{errors.status?.message}</div>
                 </div>
 
                 <div className="mb-3">
                   <label className="form-label">
-                    Coverage Zones
+                    Coverage Zones <span className="text-danger">*</span>
                   </label>
 
                   <textarea
                     rows="3"
                     placeholder="Mumbai,Pune,Thane"
-                    {...register("coverageZones")}
-                    className="form-control"
+                    {...register("coverageZones", { required: "Coverage Zones are required" })}
+                    className={`form-control ${errors.coverageZones ? "is-invalid" : ""}`}
                   />
+                  <div className="invalid-feedback">{errors.coverageZones?.message}</div>
                 </div>
 
                 <div className="mb-3">
                   <label className="form-label">
-                    Address
+                    Address <span className="text-danger">*</span>
                   </label>
 
                   <textarea
                     rows="3"
-                    {...register("address")}
-                    className="form-control"
+                    {...register("address", { required: "Address is required" })}
+                    className={`form-control ${errors.address ? "is-invalid" : ""}`}
                   />
+                  <div className="invalid-feedback">{errors.address?.message}</div>
                 </div>
 
               </div>
@@ -214,42 +310,45 @@ const FrmAgencyCreation = () => {
               <div className="col-md-4">
                 <div className="mb-3">
                   <label className="form-label">
-                    Max Cases
+                    Max Cases <span className="text-danger">*</span>
                   </label>
 
                   <input
                     type="number"
-                    {...register("maxCases")}
-                    className="form-control"
+                    {...register("maxCases", { required: "Max Cases is required" })}
+                    className={`form-control ${errors.maxCases ? "is-invalid" : ""}`}
                   />
+                  <div className="invalid-feedback">{errors.maxCases?.message}</div>
                 </div>
               </div>
 
               <div className="col-md-4">
                 <div className="mb-3">
                   <label className="form-label">
-                    Current Cases
+                    Current Cases <span className="text-danger">*</span>
                   </label>
 
                   <input
                     type="number"
-                    {...register("currentCases")}
-                    className="form-control"
+                    {...register("currentCases", { required: "Current Cases is required" })}
+                    className={`form-control ${errors.currentCases ? "is-invalid" : ""}`}
                   />
+                  <div className="invalid-feedback">{errors.currentCases?.message}</div>
                 </div>
               </div>
 
               <div className="col-md-4">
                 <div className="mb-3">
                   <label className="form-label">
-                    Max FOS
+                    Max FOS <span className="text-danger">*</span>
                   </label>
 
                   <input
                     type="number"
-                    {...register("maxFos")}
-                    className="form-control"
+                    {...register("maxFos", { required: "Max FOS is required" })}
+                    className={`form-control ${errors.maxFos ? "is-invalid" : ""}`}
                   />
+                  <div className="invalid-feedback">{errors.maxFos?.message}</div>
                 </div>
               </div>
 
@@ -261,42 +360,62 @@ const FrmAgencyCreation = () => {
 
             <div className="row">
 
-              <div className="col-md-4">
+              {/* <div className="col-md-4">
                 <input
                   placeholder="Contact Person"
                   {...register("contactPerson")}
                   className="form-control"
                 />
-              </div>
+              </div> */}
 
-              <div className="col-md-4">
+              <div className="col-md-6">
                 <input
                   placeholder="Email"
-                  {...register("email")}
-                  className="form-control"
+                  {...register("email", { required: "Email is required" })}
+                  className={`form-control ${errors.email ? "is-invalid" : ""}`}
                 />
+                <div className="invalid-feedback">{errors.email?.message}</div>
               </div>
 
-              <div className="col-md-4">
+              <div className="col-md-6">
                 <input
                   placeholder="Mobile"
-                  {...register("mobile")}
-                  className="form-control"
+                  maxLength={10}
+                  {...register("mobile", { required: "Mobile is required" })}
+                  className={`form-control ${errors.mobile ? "is-invalid" : ""}`}
                 />
+                <div className="invalid-feedback">{errors.mobile?.message}</div>
               </div>
 
             </div>
 
             <div className="mt-3">
               <label className="form-label">
-                SLA Config
+                SLA Config <span className="text-danger">*</span>
               </label>
 
               <textarea
                 rows="3"
-                {...register("slaConfig")}
-                className="form-control"
+                {...register("slaConfig", { required: "SLA Config is required" })}
+                className={`form-control ${errors.slaConfig ? "is-invalid" : ""}`}
               />
+              <div className="invalid-feedback">{errors.slaConfig?.message}</div>
+            </div>
+
+            <div className="mt-3">
+              <label className="form-label">
+                Configuration <span className="text-danger">*</span>
+              </label>
+              <select
+                multiple
+                {...register("configuration", { required: "Config is required" })}
+                className={`form-select ${errors.configuration ? "is-invalid" : ""}`}
+              >
+                <option value="">Select</option>
+                <option value="TC">Test Config</option>
+                <option value="DC">Demo Config</option>
+              </select>
+              <div className="invalid-feedback">{errors.configuration?.message}</div>
             </div>
 
             <div className="text-center mt-4">
