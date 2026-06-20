@@ -7,6 +7,7 @@ const {
   updateUserService,
   uploadUserImageService,
   determineUserStatus,
+  createUserNewService,
 } = require('./userCreation.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -284,6 +285,54 @@ async function getUserStatusHandler(req, res, next) {
   }
 }
 
+/**
+ * Create new FOS user using stored procedure (Jayesh's layout)
+ */
+async function createUserNewHandler(req, res, next) {
+  try {
+    const payload = req.body;
+    const result = await createUserNewService(payload);
+
+    const auditData = {
+      action: 'USER_CREATION_FOS',
+      actor: req.user?.userId || 'system',
+      module: 'userCreation',
+      entityId: result.out_user,
+      status: result.success ? 'SUCCESS' : 'FAILED',
+      details: {
+        firstName: payload.in_firstname,
+        lastName: payload.in_lastname,
+        workingFor: payload.in_workid,
+        role: payload.in_roleid,
+        errorCode: result.out_errorcode,
+        errorMsg: result.out_errormsg,
+      },
+      requestMeta: requestMeta(req),
+    };
+
+    auditLog(auditData);
+    logApiSuccess(req, 201, { userid: payload.in_userid }, 'FOS User created successfully');
+
+    return res.status(201).json({
+      success: true,
+      message: result.out_errormsg || 'User created successfully',
+      userId: result.out_user,
+      data: result,
+    });
+  } catch (error) {
+    logApiError(req, 500, error.message, 'FOS User creation failed');
+    auditLog({
+      action: 'USER_CREATION_FOS',
+      actor: req.user?.userId || 'system',
+      module: 'userCreation',
+      status: 'FAILED',
+      details: { error: error.message },
+      requestMeta: requestMeta(req),
+    });
+    return next(error);
+  }
+}
+
 module.exports = {
   getFormOptionsHandler,
   getBranchesHandler,
@@ -293,4 +342,5 @@ module.exports = {
   updateUserHandler,
   uploadUserImageHandler,
   getUserStatusHandler,
+  createUserNewHandler,
 };

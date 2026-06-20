@@ -8,6 +8,7 @@ const {
   validateIdProofFormat,
   calculateAge,
   checkUserAuthorizationRepo,
+  createUserNewRepo,
 } = require('./userCreation.repo');
 const {AppError} = require('../../utils/app-error');
 
@@ -304,6 +305,13 @@ function determineUserStatus(roleId, deviceTypeId) {
   return 'A';
 }
 
+/**
+ * Create new FOS user using stored procedure (Jayesh's layout)
+ */
+async function createUserNewService(body) {
+  return createUserNewRepo(body);
+}
+
 module.exports = {
   getFormOptionsService,
   getBranchesService,
@@ -313,4 +321,5 @@ module.exports = {
   updateUserService,
   uploadUserImageService,
   determineUserStatus,
+  createUserNewService,
 };

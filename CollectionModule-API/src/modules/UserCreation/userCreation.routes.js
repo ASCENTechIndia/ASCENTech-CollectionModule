@@ -9,6 +9,9 @@ const {
   createUserSchema,
   updateUserSchema,
   fileUploadSchema,
+  getBranchesSchema,
+  getUserStatusSchema,
+  createUserSchemaNew,
 } = require('./userCreation.validation');
 const {
   getFormOptionsHandler,
@@ -19,6 +22,7 @@ const {
   updateUserHandler,
   uploadUserImageHandler,
   getUserStatusHandler,
+  createUserNewHandler,
 } = require('./userCreation.controller');
 
 const router = express.Router();
@@ -47,14 +51,21 @@ const upload = multer({
 
 // Public routes (no auth required)
 router.get('/form-options', validate(formOptionsSchema, { source: 'query' }), getFormOptionsHandler);
-router.get('/branches', getBranchesHandler);
+router.get('/branches', validate(getBranchesSchema, { source: 'query' }), getBranchesHandler);
 router.get('/user-details', validate(getUserDetailsByIdSchema, { source: 'query' }), getUserDetailsHandler);
-router.get('/user-status', getUserStatusHandler);
+router.get('/user-status', validate(getUserStatusSchema, { source: 'query' }), getUserStatusHandler);
 
 // Protected routes (auth required)
-router.post('/validate', authRequired, validate(createUserSchema), validateUserHandler);
-router.post('/create', authRequired, validate(createUserSchema), createUserHandler);
-router.put('/update', authRequired, validate(updateUserSchema), updateUserHandler);
-router.post('/upload-image', authRequired, upload.single('file'), uploadUserImageHandler);
+router.post('/validate', authRequired, validate(createUserSchema, { source: 'body' }), validateUserHandler);
+router.post('/create', authRequired, validate(createUserSchema, { source: 'body' }), createUserHandler);
+router.post('/create-new', authRequired, validate(createUserSchemaNew, { source: 'body' }), createUserNewHandler);
+router.put('/update', authRequired, validate(updateUserSchema, { source: 'body' }), updateUserHandler);
+router.post(
+  '/upload-image',
+  authRequired,
+  upload.single('file'),
+  validate(fileUploadSchema, { source: 'body' }),
+  uploadUserImageHandler
+);
 
 module.exports = router;
