@@ -382,9 +382,9 @@ async function createUserNewRepo(body) {
 
   const binds = {
     // ----- STRING params -----
-    in_userid:                        body.in_userid,
+    in_userid:                        body.in_userid             ?? null,
     in_username:                      body.in_username,
-    in_userpwd:                       body.in_userpwd,
+    in_userpwd:                       body.in_userpwd            ?? null,
     in_email:                         body.in_email              ?? null,
     in_proofno:                       body.in_proofno            ?? null,
     in_status:                        body.in_status             ?? 'A',

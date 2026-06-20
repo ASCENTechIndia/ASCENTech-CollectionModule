@@ -93,9 +93,9 @@ const getUserStatusSchema = z.object({
 // FOS User creation schema (Jayesh's parameters)
 const createUserSchemaNew = z.object({
   in_brid:                        z.coerce.number({ required_error: 'in_brid is required' }),
-  in_userid:                      z.string({ required_error: 'in_userid is required' }).min(1),
+  in_userid:                      z.string().optional().nullable(),
   in_username:                    z.string({ required_error: 'in_username is required' }).min(1),
-  in_userpwd:                     z.string({ required_error: 'in_userpwd is required' }).min(1),
+  in_userpwd:                     z.string().optional().nullable(),
   in_mobno:                       z.coerce.number({ required_error: 'in_mobno is required' }),
   in_email:                       z.string().email().optional().nullable(),
   in_usertypeid:                  z.coerce.number({ required_error: 'in_usertypeid is required' }),
