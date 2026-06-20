@@ -118,7 +118,7 @@ const FrmUserCreation = () => {
         in_proofno: values.idProofNo,
         in_desgid: Number(values.userDesignation),
         in_roleid: Number(values.userRole),
-        in_compcode: companyCodeLabel,
+        in_compcode: Number(values.companyCode),
         in_workid: Number(values.workingFor),
         in_empid: Number(values.empid),
         in_collectionid: Number(values.collectionTeam),
@@ -129,7 +129,7 @@ const FrmUserCreation = () => {
         in_lastname: values.lastName.trim(),
         in_prooftype: Number(values.userIdProof),
         in_mode: 1,
-        in_compid: Number(values.companyCode),
+        in_compid: 10001,
         in_insby: loggedInID,
         in_Requeststatus: values.requestStatus,
         in_var_user_teamlead: values.teamLead,
@@ -144,7 +144,7 @@ const FrmUserCreation = () => {
         in_num_fosmst_created_by: Number(loggedInID)
       }
 
-      console.log(payload1);
+      // console.log(payload1);
 
       // Map React form values to API payload structure
       // const payload = {
@@ -188,15 +188,15 @@ const FrmUserCreation = () => {
       // console.log(payload);
 
       const res = await apiClient.post("/user-creation/create-new", payload1);
-      console.log(res);
-      return;
-      // if (res?.success) {
-      //   showSuccess(res.message || "User created successfully");
-      //   reset();
-      //   navigate("/user/user-list");
-      // } else {
-      //   showError(res?.message || "Something went wrong");
-      // }
+      // console.log(res);
+
+      if (res?.data?.success && res?.data?.out_errorcode) {
+        showSuccess(res?.data?.out_errormsg || "User created successfully");
+        reset();
+        // navigate("/user/user-list");
+      } else {
+        showError(res?.message || "Something went wrong");
+      }
     } catch (error) {
       console.error(error);
       showError(
@@ -676,7 +676,7 @@ const FrmUserCreation = () => {
                       Whatsapp Number
                     </label>
                     <input type="text"
-                    maxLength={10}
+                      maxLength={10}
                       {...register("whatsappNumber", {
                         required: "Whatsapp number is required"
                       })}
