@@ -9,7 +9,9 @@ import { useAuth } from "../../context/AuthContext";
 const FrmUserCreation = () => {
   const { user } = useAuth();
   // console.log("user :", user);
+  // console.log(user);
   const userId = user?.id;
+  // console.log(userId.split("E")[1]);
   const branchCategory = user?.compId;
   const userLevel = user?.desgName;
   const navigate = useNavigate();
@@ -30,18 +32,29 @@ const FrmUserCreation = () => {
       dob: "",
       mobileNumber: "",
       emailId: "",
+      userPassword: "",
       userDesignation: "",
       branch: "",
       productCategorisation: "",
       collectionTeam: "",
       userDevice: "1",
       userIdProof: "",
-      uploadIdProof: "",
+      // uploadIdProof: "",
       idProofNo: "",
       userId: "",
       userRole: "",
       employerName: "",
       companyCode: "",
+      teamLead: "",
+      requestStatus: "",
+      skills: "",
+      whatsappNumber: "",
+      maxCases: "",
+      geoZones: "",
+      aadharNo: "",
+      openCases: "",
+      exitDate: "",
+      joiningDate: ""
     },
   });
 
@@ -90,46 +103,89 @@ const FrmUserCreation = () => {
 
   const onSubmit = async (values) => {
     try {
+      const loggedInID = userId.split("E")[1];
+      const companyCodeLabel = companyCodeDropdown.find(item => String(item?.value) === String(values.companyCode))?.label;
+
+      const payload1 = {
+        in_brid: 10162,
+        in_userid: values.userId || "",
+        in_username: values.firstName.trim() + " " + values.lastName.trim(),
+        in_userpwd: "",
+        in_mobno: Number(values.mobileNumber),
+        in_email: values.emailId,
+        in_usertypeid: 1,
+        in_DOB: values.dob,
+        in_proofno: values.idProofNo,
+        in_desgid: Number(values.userDesignation),
+        in_roleid: Number(values.userRole),
+        in_compcode: companyCodeLabel,
+        in_workid: Number(values.workingFor),
+        in_empid: Number(values.empid),
+        in_collectionid: Number(values.collectionTeam),
+        in_categoryid: Number(values.productCategorisation),
+        in_status: "A",
+        in_Empcode: values.pincode,
+        in_firstname: values.firstName,
+        in_lastname: values.lastName,
+        in_prooftype: Number(values.userIdProof),
+        in_mode: 1,
+        in_compid: Number(values.companyCode),
+        in_insby: loggedInID,
+        in_Requeststatus: values.requestStatus,
+        in_var_user_teamlead: values.teamLead,
+        in_num_fosmst_whatsapp: Number(values.whatsappNumber),
+        in_var_fosmst_skills: values.skills,
+        in_var_fosmst_geo_zones: values.geoZones,
+        in_num_fosmst_max_cases_day: Number(values.maxCases),
+        in_num_fosmst_current_open_cases: Number(values.openCases),
+        in_var_fosmst_aadhar_ref: values.aadharNo,
+        in_dat_fosmst_joining_date: values.joiningDate,
+        in_dat_fosmst_exit_date: values.exitDate,
+        in_num_fosmst_created_by: Number(loggedInID)
+      }
+
+      console.log(payload1);
+      return;
       // Map React form values to API payload structure
-      const payload = {
-        // User Details
-        firstname: values.firstName || "",
-        lastname: values.lastName || "",
-        userid: values.userId || "",
+      // const payload = {
+      //   // User Details
+      //   firstname: values.firstName || "",
+      //   lastname: values.lastName || "",
+      //   userid: values.userId || "",
 
-        // Contact Information
-        mobno: values.mobileNumber || "",
-        email: values.emailId || "",
-        dob: formatDateToDMY(values.dob) || "",
+      //   // Contact Information
+      //   mobno: values.mobileNumber || "",
+      //   email: values.emailId || "",
+      //   dob: formatDateToDMY(values.dob) || "",
 
-        // Identification
-        prooftype: Number(values.userIdProof) || 0,
-        proofno: values.idProofNo || "",
+      //   // Identification
+      //   prooftype: Number(values.userIdProof) || 0,
+      //   proofno: values.idProofNo || "",
 
-        // Employment
-        empcode: values.employeeCode || "",
-        desgid: Number(values.userDesignation) || 0,
-        workid: Number(values.workingFor) || 0,
-        empid: values.employerName ? Number(values.employerName) : null,
+      //   // Employment
+      //   empcode: values.employeeCode || "",
+      //   desgid: Number(values.userDesignation) || 0,
+      //   workid: Number(values.workingFor) || 0,
+      //   empid: values.employerName ? Number(values.employerName) : null,
 
-        // Organization
-        brid: Number(values.branch) || 0,
-        compcode: Number(values.companyCode) || 0,
-        collectionid: Number(values.collectionTeam) || 0,
-        categoryid: Number(values.productCategorisation) || 0,
+      //   // Organization
+      //   brid: Number(values.branch) || 0,
+      //   compcode: Number(values.companyCode) || 0,
+      //   collectionid: Number(values.collectionTeam) || 0,
+      //   categoryid: Number(values.productCategorisation) || 0,
 
-        // Access Control
-        usertypeid: Number(values.userDevice) || 0,
-        roleid: Number(values.userRole) || 0,
+      //   // Access Control
+      //   usertypeid: Number(values.userDevice) || 0,
+      //   roleid: Number(values.userRole) || 0,
 
-        // Status & Metadata
-        status: "A", // Active
-        mode: 1, // New user mode
-        compid: 0, // Company ID
-        requeststatus: "A", // Request status
-        insby: userId,
-      };
-      console.log(payload);
+      //   // Status & Metadata
+      //   status: "A", // Active
+      //   mode: 1, // New user mode
+      //   compid: 0, // Company ID
+      //   requeststatus: "A", // Request status
+      //   insby: userId,
+      // };
+      // console.log(payload);
       return;
       const res = await apiClient.post("/user-creation/create", payload);
 
@@ -144,8 +200,8 @@ const FrmUserCreation = () => {
       console.error(error);
       showError(
         error?.response?.data?.message ||
-          error.message ||
-          "Failed to create user. Please try again.",
+        error.message ||
+        "Failed to create user. Please try again.",
       );
     }
   };
@@ -272,6 +328,8 @@ const FrmUserCreation = () => {
       setLoadingDropdown(false);
     }
   };
+
+  
 
   useEffect(() => {
     const initialize = async () => {
@@ -437,6 +495,27 @@ const FrmUserCreation = () => {
                     )}
                   </div>
 
+                  <div className="mb-3">
+                    <label className="form-label">
+                      Pincode <span className="text-danger">*</span>
+                    </label>
+                    <input type="text"
+                      maxLength={6}
+                      onInput={(e) => {
+                        e.target.value = e.target.value.replace(/\D/g, "");
+                      }}
+                      {...register("pincode", {
+                        required: "Pincode is required"
+                      })}
+                      className={`form-control ${errors.pincode ? "is-invalid" : ""}`}
+                    />
+                    {errors.pincode && (
+                      <div className="invalid-feedback">
+                        {errors.pincode.message}
+                      </div>
+                    )}
+                  </div>
+
                   {/* Branch (from separate API) */}
                   <div className="mb-3">
                     <label className="form-label">
@@ -563,6 +642,48 @@ const FrmUserCreation = () => {
                       </div>
                     )}
                   </div>
+                  <div className="mb-3">
+                    <label className="form-label">
+                      Request Status
+                    </label>
+                    <select
+                      {...register("requestStatus")}
+                      className={`form-select ${errors.requestStatus ? "is-invalid" : ""}`}
+                    >
+                      <option value="">--SELECT--</option>
+                      <option value="P">P</option>
+                    </select>
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">
+                      Whatsapp Number
+                    </label>
+                    <input type="text"
+                      {...register("whatsappNumber")}
+                      className={`form-control ${errors.requestStatus ? "is-invalid" : ""}`}
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">
+                      Geo Zones
+                    </label>
+                    <select
+                      {...register("geoZones")}
+                      className={`form-select ${errors.requestStatus ? "is-invalid" : ""}`}
+                    >
+                      <option value="">--SELECT--</option>
+                      <option value="Zone-A">Zone A</option>
+                    </select>
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">
+                      Current Open Cases
+                    </label>
+                    <input type="text"
+                      {...register("openCases")}
+                      className={`form-control ${errors.openCases ? "is-invalid" : ""}`}
+                    />
+                  </div>
                 </div>
 
                 {/* RIGHT COLUMN */}
@@ -570,17 +691,17 @@ const FrmUserCreation = () => {
                   {/* Employee Code */}
                   <div className="mb-3">
                     <label className="form-label">
-                      Employee Code <span className="text-danger">*</span>
+                      Employee Id <span className="text-danger">*</span>
                     </label>
                     <input
-                      {...register("employeeCode", {
-                        required: "Employee Code is required",
+                      {...register("empid", {
+                        required: "Employee ID is required",
                       })}
-                      className={`form-control ${errors.employeeCode ? "is-invalid" : ""}`}
+                      className={`form-control ${errors.empid ? "is-invalid" : ""}`}
                     />
-                    {errors.employeeCode && (
+                    {errors.empid && (
                       <div className="invalid-feedback">
-                        {errors.employeeCode.message}
+                        {errors.empid.message}
                       </div>
                     )}
                   </div>
@@ -692,7 +813,7 @@ const FrmUserCreation = () => {
                   </div>
 
                   {/* Upload ID Proof */}
-                  <div className="mb-3">
+                  {/* <div className="mb-3">
                     <label className="form-label">Upload ID Proof</label>
                     <input
                       type="file"
@@ -704,7 +825,7 @@ const FrmUserCreation = () => {
                         {errors.uploadIdProof.message}
                       </div>
                     )}
-                  </div>
+                  </div> */}
 
                   {/* User ID */}
                   <div className="mb-3">
@@ -739,6 +860,88 @@ const FrmUserCreation = () => {
                         {errors.companyCode.message}
                       </div>
                     )}
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">
+                      Team Lead
+                    </label>
+                    <select
+                      {...register("teamLead")}
+                      className={`form-select ${errors.teamLead ? "is-invalid" : ""}`}
+                    >
+                      <option value="">--SELECT--</option>
+                      <option value="1">Sam</option>
+                    </select>
+                    {errors.teamLead && (
+                      <div className="invalid-feedback">
+                        {errors.teamLead.message}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">
+                      Skills
+                    </label>
+                    <select
+                      {...register("skills")}
+                      className={`form-select ${errors.skills ? "is-invalid" : ""}`}
+                    >
+                      <option value="">--SELECT--</option>
+                      <option value="1">Skill 1</option>
+                    </select>
+                    {errors.skills && (
+                      <div className="invalid-feedback">
+                        {errors.skills.message}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">
+                      Max Cases
+                    </label>
+                    <input type="text"
+                      {...register("maxCases", {
+                        required: "Max Cases is required"
+                      })}
+                      className={`form-control ${errors.maxCases ? "is-invalid" : ""}`}
+                    />
+                    {errors.maxCases && (
+                      <div className="invalid-feedback">
+                        {errors.maxCases.message}
+                      </div>
+                    )}
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">
+                      Aadhaar Number
+                    </label>
+                    <input type="text"
+                      {...register("aadharNo", {
+                        required: "Aadhar number is required"
+                      })}
+                      className={`form-control ${errors.aadharNo ? "is-invalid" : ""}`}
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">
+                      Exit Date
+                    </label>
+                    <input type="date"
+                      {...register("exitDate")}
+                      className={`form-control ${errors.exitDate ? "is-invalid" : ""}`}
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">
+                      Joining Date
+                    </label>
+                    <input type="date"
+                      {...register("joiningDate")}
+                      className={`form-control ${errors.joiningDate ? "is-invalid" : ""}`}
+                    />
                   </div>
                 </div>
               </div>
