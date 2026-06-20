@@ -107,7 +107,7 @@ const FrmUserCreation = () => {
       const companyCodeLabel = companyCodeDropdown.find(item => String(item?.value) === String(values.companyCode))?.label;
 
       const payload1 = {
-        in_brid: 10162,
+        in_brid: Number(values.branch),
         in_userid: values.userId || "",
         in_username: values.firstName.trim() + " " + values.lastName.trim(),
         in_userpwd: "",
@@ -189,6 +189,7 @@ const FrmUserCreation = () => {
 
       const res = await apiClient.post("/user-creation/create", payload1);
       console.log(res);
+      return;
       // if (res?.success) {
       //   showSuccess(res.message || "User created successfully");
       //   reset();
@@ -213,6 +214,7 @@ const FrmUserCreation = () => {
       showWarning("Branch category id or user level id is not set");
       return;
     }
+    console.log(branchCategory, userLevel);
     try {
       const response = await apiClient.get(
         `/user-creation/branches?branchCategory=${branchCategory}&userLevel=${userLevel}`,
