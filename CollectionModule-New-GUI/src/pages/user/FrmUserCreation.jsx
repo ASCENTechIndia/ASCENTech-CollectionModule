@@ -676,6 +676,7 @@ const FrmUserCreation = () => {
                       Whatsapp Number
                     </label>
                     <input type="text"
+                    maxLength={10}
                       {...register("whatsappNumber", {
                         required: "Whatsapp number is required"
                       })}
