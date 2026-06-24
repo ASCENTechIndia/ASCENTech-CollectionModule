@@ -14,16 +14,16 @@ function normalizeNullable(value) {
  */
 async function getFormOptionsRepo(type = '') {
   const queries = {
-    workingFor: `SELECT var_working_name as name, num_working_id as id FROM etech_cm.aoup_working_mas ORDER BY var_working_name`,
-    designation: `SELECT var_designation_designation as name, num_designation_id as id FROM etech_cm.aoup_designation_def ORDER BY var_designation_designation`,
-    collectionTeam: `SELECT var_collectionteam_name as name, num_collectionteam_id as id FROM etech_cm.aoup_collectionteam_mas ORDER BY num_collectionteam_id`,
-    productCategory: `SELECT var_productcategory_name as name, num_productcategory_id as id FROM etech_cm.aoup_productcategory_mas ORDER BY num_productcategory_id`,
-    companyCode: `SELECT var_companycode_code as name, num_companycode_id as id FROM etech_cm.aoup_companycode_mas ORDER BY var_companycode_code`,
-    employer: `SELECT var_employer_name as name, num_employer_id as id, var_employer_code as code FROM etech_cm.aoup_employer_mas ORDER BY var_employer_name`,
-    idProof: `SELECT VAR_IDPROOF_NAME as name, NUM_IDPROOF_ID as id FROM etech_cm.aoup_idproof_mas ORDER BY NUM_IDPROOF_ID`,
-    assetOwner: `SELECT var_assetowner_name as name, num_assetowner_id as id FROM etech_cm.aoup_assetowner_mas ORDER BY var_assetowner_name`,
-    userRole: `SELECT var_userrole_name as name, num_userrole_id as id FROM etech_cm.aoup_userrole_mas ORDER BY num_userrole_id`,
-    userDevice: `SELECT var_userdevice_name as name, num_userdevice_id as id FROM etech_cm.aoup_userdevice_mas ORDER BY num_userdevice_id`,
+    workingFor: `SELECT var_working_name as name, num_working_id as id FROM etech.aoup_working_mas ORDER BY var_working_name`,
+    designation: `SELECT var_designation_designation as name, num_designation_id as id FROM etech.aoup_designation_def ORDER BY var_designation_designation`,
+    collectionTeam: `SELECT var_collectionteam_name as name, num_collectionteam_id as id FROM etech.aoup_collectionteam_mas ORDER BY num_collectionteam_id`,
+    productCategory: `SELECT var_productcategory_name as name, num_productcategory_id as id FROM etech.aoup_productcategory_mas ORDER BY num_productcategory_id`,
+    companyCode: `SELECT var_companycode_code as name, num_companycode_id as id FROM etech.aoup_companycode_mas ORDER BY var_companycode_code`,
+    employer: `SELECT var_employer_name as name, num_employer_id as id, var_employer_code as code FROM etech.aoup_employer_mas ORDER BY var_employer_name`,
+    idProof: `SELECT VAR_IDPROOF_NAME as name, NUM_IDPROOF_ID as id FROM etech.aoup_idproof_mas ORDER BY NUM_IDPROOF_ID`,
+    assetOwner: `SELECT var_assetowner_name as name, num_assetowner_id as id FROM etech.aoup_assetowner_mas ORDER BY var_assetowner_name`,
+    userRole: `SELECT var_userrole_name as name, num_userrole_id as id FROM etech.aoup_userrole_mas ORDER BY num_userrole_id`,
+    userDevice: `SELECT var_userdevice_name as name, num_userdevice_id as id FROM etech.aoup_userdevice_mas ORDER BY num_userdevice_id`,
   };
 
   if (type && queries[type]) {
@@ -328,7 +328,7 @@ function toDate(value) {
 }
 
 /**
- * Create new FOS user using stored procedure etech_cm.aoup_user_ins_new (Jayesh's layout)
+ * Create new FOS user using stored procedure etech.aoup_user_ins_new (Jayesh's layout)
  */
 async function createUserNewRepo(body) {
   const joiningDate = toDate(body.in_dat_fosmst_joining_date);
@@ -337,7 +337,7 @@ async function createUserNewRepo(body) {
 
   const statement = `
     BEGIN
-      etech_cm.aoup_user_ins_new(
+      etech.aoup_user_ins_new(
         in_brid                          => :in_brid,
         in_userid                        => :in_userid,
         in_username                      => :in_username,

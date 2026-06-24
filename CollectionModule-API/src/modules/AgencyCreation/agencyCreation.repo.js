@@ -162,7 +162,7 @@ async function createAgencyRepoNew(payload) {
 
   const statement = `
     BEGIN
-      ETECH_CM.AOUP_AGENCY_MASTER_INS_UPD(
+      ETECH.AOUP_AGENCY_MASTER_INS_UPD(
         :in_num_agencymst_id,
         :in_var_agencymst_code,
         :in_var_agencymst_name,
