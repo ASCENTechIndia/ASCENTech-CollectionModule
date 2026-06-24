@@ -137,7 +137,7 @@ const FrmUserCreation = () => {
         in_var_fosmst_skills: values.skills,
         in_var_fosmst_geo_zones: values.geoZones,
         in_num_fosmst_max_cases_day: Number(values.maxCases),
-        in_num_fosmst_current_open_cases: Number(values.openCases),
+        in_num_open_cases: Number(values.openCases),
         in_var_fosmst_aadhar_ref: values.aadharNo,
         in_dat_fosmst_joining_date: values.joiningDate,
         in_dat_fosmst_exit_date: values.exitDate,
