@@ -415,7 +415,7 @@ async function createUserNewRepo(body) {
     in_compid:                        { val: body.in_compid,                                type: oracledb.NUMBER },
     in_num_fosmst_whatsapp:           { val: body.in_num_fosmst_whatsapp        ?? null,    type: oracledb.NUMBER },
     in_num_fosmst_max_cases_day:      { val: body.in_num_fosmst_max_cases_day   ?? null,    type: oracledb.NUMBER },
-    in_num_open_cases: { val: body.in_num_fosmst_current_open_cases ?? null, type: oracledb.NUMBER },
+    in_num_open_cases: { val: body.in_num_open_cases ?? null, type: oracledb.NUMBER },
     in_num_fosmst_created_by:         { val: body.in_num_fosmst_created_by      ?? null,    type: oracledb.NUMBER },
 
     // ----- DATE params -----
