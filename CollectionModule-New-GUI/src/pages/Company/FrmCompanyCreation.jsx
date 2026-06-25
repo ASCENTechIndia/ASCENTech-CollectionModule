@@ -114,17 +114,17 @@ const FrmCompanyCreation = () => {
         legalname: values.legalName,
         email: values.primaryEmail,
         companytype: values.companyType,
-        upassoperid: Number(values.operatorId),
+        upassoperid: 1,
         pan: values.pan,
-        ishobranch: values.ishoBranch,
+        ishobranch: "N",
         address: values.addressLine1,
         gst: values.gst,
         remark: values.remark,
         mobileno: Number(values.phone),
-        branchname: selectedBranchLabel,
+        branchname: "Branch 1",
         brcategory: Number(brCategory),
         logo: "",
-        branchcode: values.branch,
+        branchcode: "1",
         config: "",
         parentid: 2,
         insby: "ADMIN",
@@ -238,7 +238,7 @@ const FrmCompanyCreation = () => {
 
                 <div className="mb-3">
                   <label className="form-label">
-                    PAN <span className="text-danger">*</span>
+                    TAN <span className="text-danger">*</span>
                   </label>
 
                   <input
@@ -302,15 +302,12 @@ const FrmCompanyCreation = () => {
                     {errors.phone?.message}
                   </div>
                 </div>
-                <div className="mb-3">
+
+                {/* Branch Name */}
+                {/* <div className="mb-3">
                   <label className="form-label">
                     Branch Name <span className="text-danger">*</span>
                   </label>
-
-                  {/* <input
-                    {...register("branch")}
-                    className="form-control"
-                  /> */}
 
                   <select
                     {...register("branch", {
@@ -329,7 +326,7 @@ const FrmCompanyCreation = () => {
                   <div className="invalid-feedback">
                     {errors.branch?.message}
                   </div>
-                </div>
+                </div> */}
                 <div className="mb-3">
                   <label className="form-label">Logo <span className="text-danger">*</span></label>
 
@@ -471,7 +468,8 @@ const FrmCompanyCreation = () => {
                   </div>
                 </div>
 
-                <div className="mb-3">
+                {/* UPass Operator ID */}
+                {/* <div className="mb-3">
                   <label className="form-label">
                     UPass Operator ID <span className="text-danger">*</span>
                   </label>
@@ -488,9 +486,10 @@ const FrmCompanyCreation = () => {
                   <div className="invalid-feedback">
                     {errors.operatorId?.message}
                   </div>
-                </div>
+                </div> */}
 
-                <div className="mb-3">
+                {/* Head Office Branch */}
+                {/* <div className="mb-3">
                   <label className="form-label">
                     Head Office Branch <span className="text-danger">*</span>
                   </label>
@@ -508,7 +507,7 @@ const FrmCompanyCreation = () => {
                   <div className="invalid-feedback">
                     {errors.ishoBranch?.message}
                   </div>
-                </div>
+                </div> */}
 
                 <div className="mb-3">
                   <label className="form-label">

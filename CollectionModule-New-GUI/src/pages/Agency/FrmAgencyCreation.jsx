@@ -394,11 +394,21 @@ const FrmAgencyCreation = () => {
                 SLA Config <span className="text-danger">*</span>
               </label>
 
-              <textarea
+              {/* <textarea
                 rows="3"
                 {...register("slaConfig", { required: "SLA Config is required" })}
                 className={`form-control ${errors.slaConfig ? "is-invalid" : ""}`}
-              />
+              /> */}
+              <select
+                {...register("slaConfig", { required: "SLA Config is required" })}
+                className={`form-select ${errors.slaConfig ? "is-invalid" : ""}`}
+              >
+                <option value="">--SELECT--</option>
+                <option value="1">SLA-1</option>
+                <option value="2">SLA-2</option>
+                <option value="3">SLA-3</option>
+              </select>
+
               <div className="invalid-feedback">{errors.slaConfig?.message}</div>
             </div>
 

@@ -107,7 +107,7 @@ const FrmUserCreation = () => {
       const companyCodeLabel = companyCodeDropdown.find(item => String(item?.value) === String(values.companyCode))?.label;
 
       const payload1 = {
-        in_brid: Number(values.branch),
+        in_brid: 10164,
         in_userid: null,
         in_username: values.firstName.trim() + " " + values.lastName.trim(),
         in_userpwd: null,
@@ -118,7 +118,7 @@ const FrmUserCreation = () => {
         in_proofno: values.idProofNo,
         in_desgid: Number(values.userDesignation),
         in_roleid: Number(values.userRole),
-        in_compcode: Number(values.companyCode),
+        in_compcode: 1,
         in_workid: Number(values.workingFor),
         in_empid: Number(values.empid),
         in_collectionid: Number(values.collectionTeam),
@@ -132,15 +132,15 @@ const FrmUserCreation = () => {
         in_compid: 10001,
         in_insby: loggedInID,
         in_Requeststatus: values.requestStatus,
-        in_var_user_teamlead: values.teamLead,
+        in_var_user_teamlead: "sam",
         in_num_fosmst_whatsapp: Number(values.whatsappNumber),
         in_var_fosmst_skills: values.skills,
-        in_var_fosmst_geo_zones: values.geoZones,
+        in_var_fosmst_geo_zones: "Zone-A",
         in_num_fosmst_max_cases_day: Number(values.maxCases),
-        in_num_open_cases: Number(values.openCases),
+        in_num_open_cases: 1,
         in_var_fosmst_aadhar_ref: values.aadharNo,
         in_dat_fosmst_joining_date: values.joiningDate,
-        in_dat_fosmst_exit_date: values.exitDate,
+        in_dat_fosmst_exit_date: "2030-06-11",
         in_num_fosmst_created_by: Number(loggedInID)
       }
 
@@ -519,7 +519,7 @@ const FrmUserCreation = () => {
                   </div>
 
                   {/* Branch (from separate API) */}
-                  <div className="mb-3">
+                  {/* <div className="mb-3">
                     <label className="form-label">
                       Branch <span className="text-danger">*</span>
                     </label>
@@ -541,7 +541,7 @@ const FrmUserCreation = () => {
                         {errors.branch.message}
                       </div>
                     )}
-                  </div>
+                  </div> */}
 
                   {/* Collection Team */}
                   <div className="mb-3">
@@ -631,7 +631,7 @@ const FrmUserCreation = () => {
                   </div>
 
                   {/* Employer Name */}
-                  <div className="mb-3">
+                  {/* <div className="mb-3">
                     <label className="form-label">Employer Name</label>
                     <select
                       {...register("employerName", {
@@ -651,7 +651,7 @@ const FrmUserCreation = () => {
                         {errors.employerName.message}
                       </div>
                     )}
-                  </div>
+                  </div> */}
                   <div className="mb-3">
                     <label className="form-label">
                       Request Status
@@ -663,7 +663,10 @@ const FrmUserCreation = () => {
                       className={`form-select ${errors.requestStatus ? "is-invalid" : ""}`}
                     >
                       <option value="">--SELECT--</option>
-                      <option value="P">P</option>
+                      <option value="Active">Active</option>
+                      <option value="On-leave">On Leave</option>
+                      <option value="Suspended">Suspended</option>
+                      <option value="Terminated">Terminated</option>
                     </select>
                     {errors.requestStatus && (
                       <div className="invalid-feedback">
@@ -691,7 +694,7 @@ const FrmUserCreation = () => {
                       </div>
                     )}
                   </div>
-                  <div className="mb-3">
+                  {/* <div className="mb-3">
                     <label className="form-label">
                       Geo Zones
                     </label>
@@ -709,8 +712,8 @@ const FrmUserCreation = () => {
                         {errors.geoZones.message}
                       </div>
                     )}
-                  </div>
-                  <div className="mb-3">
+                  </div> */}
+                  {/* <div className="mb-3">
                     <label className="form-label">
                       Current Open Cases
                     </label>
@@ -728,7 +731,8 @@ const FrmUserCreation = () => {
                         {errors.openCases.message}
                       </div>
                     )}
-                  </div>
+                  </div> */}
+
                 </div>
 
                 {/* RIGHT COLUMN */}
@@ -895,7 +899,7 @@ const FrmUserCreation = () => {
                   </div> */}
 
                   {/* Company Code */}
-                  <div className="mb-3">
+                  {/* <div className="mb-3">
                     <label className="form-label">Company Code</label>
                     <select
                       {...register("companyCode", {
@@ -915,9 +919,10 @@ const FrmUserCreation = () => {
                         {errors.companyCode.message}
                       </div>
                     )}
-                  </div>
+                  </div> */}
 
-                  <div className="mb-3">
+                  {/* Team Lead */}
+                  {/* <div className="mb-3">
                     <label className="form-label">
                       Team Lead
                     </label>
@@ -935,7 +940,7 @@ const FrmUserCreation = () => {
                         {errors.teamLead.message}
                       </div>
                     )}
-                  </div>
+                  </div> */}
 
                   <div className="mb-3">
                     <label className="form-label">
@@ -996,7 +1001,9 @@ const FrmUserCreation = () => {
                       </div>
                     )}
                   </div>
-                  <div className="mb-3">
+
+                  {/* Exit Date */}
+                  {/* <div className="mb-3">
                     <label className="form-label">
                       Exit Date
                     </label>
@@ -1011,7 +1018,8 @@ const FrmUserCreation = () => {
                         {errors.exitDate.message}
                       </div>
                     )}
-                  </div>
+                  </div> */}
+
                   <div className="mb-3">
                     <label className="form-label">
                       Joining Date
@@ -1027,7 +1035,7 @@ const FrmUserCreation = () => {
                         {errors.exitDate.message}
                       </div>
                     )}
-                  </div>
+                  </div>  
                 </div>
               </div>
 
