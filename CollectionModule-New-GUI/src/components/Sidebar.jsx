@@ -39,7 +39,8 @@ const adminMenuItems = [
   { to: '/admin/bucket-setter', label: 'Bucket Setter' },
   { to: '/admin/contract-allocation', label: 'Contract Allocation' },
   { to: '/admin/distance-matrix', label: 'Distance Matrix' },
-  {to: 'admin/FrmImageUploadMobApp2', label: 'Mobile Notification' }
+  {to: 'admin/FrmImageUploadMobApp2', label: 'Mobile Notification' },
+  // { to: 'admin/entity-mapping', label: "Entity Mapping Console"}
 ]
 
 const userMenuItems = [
@@ -48,6 +49,10 @@ const userMenuItems = [
   { to: '/User/FrmInactiveUserAcs', label: 'Unallocated Accounts History' },
   { to: '/user/reset-password', label: 'Reset Password' },
   { to: '/user/change-password', label: 'Change Password' },
+]
+
+const mappingMenuItems = [
+  { to: "/map/companyAgencyMapping", label: "Company Agency Mapping"}
 ]
 
 // const tablesMenuItems = [{ to: '/tables/datatables', label: 'DataTables' }]
@@ -128,6 +133,7 @@ function Sidebar({
   agencyMenuOpen,
   companyMenuOpen,
   fosMenuOpen,
+  mappingMgmtOpen,
   // onToggleAuthMenu,
   onToggleUserMenu,
   // onToggleFormsMenu,
@@ -142,6 +148,7 @@ function Sidebar({
   onToggleAgencyMenu,
   onToggleCompanyMenu,
   onToggleFosMenu,
+  onToggleMappingMgmtMenu,
   onCloseMobile,
   // userManagementMenuOpen,
   // onToggleuserManagementMenu
@@ -277,6 +284,20 @@ function Sidebar({
               </button>
               <ul className={`nav-submenu ${agencyMenuOpen ? 'show' : ''}`} style={{ maxHeight: agencyMenuOpen ? `${agencyMenuItems.length * 36 + 20}px` : '0px' }}>
                 {agencyMenuItems.map((item) => (
+                  <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
+                ))}
+              </ul>
+            </li>
+
+            <li className={`nav-item has-submenu ${mappingMgmtOpen ? 'open' : ''}`}>
+              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleMappingMgmtMenu} aria-expanded={mappingMgmtOpen}>
+                <span className="nav-icon"><i className="bi bi-link-45deg"></i></span>
+                <span className="nav-text">Mapping Management</span>
+                <span className="nav-badge">{mappingMenuItems.length}</span>
+                <span className="nav-arrow"><i className="bi bi-chevron-right" /></span>
+              </button>
+              <ul className={`nav-submenu ${mappingMgmtOpen ? 'show' : ''}`} style={{ maxHeight: mappingMgmtOpen ? `${mappingMenuItems.length * 36 + 20}px` : '0px' }}>
+                {mappingMenuItems.map((item) => (
                   <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
                 ))}
               </ul>

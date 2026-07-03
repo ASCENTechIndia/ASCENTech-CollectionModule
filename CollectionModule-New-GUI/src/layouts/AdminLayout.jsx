@@ -25,6 +25,7 @@ function AdminLayout() {
   const [agencyMenuManualOpen, setAgencyMenuManualOpen] = useState(false)
   const [companyMenuManualOpen, setCompanyMenuManualOpen] = useState(false)
   const [fosMenuManualOpen, setFosMenuManualOpen] = useState(false)
+  const [mappingMgmtOpen, setMappingMgmtOpen] = useState(false);
   const [theme, setTheme] = useState(() => {
     const savedTheme = localStorage.getItem('theme')
 
@@ -89,6 +90,7 @@ function AdminLayout() {
   const agencyRouteActive = location.pathname.startsWith('/admin') && location.pathname.includes('agency')
   const companyRouteActive = location.pathname.startsWith('/admin') && location.pathname.includes('company')
   const fosRouteActive = location.pathname.startsWith('/admin') && location.pathname.includes('fos')
+  const mappingRouteActive = location.pathname.startsWith('/map') && location.pathname.includes('Mapping')
 
   const authMenuOpen = authRouteActive || authMenuManualOpen
   const formsMenuOpen = formsRouteActive || formsMenuManualOpen
@@ -105,6 +107,7 @@ function AdminLayout() {
   const agencyMenuOpen = agencyRouteActive || agencyMenuManualOpen
   const companyMenuOpen = companyRouteActive || companyMenuManualOpen
   const fosMenuOpen = fosRouteActive || fosMenuManualOpen
+  const mappingMenuOpen = mappingRouteActive || mappingMgmtOpen
 
   const toggleSidebar = () => {
     // Debounce toggle to prevent rapid state changes during animations
@@ -188,6 +191,7 @@ function AdminLayout() {
         agencyMenuOpen={agencyMenuOpen}
         companyMenuOpen={companyMenuOpen}
         fosMenuOpen={fosMenuOpen}
+        mappingMgmtOpen={mappingMenuOpen}
         onToggleAuthMenu={() => setAuthMenuManualOpen((value) => !value)}
         onToggleFormsMenu={() => setFormsMenuManualOpen((value) => !value)}
         onToggleComponentsMenu={() => setComponentsMenuManualOpen((value) => !value)}
@@ -203,6 +207,7 @@ function AdminLayout() {
         onToggleAgencyMenu={() => setAgencyMenuManualOpen((value) => !value)}
         onToggleCompanyMenu={() => setCompanyMenuManualOpen((value) => !value)}
         onToggleFosMenu={() => setFosMenuManualOpen((value) => !value)}
+        onToggleMappingMgmtMenu={() => setMappingMgmtOpen((value) => !value)}
         onCloseMobile={() => setMobileOpen(false)}
       />
 

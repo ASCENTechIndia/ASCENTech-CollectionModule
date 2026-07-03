@@ -79,6 +79,8 @@ import TwoFactor from './pages/TwoFactor'
 import Settings from './pages/Settings'
 import FrmAgencyCreation from './pages/Admin/FrmAgencyCreation'
 import FrmAgencyCreation2 from './pages/Agency/FrmAgencyCreation'
+import CompanyAgencyMapping from './pages/MappingManagement/CompanyAgencyMapping'
+
 
 function App() {
   return (
@@ -160,6 +162,7 @@ function App() {
         <Route path="admin/FrmImageUploadmobapp" element={<FrmImageUploadmobapp />} />
         <Route path="admin/FrmImageUploadMobApp2" element={<FrmImageUploadMobApp2 />} />
         <Route path='admin/settings' element={<Settings />} />
+        <Route path='/map/companyAgencyMapping' element={<CompanyAgencyMapping />} />
       </Route>
       <Route path="/map-view" element={<MapViewPage />} />
       <Route

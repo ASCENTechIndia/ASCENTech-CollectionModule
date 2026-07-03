@@ -621,6 +621,7 @@ const FrmUserCreation = () => {
                       {...register("idProofNo", {
                         required: "ID Proof Number is required"
                       })}
+                      maxLength={12}
                       className={`form-control ${errors.idProofNo ? "is-invalid" : ""}`}
                     />
                     {errors.idProofNo && (

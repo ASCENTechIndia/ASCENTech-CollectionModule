@@ -168,6 +168,7 @@ const FrmAgencyCreation = () => {
                   <input
                     {...register("licenseNo", { required: "License Number is required" })}
                     className={`form-control ${errors.licenseNo ? "is-invalid" : ""}`}
+                    maxLength={15}
                   />
                   <div className="invalid-feedback">{errors.licenseNo?.message}</div>
 
