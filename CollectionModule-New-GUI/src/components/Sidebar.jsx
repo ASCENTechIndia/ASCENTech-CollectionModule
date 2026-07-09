@@ -52,7 +52,7 @@ const userMenuItems = [
 ]
 
 const mappingMenuItems = [
-  { to: "/map/companyAgencyMapping", label: "Company Agency Mapping"}
+  { to: "/admin/create-mapping", label: "Create Mapping"}
 ]
 
 // const tablesMenuItems = [{ to: '/tables/datatables', label: 'DataTables' }]
@@ -292,7 +292,7 @@ function Sidebar({
             <li className={`nav-item has-submenu ${mappingMgmtOpen ? 'open' : ''}`}>
               <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleMappingMgmtMenu} aria-expanded={mappingMgmtOpen}>
                 <span className="nav-icon"><i className="bi bi-link-45deg"></i></span>
-                <span className="nav-text">Mapping Management</span>
+                <span className="nav-text">Entity Mapping</span>
                 <span className="nav-badge">{mappingMenuItems.length}</span>
                 <span className="nav-arrow"><i className="bi bi-chevron-right" /></span>
               </button>

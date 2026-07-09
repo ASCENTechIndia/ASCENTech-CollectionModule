@@ -90,7 +90,7 @@ function AdminLayout() {
   const agencyRouteActive = location.pathname.startsWith('/admin') && location.pathname.includes('agency')
   const companyRouteActive = location.pathname.startsWith('/admin') && location.pathname.includes('company')
   const fosRouteActive = location.pathname.startsWith('/admin') && location.pathname.includes('fos')
-  const mappingRouteActive = location.pathname.startsWith('/map') && location.pathname.includes('Mapping')
+  const mappingRouteActive = location.pathname.startsWith('/admin') && location.pathname.includes('mapping')
 
   const authMenuOpen = authRouteActive || authMenuManualOpen
   const formsMenuOpen = formsRouteActive || formsMenuManualOpen

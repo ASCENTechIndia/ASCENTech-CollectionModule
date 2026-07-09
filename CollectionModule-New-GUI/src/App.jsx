@@ -45,6 +45,7 @@ import CompanyList from './pages/Company/CompanyList'
 import  AgencyList from './pages/Agency/AgencyList'
 import FrmFosCreation from './pages/Fos/FrmFosCreation'
 import FosList from './pages/Fos/FosList'
+import  FrmCreateMapping from './pages/Mapping/FrmCreateMapping'
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth()
@@ -162,7 +163,7 @@ function App() {
         <Route path="admin/FrmImageUploadmobapp" element={<FrmImageUploadmobapp />} />
         <Route path="admin/FrmImageUploadMobApp2" element={<FrmImageUploadMobApp2 />} />
         <Route path='admin/settings' element={<Settings />} />
-        <Route path='/map/companyAgencyMapping' element={<CompanyAgencyMapping />} />
+        <Route path='admin/create-mapping' element={<FrmCreateMapping />} />
       </Route>
       <Route path="/map-view" element={<MapViewPage />} />
       <Route

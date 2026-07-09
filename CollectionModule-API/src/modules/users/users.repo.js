@@ -327,7 +327,7 @@ async function getUserFormOptions(filters = {}) {
   const assetOwnerSql = `
     select num_assetowner_id id,
            var_assetowner_name name
-      from aoup_assetowner_mas
+      from etech_cm.aoup_assetowner_mas
      order by var_assetowner_name
   `;
 
