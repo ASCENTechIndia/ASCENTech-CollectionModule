@@ -65,11 +65,11 @@ const FrmCreateMapping = () => {
 
   const loadEntityTypes = async () => {
     try {
-      const response = await apiClient.get("/entity-types");
+      // const response = await apiClient.get("/entity-types");
 
-      if (response.success) {
-        setEntityTypes(response.data);
-      }
+      // if (response.success) {
+      //   setEntityTypes(response.data);
+      // }
     } catch (error) {
       console.error(error);
       showError("Unable to load Entity Types");
@@ -80,11 +80,11 @@ const FrmCreateMapping = () => {
 
   const loadRelationshipTypes = async () => {
     try {
-      const response = await apiClient.get("/relationship-types");
+      // const response = await apiClient.get("/relationship-types");
 
-      if (response.success) {
-        setRelationships(response.data);
-      }
+      // if (response.success) {
+      //   setRelationships(response.data);
+      // }
     } catch (error) {
       console.error(error);
       showError("Unable to load Relationship Types");
@@ -103,16 +103,35 @@ const FrmCreateMapping = () => {
     loadFromEntities(fromEntityType);
   }, [fromEntityType]);
 
-  const loadFromEntities = async (entityTypeId) => {
+  const loadFromEntities = async (entityType) => {
     try {
       setLoadingFromEntity(true);
+      let apiUrl;
+      if (entityType === "company") {
+        apiUrl = '/mapping/company-list'
+      } else if (entityType === "agency") {
+        apiUrl = '/mapping/agency-list'
+      }
 
       const response = await apiClient.get(
-        `/entities?entityTypeId=${entityTypeId}`
+        apiUrl
       );
 
+
       if (response.success) {
-        setFromEntities(response.data);
+        const list = entityType === "company" ? response.data.map(item => (
+          {
+            label: `${item.name} - ${item.branch}`,
+            value: item.id
+          }
+        )) : entityType === "agency" ? response.data.map(item => (
+          {
+            label: item.name,
+            value: item.id
+          }
+        )) : []; 
+
+        setFromEntities(list);
         setValue("fromEntity", "");
       }
     } catch (error) {
@@ -245,16 +264,10 @@ const FrmCreateMapping = () => {
                     className={`form-select ${errors.fromEntityType ? "is-invalid" : ""
                       }`}
                   >
-                    <option value="">Select</option>
+                    <option value="">--SELECT--</option>
+                    <option value="company">Company</option>
+                    <option value="agency">Agency</option>
 
-                    {entityTypes.map((item) => (
-                      <option
-                        key={item.entityTypeId}
-                        value={item.entityTypeId}
-                      >
-                        {item.entityTypeName}
-                      </option>
-                    ))}
                   </select>
 
                   <div className="invalid-feedback">
@@ -277,16 +290,20 @@ const FrmCreateMapping = () => {
                     className={`form-select ${errors.toEntityType ? "is-invalid" : ""
                       }`}
                   >
-                    <option value="">Select</option>
+                    <option value="">--SELECT--</option>
+                    <option value="company">Company</option>
+                    <option value="agency">Agency</option>
+                    <option value="fos">FOS</option>
 
-                    {entityTypes.map((item) => (
+
+                    {/* {entityTypes.map((item) => (
                       <option
                         key={item.entityTypeId}
                         value={item.entityTypeId}
                       >
                         {item.entityTypeName}
                       </option>
-                    ))}
+                    ))} */}
                   </select>
 
                   <div className="invalid-feedback">
@@ -378,10 +395,10 @@ const FrmCreateMapping = () => {
 
                     {fromEntities.map((item) => (
                       <option
-                        key={item.entityId}
-                        value={item.entityId}
+                        key={item.value}
+                        value={item.value}
                       >
-                        {item.entityName}
+                        {item.label}
                       </option>
                     ))}
                   </select>
