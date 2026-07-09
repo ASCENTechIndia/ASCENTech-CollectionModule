@@ -50,6 +50,21 @@ const createUserSchema = userCreationBaseSchema.extend({
   pincode: nullableNumber,
 });
 
+const createMappingSchema = z.object({
+  companyId: z.preprocess(
+    (val) => (val === "" ? null : val),
+    z.number({ invalid_type_error: "Company Id is required" })
+  ),
+  agencyId: z.preprocess(
+    (val) => (val === "" ? null : val),
+    z.number({ invalid_type_error: "Agency Id is required" })
+  ),
+  createdBy: z.string().trim().min(1, "Created by is required"),
+  remark: z.string().optional(),
+  relationship: z.string().trim().min(1, "Relationship is required"),
+  context: z.string().trim().min(1, "Context is required"),
+});
+
 const updateUserSchema = userCreationBaseSchema.extend({
   requeststatus: nullableString,
 });
@@ -142,4 +157,5 @@ module.exports = {
   getBranchesSchema,
   getUserStatusSchema,
   createUserSchemaNew,
+  createMappingSchema
 };

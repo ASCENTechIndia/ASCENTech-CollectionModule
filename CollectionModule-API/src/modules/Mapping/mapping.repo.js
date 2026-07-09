@@ -166,6 +166,37 @@ async function createUserRepo(payload) {
   return result.outBinds;
 }
 
+async function createMappingRepo(payload) {
+  const statement = `
+    BEGIN
+      etech_cm.AOUP_COMPANY_AGENCY_ASSIGN(
+        P_COMPANY_ID,
+        P_AGENCY_ID,
+        P_CREATED_BY,
+        P_REMARK,
+        P_Relationship,
+        P_context,
+        OUT_ERRORCODE,
+        OUT_ERRORMSG
+      );
+    END;
+  `;
+  
+  const binds = {
+    P_COMPANY_ID: payload.companyId,
+    P_AGENCY_ID: payload.agencyId,
+    P_CREATED_BY: payload.createdBy,
+    P_REMARK: payload.remark,
+    P_Relationship: payload.relationship,
+    P_context: payload.context,
+    OUT_ERRORCODE: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    OUT_ERRORMSG: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 10000 }
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
 /**
  * Update user using stored procedure
  */
@@ -479,5 +510,6 @@ module.exports = {
   createUserNewRepo,
   getCompanyRepo,
   getAgencyRepo,
-  getFOSRepo
+  getFOSRepo,
+  createMappingRepo
 };
