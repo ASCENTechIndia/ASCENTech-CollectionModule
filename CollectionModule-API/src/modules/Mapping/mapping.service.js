@@ -10,7 +10,8 @@ const {
   checkUserAuthorizationRepo,
   createUserNewRepo,
   getCompanyRepo,
-  getAgencyRepo
+  getAgencyRepo,
+  getFOSRepo
 } = require('./mapping.repo');
 const {AppError} = require('../../utils/app-error');
 
@@ -345,6 +346,23 @@ async function getAgencyService() {
   }
 }
 
+async function getFOSService() {
+  try {
+    const fos = await getFOSRepo();
+     return {
+      success: true,
+      data: (fos.rows || []).map(row => ({
+        name: row.USER_NAME || row.user_name,
+        id: row.USER_ID || row.user_id,
+      })),
+    };
+  } catch (error) {
+    throw new AppError(`Failed to fetch fos: ${error.message}`, 400);
+  }
+}
+
+
+
 
 
 module.exports = {
@@ -358,5 +376,6 @@ module.exports = {
   determineUserStatus,
   createUserNewService,
   getCompanyService,
-  getAgencyService
+  getAgencyService,
+  getFOSService
 };

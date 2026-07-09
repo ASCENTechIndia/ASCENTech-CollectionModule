@@ -9,7 +9,8 @@ const {
   determineUserStatus,
   createUserNewService,
   getCompanyService,
-  getAgencyService
+  getAgencyService,
+  getFOSService
 } = require('./mapping.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -361,6 +362,19 @@ async function getAgencyHandler(req, res, next) {
   }
 }
 
+async function getFOSHandler(req, res, next) {
+  try {
+    const result = await getFOSService();
+
+    logApiSuccess(req, 200, result.data, 'FOS fetched successfully');
+
+    return res.ok(result.data);
+  } catch (error) {
+    logApiError(req, 400, error.message, 'Agency fetch failed');
+    return next(error);
+  }
+}
+
 module.exports = {
   getFormOptionsHandler,
   getBranchesHandler,
@@ -372,5 +386,6 @@ module.exports = {
   getUserStatusHandler,
   createUserNewHandler,
   getCompanyHandler,
-  getAgencyHandler
+  getAgencyHandler,
+  getFOSHandler
 };

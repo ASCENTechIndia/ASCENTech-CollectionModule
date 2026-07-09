@@ -24,7 +24,8 @@ const {
   getUserStatusHandler,
   createUserNewHandler,
   getCompanyHandler,
-  getAgencyHandler
+  getAgencyHandler,
+  getFOSHandler
 } = require('./mapping.controller');
 
 const router = express.Router();
@@ -71,6 +72,7 @@ router.post(
 );
 router.get('/company-list', getCompanyHandler);
 router.get('/agency-list', getAgencyHandler);
+router.get('/fos-list', getFOSHandler);
 
 
 module.exports = router;
