@@ -15,6 +15,7 @@ const userCreationRoutes = require('../modules/UserCreation/userCreation.routes'
 const webCreationRoutes = require('../modules/WebUserCreation/webUserCreation.routes');
 const agencyCreationRoutes = require('../modules/AgencyCreation/agencyCreation.routes');
 const companyRoutes = require('../modules/Company/company.routes');
+const mappingRoutes = require('../modules/Mapping/mapping.routes');
 const router = express.Router();
 
 router.get('/health', (req, res) => {
@@ -46,5 +47,6 @@ router.use('/user-creation', userCreationRoutes);
 router.use('/web-creation', webCreationRoutes);
 router.use('/agency-creation', agencyCreationRoutes);
 router.use('/company', companyRoutes);
+router.use('/mapping', mappingRoutes);
 
 module.exports = router;
