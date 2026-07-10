@@ -5,11 +5,13 @@ import { useNavigate } from "react-router-dom";
 import apiClient from "../../services/apiClient";
 import { useNotification } from "../../context/NotificationContext";
 import { useAuth } from "../../context/AuthContext";
+import { useLoader } from "../../context/LoaderContext";
 
 const FrmCreateMapping = () => {
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
   const { user } = useAuth();
+  const { setLoader } = useLoader();
   // console.log(user);
   const username = user?.userName;
   const userId = user?.userId.split("E").pop();
@@ -196,6 +198,19 @@ const FrmCreateMapping = () => {
     }
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+
+    const months = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+
+    const [year, month, day] = dateString.split("-");
+
+    return `${day}-${months[Number(month) - 1]}-${year}`;
+  };
+
   //-------------------- Submit --------------------//
 
   const onSubmit = async (values) => {
@@ -218,6 +233,7 @@ const FrmCreateMapping = () => {
       }
 
       setLoading(true);
+      setLoader(true);
 
       const payload = {
         // fromEntityTypeId: Number(values.fromEntityType),
@@ -230,20 +246,23 @@ const FrmCreateMapping = () => {
 
         context: values.context,
 
-        effectiveFrom: values.effectiveFrom,
-        effectiveTo: "",
+        effectiveFrom: formatDate(values.effectiveFrom),
+        effectiveTo: values.effectiveTo ? formatDate(values.effectiveTo) : "",
         remark: values.remark,
-        createdBy: userId,  
+        createdBy: userId,
       };
 
       let url;
-      if (values.fromEntityType === "company" && values.toEntityType === "agency") {
+      if (
+        (values.fromEntityType === "company" && values.toEntityType === "agency") ||
+        (values.fromEntityType === "agency" && values.toEntityType === "company")
+      ) {
         url = "/mapping/create-mapping";
       } else {
-        url = ""
+        url = "";
       }
 
-      console.log(payload);
+      // console.log(payload);
       // console.log(url);
       // return;
 
@@ -261,6 +280,7 @@ const FrmCreateMapping = () => {
       showError(error?.message || "Something went wrong");
     } finally {
       setLoading(false);
+      setLoader(false);
     }
   };
 
@@ -574,6 +594,51 @@ const FrmCreateMapping = () => {
             </div>
 
           </form>
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="card-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+          <h5 className="mb-3 mb-md-0">Active Mappings</h5>
+
+          <div
+            className="d-flex flex-column flex-md-row gap-2 w-100 w-md-auto"
+            style={{ maxWidth: "400px" }}
+          >
+            <select className="form-select">
+              <option value="">--SELECT--</option>
+              <option value="All">All Types</option>
+            </select>
+            <select className="form-select">
+              <option value="">--SELECT--</option>
+              <option value="All">All Status</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="card-body">
+          <div className="table-responsive users-table-wrap">
+            <table className="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>From Entity</th>
+                  <th>To Entity</th>
+                  <th>Context / Region</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>HDFC Collection</td>
+                  <td>RecoverFirst Agency</td>
+                  <td>NPA-Q3-Mumbai</td>
+                  <td><span className="px-2 py-1 bg-success rounded text-white" style={{
+                    fontSize: 12
+                  }}>Active</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
