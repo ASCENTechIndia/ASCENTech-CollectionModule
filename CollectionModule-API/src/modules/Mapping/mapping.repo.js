@@ -170,14 +170,15 @@ async function createMappingRepo(payload) {
   const statement = `
     BEGIN
       etech_cm.AOUP_COMPANY_AGENCY_ASSIGN(
-        P_COMPANY_ID,
-        P_AGENCY_ID,
-        P_CREATED_BY,
-        P_REMARK,
-        P_Relationship,
-        P_context,
-        OUT_ERRORCODE,
-        OUT_ERRORMSG
+        :P_COMPANY_ID,
+        :P_AGENCY_ID,
+        :P_CREATED_BY,
+        :P_REMARK,
+        :P_Relationship,
+        :P_context,
+        :P_EFFECTIVE_DT,
+        :OUT_ERRORCODE,
+        :OUT_ERRORMSG
       );
     END;
   `;
@@ -189,6 +190,7 @@ async function createMappingRepo(payload) {
     P_REMARK: payload.remark,
     P_Relationship: payload.relationship,
     P_context: payload.context,
+    P_EFFECTIVE_DT: payload.effectiveFrom,
     OUT_ERRORCODE: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
     OUT_ERRORMSG: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 10000 }
   };

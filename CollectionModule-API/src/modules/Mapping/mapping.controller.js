@@ -166,8 +166,8 @@ async function createMappingHandler(req, res, next) {
       entityId: payload.createdBy || "",
       status: result.success ? 'SUCCESS' : 'FAILED',
       details: {
-        errorCode: result.data?.code || "",
-        errorMsg: result.data?.message || "",
+        errorCode: result?.code || "",
+        errorMsg: result?.message || "",
       },
       requestMeta: requestMeta(req),
     };
