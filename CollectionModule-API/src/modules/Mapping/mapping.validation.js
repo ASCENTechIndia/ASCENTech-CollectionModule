@@ -63,6 +63,8 @@ const createMappingSchema = z.object({
   remark: z.string().optional(),
   relationship: z.string().trim().min(1, "Relationship is required"),
   context: z.string().trim().min(1, "Context is required"),
+  effectiveFrom: z.string().optional(),
+  effectiveTo: z.string().optional(),
 });
 
 const updateUserSchema = userCreationBaseSchema.extend({
