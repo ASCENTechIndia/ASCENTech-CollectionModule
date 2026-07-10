@@ -223,7 +223,7 @@ async function createMappingService(payload) {
       throw new AppError('Failed to create mapping', 400);
     }
 
-    const isSuccess = String(result.OUT_ERRORCODE) !== '9999';
+    const isSuccess = String(result.OUT_ERRORCODE) === '9999';
     if (!isSuccess) {
       throw new AppError(result.OUT_ERRORMSG || 'User mapping failed', 400);
     }
@@ -234,7 +234,7 @@ async function createMappingService(payload) {
       code: result.OUT_ERRORCODE,
     };
   } catch (error) {
-    throw new AppError(`User mapping failed: ${error.message}`, 400);
+    throw new AppError(`${error.message || "User mapping failed"}`, 400);
   }
 }
 
