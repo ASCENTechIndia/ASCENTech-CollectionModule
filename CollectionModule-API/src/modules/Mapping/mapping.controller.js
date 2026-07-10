@@ -10,7 +10,8 @@ const {
   createUserNewService,
   getCompanyService,
   getAgencyService,
-  getFOSService
+  getFOSService,
+  createMappingService
 } = require('./mapping.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -139,6 +140,48 @@ async function createUserHandler(req, res, next) {
     });
   } catch (error) {
     logApiError(req, error.statusCode || 400, error.message, 'User creation failed');
+
+    auditLog({
+      action: 'USER_CREATION',
+      actor: req.user?.userId || 'system',
+      module: 'userCreation',
+      status: 'FAILED',
+      details: { error: error.message },
+      requestMeta: requestMeta(req),
+    });
+
+    return next(error);
+  }
+}
+
+async function createMappingHandler(req, res, next) {
+  try {
+    const payload = req.body;
+    const result = await createMappingService(payload);
+
+    const auditData = {
+      action: 'USER_MAPPING',
+      actor: req.user?.userId || 'system',
+      module: 'userCreation',
+      entityId: payload.createdBy || "",
+      status: result.success ? 'SUCCESS' : 'FAILED',
+      details: {
+        errorCode: result?.code || "",
+        errorMsg: result?.message || "",
+      },
+      requestMeta: requestMeta(req),
+    };
+
+    auditLog(auditData);
+    logApiSuccess(req, 201, result, `User mapped successfully: ${payload.userId}`);
+
+    return res.status(201).json({
+      success: true,
+      message: result.message,
+      code: result.code,
+    });
+  } catch (error) {
+    logApiError(req, error.statusCode || 400, error.message, 'User mapped failed');
 
     auditLog({
       action: 'USER_CREATION',
@@ -387,5 +430,6 @@ module.exports = {
   createUserNewHandler,
   getCompanyHandler,
   getAgencyHandler,
-  getFOSHandler
+  getFOSHandler,
+  createMappingHandler
 };

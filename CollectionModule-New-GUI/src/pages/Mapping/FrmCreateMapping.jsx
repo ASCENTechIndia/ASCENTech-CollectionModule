@@ -31,7 +31,7 @@ const FrmCreateMapping = () => {
       context: "",
       effectiveFrom: "",
       effectiveTo: "",
-      // remark: ""
+      remark: ""
     },
   });
 
@@ -231,9 +231,9 @@ const FrmCreateMapping = () => {
         context: values.context,
 
         effectiveFrom: values.effectiveFrom,
-        effectiveTo: values.effectiveTo || "",
-        remark: "",
-        createdBy: userId,
+        effectiveTo: "",
+        remark: values.remark,
+        createdBy: userId,  
       };
 
       let url;
@@ -252,11 +252,8 @@ const FrmCreateMapping = () => {
         payload
       );
 
-      console.log(response);
-      return;
-
-      if (response.data.success && response.data.code === "9999") {
-        showSuccess(response.data.message);
+      if (response.success && response.code === 9999) {
+        showSuccess(response.message);
         reset();
       }
     } catch (error) {
@@ -405,10 +402,10 @@ const FrmCreateMapping = () => {
                   </div>
                 </div>
 
-                {/* <div className="mb-3">
+                <div className="mb-3">
                   <label className="form-label">
                     Remark
-                    <span className="text-danger">*</span>
+                    {/* <span className="text-danger">*</span> */}
                   </label>
 
                   <textarea
@@ -416,10 +413,10 @@ const FrmCreateMapping = () => {
                     {...register("remark")}
                     className={`form-control`}
                   />
-                  <div className="invalid-feedback">
+                  {/* <div className="invalid-feedback">
                     {errors.remark?.message}
-                  </div>
-                </div> */}
+                  </div> */}
+                </div>
               </div>
 
               {/* Right Side */}

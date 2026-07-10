@@ -12,6 +12,7 @@ const {
   getBranchesSchema,
   getUserStatusSchema,
   createUserSchemaNew,
+  createMappingSchema,
 } = require('./mapping.validation');
 const {
   getFormOptionsHandler,
@@ -25,7 +26,8 @@ const {
   createUserNewHandler,
   getCompanyHandler,
   getAgencyHandler,
-  getFOSHandler
+  getFOSHandler,
+  createMappingHandler
 } = require('./mapping.controller');
 
 const router = express.Router();
@@ -73,6 +75,7 @@ router.post(
 router.get('/company-list', getCompanyHandler);
 router.get('/agency-list', getAgencyHandler);
 router.get('/fos-list', getFOSHandler);
+router.post("/create-mapping", validate(createMappingSchema), createMappingHandler)
 
 
 module.exports = router;

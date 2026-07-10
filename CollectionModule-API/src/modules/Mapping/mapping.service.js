@@ -11,7 +11,8 @@ const {
   createUserNewRepo,
   getCompanyRepo,
   getAgencyRepo,
-  getFOSRepo
+  getFOSRepo,
+  createMappingRepo
 } = require('./mapping.repo');
 const {AppError} = require('../../utils/app-error');
 
@@ -211,6 +212,32 @@ async function createUserService(payload) {
   }
 }
 
+async function createMappingService(payload) {
+  try {
+    // Validate input
+    // await validateUserInputService(payload);
+
+    const result = await createMappingRepo(payload);
+
+    if (!result) {
+      throw new AppError('Failed to create mapping', 400);
+    }
+
+    const isSuccess = String(result.OUT_ERRORCODE) === '9999';
+    if (!isSuccess) {
+      throw new AppError(result.OUT_ERRORMSG || 'User mapping failed', 400);
+    }
+
+    return {
+      success: true,
+      message: result.OUT_ERRORMSG,
+      code: result.OUT_ERRORCODE,
+    };
+  } catch (error) {
+    throw new AppError(`${error.message || "User mapping failed"}`, 400);
+  }
+}
+
 /**
  * Update existing user
  */
@@ -377,5 +404,6 @@ module.exports = {
   createUserNewService,
   getCompanyService,
   getAgencyService,
-  getFOSService
+  getFOSService,
+  createMappingService
 };
