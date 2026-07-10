@@ -10,8 +10,9 @@ const FrmCreateMapping = () => {
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
   const { user } = useAuth();
-
+  // console.log(user);
   const username = user?.userName;
+  const userId = user?.userId.split("E").pop();
 
   const {
     register,
@@ -30,6 +31,7 @@ const FrmCreateMapping = () => {
       context: "",
       effectiveFrom: "",
       effectiveTo: "",
+      // remark: ""
     },
   });
 
@@ -129,7 +131,7 @@ const FrmCreateMapping = () => {
             label: item.name,
             value: item.id
           }
-        )) : []; 
+        )) : [];
 
         setFromEntities(list);
         setValue("fromEntity", "");
@@ -154,16 +156,36 @@ const FrmCreateMapping = () => {
     loadToEntities(toEntityType);
   }, [toEntityType]);
 
-  const loadToEntities = async (entityTypeId) => {
+  const loadToEntities = async (entityType) => {
     try {
       setLoadingToEntity(true);
+      let apiUrl;
+      if (entityType === "company") {
+        apiUrl = '/mapping/company-list'
+      } else if (entityType === "agency") {
+        apiUrl = '/mapping/agency-list'
+      } else if (entityType === "fos") {
+        apiUrl = '/mapping/fos-list'
+      }
 
       const response = await apiClient.get(
-        `/entities?entityTypeId=${entityTypeId}`
+        apiUrl
       );
-
+      let list;
       if (response.success) {
-        setToEntities(response.data);
+        list = entityType === "company" ? response.data.map(item => (
+          {
+            label: `${item.name} - ${item.branch}`,
+            value: item.id
+          }
+        )) : (entityType === "agency" || entityType === "fos") ? response.data.map(item => (
+          {
+            label: item.name,
+            value: item.id
+          }
+        )) : [];
+
+        setToEntities(list);
         setValue("toEntity", "");
       }
     } catch (error) {
@@ -178,6 +200,8 @@ const FrmCreateMapping = () => {
 
   const onSubmit = async (values) => {
     try {
+      // console.log(values);
+      // return;
       if (values.fromEntity === values.toEntity) {
         showError("From Entity and To Entity cannot be same.");
         return;
@@ -196,29 +220,43 @@ const FrmCreateMapping = () => {
       setLoading(true);
 
       const payload = {
-        fromEntityTypeId: Number(values.fromEntityType),
-        fromEntityId: Number(values.fromEntity),
+        // fromEntityTypeId: Number(values.fromEntityType),
+        companyId: Number(values.fromEntity),
 
-        toEntityTypeId: Number(values.toEntityType),
-        toEntityId: Number(values.toEntity),
+        // toEntityTypeId: Number(values.toEntityType),
+        agencyId: Number(values.toEntity),
 
-        relationshipId: Number(values.relationship),
+        relationship: values.relationship,
 
         context: values.context,
 
         effectiveFrom: values.effectiveFrom,
-        effectiveTo: values.effectiveTo || null,
-
-        createdBy: username,
+        effectiveTo: values.effectiveTo || "",
+        remark: "",
+        createdBy: userId,
       };
 
+      let url;
+      if (values.fromEntityType === "company" && values.toEntityType === "agency") {
+        url = "/mapping/create-mapping";
+      } else {
+        url = ""
+      }
+
+      console.log(payload);
+      // console.log(url);
+      // return;
+
       const response = await apiClient.post(
-        "/mapping/create",
+        url,
         payload
       );
 
-      if (response.success) {
-        showSuccess(response.message);
+      console.log(response);
+      return;
+
+      if (response.data.success && response.data.code === "9999") {
+        showSuccess(response.data.message);
         reset();
       }
     } catch (error) {
@@ -326,8 +364,9 @@ const FrmCreateMapping = () => {
                     className={`form-select ${errors.relationship ? "is-invalid" : ""
                       }`}
                   >
-                    <option value="">Select</option>
-
+                    <option value="">--Select--</option>
+                    <option value="1">{`Service -> Collector`}</option>
+                    {/* 
                     {relationships.map((item) => (
                       <option
                         key={item.relationshipId}
@@ -336,6 +375,7 @@ const FrmCreateMapping = () => {
                         {item.relationshipName}
                       </option>
                     ))}
+                     */}
                   </select>
 
                   <div className="invalid-feedback">
@@ -365,6 +405,21 @@ const FrmCreateMapping = () => {
                   </div>
                 </div>
 
+                {/* <div className="mb-3">
+                  <label className="form-label">
+                    Remark
+                    <span className="text-danger">*</span>
+                  </label>
+
+                  <textarea
+                    rows="2"
+                    {...register("remark")}
+                    className={`form-control`}
+                  />
+                  <div className="invalid-feedback">
+                    {errors.remark?.message}
+                  </div>
+                </div> */}
               </div>
 
               {/* Right Side */}
@@ -382,7 +437,7 @@ const FrmCreateMapping = () => {
                   <select
                     disabled={!fromEntityType || loadingFromEntity}
                     {...register("fromEntity", {
-                      required: "From Entity is required",
+                      // required: "From Entity is required",
                     })}
                     className={`form-select ${errors.fromEntity ? "is-invalid" : ""
                       }`}
@@ -421,7 +476,7 @@ const FrmCreateMapping = () => {
                   <select
                     disabled={!toEntityType || loadingToEntity}
                     {...register("toEntity", {
-                      required: "To Entity is required",
+                      // required: "To Entity is required",
                     })}
                     className={`form-select ${errors.toEntity ? "is-invalid" : ""
                       }`}
@@ -434,10 +489,10 @@ const FrmCreateMapping = () => {
 
                     {toEntities.map((item) => (
                       <option
-                        key={item.entityId}
-                        value={item.entityId}
+                        key={item.value}
+                        value={item.value}
                       >
-                        {item.entityName}
+                        {item.label}
                       </option>
                     ))}
                   </select>
