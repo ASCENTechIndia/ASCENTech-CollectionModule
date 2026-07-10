@@ -15,17 +15,17 @@ function debounce(fn, delay) {
 }
 
 const parseCoordinates = (location) => {
-  const raw = String(location || '').trim()
-  if (!raw.includes(',')) return null
+  const raw = String(location || "").trim();
+  if (!raw.includes(",")) return null;
 
-  const [latText, lngText] = raw.split(',')
-  const lat = Number(latText)
-  const lng = Number(lngText)
+  const [latText, lngText] = raw.split(",");
+  const lat = Number(latText);
+  const lng = Number(lngText);
 
-  if (Number.isNaN(lat) || Number.isNaN(lng)) return null
+  if (Number.isNaN(lat) || Number.isNaN(lng)) return null;
 
-  return { lat, lng }
-}
+  return { lat, lng };
+};
 
 function FrmUserLocationTracking() {
   const navigate = useNavigate()
@@ -74,12 +74,12 @@ function FrmUserLocationTracking() {
           userId: trimmedUserId,
           cDate: trackingDate,
         },
-      })
+      });
 
-      const success = response?.success
-      const apiRows = Array.isArray(response?.data) ? response.data : []
-      const locationValue = apiRows[0]?.LOCATION || apiRows[0]?.location || ''
-      const parsed = parseCoordinates(locationValue)
+      const success = response?.success;
+      const apiRows = Array.isArray(response?.data) ? response.data : [];
+      const locationValue = apiRows[0]?.LOCATION || apiRows[0]?.location || "";
+      const parsed = parseCoordinates(locationValue);
 
       if (success && parsed) {
         setCoordinates(parsed)
@@ -96,7 +96,12 @@ function FrmUserLocationTracking() {
       // setLoading(false)
       setLoader(false);
     }
-  }
+  };
+
+  // Validation helpers (only show red border after submit)
+  const isDateInvalid = searched && !trackingDate;
+  const isUserIdInvalid =
+    searched && (!userId.trim() || !/^\d+$/.test(userId.trim()));
 
   // Debounced search
   const doSearch = debounce(async (term) => {
@@ -326,7 +331,7 @@ function FrmUserLocationTracking() {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 export default FrmUserLocationTracking
