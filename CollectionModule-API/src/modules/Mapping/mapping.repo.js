@@ -177,6 +177,7 @@ async function createMappingRepo(payload) {
         :P_Relationship,
         :P_context,
         :P_EFFECTIVE_DT,
+        :P_DAT_EFFECTIVE_TO,
         :OUT_ERRORCODE,
         :OUT_ERRORMSG
       );
@@ -191,6 +192,7 @@ async function createMappingRepo(payload) {
     P_Relationship: payload.relationship,
     P_context: payload.context,
     P_EFFECTIVE_DT: payload.effectiveFrom,
+    P_DAT_EFFECTIVE_TO: payload.effectiveTo,
     OUT_ERRORCODE: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
     OUT_ERRORMSG: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 10000 }
   };
