@@ -11,7 +11,8 @@ const {
   getCompanyService,
   getAgencyService,
   getFOSService,
-  createMappingService
+  createMappingService,
+  getViewMappingService
 } = require('./mapping.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
@@ -418,6 +419,19 @@ async function getFOSHandler(req, res, next) {
   }
 }
 
+async function getViewMappingHandler(req, res, next) {
+  try {
+    const result = await getViewMappingService();
+
+    logApiSuccess(req, 200, result.data, 'View Mapping fetched successfully');
+
+    return res.ok(result.data);
+  } catch (error) {
+    logApiError(req, 400, error.message, 'View Mapping fetch failed');
+    return next(error);
+  }
+}
+
 module.exports = {
   getFormOptionsHandler,
   getBranchesHandler,
@@ -431,5 +445,6 @@ module.exports = {
   getCompanyHandler,
   getAgencyHandler,
   getFOSHandler,
-  createMappingHandler
+  createMappingHandler,
+  getViewMappingHandler,
 };

@@ -12,7 +12,8 @@ const {
   getCompanyRepo,
   getAgencyRepo,
   getFOSRepo,
-  createMappingRepo
+  createMappingRepo,
+  getViewMappingRepo
 } = require('./mapping.repo');
 const {AppError} = require('../../utils/app-error');
 
@@ -385,6 +386,18 @@ async function getFOSService() {
   }
 }
 
+async function getViewMappingService() {
+  try {
+    const result = await getViewMappingRepo();
+     return {
+      success: true,
+      data: result.rows || [],
+    };
+  } catch (error) {
+    throw new AppError(`Failed to fetch fos: ${error.message}`, 400);
+  }
+}
+
 
 
 
@@ -402,5 +415,6 @@ module.exports = {
   getCompanyService,
   getAgencyService,
   getFOSService,
-  createMappingService
+  createMappingService,
+  getViewMappingService,
 };

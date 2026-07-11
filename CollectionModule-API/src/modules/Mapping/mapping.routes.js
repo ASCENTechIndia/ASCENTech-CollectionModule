@@ -27,7 +27,8 @@ const {
   getCompanyHandler,
   getAgencyHandler,
   getFOSHandler,
-  createMappingHandler
+  createMappingHandler,
+  getViewMappingHandler
 } = require('./mapping.controller');
 
 const router = express.Router();
@@ -76,6 +77,7 @@ router.get('/company-list', getCompanyHandler);
 router.get('/agency-list', getAgencyHandler);
 router.get('/fos-list', getFOSHandler);
 router.post("/create-mapping",authRequired, validate(createMappingSchema), createMappingHandler)
+router.get('/view-mapping', getViewMappingHandler);
 
 
 module.exports = router;
