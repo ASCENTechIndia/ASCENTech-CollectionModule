@@ -254,8 +254,8 @@ const FrmCreateMapping = () => {
 
       let url;
       if (
-        (values.fromEntityType === "company" && values.toEntityType === "agency") ||
-        (values.fromEntityType === "agency" && values.toEntityType === "company")
+        (values.fromEntityType === "COMPANY" && values.toEntityType === "AGENCY") ||
+        (values.fromEntityType === "AGENCY" && values.toEntityType === "COMPANY")
       ) {
         url = "/mapping/create-mapping";
       } else {
@@ -320,8 +320,8 @@ const FrmCreateMapping = () => {
                       }`}
                   >
                     <option value="">--SELECT--</option>
-                    <option value="company">Company</option>
-                    <option value="agency">Agency</option>
+                    <option value="COMPANY">Company</option>
+                    <option value="AGENCY">Agency</option>
 
                   </select>
 
@@ -346,9 +346,9 @@ const FrmCreateMapping = () => {
                       }`}
                   >
                     <option value="">--SELECT--</option>
-                    <option value="company">Company</option>
-                    <option value="agency">Agency</option>
-                    <option value="fos">FOS</option>
+                    <option value="COMPANY">Company</option>
+                    <option value="AGENCY">Agency</option>
+                    <option value="FOS">FOS</option>
 
 
                     {/* {entityTypes.map((item) => (
