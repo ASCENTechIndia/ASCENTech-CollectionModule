@@ -521,6 +521,52 @@ async function getFOSRepo() {
   return executeQuery(query);
 }
 
+async function getViewMappingRepo() {
+  const query = `SELECT
+          m.num_map_id AS map_id,
+          m.num_from_entityid AS from_id,
+          m.var_from_entity AS from_type,
+          CASE
+              WHEN m.var_from_entity = 'COMPANY' THEN c1.var_companymst_compname
+              WHEN m.var_from_entity = 'AGENCY'  THEN a1.var_agencymst_name
+              WHEN m.var_from_entity = 'FOS'     THEN u1.var_user_userowner
+          END AS from_name,
+          m.num_to_entityid AS to_id,
+          m.var_to_entity AS to_type,
+          CASE
+              WHEN m.var_to_entity = 'COMPANY' THEN c2.var_companymst_compname
+              WHEN m.var_to_entity = 'AGENCY'  THEN a2.var_agencymst_name
+              WHEN m.var_to_entity = 'FOS'     THEN u2.var_user_userowner
+          END AS to_name,
+          m.var_context AS map_context,
+          m.dat_created_at AS map_date,
+          m.dat_effective_from AS effective_from,
+          m.dat_effective_to AS effective_to,
+          m.var_status AS map_status
+      FROM etech_cm.AOUP_COMPANY_AGENCY_MAP m
+      LEFT JOIN etech_cm.AOUP_COMPANYMST_DEF c1
+          ON m.var_from_entity = 'COMPANY'
+        AND m.num_from_entityid = c1.num_companymst_compid
+      LEFT JOIN etech_cm.AOUP_AGENCYMST_DEF a1
+          ON m.var_from_entity = 'AGENCY'
+        AND m.num_from_entityid = a1.num_agencymst_id
+      LEFT JOIN asadmins_cm.AOUP_USER_DEF u1
+          ON m.var_from_entity = 'FOS'
+        AND m.num_from_entityid = u1.num_user_userid
+      LEFT JOIN etech_cm.AOUP_COMPANYMST_DEF c2
+          ON m.var_to_entity = 'COMPANY'
+        AND m.num_to_entityid = c2.num_companymst_compid
+      LEFT JOIN etech_cm.AOUP_AGENCYMST_DEF a2
+          ON m.var_to_entity = 'AGENCY'
+        AND m.num_to_entityid = a2.num_agencymst_id
+      LEFT JOIN asadmins_cm.AOUP_USER_DEF u2
+          ON m.var_to_entity = 'FOS'
+        AND m.num_to_entityid = u2.num_user_userid
+      ORDER BY m.num_map_id DESC`;
+
+  return executeQuery(query);
+}
+
 module.exports = {
   getFormOptionsRepo,
   getBranchesRepo,
@@ -535,5 +581,6 @@ module.exports = {
   getCompanyRepo,
   getAgencyRepo,
   getFOSRepo,
-  createMappingRepo
+  createMappingRepo,
+  getViewMappingRepo,
 };

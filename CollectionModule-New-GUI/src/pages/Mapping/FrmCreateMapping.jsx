@@ -43,6 +43,7 @@ const FrmCreateMapping = () => {
   const [fromEntities, setFromEntities] = useState([]);
   const [toEntities, setToEntities] = useState([]);
   const [relationships, setRelationships] = useState([]);
+  const [tableData, setTableData] = useState([])
 
   //-------------------- Loading --------------------//
 
@@ -63,6 +64,7 @@ const FrmCreateMapping = () => {
   useEffect(() => {
     loadEntityTypes();
     loadRelationshipTypes();
+    getActiveMappingData();
   }, []);
 
   //-------------------- Load Entity Types --------------------//
@@ -213,6 +215,26 @@ const FrmCreateMapping = () => {
 
   //-------------------- Submit --------------------//
 
+  const getActiveMappingData = async () => {
+    try {
+      setLoader(true);
+
+      const response = await apiClient.get("/mapping/view-mapping");
+
+
+
+      if (response.success) {
+        setTableData(response.data);
+      }
+    } catch (error) {
+      console.error(error);
+      showError(error?.message || "Something went wrong");
+    } finally {
+      setLoader(false);
+    }
+  }
+
+
   const onSubmit = async (values) => {
     try {
       // console.log(values);
@@ -274,6 +296,7 @@ const FrmCreateMapping = () => {
       if (response.success && response.code === 9999) {
         showSuccess(response.message);
         reset();
+        getActiveMappingData();
       }
     } catch (error) {
       console.error(error);
@@ -283,6 +306,7 @@ const FrmCreateMapping = () => {
       setLoader(false);
     }
   };
+
 
   return (
     <div className="main-content">
@@ -628,14 +652,48 @@ const FrmCreateMapping = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>HDFC Collection</td>
-                  <td>RecoverFirst Agency</td>
-                  <td>NPA-Q3-Mumbai</td>
-                  <td><span className="px-2 py-1 bg-success rounded text-white" style={{
-                    fontSize: 12
-                  }}>Active</span></td>
-                </tr>
+                {tableData.length > 0 && (
+                  (
+                    <>
+                      {tableData.map(item => (
+                        <tr>
+                          <td>
+                            <span className={`px-2 py-1 me-2 rounded text-white`} style={{
+                              fontSize: 12,
+                              backgroundColor:
+                                item.FROM_TYPE === "COMPANY"
+                                  ? "#0ea5a4"
+                                  : item.FROM_TYPE === "AGENCY"
+                                    ? "#d97706"
+                                    : "#dc2626",
+                            }}>{item.FROM_TYPE.charAt(0).toUpperCase()}</span>
+                            {`${item.FROM_NAME}`}
+                          </td>
+                          <td>
+                            <span className={`px-2 py-1 me-2 rounded text-white`} style={{
+                              fontSize: 12,
+                              backgroundColor:
+                                item.TO_TYPE === "COMPANY"
+                                  ? "#0ea5a4"
+                                  : item.TO_TYPE === "AGENCY"
+                                    ? "#d97706"
+                                    : "#dc2626",
+                            }}>{item.TO_TYPE.charAt(0).toUpperCase()}</span>
+                            {`${item.TO_NAME}`}
+                          </td>
+                          <td>{item.MAP_CONTEXT}</td>
+                          <td>
+                            <span className={`px-2 py-1 bg-${item.MAP_STATUS === "ACTIVE" ? "success" : "danger"} rounded text-white`} style={{
+                              fontSize: 12
+                            }}>
+                              {item.MAP_STATUS}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </>
+                  )
+                )}
               </tbody>
             </table>
           </div>
