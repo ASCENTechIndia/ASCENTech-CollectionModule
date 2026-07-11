@@ -214,9 +214,6 @@ async function createUserService(payload) {
 
 async function createMappingService(payload) {
   try {
-    // Validate input
-    // await validateUserInputService(payload);
-
     const result = await createMappingRepo(payload);
 
     if (!result) {

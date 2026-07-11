@@ -75,7 +75,7 @@ router.post(
 router.get('/company-list', getCompanyHandler);
 router.get('/agency-list', getAgencyHandler);
 router.get('/fos-list', getFOSHandler);
-router.post("/create-mapping", validate(createMappingSchema), createMappingHandler)
+router.post("/create-mapping",authRequired, validate(createMappingSchema), createMappingHandler)
 
 
 module.exports = router;
