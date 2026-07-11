@@ -28,7 +28,8 @@ const {
   getAgencyHandler,
   getFOSHandler,
   createMappingHandler,
-  getViewMappingHandler
+  getViewMappingHandler,
+  uploadExcelData
 } = require('./mapping.controller');
 
 const router = express.Router();
@@ -42,6 +43,8 @@ const upload = multer({
       'image/png',
       'application/pdf',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-excel',
     ];
 
     if (allowedMimes.includes(file.mimetype)) {
@@ -52,6 +55,24 @@ const upload = multer({
   },
   limits: {
     fileSize: 300 * 1024, // 300 KB
+  },
+});
+
+const uploadExcel = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: (req, file, cb) => {
+    const allowedMimes = [
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+      'application/vnd.ms-excel', // .xls
+    ];
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only Excel files are allowed.'));
+    }
+  },
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5 MB 
   },
 });
 
@@ -78,6 +99,7 @@ router.get('/agency-list', getAgencyHandler);
 router.get('/fos-list', getFOSHandler);
 router.post("/create-mapping",authRequired, validate(createMappingSchema), createMappingHandler)
 router.get('/view-mapping', getViewMappingHandler);
+router.post("/excel-data", uploadExcel.single("file"), uploadExcelData),
 
 
 module.exports = router;

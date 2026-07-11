@@ -16,6 +16,7 @@ const {
 } = require('./mapping.service');
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
+const XLSX = require('xlsx');
 const AppError = require('../../utils/app-error');
 
 function requestMeta(req) {
@@ -432,6 +433,32 @@ async function getViewMappingHandler(req, res, next) {
   }
 }
 
+async function uploadExcelData(req, res, next) {
+  try {
+    if (!req.file) {
+      return res.json({ success: false, message: "No file uploaded" });
+    }
+
+    const workBook = XLSX.read(req.file.buffer, { type: 'buffer' });
+
+    // Taking first sheet by default
+    const sheetName = workBook.SheetNames[0];
+    const sheet = workBook.Sheets[sheetName];
+
+    // converting sheet data into array of objects
+    const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: null, raw: false });
+
+    if (!jsonData.length) {
+      return res.json({ success: false, message: "Excel file is empty" });
+    }
+
+    return res.ok(jsonData);
+  } catch (error) {
+    logApiError(req, 400, error.message, 'Extracting excel data failed');
+    return next(error);
+  }
+}
+
 module.exports = {
   getFormOptionsHandler,
   getBranchesHandler,
@@ -447,4 +474,5 @@ module.exports = {
   getFOSHandler,
   createMappingHandler,
   getViewMappingHandler,
+  uploadExcelData,
 };
