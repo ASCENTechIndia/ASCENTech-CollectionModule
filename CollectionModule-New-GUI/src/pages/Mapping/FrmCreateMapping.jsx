@@ -111,9 +111,9 @@ const FrmCreateMapping = () => {
     try {
       setLoadingFromEntity(true);
       let apiUrl;
-      if (entityType === "company") {
+      if (entityType === "COMPANY") {
         apiUrl = '/mapping/company-list'
-      } else if (entityType === "agency") {
+      } else if (entityType === "AGENCY") {
         apiUrl = '/mapping/agency-list'
       }
 
@@ -123,12 +123,12 @@ const FrmCreateMapping = () => {
 
 
       if (response.success) {
-        const list = entityType === "company" ? response.data.map(item => (
+        const list = entityType === "COMPANY" ? response.data.map(item => (
           {
             label: `${item.name} - ${item.branch}`,
             value: item.id
           }
-        )) : entityType === "agency" ? response.data.map(item => (
+        )) : entityType === "AGENCY" ? response.data.map(item => (
           {
             label: item.name,
             value: item.id
@@ -162,11 +162,11 @@ const FrmCreateMapping = () => {
     try {
       setLoadingToEntity(true);
       let apiUrl;
-      if (entityType === "company") {
+      if (entityType === "COMPANY") {
         apiUrl = '/mapping/company-list'
-      } else if (entityType === "agency") {
+      } else if (entityType === "AGENCY") {
         apiUrl = '/mapping/agency-list'
-      } else if (entityType === "fos") {
+      } else if (entityType === "FOS") {
         apiUrl = '/mapping/fos-list'
       }
 
@@ -175,12 +175,12 @@ const FrmCreateMapping = () => {
       );
       let list;
       if (response.success) {
-        list = entityType === "company" ? response.data.map(item => (
+        list = entityType === "COMPANY" ? response.data.map(item => (
           {
             label: `${item.name} - ${item.branch}`,
             value: item.id
           }
-        )) : (entityType === "agency" || entityType === "fos") ? response.data.map(item => (
+        )) : (entityType === "AGENCY" || entityType === "FOS") ? response.data.map(item => (
           {
             label: item.name,
             value: item.id
@@ -236,11 +236,11 @@ const FrmCreateMapping = () => {
       setLoader(true);
 
       const payload = {
-        // fromEntityTypeId: Number(values.fromEntityType),
-        companyId: Number(values.fromEntity),
+        fromEntityType: values.fromEntityType,
+        fromEntityId: Number(values.fromEntity),
 
-        // toEntityTypeId: Number(values.toEntityType),
-        agencyId: Number(values.toEntity),
+        toEntityType: values.toEntityType,
+        toEntityId: Number(values.toEntity),
 
         relationship: values.relationship,
 
@@ -454,7 +454,7 @@ const FrmCreateMapping = () => {
                   <select
                     disabled={!fromEntityType || loadingFromEntity}
                     {...register("fromEntity", {
-                      // required: "From Entity is required",
+                      required: "From Entity is required",
                     })}
                     className={`form-select ${errors.fromEntity ? "is-invalid" : ""
                       }`}
@@ -493,7 +493,7 @@ const FrmCreateMapping = () => {
                   <select
                     disabled={!toEntityType || loadingToEntity}
                     {...register("toEntity", {
-                      // required: "To Entity is required",
+                      required: "To Entity is required",
                     })}
                     className={`form-select ${errors.toEntity ? "is-invalid" : ""
                       }`}

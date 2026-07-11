@@ -51,20 +51,22 @@ const createUserSchema = userCreationBaseSchema.extend({
 });
 
 const createMappingSchema = z.object({
-  companyId: z.preprocess(
-    (val) => (val === "" ? null : val),
-    z.number({ invalid_type_error: "Company Id is required" })
-  ),
-  agencyId: z.preprocess(
-    (val) => (val === "" ? null : val),
-    z.number({ invalid_type_error: "Agency Id is required" })
-  ),
   createdBy: z.string().trim().min(1, "Created by is required"),
   remark: z.string().optional(),
   relationship: z.string().trim().min(1, "Relationship is required"),
   context: z.string().trim().min(1, "Context is required"),
   effectiveFrom: z.string().optional(),
   effectiveTo: z.string().optional(),
+  fromEntityId: z.preprocess(
+    (val) => (val === "" ? null : val),
+    z.number({ invalid_type_error: "From entity id is required" })
+  ),
+  toEntityId: z.preprocess(
+    (val) => (val === "" ? null : val),
+    z.number({ invalid_type_error: "To entity id is required" })
+  ),
+  fromEntityType: z.string().min(1, "From entity type is required"),
+  toEntityType: z.string().min(1, "To entity type is required"),
 });
 
 const updateUserSchema = userCreationBaseSchema.extend({

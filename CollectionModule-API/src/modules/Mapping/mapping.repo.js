@@ -167,11 +167,29 @@ async function createUserRepo(payload) {
 }
 
 async function createMappingRepo(payload) {
+  // const statement = `
+  //   BEGIN
+  //     etech_cm.AOUP_COMPANY_AGENCY_ASSIGN(
+  //       :P_COMPANY_ID,
+  //       :P_AGENCY_ID,
+  //       :P_CREATED_BY,
+  //       :P_REMARK,
+  //       :P_Relationship,
+  //       :P_context,
+  //       :P_EFFECTIVE_DT,
+  //       :P_DAT_EFFECTIVE_TO,
+  //       :OUT_ERRORCODE,
+  //       :OUT_ERRORMSG
+  //     );
+  //   END;
+  // `;
   const statement = `
     BEGIN
       etech_cm.AOUP_COMPANY_AGENCY_ASSIGN(
-        :P_COMPANY_ID,
-        :P_AGENCY_ID,
+        :P_from_entityID,
+        :P_to_entityID,
+        :P_from_entity_type,
+        :P_to_entity_type,
         :P_CREATED_BY,
         :P_REMARK,
         :P_Relationship,
@@ -185,8 +203,10 @@ async function createMappingRepo(payload) {
   `;
   
   const binds = {
-    P_COMPANY_ID: payload.companyId,
-    P_AGENCY_ID: payload.agencyId,
+    P_from_entityID: payload.fromEntityId,
+    P_to_entityID: payload.toEntityId,
+    P_from_entity_type: payload.fromEntityType,
+    P_to_entity_type: payload.toEntityType,
     P_CREATED_BY: payload.createdBy,
     P_REMARK: payload.remark,
     P_Relationship: payload.relationship,
