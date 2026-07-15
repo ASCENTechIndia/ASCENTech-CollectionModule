@@ -7,7 +7,7 @@ const { config } = require('../../config/env');
 async function loginWithStoredProcedure(userId, password) {
   const plsql = `
     BEGIN
-      aoup_login_fetch(
+      etech_cm.aoup_login_fetch(
         :in_UserId,
         :in_password,
         :Out_CompId,
