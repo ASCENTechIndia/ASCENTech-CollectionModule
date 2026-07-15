@@ -39,7 +39,8 @@ const adminMenuItems = [
   { to: '/admin/bucket-setter', label: 'Bucket Setter' },
   { to: '/admin/contract-allocation', label: 'Contract Allocation' },
   { to: '/admin/distance-matrix', label: 'Distance Matrix' },
-  {to: 'admin/FrmImageUploadMobApp2', label: 'Mobile Notification' },
+  { to: 'admin/FrmImageUploadMobApp2', label: 'Mobile Notification' },
+  { to: '/admin/excel-upload', label: 'Excle Data Upload' },
   // { to: 'admin/entity-mapping', label: "Entity Mapping Console"}
 ]
 

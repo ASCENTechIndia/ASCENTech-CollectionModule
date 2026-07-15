@@ -52,6 +52,7 @@ function FrmUserLocationTracking() {
   const [searchResults, setSearchResults] = useState([])
   const [searchLoading, setSearchLoading] = useState(false)
   const [searchError, setSearchError] = useState('')
+  const [searched , setSearched] = useState(false)
 
   const mapUrl = useMemo(() => {
     if (!coordinates) return ''
@@ -59,10 +60,11 @@ function FrmUserLocationTracking() {
   }, [coordinates])
 
   const onSubmit = async (values) => {
+    setSearched(true);
     const trimmedUserId = String(values.userId || '').trim()
     const trackingDate = values.trackingDate
 
-    // setLoading(true)
+    setLoading(true)
     setLoader(true);
     setCoordinates(null)
     setMapLoading(false)
@@ -93,15 +95,15 @@ function FrmUserLocationTracking() {
     } catch (error) {
       showError(error?.message || 'Failed to fetch location')
     } finally {
-      // setLoading(false)
+      setLoading(false)
       setLoader(false);
     }
   };
 
   // Validation helpers (only show red border after submit)
-  const isDateInvalid = searched && !trackingDate;
-  const isUserIdInvalid =
-    searched && (!userId.trim() || !/^\d+$/.test(userId.trim()));
+  // const isDateInvalid = searched && !trackingDate;
+  // const isUserIdInvalid =
+  //   searched && (!userId.trim() || !/^\d+$/.test(userId.trim()));
 
   // Debounced search
   const doSearch = debounce(async (term) => {

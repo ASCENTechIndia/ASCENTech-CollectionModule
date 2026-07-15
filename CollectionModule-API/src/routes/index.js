@@ -16,6 +16,7 @@ const webCreationRoutes = require('../modules/WebUserCreation/webUserCreation.ro
 const agencyCreationRoutes = require('../modules/AgencyCreation/agencyCreation.routes');
 const companyRoutes = require('../modules/Company/company.routes');
 const mappingRoutes = require('../modules/Mapping/mapping.routes');
+const excelUploadRoutes = require('../modules/ExcelUpload/ExcelUpload.routes');
 const router = express.Router();
 
 router.get('/health', (req, res) => {
@@ -48,5 +49,6 @@ router.use('/web-creation', webCreationRoutes);
 router.use('/agency-creation', agencyCreationRoutes);
 router.use('/company', companyRoutes);
 router.use('/mapping', mappingRoutes);
+router.use('/excel-upload', excelUploadRoutes);
 
 module.exports = router;
