@@ -13,7 +13,7 @@ function normalizeNullable(value) {
 async function getPincodes() {
   let sql = `
  select var_pincode_no from 
- atbss.aoup_pincode_master where 
+ atbss_cm.aoup_pincode_master where 
  var_pincode_active='Y' order by var_pincode_no
   `;
 
@@ -25,9 +25,9 @@ async function getPincodes() {
 
 async function getUsernamebyId(userId) {
   let sql = `
-   select a.var_usermst_userfullname,b.var_userlevelmst_status,a.VAR_USERMST_USERID from etech.aoup_usermst_def a
-                left outer join etech.aoup_userlevelmst_def b on b.var_userlevelmst_id=a.var_usermst_status  
-                inner join etech.branchlist c on c.brid=a.num_usermst_brid  
+   select a.var_usermst_userfullname,b.var_userlevelmst_status,a.VAR_USERMST_USERID from etech_cm.aoup_usermst_def a
+                left outer join etech_cm.aoup_userlevelmst_def b on b.var_userlevelmst_id=a.var_usermst_status  
+                inner join etech_cm.branchlist c on c.brid=a.num_usermst_brid  
                  where a.var_usermst_userid= :userId and  VAR_USERMST_STATUS != 'I'
   `;
 
@@ -43,7 +43,7 @@ async function getPincodebyId(userId) {
     : userId;
 
   let sql = `
-  select var_user_pincode from atbss.aoup_user_pincode_map where var_user_userid= :userId 
+  select var_user_pincode from atbss_cm.aoup_user_pincode_map where var_user_userid= :userId 
   `;
 
   const binds = { userId: cleanUserId };
@@ -54,7 +54,7 @@ async function getPincodebyId(userId) {
 async function assignPincodeIns(payload) {
   const statement = `
     BEGIN
-      atbss.aoup_user_pincode_map_ins(
+      atbss_cm.aoup_user_pincode_map_ins(
         :in_UserName,
         :in_pincode_str,
         :out_data,
@@ -78,7 +78,7 @@ async function assignPincodeIns(payload) {
 async function insertPincodeMasterIns(pincode) {
   const statement = `
     BEGIN
-      atbss.AOUP_Pincode_Master_Insertion(
+      atbss_cm.AOUP_Pincode_Master_Insertion(
         :in_pincode,
         :out_ErrorCode,
         :out_ErrorMsg
@@ -103,8 +103,8 @@ async function getAllPincodes() {
         pm.VAR_PINCODE_NO,
         pm.VAR_PINCODE_ACTIVE,
         COUNT(bd.NUM_BANKDATA_PINCODE) AS ASSIGNED_COUNT
-    FROM atbss.aoup_pincode_master pm
-    LEFT JOIN atbss.aoup_etech_bankdata bd
+    FROM atbss_cm.aoup_pincode_master pm
+    LEFT JOIN atbss_cm.aoup_etech_bankdata bd
         ON pm.VAR_PINCODE_NO = bd.NUM_BANKDATA_PINCODE
     GROUP BY 
         pm.VAR_PINCODE_NO,
@@ -126,8 +126,8 @@ async function getAllPincodes() {
         THEN pm.VAR_PINCODE_NO 
     END) AS TOTAL_UNASSIGNED
 
-FROM atbss.aoup_pincode_master pm
-LEFT JOIN atbss.aoup_etech_bankdata bd
+FROM atbss_cm.aoup_pincode_master pm
+LEFT JOIN atbss_cm.aoup_etech_bankdata bd
     ON pm.VAR_PINCODE_NO = bd.NUM_BANKDATA_PINCODE
   `;
 
@@ -143,7 +143,7 @@ LEFT JOIN atbss.aoup_etech_bankdata bd
 async function deletePincodeIns(pincode) {
   const statement = `
     BEGIN
-      atbss.AOUP_Pincode_master_Manager(
+      atbss_cm.AOUP_Pincode_master_Manager(
         :in_pincode,
         :out_ErrorCode,
         :out_ErrorMsg

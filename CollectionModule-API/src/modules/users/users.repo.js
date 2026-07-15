@@ -517,7 +517,7 @@ async function updateUserRole(payload) {
 }
 
 async function branchListbyCategory(filters) {
-  let sql = `select brid, branchname from etech.branchlist`;
+  let sql = `select brid, branchname from etech_cm.branchlist`;
   const binds = {};
 
   let conditions = [];
@@ -556,9 +556,9 @@ async function branchListbyCategory(filters) {
 async function agentDetailsbyBrid(brid) {
   let sql = `
   select replace(var_usermst_userid,'E','') username,var_usermst_userid userid,var_usermst_userfullname empname,var_usermst_empcode empcode,
-   num_usermst_mobileno mobno,num_usermst_email email,var_designation_designation desg,var_userrole_name  from etech.aoup_usermst_def a 
-             left outer join etech.aoup_designation_def on num_designation_id = num_usermst_desgid 
-             left outer join etech.aoup_userrole_mas on num_userrole_id = num_usermst_roleid 
+   num_usermst_mobileno mobno,num_usermst_email email,var_designation_designation desg,var_userrole_name  from etech_cm.aoup_usermst_def a 
+             left outer join etech_cm.aoup_designation_def on num_designation_id = num_usermst_desgid 
+             left outer join etech_cm.aoup_userrole_mas on num_userrole_id = num_usermst_roleid 
             where num_usermst_brid = :brid order by var_usermst_userid 
   `;
 
@@ -617,10 +617,10 @@ async function agentDetailsbyBridNew(payload) {
       var_usermst_status,
       DATE_USERMST_LASTLOGIN,
       DATE_USERMST_STATUSUPDDT
-    FROM etech.aoup_usermst_def a
-    LEFT JOIN etech.aoup_designation_def 
+    FROM etech_cm.aoup_usermst_def a
+    LEFT JOIN etech_cm.aoup_designation_def 
       ON num_designation_id = num_usermst_desgid
-    LEFT JOIN etech.aoup_userrole_mas 
+    LEFT JOIN etech_cm.aoup_userrole_mas 
       ON num_userrole_id = num_usermst_roleid
     ${whereClause}
     ORDER BY var_usermst_userid
@@ -632,7 +632,7 @@ async function agentDetailsbyBridNew(payload) {
   // =========================
   let totalSql = `
     SELECT COUNT(*) AS total_records
-    FROM etech.aoup_usermst_def a
+    FROM etech_cm.aoup_usermst_def a
     ${whereClause}
   `;
 
@@ -643,7 +643,7 @@ async function agentDetailsbyBridNew(payload) {
   //   SELECT 
   //     SUM(CASE WHEN VAR_USERMST_STATUS = 'A' THEN 1 ELSE 0 END) AS active_count,
   //     SUM(CASE WHEN VAR_USERMST_STATUS = 'I' THEN 1 ELSE 0 END) AS inactive_count
-  //   FROM etech.aoup_usermst_def a
+  //   FROM etech_cm.aoup_usermst_def a
   //   ${whereClause}
   // `;
 
@@ -651,7 +651,7 @@ async function agentDetailsbyBridNew(payload) {
     SELECT 
       SUM(CASE WHEN VAR_USERMST_STATUS IN ('A', 'U') THEN 1 ELSE 0 END) AS active_count,
       SUM(CASE WHEN VAR_USERMST_STATUS = 'I' THEN 1 ELSE 0 END) AS inactive_count
-    FROM etech.aoup_usermst_def a
+    FROM etech_cm.aoup_usermst_def a
     ${whereClause}
   `;
 
@@ -694,7 +694,7 @@ async function getBranchusercreation(filters) {
   if (isRestricted) {
     sql = `
       SELECT branchname, brid
-      FROM etech.branchlist
+      FROM etech_cm.branchlist
       WHERE brid = :brid
       ORDER BY branchname
     `;
@@ -705,21 +705,21 @@ async function getBranchusercreation(filters) {
     if (filters.userLevel === "Zone") {
       sql = `
         SELECT branchname, brid
-        FROM etech.view_zone
+        FROM etech_cm.view_zone
         ORDER BY branchname
       `;
     } 
     else if (filters.userLevel === "Region") {
       sql = `
         SELECT branchname, brid
-        FROM etech.view_region
+        FROM etech_cm.view_region
         ORDER BY branchname
       `;
     } 
     else if (filters.userLevel === "Branch") {
       sql = `
         SELECT branchname, brid
-        FROM etech.view_branch
+        FROM etech_cm.view_branch
         ORDER BY branchname
       `;
     } 
@@ -735,7 +735,7 @@ async function getBranchusercreation(filters) {
 async function getRoles() {
   let sql = `
   SELECT var_userrole_name, num_userrole_id
-FROM etech.aoup_userrole_mas
+FROM etech_cm.aoup_userrole_mas
 WHERE num_userrole_id IN (1,5)
 ORDER BY num_userrole_id
   `;
@@ -748,7 +748,7 @@ ORDER BY num_userrole_id
 async function getUserDevice() {
   let sql = `
   select var_userdevice_name, num_userdevice_id from 
-  etech.aoup_userdevice_mas where num_userdevice_id in(3) order by num_userdevice_id
+  etech_cm.aoup_userdevice_mas where num_userdevice_id in(3) order by num_userdevice_id
   `;
 
   const binds = {};
@@ -759,7 +759,7 @@ async function getUserDevice() {
 async function callUserWebIns(payload) {
   const statement = `
     BEGIN
-      etech.aoup_userweb_ins(
+      etech_cm.aoup_userweb_ins(
         :in_brid,
         :in_userid,
         :in_username,
@@ -853,7 +853,7 @@ async function getPageAccessByUserId(userId) {
     select replace(var_usermst_userid, 'E', '') as userid,
            var_usermst_userfullname as username,
            num_usermst_userprooftype as usertype
-      from etech.aoup_usermst_def
+      from etech_cm.aoup_usermst_def
      where var_usermst_userid = :userId
   `;
 
@@ -867,15 +867,15 @@ async function getPageAccessByUserId(userId) {
   const assignedSql = `
     select b.var_menumst_menuname as menuname,
            a.num_menuusersmst_menuid as menuid
-      from etech.aoup_menuusersmst_def a
-      inner join etech.aoup_menumst_def b on a.num_menuusersmst_menuid = b.num_menumst_menuid
+      from etech_cm.aoup_menuusersmst_def a
+      inner join etech_cm.aoup_menumst_def b on a.num_menuusersmst_menuid = b.num_menumst_menuid
      where a.var_menuusersmst_userid = :userId
   `;
 
   const sourceSql = `
     select menuname,
            menuid
-      from etech.aoup_menuitems_bank_conneqt
+      from etech_cm.aoup_menuitems_bank_conneqt
      where sourcesystem = :sourceSystem
      order by menuname
   `;
@@ -949,7 +949,7 @@ async function findUserByNameId(input) {
       SELECT 
         VAR_USERMST_USERID,
         VAR_USERMST_USERFULLNAME
-      FROM etech.aoup_usermst_def
+      FROM etech_cm.aoup_usermst_def
       WHERE 
     `;
 

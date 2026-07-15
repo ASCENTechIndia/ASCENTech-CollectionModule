@@ -27,16 +27,16 @@ async function getDashboardData({ userId, month, year }) {
   const chartSql = `
     SELECT TO_CHAR(Login, 'DD') AS day,
            COUNT(DISTINCT UserID) AS unique_user_count
-      FROM asadmins.aoup_user_count
-      INNER JOIN etech.aoup_usermst_def
+      FROM asadmins_cm.aoup_user_count
+      INNER JOIN etech_cm.aoup_usermst_def
              ON var_usermst_userid = userid
-      INNER JOIN etech.view_user_level_new
+      INNER JOIN etech_cm.view_user_level_new
              ON Main_compid = num_usermst_brid
              OR center_compid = num_usermst_brid
              OR Zone_compid = num_usermst_brid
              OR State_compid = num_usermst_brid
              OR branch_compid = num_usermst_brid
-      INNER JOIN etech.aoup_usermst_def t
+      INNER JOIN etech_cm.aoup_usermst_def t
              ON Main_compid = t.num_usermst_brid
              OR center_compid = t.num_usermst_brid
              OR Zone_compid = t.num_usermst_brid
@@ -50,16 +50,16 @@ async function getDashboardData({ userId, month, year }) {
 
   const activeAgentsSql = `
     SELECT COUNT(DISTINCT VAR_USER_USERNAME) AS UserCount
-      FROM asadmins.aoup_user_def
-      INNER JOIN etech.aoup_usermst_def u
+      FROM asadmins_cm.aoup_user_def
+      INNER JOIN etech_cm.aoup_usermst_def u
              ON var_user_username = var_usermst_userid
-      INNER JOIN etech.view_user_level_new
+      INNER JOIN etech_cm.view_user_level_new
              ON Main_compid = num_usermst_brid
              OR center_compid = num_usermst_brid
              OR Zone_compid = num_usermst_brid
              OR State_compid = num_usermst_brid
              OR branch_compid = num_usermst_brid
-      INNER JOIN etech.aoup_usermst_def t
+      INNER JOIN etech_cm.aoup_usermst_def t
              ON Main_compid = t.num_usermst_brid
              OR center_compid = t.num_usermst_brid
              OR Zone_compid = t.num_usermst_brid
@@ -71,16 +71,16 @@ async function getDashboardData({ userId, month, year }) {
 
   const uniqueLoginsSql = `
     SELECT COUNT(DISTINCT USERID) AS UserCount
-      FROM asadmins.aoup_user_count
-      INNER JOIN etech.aoup_usermst_def
+      FROM asadmins_cm.aoup_user_count
+      INNER JOIN etech_cm.aoup_usermst_def
              ON var_usermst_userid = userid
-      INNER JOIN etech.view_user_level_new
+      INNER JOIN etech_cm.view_user_level_new
              ON Main_compid = num_usermst_brid
              OR center_compid = num_usermst_brid
              OR Zone_compid = num_usermst_brid
              OR State_compid = num_usermst_brid
              OR branch_compid = num_usermst_brid
-      INNER JOIN etech.aoup_usermst_def t
+      INNER JOIN etech_cm.aoup_usermst_def t
              ON Main_compid = t.num_usermst_brid
              OR center_compid = t.num_usermst_brid
              OR Zone_compid = t.num_usermst_brid
@@ -93,18 +93,18 @@ async function getDashboardData({ userId, month, year }) {
 
   const assignedAccountsSql = `
     select count(distinct ASSIGNEDFOS) as assignedcount
-      from atbss.aoup_etech_contractUploadAllocationDetails
-      inner join atbss.aoup_etech_bankdata
+      from atbss_cm.aoup_etech_contractUploadAllocationDetails
+      inner join atbss_cm.aoup_etech_bankdata
               on contractnumber = var_bankdata_contractnum
-      inner join etech.aoup_usermst_def tb
+      inner join etech_cm.aoup_usermst_def tb
               on var_usermst_userid = 'E' || var_bankdata_userid
-      inner join etech.view_user_level_new
+      inner join etech_cm.view_user_level_new
               on Main_compid = num_usermst_brid
              or center_compid = num_usermst_brid
              or Zone_compid = num_usermst_brid
              or State_compid = num_usermst_brid
              or branch_compid = num_usermst_brid
-      inner join etech.aoup_usermst_def t
+      inner join etech_cm.aoup_usermst_def t
               on Main_compid = t.num_usermst_brid
              or center_compid = t.num_usermst_brid
              or Zone_compid = t.num_usermst_brid
@@ -124,7 +124,7 @@ async function getDashboardData({ userId, month, year }) {
              TRUNC(login) AS login_date,
              MIN(login) AS min_login,
              MAX(LOGOUT) AS max_logout
-        FROM ASADMINS.aoup_user_count
+        FROM asadmins_cm.aoup_user_count
        WHERE TRUNC(login) >= TO_DATE('${firstDate}', 'DD-MM-YYYY')
          AND TRUNC(login) <= LAST_DAY(TO_DATE('${firstDate}', 'DD-MM-YYYY'))
        GROUP BY userid, TRUNC(login)
@@ -141,25 +141,25 @@ async function getDashboardData({ userId, month, year }) {
            parent_company.NUM_COMPANYMST_PARENTID AS grandparent_id,
            grandparent_company.VAR_COMPANYMST_BRANCHNAME AS grandparent_branch_name
       FROM mergedsessions ms
-      INNER JOIN etech.aoup_usermst_def ud
+      INNER JOIN etech_cm.aoup_usermst_def ud
               ON ud.var_usermst_userid = ms.userid
-      INNER JOIN etech.AOUP_COMPANYMST_DEF cc
+      INNER JOIN etech_cm.AOUP_COMPANYMST_DEF cc
               ON ud.NUM_USERMST_BRID = cc.NUM_COMPANYMST_COMPID
-      INNER JOIN etech.view_user_level_new vl
+      INNER JOIN etech_cm.view_user_level_new vl
               ON vl.Main_compid = ud.num_usermst_brid
              OR vl.center_compid = ud.num_usermst_brid
              OR vl.Zone_compid = ud.num_usermst_brid
              OR vl.State_compid = ud.num_usermst_brid
              OR vl.branch_compid = ud.num_usermst_brid
-      INNER JOIN etech.aoup_usermst_def t
+      INNER JOIN etech_cm.aoup_usermst_def t
               ON t.num_usermst_brid = vl.Main_compid
              OR t.num_usermst_brid = vl.center_compid
              OR t.num_usermst_brid = vl.Zone_compid
              OR t.num_usermst_brid = vl.State_compid
              OR t.num_usermst_brid = vl.branch_compid
-      LEFT JOIN etech.AOUP_COMPANYMST_DEF parent_company
+      LEFT JOIN etech_cm.AOUP_COMPANYMST_DEF parent_company
              ON cc.NUM_COMPANYMST_PARENTID = parent_company.NUM_COMPANYMST_COMPID
-      LEFT JOIN etech.AOUP_COMPANYMST_DEF grandparent_company
+      LEFT JOIN etech_cm.AOUP_COMPANYMST_DEF grandparent_company
              ON parent_company.NUM_COMPANYMST_PARENTID = grandparent_company.NUM_COMPANYMST_COMPID
      WHERE t.var_usermst_userid = :userId
      GROUP BY ms.userid,

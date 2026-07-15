@@ -161,22 +161,22 @@ async function accAllocationReport(filters) {
      WHEN ACCOUNTTYPE = 'CCOD' AND diff_in_int_credit <= cap_unpd_int THEN cap_unpd_int
      ELSE 0
      END AS collectableAmount
-        FROM atbss.aoup_etech_contractUploadAllocationDetails a
-        INNER JOIN atbss.aoup_etech_bankdata bd  
+        FROM atbss_cm.aoup_etech_contractUploadAllocationDetails a
+        INNER JOIN atbss_cm.aoup_etech_bankdata bd  
          ON a.contractnumber = bd.var_bankdata_contractnum) GROUP BY contractnumber )
     SELECT 
   TO_CHAR(MIN(a.CONTRACTALLOCATIONDATE), 'DD/MM/YYYY') AS CONTRACTALLOCATIONDATE,
       a.CONTRACTNUMBER, a.assignedfos, f.collectableAmount, b.VAR_BANKDATA_PRODUCTNM, b.VAR_BANKDATA_PRODUCTCODE,
       b.VAR_BANKDATA_BRANCH, b.VAR_BANKDATA_CUSTOMERNM, b.VAR_BANKDATA_REGISTRNO, u.var_usermst_userfullname AS ASSIGNEDFOS_USERFULLNAME,
       MAX(bt.DAT_BANKTRANSMAST_TRANSDATETIM) AS transdat, b.VAR_BANKDATA_DPDBUCKET
-    FROM atbss.aoup_etech_contractUploadAllocationDetails a
-    LEFT JOIN atbss.aoup_etech_BANKDATA b ON a.contractnumber = b.var_bankdata_contractnum
+    FROM atbss_cm.aoup_etech_contractUploadAllocationDetails a
+    LEFT JOIN atbss_cm.aoup_etech_BANKDATA b ON a.contractnumber = b.var_bankdata_contractnum
  AND a.assignedfos IS NOT NULL
     LEFT JOIN cte_amt f
       ON a.CONTRACTNUMBER = f.contractnumber
-    LEFT JOIN etech.aoup_usermst_def u
+    LEFT JOIN etech_cm.aoup_usermst_def u
       ON u.VAR_USERMST_USERID = 'E' || a.assignedfos
-    LEFT JOIN atbss.aoup_etech_bankingtransmast bt
+    LEFT JOIN atbss_cm.aoup_etech_bankingtransmast bt
       ON a.CONTRACTNUMBER = bt.VAR_BANKTRANSMAST_CONTRCTNO
     WHERE TRUNC(a.contractallocationdate) BETWEEN 
           TO_DATE(:startDate, 'DD-Mon-YYYY') 
@@ -242,8 +242,8 @@ async function getDailyUploadedReport(filters) {
      WHEN ACCOUNTTYPE = 'CCOD' AND diff_in_int_credit <= cap_unpd_int THEN cap_unpd_int
      ELSE 0
     END AS collectableAmount
-      FROM atbss.aoup_etech_contractUploadAllocationDetails a
-      INNER JOIN atbss.aoup_etech_bankdata bd  
+      FROM atbss_cm.aoup_etech_contractUploadAllocationDetails a
+      INNER JOIN atbss_cm.aoup_etech_bankdata bd  
         ON a.contractnumber = bd.var_bankdata_contractnum WHERE 1=1
     ),
     cte_with_rownum AS (
@@ -255,10 +255,10 @@ async function getDailyUploadedReport(filters) {
           PARTITION BY a.CONTRACTNUMBER 
           ORDER BY a.contractuploaddate DESC
         ) AS rn
-      FROM atbss.aoup_etech_contractUploadAllocationDetails a
+      FROM atbss_cm.aoup_etech_contractUploadAllocationDetails a
       LEFT JOIN cte_amt f
         ON a.CONTRACTNUMBER = f.contractnumber
-      INNER JOIN atbss.aoup_etech_bankdata bd  
+      INNER JOIN atbss_cm.aoup_etech_bankdata bd  
         ON a.contractnumber = bd.var_bankdata_contractnum
       WHERE TRUNC(a.CONTRACTUPLOADDATE) BETWEEN 
             TO_DATE(:startDate, 'DD-Mon-YYYY') 
@@ -297,8 +297,8 @@ async function getpincodeHistoryReport(filters) {
     u.VAR_USERMST_USERFULLNAME,
     a.var_user_pincode,
     TO_CHAR(a.inactive_date, 'DD-MM-YYYY') AS inactive_date
-FROM atbss.aoup_user_pincode_map_history_maintain a
-LEFT JOIN etech.AOUP_USERMST_DEF u
+FROM atbss_cm.aoup_user_pincode_map_history_maintain a
+LEFT JOIN etech_cm.AOUP_USERMST_DEF u
     ON u.VAR_USERMST_USERID = 'E' || a.var_user_userid
 WHERE a.INACTIVE_DATE >= TO_DATE(:startDate, 'DD-Mon-YYYY')
   AND a.INACTIVE_DATE <  TO_DATE(:endDate, 'DD-Mon-YYYY') + 1`;
@@ -320,7 +320,7 @@ WHERE a.INACTIVE_DATE >= TO_DATE(:startDate, 'DD-Mon-YYYY')
 
 async function getnonvisitdoneSummary() {
   let sql = `
-    SELECT * FROM atbss.view_nonvisit_summary
+    SELECT * FROM atbss_cm.view_nonvisit_summary
   `;
   const binds = {};
   const result = await executeQuery(sql, binds);
@@ -329,7 +329,7 @@ async function getnonvisitdoneSummary() {
 
 async function overallPerformanceSummary() {
   let sql = `
-   select * from atbss.view_overall_performance
+   select * from atbss_cm.view_overall_performance
   `;
   const binds = {};
   const result = await executeQuery(sql, binds);
@@ -338,7 +338,7 @@ async function overallPerformanceSummary() {
 
 async function getvisitdoneSummary() {
   let sql = `
-   select * from atbss.view_visitdone_summary2`;
+   select * from atbss_cm.view_visitdone_summary2`;
   const binds = {};
   const result = await executeQuery(sql, binds);
   return result.rows || [];
@@ -346,7 +346,7 @@ async function getvisitdoneSummary() {
 
 async function getSMASummary() {
   let sql = `
-   select * from atbss.vw_combined_sma_summary `;
+   select * from atbss_cm.vw_combined_sma_summary `;
   const binds = {};
   const result = await executeQuery(sql, binds);
   return result.rows || [];
@@ -371,7 +371,7 @@ LEFT JOIN
     SELECT 
         TRUNC(CONTRACTUPLOADDATE, 'MM') AS month_date,
         COUNT(DISTINCT CONTRACTNUMBER) AS total_count
-    FROM atbss.aoup_etech_contractuploadallocationdetails
+    FROM atbss_cm.aoup_etech_contractuploadallocationdetails
     GROUP BY TRUNC(CONTRACTUPLOADDATE, 'MM')
 ) data
 ON month_list.month_date = data.month_date
@@ -407,10 +407,10 @@ async function fetchUserRouteRows(filters) {
         VAR_BANKTRANSDET_GOLOCATION AS "GO_Location",
         VAR_FEEDBACK_NAME AS "Disposition Type",
         VAR_BANKTRANSDET_VISITREMARK AS "Visit Remark"
-      FROM atbss.aoup_etech_banktransdetails a
-      INNER JOIN atbss.aoup_etech_bankdata b
+      FROM atbss_cm.aoup_etech_banktransdetails a
+      INNER JOIN atbss_cm.aoup_etech_bankdata b
         ON a.num_banktransdet_upassid = b.num_bankdata_upassid
-      INNER JOIN atbss.aoup_etech_feedback_mst c
+      INNER JOIN atbss_cm.aoup_etech_feedback_mst c
         ON c.NUM_FEEDBACK_ID = VAR_BANKTRANSDET_CUSTFEEDBCK
       WHERE VAR_BANKTRANSDET_USERID = :fosId
         AND TRUNC(TO_DATE(DAT_BANKTRANSDET_OFLNTRANSDATE, 'DD-MM-YYYY HH24:MI:SS')) = TO_DATE(:selectedDate, 'DD-MM-YYYY')
@@ -481,17 +481,17 @@ async function getUnallocatedCases(filters) {
         CASE
             WHEN pm.var_pincode_no IS NULL THEN 'Pincode not exists in master'
             WHEN upm.VAR_USER_PINCODE IS NULL THEN 'Pincode not mapped to any FOS agent'
-            WHEN (SELECT COUNT(*) FROM atbss.aoup_user_pincode_map 
+            WHEN (SELECT COUNT(*) FROM atbss_cm.aoup_user_pincode_map 
                   WHERE VAR_USER_PINCODE = a.num_bankdata_pincode) > 1
                 THEN 'Pincode mapped to multiple users'
             ELSE ''
         END AS reason
-      FROM atbss.aoup_etech_bankdata a
-      INNER JOIN atbss.aoup_etech_contractuploadallocationdetails b
+      FROM atbss_cm.aoup_etech_bankdata a
+      INNER JOIN atbss_cm.aoup_etech_contractuploadallocationdetails b
         ON a.var_bankdata_contractnum = b.contractnumber
-      LEFT JOIN atbss.aoup_pincode_master pm
+      LEFT JOIN atbss_cm.aoup_pincode_master pm
         ON a.num_bankdata_pincode = pm.var_pincode_no
-      LEFT JOIN atbss.aoup_user_pincode_map upm
+      LEFT JOIN atbss_cm.aoup_user_pincode_map upm
         ON a.num_bankdata_pincode = upm.VAR_USER_PINCODE
       WHERE TRUNC(b.CONTRACTUPLOADDATE) BETWEEN TRUNC(SYSDATE, 'MM') AND LAST_DAY(SYSDATE)
       AND a.var_bankdata_userid IS NULL
@@ -503,7 +503,7 @@ async function getUnallocatedCases(filters) {
   else {
     const plsql = `
       BEGIN
-        atbss.aoup_current_month_unallocated_cases(
+        atbss_cm.aoup_current_month_unallocated_cases(
           :in_zone_Regn_Branch,
           :p_result
         );

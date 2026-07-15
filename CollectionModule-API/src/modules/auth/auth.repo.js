@@ -68,7 +68,7 @@ async function loginWithStoredProcedure(userId, password) {
   }
 const proofTypeResult = await executeQuery(
   `SELECT NUM_USERMST_USERPROOFTYPE 
-   FROM etech.aoup_usermst_def 
+   FROM etech_cm.aoup_usermst_def 
    WHERE VAR_USERMST_USERID = :userId`,
   { userId }
 );

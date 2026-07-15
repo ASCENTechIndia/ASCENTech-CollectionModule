@@ -7,8 +7,8 @@ async function getZones(filters) {
     SELECT 
       a.var_companymst_branchname brname,
       a.num_companymst_compid brid
-    FROM etech.aoup_companymst_def a
-    LEFT JOIN etech.aoup_companymst_def c 
+    FROM etech_cm.aoup_companymst_def a
+    LEFT JOIN etech_cm.aoup_companymst_def c 
       ON c.num_companymst_compid = a.num_companymst_parentid
     WHERE 1=1 `;
   const binds = {};
@@ -42,7 +42,7 @@ async function getRegions(filters) {
     SELECT 
       var_companymst_branchname,
       num_companymst_compid
-    FROM etech.aoup_companymst_def
+    FROM etech_cm.aoup_companymst_def
     WHERE num_companymst_brcategory = 4
   `;
 
@@ -92,7 +92,7 @@ async function getBranches(filters) {
     SELECT 
       var_companymst_branchname,
       num_companymst_compid
-    FROM etech.aoup_companymst_def
+    FROM etech_cm.aoup_companymst_def
     WHERE num_companymst_brcategory = 5
   `;
 
@@ -141,7 +141,7 @@ async function getBranches(filters) {
 async function getCollAssociate({brid}) {
   let sql = `
    SELECT REPLACE(var_usermst_userid, 'E', '') || '-' || var_usermst_userfullname AS var_usermst_userid,
-var_usermst_userid AS user_id FROM etech.aoup_usermst_def WHERE num_usermst_brid =:brid ORDER BY var_usermst_userfullname `;
+var_usermst_userid AS user_id FROM etech_cm.aoup_usermst_def WHERE num_usermst_brid =:brid ORDER BY var_usermst_userfullname `;
    const binds = {
     brid: { val: Number(brid), type: oracledb.NUMBER }
   };
@@ -222,27 +222,27 @@ FROM (
             ORDER BY dat_banktransdet_transdat DESC
         ) rn
 
-    FROM atbss.aoup_etech_banktransdetails
-               LEFT OUTER JOIN atbss.aoup_etech_bankingtransmast
+    FROM atbss_cm.aoup_etech_banktransdetails
+               LEFT OUTER JOIN atbss_cm.aoup_etech_bankingtransmast
                ON num_banktransmast_transid = num_banktransdet_transid
-               LEFT JOIN ATBSS.AOUP_ETECH_BANKDATA bd ON var_banktransmast_contrctno = bd.VAR_BANKDATA_CONTRACTNUM
-               LEFT OUTER JOIN atbss.aoup_etech_visitstatus_mst
+               LEFT JOIN atbss_cm.AOUP_ETECH_BANKDATA bd ON var_banktransmast_contrctno = bd.VAR_BANKDATA_CONTRACTNUM
+               LEFT OUTER JOIN atbss_cm.aoup_etech_visitstatus_mst
                ON num_visitstatus_id = var_banktransdet_visitststs
-               LEFT OUTER JOIN atbss.aoup_etech_feedbacktype_mst
+               LEFT OUTER JOIN atbss_cm.aoup_etech_feedbacktype_mst
                ON var_feedbacktype_mst_id = var_banktransdet_custfeedbck
-               INNER JOIN etech.aoup_usermst_def
+               INNER JOIN etech_cm.aoup_usermst_def
                ON var_usermst_userid = var_banktransdet_userid
-               LEFT OUTER JOIN etech.view_branchdetails brview 
+               LEFT OUTER JOIN etech_cm.view_branchdetails brview 
                ON brview.brid = num_usermst_brid
-               LEFT OUTER JOIN etech.aoup_companycode_mas
+               LEFT OUTER JOIN etech_cm.aoup_companycode_mas
                ON num_companycode_id = num_usermst_compcode
-               LEFT OUTER JOIN atbss.aoup_etech_rfdmaster
+               LEFT OUTER JOIN atbss_cm.aoup_etech_rfdmaster
                ON num_rfdmst_id = num_banktransdet_rfdid
-               LEFT OUTER JOIN atbss.aoup_etech_rcstatusmst
+               LEFT OUTER JOIN atbss_cm.aoup_etech_rcstatusmst
                ON num_rcstatus_id = num_banktransdet_rcid
-                left join atbss.aoup_etech_matrix_distince_banktransdetails dm 
+                left join atbss_cm.aoup_etech_matrix_distince_banktransdetails dm 
                on var_banktransdet_transidnew = dm.DIST_VAR_BANKTRANSDET_TRANSIDNEW
-               left outer join atbss.aoup_etech_feedback_mst  on  num_feedback_id=var_banktransdet_custfeedbck
+               left outer join atbss_cm.aoup_etech_feedback_mst  on  num_feedback_id=var_banktransdet_custfeedbck
    WHERE dat_banktransdet_transdat >= TO_DATE(:fromDate,'DD/MM/YYYY') AND dat_banktransdet_transdat <  
        TO_DATE(:toDate, 'DD/MM/YYYY') +1
   `;
@@ -314,7 +314,7 @@ return rows;
 async function getImage({ imageCode }) {
   const sql = `
     SELECT byte_imagewebserve_image AS image
-    FROM atbss.AOUP_IMAGEWEBSERVE_MST
+    FROM atbss_cm.AOUP_IMAGEWEBSERVE_MST
     WHERE num_imagewebserve_refno = :imageCode
   `;
   const binds = {

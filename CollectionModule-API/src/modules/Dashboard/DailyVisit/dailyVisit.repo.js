@@ -179,10 +179,10 @@ async function resolveUserContext({ userId }) {
         b.brcategory AS BRCATEGORY,
         r.var_userrole_name AS USERROLE,
         ud.var_userdevice_name AS TYPENAME
-      FROM etech.aoup_usermst_def u
-      INNER JOIN etech.branchlist b ON b.brid = u.num_usermst_brid
-      LEFT OUTER JOIN etech.aoup_userrole_mas r ON r.num_userrole_id = u.num_usermst_roleid
-      LEFT OUTER JOIN etech.aoup_userdevice_mas ud ON ud.num_userdevice_id = u.num_usermst_usertype
+      FROM etech_cm.aoup_usermst_def u
+      INNER JOIN etech_cm.branchlist b ON b.brid = u.num_usermst_brid
+      LEFT OUTER JOIN etech_cm.aoup_userrole_mas r ON r.num_userrole_id = u.num_usermst_roleid
+      LEFT OUTER JOIN etech_cm.aoup_userdevice_mas ud ON ud.num_userdevice_id = u.num_usermst_usertype
       WHERE u.var_usermst_userid = :userId
         AND u.num_usermst_usertype = 3`,
     { userId: resolvedUserId }
@@ -273,7 +273,7 @@ async function getDailyVisitDashboardData(payload) {
   ] = await Promise.all([
     safeCall('AOUP_ALLOCATION_STATUS', async () => {
       const out = await callProcedure(
-        `BEGIN atbss.AOUP_ALLOCATION_STATUS(
+        `BEGIN atbss_cm.AOUP_ALLOCATION_STATUS(
           :in_category,
           :in_brid,
           :in_first_day,
@@ -302,7 +302,7 @@ async function getDailyVisitDashboardData(payload) {
     }),
     safeCall('AOUP_VISIT_COUNT', async () => {
       const out = await callProcedure(
-        `BEGIN atbss.AOUP_VISIT_COUNT(
+        `BEGIN atbss_cm.AOUP_VISIT_COUNT(
           :in_userid,
           :in_first_day,
           :in_current_date,
@@ -326,7 +326,7 @@ async function getDailyVisitDashboardData(payload) {
     }),
     safeCall('AOUP_VISIT_STATISTICS', async () => {
       const out = await callProcedure(
-        `BEGIN atbss.AOUP_VISIT_STATISTICS(
+        `BEGIN atbss_cm.AOUP_VISIT_STATISTICS(
           :in_userid,
           :in_first_day,
           :in_current_date,
@@ -348,7 +348,7 @@ async function getDailyVisitDashboardData(payload) {
     }),
     safeCall('aoup_Sunburst_data', async () => {
       const out = await callProcedure(
-        `BEGIN atbss.aoup_Sunburst_data(
+        `BEGIN atbss_cm.aoup_Sunburst_data(
           :in_userid,
           :in_first_day,
           :in_current_date,
@@ -388,7 +388,7 @@ async function getDailyVisitDashboardData(payload) {
     }),
     safeCall('AOUP_TOTAL_COLLECTED', async () => {
       const out = await callProcedure(
-        `BEGIN atbss.AOUP_TOTAL_COLLECTED(
+        `BEGIN atbss_cm.AOUP_TOTAL_COLLECTED(
           :in_start_date,
           :in_end_date,
           :in_userid,
@@ -410,7 +410,7 @@ async function getDailyVisitDashboardData(payload) {
     }),
     safeCall('Aoup_get_monthly__summary_Resolution_per', async () => {
       const out = await callProcedure(
-        `BEGIN ATBSS.Aoup_get_monthly__summary_Resolution_per(
+        `BEGIN atbss_cm.Aoup_get_monthly__summary_Resolution_per(
           :out_loan_amt,
           :out_res_amt,
           :out_res_pct
@@ -429,7 +429,7 @@ async function getDailyVisitDashboardData(payload) {
     }),
     safeCall('AOUP_TOTAL_PTP_COUNT', async () => {
       const out = await callProcedure(
-        `BEGIN atbss.AOUP_TOTAL_PTP_COUNT(
+        `BEGIN atbss_cm.AOUP_TOTAL_PTP_COUNT(
           :in_userid,
           :in_first_day,
           :in_current_date,
@@ -451,7 +451,7 @@ async function getDailyVisitDashboardData(payload) {
     }),
     safeCall('AOUP_PAID_PTP_COUNT', async () => {
       const out = await callProcedure(
-        `BEGIN atbss.AOUP_PAID_PTP_COUNT(
+        `BEGIN atbss_cm.AOUP_PAID_PTP_COUNT(
           :in_first_day,
           :in_current_date,
           :in_userid,
@@ -473,7 +473,7 @@ async function getDailyVisitDashboardData(payload) {
     }),
     safeCall('AOUP_BROKEN_PTP_COUNT', async () => {
       const out = await callProcedure(
-        `BEGIN atbss.AOUP_BROKEN_PTP_COUNT(
+        `BEGIN atbss_cm.AOUP_BROKEN_PTP_COUNT(
           :in_start_date,
           :in_end_date,
           :in_userid,
@@ -495,7 +495,7 @@ async function getDailyVisitDashboardData(payload) {
     }),
     safeCall('AOUP_ACCOUNTS_WITH_CF_AND_CPP', async () => {
       const out = await callProcedure(
-        `BEGIN atbss.AOUP_ACCOUNTS_WITH_CF_AND_CPP(
+        `BEGIN atbss_cm.AOUP_ACCOUNTS_WITH_CF_AND_CPP(
           :in_start_date,
           :in_end_date,
           :in_userid,
@@ -517,7 +517,7 @@ async function getDailyVisitDashboardData(payload) {
     }),
     safeCall('AOUP_ACCOUNTS_FULL_AMOUNT_COLLECTED', async () => {
       const out = await callProcedure(
-        `BEGIN atbss.AOUP_ACCOUNTS_FULL_AMOUNT_COLLECTED(
+        `BEGIN atbss_cm.AOUP_ACCOUNTS_FULL_AMOUNT_COLLECTED(
           :in_start_date,
           :in_end_date,
           :in_userid,
@@ -539,7 +539,7 @@ async function getDailyVisitDashboardData(payload) {
     }),
     safeCall('AOUP_COLLECTED_FULL_ACCOUNT_AMOUNT', async () => {
       const out = await callProcedure(
-        `BEGIN atbss.AOUP_COLLECTED_FULL_ACCOUNT_AMOUNT(
+        `BEGIN atbss_cm.AOUP_COLLECTED_FULL_ACCOUNT_AMOUNT(
           :in_start_date,
           :in_end_date,
           :in_userid,
