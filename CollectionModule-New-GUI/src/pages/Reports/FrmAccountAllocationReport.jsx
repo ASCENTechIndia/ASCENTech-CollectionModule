@@ -452,11 +452,6 @@ function FrmAccountAllocationReport() {
 
   const tableData = rows.map((item, index) => ({ id: index, ...item }));
 
-  // Validation helpers (red border only after search)
-  const isStartDateInvalid = searched && !startDate
-  const isEndDateInvalid = searched && !endDate
-  const isUserIdInvalid = searched && userId.trim() && !/^\d+$/.test(userId.trim())
-
   return (
     <div className="main-content page-account-allocation-report">
       <div className="page-header">
