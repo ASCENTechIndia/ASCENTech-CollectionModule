@@ -340,11 +340,6 @@ function FrmUserRouteReport() {
     }
   };
 
-  // Validation helpers (red border only after submit)
-  const isFosIdInvalid =
-    searched && (!fosId.trim() || !/^\d+$/.test(fosId.trim()));
-  const isDateInvalid = searched && !date;
-
   return (
     <div className="main-content page-user-route-report">
       <div className="page-header">
