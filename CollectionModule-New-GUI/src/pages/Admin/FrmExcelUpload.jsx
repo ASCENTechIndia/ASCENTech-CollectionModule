@@ -112,9 +112,9 @@ function FrmExcelUpload() {
                   <i className="bi bi-file-earmark-spreadsheet fs-5" />
                 </div>
                 <div className="flex-grow-1">
-                  <h5 className="mb-1 fw-semibold">Excel Upload — Contract CBI Data</h5>
+                  <h5 className="mb-1 fw-semibold">Excel Upload Collection Data</h5>
                   <p className="mb-0 text-muted small">
-                    Upload an Excel file (.xlsx / .xls) containing Contract CBI records.
+                    Upload an Excel file (.xlsx / .xls) containing Collection records.
                     Each row will be processed and inserted into the Oracle database.
                   </p>
                 </div>
