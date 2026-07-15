@@ -43,6 +43,7 @@ const FrmCreateMapping = () => {
   const [fromEntities, setFromEntities] = useState([]);
   const [toEntities, setToEntities] = useState([]);
   const [relationships, setRelationships] = useState([]);
+  const [tableData, setTableData] = useState([])
 
   //-------------------- Loading --------------------//
 
@@ -63,6 +64,7 @@ const FrmCreateMapping = () => {
   useEffect(() => {
     loadEntityTypes();
     loadRelationshipTypes();
+    getActiveMappingData();
   }, []);
 
   //-------------------- Load Entity Types --------------------//
@@ -111,9 +113,9 @@ const FrmCreateMapping = () => {
     try {
       setLoadingFromEntity(true);
       let apiUrl;
-      if (entityType === "company") {
+      if (entityType === "COMPANY") {
         apiUrl = '/mapping/company-list'
-      } else if (entityType === "agency") {
+      } else if (entityType === "AGENCY") {
         apiUrl = '/mapping/agency-list'
       }
 
@@ -123,12 +125,12 @@ const FrmCreateMapping = () => {
 
 
       if (response.success) {
-        const list = entityType === "company" ? response.data.map(item => (
+        const list = entityType === "COMPANY" ? response.data.map(item => (
           {
             label: `${item.name} - ${item.branch}`,
             value: item.id
           }
-        )) : entityType === "agency" ? response.data.map(item => (
+        )) : entityType === "AGENCY" ? response.data.map(item => (
           {
             label: item.name,
             value: item.id
@@ -162,11 +164,11 @@ const FrmCreateMapping = () => {
     try {
       setLoadingToEntity(true);
       let apiUrl;
-      if (entityType === "company") {
+      if (entityType === "COMPANY") {
         apiUrl = '/mapping/company-list'
-      } else if (entityType === "agency") {
+      } else if (entityType === "AGENCY") {
         apiUrl = '/mapping/agency-list'
-      } else if (entityType === "fos") {
+      } else if (entityType === "FOS") {
         apiUrl = '/mapping/fos-list'
       }
 
@@ -175,12 +177,12 @@ const FrmCreateMapping = () => {
       );
       let list;
       if (response.success) {
-        list = entityType === "company" ? response.data.map(item => (
+        list = entityType === "COMPANY" ? response.data.map(item => (
           {
             label: `${item.name} - ${item.branch}`,
             value: item.id
           }
-        )) : (entityType === "agency" || entityType === "fos") ? response.data.map(item => (
+        )) : (entityType === "AGENCY" || entityType === "FOS") ? response.data.map(item => (
           {
             label: item.name,
             value: item.id
@@ -213,6 +215,26 @@ const FrmCreateMapping = () => {
 
   //-------------------- Submit --------------------//
 
+  const getActiveMappingData = async () => {
+    try {
+      setLoader(true);
+
+      const response = await apiClient.get("/mapping/view-mapping");
+
+
+
+      if (response.success) {
+        setTableData(response.data);
+      }
+    } catch (error) {
+      console.error(error);
+      showError(error?.message || "Something went wrong");
+    } finally {
+      setLoader(false);
+    }
+  }
+
+
   const onSubmit = async (values) => {
     try {
       // console.log(values);
@@ -236,11 +258,11 @@ const FrmCreateMapping = () => {
       setLoader(true);
 
       const payload = {
-        // fromEntityTypeId: Number(values.fromEntityType),
-        companyId: Number(values.fromEntity),
+        fromEntityType: values.fromEntityType,
+        fromEntityId: Number(values.fromEntity),
 
-        // toEntityTypeId: Number(values.toEntityType),
-        agencyId: Number(values.toEntity),
+        toEntityType: values.toEntityType,
+        toEntityId: Number(values.toEntity),
 
         relationship: values.relationship,
 
@@ -254,8 +276,8 @@ const FrmCreateMapping = () => {
 
       let url;
       if (
-        (values.fromEntityType === "company" && values.toEntityType === "agency") ||
-        (values.fromEntityType === "agency" && values.toEntityType === "company")
+        (values.fromEntityType === "COMPANY" && values.toEntityType === "AGENCY") ||
+        (values.fromEntityType === "AGENCY" && values.toEntityType === "COMPANY")
       ) {
         url = "/mapping/create-mapping";
       } else {
@@ -274,6 +296,7 @@ const FrmCreateMapping = () => {
       if (response.success && response.code === 9999) {
         showSuccess(response.message);
         reset();
+        getActiveMappingData();
       }
     } catch (error) {
       console.error(error);
@@ -283,6 +306,7 @@ const FrmCreateMapping = () => {
       setLoader(false);
     }
   };
+
 
   return (
     <div className="main-content">
@@ -320,8 +344,8 @@ const FrmCreateMapping = () => {
                       }`}
                   >
                     <option value="">--SELECT--</option>
-                    <option value="company">Company</option>
-                    <option value="agency">Agency</option>
+                    <option value="COMPANY">Company</option>
+                    <option value="AGENCY">Agency</option>
 
                   </select>
 
@@ -346,9 +370,9 @@ const FrmCreateMapping = () => {
                       }`}
                   >
                     <option value="">--SELECT--</option>
-                    <option value="company">Company</option>
-                    <option value="agency">Agency</option>
-                    <option value="fos">FOS</option>
+                    <option value="COMPANY">Company</option>
+                    <option value="AGENCY">Agency</option>
+                    <option value="FOS">FOS</option>
 
 
                     {/* {entityTypes.map((item) => (
@@ -454,7 +478,7 @@ const FrmCreateMapping = () => {
                   <select
                     disabled={!fromEntityType || loadingFromEntity}
                     {...register("fromEntity", {
-                      // required: "From Entity is required",
+                      required: "From Entity is required",
                     })}
                     className={`form-select ${errors.fromEntity ? "is-invalid" : ""
                       }`}
@@ -493,7 +517,7 @@ const FrmCreateMapping = () => {
                   <select
                     disabled={!toEntityType || loadingToEntity}
                     {...register("toEntity", {
-                      // required: "To Entity is required",
+                      required: "To Entity is required",
                     })}
                     className={`form-select ${errors.toEntity ? "is-invalid" : ""
                       }`}
@@ -628,14 +652,48 @@ const FrmCreateMapping = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>HDFC Collection</td>
-                  <td>RecoverFirst Agency</td>
-                  <td>NPA-Q3-Mumbai</td>
-                  <td><span className="px-2 py-1 bg-success rounded text-white" style={{
-                    fontSize: 12
-                  }}>Active</span></td>
-                </tr>
+                {tableData.length > 0 && (
+                  (
+                    <>
+                      {tableData.map(item => (
+                        <tr>
+                          <td>
+                            <span className={`px-2 py-1 me-2 rounded text-white`} style={{
+                              fontSize: 12,
+                              backgroundColor:
+                                item.FROM_TYPE === "COMPANY"
+                                  ? "#0ea5a4"
+                                  : item.FROM_TYPE === "AGENCY"
+                                    ? "#d97706"
+                                    : "#dc2626",
+                            }}>{item.FROM_TYPE.charAt(0).toUpperCase()}</span>
+                            {`${item.FROM_NAME}`}
+                          </td>
+                          <td>
+                            <span className={`px-2 py-1 me-2 rounded text-white`} style={{
+                              fontSize: 12,
+                              backgroundColor:
+                                item.TO_TYPE === "COMPANY"
+                                  ? "#0ea5a4"
+                                  : item.TO_TYPE === "AGENCY"
+                                    ? "#d97706"
+                                    : "#dc2626",
+                            }}>{item.TO_TYPE.charAt(0).toUpperCase()}</span>
+                            {`${item.TO_NAME}`}
+                          </td>
+                          <td>{item.MAP_CONTEXT}</td>
+                          <td>
+                            <span className={`px-2 py-1 bg-${item.MAP_STATUS === "ACTIVE" ? "success" : "danger"} rounded text-white`} style={{
+                              fontSize: 12
+                            }}>
+                              {item.MAP_STATUS}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </>
+                  )
+                )}
               </tbody>
             </table>
           </div>
