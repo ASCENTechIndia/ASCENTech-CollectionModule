@@ -105,6 +105,11 @@ function RptDaywisedata() {
       render: (val) => <MilestoneDate date={val} />,
     },
     {
+      key: "contractNumber",
+      label: "Contract Number",
+      render: (val) => <span>{val}</span>,
+    },
+    {
       key: "accountType",
       label: "Account Type",
       render: (val) =>
@@ -183,6 +188,7 @@ function RptDaywisedata() {
         capUnpd: item.CAP_UNPD_INT || 0,
         collectable: item.COLLECTABLEAMOUNT || 0,
         sma: item.VAR_BANKDATA_DPDBUCKET || "",
+        contractNumber: item.CONTRACTNUMBER || "",
       }));
 
       setRows(formatted);

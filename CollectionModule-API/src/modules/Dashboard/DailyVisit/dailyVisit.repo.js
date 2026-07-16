@@ -210,11 +210,11 @@ function resolveDateRange(fromDateInput, toDateInput) {
   const defaultFrom = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
   const defaultTo = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
 
-  // const fromDate = parseDateText(fromDateInput) || defaultFrom;
-  // const toDate = parseDateText(toDateInput) || defaultTo;
+  const fromDate = parseDateText(fromDateInput) || defaultFrom;
+  const toDate = parseDateText(toDateInput) || defaultTo;
 
-    const fromDate = new Date('2026-04-01') || defaultFrom;
-  const toDate = new Date('2026-04-30') || defaultTo;
+  //   const fromDate = new Date('2026-04-01') || defaultFrom;
+  // const toDate = new Date('2026-04-30') || defaultTo;
 
   if (fromDate.getTime() > toDate.getTime()) {
     throw createError('From date can not be greater than to date.');
@@ -370,7 +370,7 @@ async function getDailyVisitDashboardData(payload) {
     }),
     safeCall('Calculate_CollectableAmount', async () => {
       const out = await callProcedure(
-        `BEGIN Calculate_CollectableAmount(
+        `BEGIN atbss_cm.Calculate_CollectableAmount(
           :p_start_date,
           :p_end_date,
           :p_user_id,
