@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useMemo, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import apiClient from "../../services/apiClient";
@@ -39,18 +39,18 @@ const formatDateForApi = (value) => {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
   const months = [
-    "JAN",
-    "FEB",
-    "MAR",
-    "APR",
-    "MAY",
-    "JUN",
-    "JUL",
-    "AUG",
-    "SEP",
-    "OCT",
-    "NOV",
-    "DEC",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
   ];
   const day = String(date.getDate()).padStart(2, "0");
   const month = months[date.getMonth()];
@@ -61,6 +61,9 @@ const formatDateForApi = (value) => {
 function RptDaywisedata() {
   const { showError, showSuccess, showWarning } = useNotification();
   const { setLoader } = useLoader();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { state } = location;
 
   const {
     register,
@@ -281,6 +284,13 @@ function RptDaywisedata() {
   };
 
   const chartSeries = [{ name: "Uploads", data: pivotData.values }];
+
+  useEffect(() => {
+    if (state?.flag === true && startDate && endDate) {
+      handleSearch();
+      navigate(location.pathname, { replace: true, state: null });
+    }
+  }, [state, startDate, endDate]);
 
   return (
     <div className="main-content page-daywise-data-report">
