@@ -93,7 +93,7 @@ async function getUserDetailsByIdRepo(userId) {
 async function createCompanyRepo(payload) {
   const statement = `
     BEGIN
-      AOUP_COMPANYMST_INS_UPD(
+      ETECH_CM.AOUP_COMPANYMST_INS_UPD(
         :in_num_companymst_compid,
         :in_var_companymst_compname,
         :in_var_companymst_branchname,
