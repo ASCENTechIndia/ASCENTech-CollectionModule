@@ -131,6 +131,70 @@ const userProofType = proofTypeResult.rows?.[0]?.NUM_USERMST_USERPROOFTYPE;
   };
 }
 
+async function generateResetToken(email) {
+  const statement = `
+    BEGIN
+      etech_cm.aoup_generate_reset_token(
+        :in_email,
+        :out_userid,
+        :out_token,
+        :out_errorcode,
+        :out_errormsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_email: email,
+    out_userid: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 200 },
+    out_token: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 2000 },
+    out_errorcode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    out_errormsg: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 4000 },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  const out = result.outBinds;
+
+  return {
+    userId: out.out_userid,
+    token: out.out_token,
+    errorCode: out.out_errorcode,
+    errorMsg: out.out_errormsg
+  };
+}
+
+async function resetPasswordWithDbToken(userId, token, newPassword) {
+  const statement = `
+    BEGIN
+      etech_cm.aoup_reset_password(
+        :in_userid,
+        :in_token,
+        :in_newpassword,
+        :out_errorcode,
+        :out_errormsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_userid: String(userId).trim(),
+    in_token: String(token).trim(),
+    in_newpassword: newPassword,
+    out_errorcode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    out_errormsg: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 4000 },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  const out = result.outBinds;
+
+  return {
+    errorCode: out.out_errorcode,
+    errorMsg: out.out_errormsg
+  };
+}
+
 module.exports = {
   loginWithStoredProcedure,
+  generateResetToken,
+  resetPasswordWithDbToken,
 };
