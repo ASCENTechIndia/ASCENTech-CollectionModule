@@ -159,29 +159,27 @@ async function createUserHandler(req, res, next) {
 async function createMappingHandler(req, res, next) {
   try {
     const payload = req.body;
-    const result = await createMappingService(payload);
+    const results = await createMappingService(payload);
 
-    const auditData = {
-      action: 'USER_MAPPING',
-      actor: req.user?.userId || 'system',
-      module: 'userCreation',
-      entityId: payload.createdBy || "",
-      status: result.success ? 'SUCCESS' : 'FAILED',
-      details: {
-        errorCode: result?.code || "",
-        errorMsg: result?.message || "",
-      },
-      requestMeta: requestMeta(req),
-    };
+    for(const res of results.data){
+      const auditData = {
+        action: 'USER_MAPPING',
+        actor: req.user?.userId || 'system',
+        module: 'userCreation',
+        entityId: payload?.length > 0 ? payload[0].createdBy : "",
+        status: Number(res.OUT_ERRORCODE) === 9999 ? 'SUCCESS' : 'FAILED',
+        details: {
+          errorCode: res.OUT_ERRORCODE || "",
+          errorMsg: res.OUT_ERRORMSG || "",
+        },
+        requestMeta: requestMeta(req),
+      };
+  
+      auditLog(auditData);
+      logApiSuccess(req, 201, results, `User mapped successfully: ${payload?.length > 0 ? payload[0].createdBy : ""}`);
+    }
 
-    auditLog(auditData);
-    logApiSuccess(req, 201, result, `User mapped successfully: ${payload.userId}`);
-
-    return res.status(201).json({
-      success: true,
-      message: result.message,
-      code: result.code,
-    });
+    return res.status(201).json(results);
   } catch (error) {
     logApiError(req, error.statusCode || 400, error.message, 'User mapped failed');
 
@@ -198,9 +196,6 @@ async function createMappingHandler(req, res, next) {
   }
 }
 
-/**
- * Update existing user
- */
 async function updateUserHandler(req, res, next) {
   try {
     const payload = req.body;

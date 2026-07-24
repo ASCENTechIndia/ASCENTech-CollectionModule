@@ -97,7 +97,7 @@ router.post(
 router.get('/company-list', getCompanyHandler);
 router.get('/agency-list', getAgencyHandler);
 router.get('/fos-list', getFOSHandler);
-router.post("/create-mapping",authRequired, validate(createMappingSchema), createMappingHandler)
+router.post("/create-mapping", createMappingHandler)
 router.get('/view-mapping', getViewMappingHandler);
 router.post("/excel-data", uploadExcel.single("file"), uploadExcelData),
 
