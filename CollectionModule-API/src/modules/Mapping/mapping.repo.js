@@ -588,17 +588,19 @@ async function getViewMappingRepo() {
 }
 
 async function createFosMappingRepo(payload) {
-  const stmt = `
+  const statement = `
   BEGIN 
-    etech_cm.AOUP_AGENCY_FOS_ASSIGN(
+    AOUP_AGENCY_FOS_ASSIGN(
     :P_entity_ID,
     :P_FOS_ID,
     :P_CREATED_BY,
     :P_DAT_EFFECTIVE_FROM,
     :P_DAT_EFFECTIVE_TO,
-    :P_REMARK
-    )
-  END
+    :P_REMARK,
+    :OUT_ERRORCODE,
+    :OUT_ERRORMSG
+    );
+  END;
   `;
   const binds = {
     P_entity_ID: Number(payload.entityId),
@@ -607,9 +609,16 @@ async function createFosMappingRepo(payload) {
     P_DAT_EFFECTIVE_FROM: payload.effectiveFromDate,
     P_DAT_EFFECTIVE_TO: payload.effectiveToDate,
     P_REMARK: payload.remark,
+    OUT_ERRORCODE: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    OUT_ERRORMSG: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 10000,
+    },
   };
 
-  const result = await executeProcedure({statement, binds, useTx: false})
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  console.log("result :", result);
   return result.outBinds;
 }
 
@@ -629,5 +638,5 @@ module.exports = {
   getFOSRepo,
   createMappingRepo,
   getViewMappingRepo,
-  createFosMappingRepo
+  createFosMappingRepo,
 };
