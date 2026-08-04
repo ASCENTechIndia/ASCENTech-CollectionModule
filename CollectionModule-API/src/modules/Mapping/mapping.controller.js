@@ -12,12 +12,13 @@ const {
   getAgencyService,
   getFOSService,
   createMappingService,
-  getViewMappingService
-} = require('./mapping.service');
-const { auditLog } = require('../../utils/audit-log');
-const { logApiSuccess, logApiError } = require('../../utils/log');
-const XLSX = require('xlsx');
-const AppError = require('../../utils/app-error');
+  getViewMappingService,
+  createFosMappingService,
+} = require("./mapping.service");
+const { auditLog } = require("../../utils/audit-log");
+const { logApiSuccess, logApiError } = require("../../utils/log");
+const XLSX = require("xlsx");
+const AppError = require("../../utils/app-error");
 
 function requestMeta(req) {
   return {
@@ -35,11 +36,11 @@ async function getFormOptionsHandler(req, res, next) {
     const { type } = req.query;
     const result = await getFormOptionsService(type);
 
-    logApiSuccess(req, 200, result.data, 'Form options fetched successfully');
+    logApiSuccess(req, 200, result.data, "Form options fetched successfully");
 
     return res.status(200).json(result.data);
   } catch (error) {
-    logApiError(req, 400, error.message, 'Form options fetch failed');
+    logApiError(req, 400, error.message, "Form options fetch failed");
     return next(error);
   }
 }
@@ -52,11 +53,11 @@ async function getBranchesHandler(req, res, next) {
     const { branchCategory, userLevel } = req.query;
     const result = await getBranchesService(branchCategory, userLevel);
 
-    logApiSuccess(req, 200, result.data, 'Branches fetched successfully');
+    logApiSuccess(req, 200, result.data, "Branches fetched successfully");
 
     return res.ok(result.data);
   } catch (error) {
-    logApiError(req, 400, error.message, 'Branches fetch failed');
+    logApiError(req, 400, error.message, "Branches fetch failed");
     return next(error);
   }
 }
@@ -69,16 +70,26 @@ async function getUserDetailsHandler(req, res, next) {
     const { userId } = req.query;
 
     if (!userId) {
-      throw new AppError('User ID is required', 400);
+      throw new AppError("User ID is required", 400);
     }
 
     const result = await getUserDetailsService(userId);
 
-    logApiSuccess(req, 200, result.data, `User details fetched for user: ${userId}`);
+    logApiSuccess(
+      req,
+      200,
+      result.data,
+      `User details fetched for user: ${userId}`,
+    );
 
     return res.ok(result.data);
   } catch (error) {
-    logApiError(req, error.statusCode || 400, error.message, 'User details fetch failed');
+    logApiError(
+      req,
+      error.statusCode || 400,
+      error.message,
+      "User details fetch failed",
+    );
     return next(error);
   }
 }
@@ -91,11 +102,16 @@ async function validateUserHandler(req, res, next) {
     const payload = req.body;
     const result = await validateUserInputService(payload);
 
-    logApiSuccess(req, 200, result, 'User validation successful');
+    logApiSuccess(req, 200, result, "User validation successful");
 
     return res.ok(result);
   } catch (error) {
-    logApiError(req, error.statusCode || 400, error.message, 'User validation failed');
+    logApiError(
+      req,
+      error.statusCode || 400,
+      error.message,
+      "User validation failed",
+    );
     return next(error);
   }
 }
@@ -105,22 +121,22 @@ async function validateUserHandler(req, res, next) {
  */
 async function createUserHandler(req, res, next) {
   try {
-    console.log("running this file")
+    console.log("running this file");
     let payload = req.body;
 
     // Add user info from authenticated request
     // payload.insby = req.user?.userId || 'system';
     payload.mode = 1; // New user mode
 
-    console.log("mobile payload :", payload)
+    console.log("mobile payload :", payload);
     const result = await createUserService(payload);
 
     const auditData = {
-      action: 'USER_CREATION',
-      actor: req.user?.userId || 'system',
-      module: 'userCreation',
+      action: "USER_CREATION",
+      actor: req.user?.userId || "system",
+      module: "userCreation",
       entityId: result.userId,
-      status: result.success ? 'SUCCESS' : 'FAILED',
+      status: result.success ? "SUCCESS" : "FAILED",
       details: {
         firstName: payload.firstname,
         lastName: payload.lastname,
@@ -133,7 +149,12 @@ async function createUserHandler(req, res, next) {
     };
 
     auditLog(auditData);
-    logApiSuccess(req, 201, result, `User created successfully: ${result.userId}`);
+    logApiSuccess(
+      req,
+      201,
+      result,
+      `User created successfully: ${result.userId}`,
+    );
 
     return res.status(201).json({
       success: true,
@@ -141,13 +162,18 @@ async function createUserHandler(req, res, next) {
       userId: result.userId,
     });
   } catch (error) {
-    logApiError(req, error.statusCode || 400, error.message, 'User creation failed');
+    logApiError(
+      req,
+      error.statusCode || 400,
+      error.message,
+      "User creation failed",
+    );
 
     auditLog({
-      action: 'USER_CREATION',
-      actor: req.user?.userId || 'system',
-      module: 'userCreation',
-      status: 'FAILED',
+      action: "USER_CREATION",
+      actor: req.user?.userId || "system",
+      module: "userCreation",
+      status: "FAILED",
       details: { error: error.message },
       requestMeta: requestMeta(req),
     });
@@ -161,33 +187,43 @@ async function createMappingHandler(req, res, next) {
     const payload = req.body;
     const results = await createMappingService(payload);
 
-    for(const res of results.data){
+    for (const res of results.data) {
       const auditData = {
-        action: 'USER_MAPPING',
-        actor: req.user?.userId || 'system',
-        module: 'userCreation',
+        action: "USER_MAPPING",
+        actor: req.user?.userId || "system",
+        module: "userCreation",
         entityId: payload?.length > 0 ? payload[0].createdBy : "",
-        status: Number(res.OUT_ERRORCODE) === 9999 ? 'SUCCESS' : 'FAILED',
+        status: Number(res.OUT_ERRORCODE) === 9999 ? "SUCCESS" : "FAILED",
         details: {
           errorCode: res.OUT_ERRORCODE || "",
           errorMsg: res.OUT_ERRORMSG || "",
         },
         requestMeta: requestMeta(req),
       };
-  
+
       auditLog(auditData);
-      logApiSuccess(req, 201, results, `User mapped successfully: ${payload?.length > 0 ? payload[0].createdBy : ""}`);
+      logApiSuccess(
+        req,
+        201,
+        results,
+        `User mapped successfully: ${payload?.length > 0 ? payload[0].createdBy : ""}`,
+      );
     }
 
     return res.status(201).json(results);
   } catch (error) {
-    logApiError(req, error.statusCode || 400, error.message, 'User mapped failed');
+    logApiError(
+      req,
+      error.statusCode || 400,
+      error.message,
+      "User mapped failed",
+    );
 
     auditLog({
-      action: 'USER_CREATION',
-      actor: req.user?.userId || 'system',
-      module: 'userCreation',
-      status: 'FAILED',
+      action: "USER_CREATION",
+      actor: req.user?.userId || "system",
+      module: "userCreation",
+      status: "FAILED",
       details: { error: error.message },
       requestMeta: requestMeta(req),
     });
@@ -201,21 +237,21 @@ async function updateUserHandler(req, res, next) {
     const payload = req.body;
 
     if (!payload.userid) {
-      throw new AppError('User ID is required for update', 400);
+      throw new AppError("User ID is required for update", 400);
     }
 
     // Add user info from authenticated request
-    payload.insby = req.user?.userId || 'system';
+    payload.insby = req.user?.userId || "system";
     payload.mode = 2; // Update mode
 
     const result = await updateUserService(payload);
 
     auditLog({
-      action: 'USER_UPDATE',
-      actor: req.user?.userId || 'system',
-      module: 'userCreation',
+      action: "USER_UPDATE",
+      actor: req.user?.userId || "system",
+      module: "userCreation",
       entityId: result.userId,
-      status: result.success ? 'SUCCESS' : 'FAILED',
+      status: result.success ? "SUCCESS" : "FAILED",
       details: {
         firstName: payload.firstname,
         lastName: payload.lastname,
@@ -225,7 +261,12 @@ async function updateUserHandler(req, res, next) {
       requestMeta: requestMeta(req),
     });
 
-    logApiSuccess(req, 200, result, `User updated successfully: ${result.userId}`);
+    logApiSuccess(
+      req,
+      200,
+      result,
+      `User updated successfully: ${result.userId}`,
+    );
 
     return res.ok({
       success: true,
@@ -233,13 +274,18 @@ async function updateUserHandler(req, res, next) {
       userId: result.userId,
     });
   } catch (error) {
-    logApiError(req, error.statusCode || 400, error.message, 'User update failed');
+    logApiError(
+      req,
+      error.statusCode || 400,
+      error.message,
+      "User update failed",
+    );
 
     auditLog({
-      action: 'USER_UPDATE',
-      actor: req.user?.userId || 'system',
-      module: 'userCreation',
-      status: 'FAILED',
+      action: "USER_UPDATE",
+      actor: req.user?.userId || "system",
+      module: "userCreation",
+      status: "FAILED",
       details: { error: error.message },
       requestMeta: requestMeta(req),
     });
@@ -254,31 +300,39 @@ async function updateUserHandler(req, res, next) {
 async function uploadUserImageHandler(req, res, next) {
   try {
     if (!req.file) {
-      throw new AppError('File is required', 400);
+      throw new AppError("File is required", 400);
     }
 
     const { userId, imagePosition = 1 } = req.body;
 
     if (!userId) {
-      throw new AppError('User ID is required', 400);
+      throw new AppError("User ID is required", 400);
     }
 
     // Determine image type based on MIME type
-    let imageType = 'IMAGE';
-    if (req.file.mimetype === 'application/pdf') {
-      imageType = 'PDF';
-    } else if (req.file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-      imageType = 'WORD';
+    let imageType = "IMAGE";
+    if (req.file.mimetype === "application/pdf") {
+      imageType = "PDF";
+    } else if (
+      req.file.mimetype ===
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ) {
+      imageType = "WORD";
     }
 
-    const result = await uploadUserImageService(userId, req.file.buffer, imageType, parseInt(imagePosition));
+    const result = await uploadUserImageService(
+      userId,
+      req.file.buffer,
+      imageType,
+      parseInt(imagePosition),
+    );
 
     auditLog({
-      action: 'IMAGE_UPLOAD',
-      actor: req.user?.userId || 'system',
-      module: 'userCreation',
+      action: "IMAGE_UPLOAD",
+      actor: req.user?.userId || "system",
+      module: "userCreation",
       entityId: userId,
-      status: 'SUCCESS',
+      status: "SUCCESS",
       details: {
         fileName: req.file.originalname,
         fileSize: req.file.size,
@@ -291,13 +345,18 @@ async function uploadUserImageHandler(req, res, next) {
 
     return res.ok(result);
   } catch (error) {
-    logApiError(req, error.statusCode || 400, error.message, 'Image upload failed');
+    logApiError(
+      req,
+      error.statusCode || 400,
+      error.message,
+      "Image upload failed",
+    );
 
     auditLog({
-      action: 'IMAGE_UPLOAD',
-      actor: req.user?.userId || 'system',
-      module: 'userCreation',
-      status: 'FAILED',
+      action: "IMAGE_UPLOAD",
+      actor: req.user?.userId || "system",
+      module: "userCreation",
+      status: "FAILED",
       details: { error: error.message },
       requestMeta: requestMeta(req),
     });
@@ -314,16 +373,24 @@ async function getUserStatusHandler(req, res, next) {
     const { roleId, deviceTypeId } = req.query;
 
     if (!roleId || !deviceTypeId) {
-      throw new AppError('Role ID and Device Type ID are required', 400);
+      throw new AppError("Role ID and Device Type ID are required", 400);
     }
 
-    const status = determineUserStatus(parseInt(roleId), parseInt(deviceTypeId));
+    const status = determineUserStatus(
+      parseInt(roleId),
+      parseInt(deviceTypeId),
+    );
 
-    logApiSuccess(req, 200, { status }, 'User status determined');
+    logApiSuccess(req, 200, { status }, "User status determined");
 
     return res.ok({ status });
   } catch (error) {
-    logApiError(req, error.statusCode || 400, error.message, 'User status determination failed');
+    logApiError(
+      req,
+      error.statusCode || 400,
+      error.message,
+      "User status determination failed",
+    );
     return next(error);
   }
 }
@@ -337,11 +404,11 @@ async function createUserNewHandler(req, res, next) {
     const result = await createUserNewService(payload);
 
     const auditData = {
-      action: 'USER_CREATION_FOS',
-      actor: req.user?.userId || 'system',
-      module: 'userCreation',
+      action: "USER_CREATION_FOS",
+      actor: req.user?.userId || "system",
+      module: "userCreation",
       entityId: result.out_user,
-      status: result.success ? 'SUCCESS' : 'FAILED',
+      status: result.success ? "SUCCESS" : "FAILED",
       details: {
         firstName: payload.in_firstname,
         lastName: payload.in_lastname,
@@ -354,21 +421,26 @@ async function createUserNewHandler(req, res, next) {
     };
 
     auditLog(auditData);
-    logApiSuccess(req, 201, { userid: payload.in_userid }, 'FOS User created successfully');
+    logApiSuccess(
+      req,
+      201,
+      { userid: payload.in_userid },
+      "FOS User created successfully",
+    );
 
     return res.status(201).json({
       success: true,
-      message: result.out_errormsg || 'User created successfully',
+      message: result.out_errormsg || "User created successfully",
       userId: result.out_user,
       data: result,
     });
   } catch (error) {
-    logApiError(req, 500, error.message, 'FOS User creation failed');
+    logApiError(req, 500, error.message, "FOS User creation failed");
     auditLog({
-      action: 'USER_CREATION_FOS',
-      actor: req.user?.userId || 'system',
-      module: 'userCreation',
-      status: 'FAILED',
+      action: "USER_CREATION_FOS",
+      actor: req.user?.userId || "system",
+      module: "userCreation",
+      status: "FAILED",
       details: { error: error.message },
       requestMeta: requestMeta(req),
     });
@@ -380,11 +452,11 @@ async function getCompanyHandler(req, res, next) {
   try {
     const result = await getCompanyService();
 
-    logApiSuccess(req, 200, result.data, 'Company fetched successfully');
+    logApiSuccess(req, 200, result.data, "Company fetched successfully");
 
     return res.ok(result.data);
   } catch (error) {
-    logApiError(req, 400, error.message, 'Company fetch failed');
+    logApiError(req, 400, error.message, "Company fetch failed");
     return next(error);
   }
 }
@@ -393,11 +465,11 @@ async function getAgencyHandler(req, res, next) {
   try {
     const result = await getAgencyService();
 
-    logApiSuccess(req, 200, result.data, 'Agency fetched successfully');
+    logApiSuccess(req, 200, result.data, "Agency fetched successfully");
 
     return res.ok(result.data);
   } catch (error) {
-    logApiError(req, 400, error.message, 'Agency fetch failed');
+    logApiError(req, 400, error.message, "Agency fetch failed");
     return next(error);
   }
 }
@@ -406,11 +478,11 @@ async function getFOSHandler(req, res, next) {
   try {
     const result = await getFOSService();
 
-    logApiSuccess(req, 200, result.data, 'FOS fetched successfully');
+    logApiSuccess(req, 200, result.data, "FOS fetched successfully");
 
     return res.ok(result.data);
   } catch (error) {
-    logApiError(req, 400, error.message, 'Agency fetch failed');
+    logApiError(req, 400, error.message, "Agency fetch failed");
     return next(error);
   }
 }
@@ -419,11 +491,11 @@ async function getViewMappingHandler(req, res, next) {
   try {
     const result = await getViewMappingService();
 
-    logApiSuccess(req, 200, result.data, 'View Mapping fetched successfully');
+    logApiSuccess(req, 200, result.data, "View Mapping fetched successfully");
 
     return res.ok(result.data);
   } catch (error) {
-    logApiError(req, 400, error.message, 'View Mapping fetch failed');
+    logApiError(req, 400, error.message, "View Mapping fetch failed");
     return next(error);
   }
 }
@@ -434,14 +506,17 @@ async function uploadExcelData(req, res, next) {
       return res.json({ success: false, message: "No file uploaded" });
     }
 
-    const workBook = XLSX.read(req.file.buffer, { type: 'buffer' });
+    const workBook = XLSX.read(req.file.buffer, { type: "buffer" });
 
     // Taking first sheet by default
     const sheetName = workBook.SheetNames[0];
     const sheet = workBook.Sheets[sheetName];
 
     // converting sheet data into array of objects
-    const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: null, raw: false });
+    const jsonData = XLSX.utils.sheet_to_json(sheet, {
+      defval: null,
+      raw: false,
+    });
 
     if (!jsonData.length) {
       return res.json({ success: false, message: "Excel file is empty" });
@@ -449,7 +524,40 @@ async function uploadExcelData(req, res, next) {
 
     return res.ok(jsonData);
   } catch (error) {
-    logApiError(req, 400, error.message, 'Extracting excel data failed');
+    logApiError(req, 400, error.message, "Extracting excel data failed");
+    return next(error);
+  }
+}
+
+async function createFosMappingController(req, res, next) {
+  try {
+    const payload = req.body;
+    const result = await createFosMappingService(payload);
+
+    const auditData = {
+      action: "FOS_TO_AGENCY_MAPPING",
+      actor: payload.userId || "system",
+      module: "FosMapping",
+      entityId: "",
+      status: result.success ? "SUCCESS" : "FAILED",
+      requestMeta: requestMeta(req),
+    };
+
+    auditLog(auditData);
+    logApiSuccess(
+      req,
+      201,
+      { userid: payload.userId },
+      "FOS mapping created successfully",
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: result.out_errormsg || "Fos mapping successfully",
+      data: result,
+    });
+  } catch (error) {
+    logApiError(req, 400, error.message, "Failed to map fos to agency");
     return next(error);
   }
 }
@@ -470,4 +578,5 @@ module.exports = {
   createMappingHandler,
   getViewMappingHandler,
   uploadExcelData,
+  createFosMappingController
 };

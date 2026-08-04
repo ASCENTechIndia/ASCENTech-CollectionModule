@@ -14,6 +14,7 @@ const {
   getFOSRepo,
   createMappingRepo,
   getViewMappingRepo,
+  createFosMappingRepo,
 } = require("./mapping.repo");
 const { AppError } = require("../../utils/app-error");
 
@@ -228,7 +229,7 @@ async function createMappingService(payload) {
     }
 
     // Checking all resposne is undefined/null or not, if all response failed then return single failed message
-    const isAllResponseNull = results.every(arr => arr.response == null);
+    const isAllResponseNull = results.every((arr) => arr.response == null);
     if (isAllResponseNull) {
       throw new AppError("Failed to create mapping", 400);
     }
@@ -409,6 +410,23 @@ async function getViewMappingService() {
   }
 }
 
+async function createFosMappingService(payload) {
+  try {
+    const result = await createFosMappingRepo(payload);
+    const isSuccess = String(result.Out_errorCode) === "9999";
+    if (!isSuccess) {
+      throw new AppError(result.Out_ErrorMsg || "Failed to map fos to agency", 400);
+    }
+    return {
+      success: true,
+      message: result.Out_ErrorMsg,
+      data: result,
+    };
+  } catch (error) {
+    throw new AppError(`Failed to create fos to agency mapping`, 400);
+  }
+}
+
 module.exports = {
   getFormOptionsService,
   getBranchesService,
@@ -424,4 +442,5 @@ module.exports = {
   getFOSService,
   createMappingService,
   getViewMappingService,
+  createFosMappingService,
 };

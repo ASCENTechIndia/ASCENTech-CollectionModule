@@ -29,7 +29,8 @@ const {
   getFOSHandler,
   createMappingHandler,
   getViewMappingHandler,
-  uploadExcelData
+  uploadExcelData,
+  createFosMappingController
 } = require('./mapping.controller');
 
 const router = express.Router();
@@ -100,6 +101,7 @@ router.get('/fos-list', getFOSHandler);
 router.post("/create-mapping", createMappingHandler)
 router.get('/view-mapping', getViewMappingHandler);
 router.post("/excel-data", uploadExcel.single("file"), uploadExcelData),
+router.post("/create-fos-mapping", createFosMappingController)
 
 
 module.exports = router;

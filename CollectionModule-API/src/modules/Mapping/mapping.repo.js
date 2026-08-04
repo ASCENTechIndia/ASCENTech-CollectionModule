@@ -1,9 +1,9 @@
-const oracledb = require('oracledb');
-const { executeProcedure } = require('../../db/procedureExecutor');
-const { executeQuery } = require('../../db/queryExecutor');
+const oracledb = require("oracledb");
+const { executeProcedure } = require("../../db/procedureExecutor");
+const { executeQuery } = require("../../db/queryExecutor");
 
 function normalizeNullable(value) {
-  if (value === null || value === undefined || value === '') {
+  if (value === null || value === undefined || value === "") {
     return null;
   }
   return value;
@@ -12,7 +12,7 @@ function normalizeNullable(value) {
 /**
  * Get dropdown options for user creation form
  */
-async function getFormOptionsRepo(type = '') {
+async function getFormOptionsRepo(type = "") {
   const queries = {
     workingFor: `SELECT var_working_name as name, num_working_id as id FROM etech_cm.aoup_working_mas ORDER BY var_working_name`,
     designation: `SELECT var_designation_designation as name, num_designation_id as id FROM etech_cm.aoup_designation_def ORDER BY var_designation_designation`,
@@ -43,7 +43,7 @@ async function getFormOptionsRepo(type = '') {
  */
 async function getBranchesRepo(branchCategory, userLevel) {
   // const whereClause = branchCategory && userLevel ? ` WHERE compid = ${branchCategory}` : '';
-  const whereClause = ''
+  const whereClause = "";
   const query = `SELECT branchname as name, brid as id, branchcode as code FROM branchlist${whereClause} ORDER BY branchname`;
   return executeQuery(query);
 }
@@ -82,7 +82,7 @@ async function getUserDetailsByIdRepo(userId) {
     FROM aoup_usermst_def
     WHERE var_usermst_userid = '${userId}'
   `;
-  
+
   const result = await executeQuery(query);
   return result && result.length > 0 ? result[0] : null;
 }
@@ -127,7 +127,7 @@ async function createUserRepo(payload) {
       );
     END;
   `;
-  
+
   const binds = {
     in_brid: payload.brid,
     in_userid: normalizeNullable(payload.userid),
@@ -153,14 +153,18 @@ async function createUserRepo(payload) {
     in_mode: payload.mode,
     in_compid: payload.compid,
     in_insby: payload.insby,
-    in_Requeststatus: normalizeNullable(payload.requeststatus) || 'A',
+    in_Requeststatus: normalizeNullable(payload.requeststatus) || "A",
     in_pincode: payload.pincode ?? null,
     Out_User: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 100 },
     Out_errorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
-    Out_ErrorMsg: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 10000 },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 10000,
+    },
   };
 
-  console.log("bind pyalod :", binds)
+  console.log("bind pyalod :", binds);
 
   const result = await executeProcedure({ statement, binds, useTx: false });
   return result.outBinds;
@@ -185,7 +189,7 @@ async function createMappingRepo(payload) {
       );
     END;
   `;
-  
+
   const binds = {
     P_from_entityID: Number(payload.fromEntity),
     P_to_entityID: Number(payload.toEntity),
@@ -198,7 +202,11 @@ async function createMappingRepo(payload) {
     P_EFFECTIVE_DT: payload.effectiveFrom,
     P_DAT_EFFECTIVE_TO: payload.effectiveTo,
     OUT_ERRORCODE: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
-    OUT_ERRORMSG: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 10000 }
+    OUT_ERRORMSG: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 10000,
+    },
   };
 
   const result = await executeProcedure({ statement, binds, useTx: false });
@@ -271,7 +279,11 @@ async function updateUserRepo(payload) {
     in_compid: payload.compid,
     in_insby: payload.insby,
     Out_errorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
-    Out_ErrorMsg: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 10000 },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 10000,
+    },
     Out_User: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 100 },
   };
 
@@ -282,11 +294,16 @@ async function updateUserRepo(payload) {
 /**
  * Upload user image blob
  */
-async function uploadUserImageRepo(userId, imageData, imageType, imagePosition = 1) {
+async function uploadUserImageRepo(
+  userId,
+  imageData,
+  imageType,
+  imagePosition = 1,
+) {
   const statement = `
     BEGIN
       UPDATE aoup_usermst_def
-      SET ${imagePosition === 1 ? 'blob_usermst_proofimage, var_usermst_imagetype' : imagePosition === 2 ? 'blob_usermst_proofimage2, var_usermst_imagetype2' : 'blob_usermst_proofimage3, var_usermst_imagetype3'} = :imageData, :imageType
+      SET ${imagePosition === 1 ? "blob_usermst_proofimage, var_usermst_imagetype" : imagePosition === 2 ? "blob_usermst_proofimage2, var_usermst_imagetype2" : "blob_usermst_proofimage3, var_usermst_imagetype3"} = :imageData, :imageType
       WHERE var_usermst_userid = :userId;
     END;
   `;
@@ -308,13 +325,13 @@ function validateIdProofFormat(proofType, proofNo) {
     1: { name: "PAN", regex: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/ },
     2: { name: "Driving License", regex: /^[A-Z]{2}[0-9]{13}$/ },
     3: { name: "Voter ID", regex: /^[A-Z]{3}[0-9]{7}$/ },
-    4: { name: "Aadhar", regex: /^[0-9]{12}$/ }, 
+    4: { name: "Aadhar", regex: /^[0-9]{12}$/ },
     5: { name: "Passport", regex: /^[A-Z]{1}[0-9]{7}$/ },
-    6: { name: "Bank Statement", regex: /^[A-Za-z0-9]{8,20}$/ }, 
+    6: { name: "Bank Statement", regex: /^[A-Za-z0-9]{8,20}$/ },
   };
 
   if (!idProofTypes[proofType]) {
-    return { valid: false, message: 'Invalid proof type' };
+    return { valid: false, message: "Invalid proof type" };
   }
 
   const type = idProofTypes[proofType];
@@ -322,7 +339,7 @@ function validateIdProofFormat(proofType, proofNo) {
     return { valid: false, message: `Invalid ${type.name} format` };
   }
 
-  return { valid: true, message: 'Valid proof format' };
+  return { valid: true, message: "Valid proof format" };
 }
 
 /**
@@ -371,8 +388,8 @@ function toDate(value) {
  */
 async function createUserNewRepo(body) {
   const joiningDate = toDate(body.in_dat_fosmst_joining_date);
-  const exitDate    = toDate(body.in_dat_fosmst_exit_date);
-  const dob         = toDate(body.in_DOB);
+  const exitDate = toDate(body.in_dat_fosmst_exit_date);
+  const dob = toDate(body.in_DOB);
 
   const statement = `
     BEGIN
@@ -422,53 +439,72 @@ async function createUserNewRepo(body) {
 
   const binds = {
     // ----- STRING params -----
-    in_userid:                        body.in_userid             ?? null,
-    in_username:                      body.in_username,
-    in_userpwd:                       body.in_userpwd            ?? null,
-    in_email:                         body.in_email              ?? null,
-    in_proofno:                       body.in_proofno            ?? null,
-    in_status:                        body.in_status             ?? 'A',
-    in_Empcode:                       body.in_Empcode            ?? null,
-    in_firstname:                     body.in_firstname,
-    in_lastname:                      body.in_lastname           ?? null,
-    in_insby:                         body.in_insby,
-    in_Requeststatus:                 body.in_Requeststatus      ?? 'P',
-    in_var_user_teamlead:             body.in_var_user_teamlead          ?? null,
-    in_var_fosmst_skills:             body.in_var_fosmst_skills          ?? null,
-    in_var_fosmst_geo_zones:          body.in_var_fosmst_geo_zones       ?? null,
-    in_var_fosmst_aadhar_ref:         body.in_var_fosmst_aadhar_ref      ?? null,
+    in_userid: body.in_userid ?? null,
+    in_username: body.in_username,
+    in_userpwd: body.in_userpwd ?? null,
+    in_email: body.in_email ?? null,
+    in_proofno: body.in_proofno ?? null,
+    in_status: body.in_status ?? "A",
+    in_Empcode: body.in_Empcode ?? null,
+    in_firstname: body.in_firstname,
+    in_lastname: body.in_lastname ?? null,
+    in_insby: body.in_insby,
+    in_Requeststatus: body.in_Requeststatus ?? "P",
+    in_var_user_teamlead: body.in_var_user_teamlead ?? null,
+    in_var_fosmst_skills: body.in_var_fosmst_skills ?? null,
+    in_var_fosmst_geo_zones: body.in_var_fosmst_geo_zones ?? null,
+    in_var_fosmst_aadhar_ref: body.in_var_fosmst_aadhar_ref ?? null,
 
     // ----- NUMBER params -----
-    in_brid:                          { val: body.in_brid,                                  type: oracledb.NUMBER },
-    in_mobno:                         { val: body.in_mobno,                                 type: oracledb.NUMBER },
-    in_usertypeid:                    { val: body.in_usertypeid,                            type: oracledb.NUMBER },
-    in_desgid:                        { val: body.in_desgid,                                type: oracledb.NUMBER },
-    in_roleid:                        { val: body.in_roleid,                                type: oracledb.NUMBER },
-    in_compcode:                      { val: body.in_compcode,                              type: oracledb.NUMBER },
-    in_workid:                        { val: body.in_workid             ?? null,            type: oracledb.NUMBER },
-    in_empid:                         { val: body.in_empid              ?? null,            type: oracledb.NUMBER },
-    in_collectionid:                  { val: body.in_collectionid       ?? null,            type: oracledb.NUMBER },
-    in_categoryid:                    { val: body.in_categoryid         ?? null,            type: oracledb.NUMBER },
-    in_prooftype:                     { val: body.in_prooftype          ?? null,            type: oracledb.NUMBER },
-    in_mode:                          { val: body.in_mode               ?? 1,               type: oracledb.NUMBER },
-    in_compid:                        { val: body.in_compid,                                type: oracledb.NUMBER },
-    in_num_fosmst_whatsapp:           { val: body.in_num_fosmst_whatsapp        ?? null,    type: oracledb.NUMBER },
-    in_num_fosmst_max_cases_day:      { val: body.in_num_fosmst_max_cases_day   ?? null,    type: oracledb.NUMBER },
-    in_num_open_cases: { val: body.in_num_open_cases ?? null, type: oracledb.NUMBER },
-    in_num_fosmst_created_by:         { val: body.in_num_fosmst_created_by      ?? null,    type: oracledb.NUMBER },
+    in_brid: { val: body.in_brid, type: oracledb.NUMBER },
+    in_mobno: { val: body.in_mobno, type: oracledb.NUMBER },
+    in_usertypeid: { val: body.in_usertypeid, type: oracledb.NUMBER },
+    in_desgid: { val: body.in_desgid, type: oracledb.NUMBER },
+    in_roleid: { val: body.in_roleid, type: oracledb.NUMBER },
+    in_compcode: { val: body.in_compcode, type: oracledb.NUMBER },
+    in_workid: { val: body.in_workid ?? null, type: oracledb.NUMBER },
+    in_empid: { val: body.in_empid ?? null, type: oracledb.NUMBER },
+    in_collectionid: {
+      val: body.in_collectionid ?? null,
+      type: oracledb.NUMBER,
+    },
+    in_categoryid: { val: body.in_categoryid ?? null, type: oracledb.NUMBER },
+    in_prooftype: { val: body.in_prooftype ?? null, type: oracledb.NUMBER },
+    in_mode: { val: body.in_mode ?? 1, type: oracledb.NUMBER },
+    in_compid: { val: body.in_compid, type: oracledb.NUMBER },
+    in_num_fosmst_whatsapp: {
+      val: body.in_num_fosmst_whatsapp ?? null,
+      type: oracledb.NUMBER,
+    },
+    in_num_fosmst_max_cases_day: {
+      val: body.in_num_fosmst_max_cases_day ?? null,
+      type: oracledb.NUMBER,
+    },
+    in_num_open_cases: {
+      val: body.in_num_open_cases ?? null,
+      type: oracledb.NUMBER,
+    },
+    in_num_fosmst_created_by: {
+      val: body.in_num_fosmst_created_by ?? null,
+      type: oracledb.NUMBER,
+    },
 
     // ----- DATE params -----
-    in_DOB:                           { val: dob,           type: oracledb.DATE },
-    in_dat_fosmst_joining_date:       { val: joiningDate,   type: oracledb.DATE },
-    in_dat_fosmst_exit_date:          { val: exitDate,      type: oracledb.DATE },
+    in_DOB: { val: dob, type: oracledb.DATE },
+    in_dat_fosmst_joining_date: { val: joiningDate, type: oracledb.DATE },
+    in_dat_fosmst_exit_date: { val: exitDate, type: oracledb.DATE },
 
     // ----- TIMESTAMP param -----
-    in_dat_fosmst_updated_at:         { val: new Date(),    type: oracledb.DATE },
+    in_dat_fosmst_updated_at: { val: new Date(), type: oracledb.DATE },
 
     // ----- OUT params -----
-    out_user:                         { type: oracledb.STRING, dir: oracledb.BIND_OUT, maxSize: 200 },
-    out_errorcode:                    { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
-    out_errormsg:                     { type: oracledb.STRING, dir: oracledb.BIND_OUT, maxSize: 4000 }
+    out_user: { type: oracledb.STRING, dir: oracledb.BIND_OUT, maxSize: 200 },
+    out_errorcode: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
+    out_errormsg: {
+      type: oracledb.STRING,
+      dir: oracledb.BIND_OUT,
+      maxSize: 4000,
+    },
   };
 
   const result = await executeProcedure({ statement, binds, useTx: false });
@@ -551,6 +587,32 @@ async function getViewMappingRepo() {
   return executeQuery(query);
 }
 
+async function createFosMappingRepo(payload) {
+  const stmt = `
+  BEGIN 
+    etech_cm.AOUP_AGENCY_FOS_ASSIGN(
+    :P_entity_ID,
+    :P_FOS_ID,
+    :P_CREATED_BY,
+    :P_DAT_EFFECTIVE_FROM,
+    :P_DAT_EFFECTIVE_TO,
+    :P_REMARK
+    )
+  END
+  `;
+  const binds = {
+    P_entity_ID: Number(payload.entityId),
+    P_FOS_ID: Number(payload.fosId),
+    P_CREATED_BY: payload.userId,
+    P_DAT_EFFECTIVE_FROM: payload.effectiveFromDate,
+    P_DAT_EFFECTIVE_TO: payload.effectiveToDate,
+    P_REMARK: payload.remark,
+  };
+
+  const result = await executeProcedure({statement, binds, useTx: false})
+  return result.outBinds;
+}
+
 module.exports = {
   getFormOptionsRepo,
   getBranchesRepo,
@@ -567,4 +629,5 @@ module.exports = {
   getFOSRepo,
   createMappingRepo,
   getViewMappingRepo,
+  createFosMappingRepo
 };
