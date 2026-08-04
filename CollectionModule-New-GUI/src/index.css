@@ -1,4 +1,4 @@
-@import url('/assets/css/main.css');
+@import url("/assets/css/main.css");
 
 body {
   margin: 0;
@@ -9,7 +9,10 @@ body {
 .main,
 .header-left,
 .sidebar {
-  transition: margin-left var(--transition-base), width var(--transition-base), min-width var(--transition-base);
+  transition:
+    margin-left var(--transition-base),
+    width var(--transition-base),
+    min-width var(--transition-base);
 }
 
 /* Main content area - let it flow naturally with margin-left for sidebar */
@@ -328,7 +331,10 @@ body {
   border-radius: 14px;
   background: var(--bg-secondary);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
 .datatable-search-shell:focus-within {
@@ -371,7 +377,9 @@ body {
   height: 28px;
   border-radius: 999px;
   flex-shrink: 0;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .datatable-search-clear:hover {
@@ -463,8 +471,16 @@ body {
   --bs-table-bg: var(--bg-primary);
   --bs-table-color: var(--text-primary);
   --bs-table-border-color: var(--border-color);
-  --bs-table-striped-bg: color-mix(in srgb, var(--table-stripe-bg), var(--bg-primary) 35%);
-  --bs-table-hover-bg: color-mix(in srgb, var(--table-hover-bg), var(--accent-color) 6%);
+  --bs-table-striped-bg: color-mix(
+    in srgb,
+    var(--table-stripe-bg),
+    var(--bg-primary) 35%
+  );
+  --bs-table-hover-bg: color-mix(
+    in srgb,
+    var(--table-hover-bg),
+    var(--accent-color) 6%
+  );
   border-color: var(--border-color);
   background-color: var(--bg-primary);
 }
@@ -485,11 +501,19 @@ body {
 }
 
 .datagrid-wrapper .grouped-datagrid-table thead th.table-secondary {
-  background: color-mix(in srgb, var(--table-header-bg), var(--accent-color) 14%) !important;
+  background: color-mix(
+    in srgb,
+    var(--table-header-bg),
+    var(--accent-color) 14%
+  ) !important;
 }
 
 .datagrid-wrapper .grouped-datagrid-table thead th.table-light {
-  background: color-mix(in srgb, var(--table-header-bg), var(--accent-color) 6%) !important;
+  background: color-mix(
+    in srgb,
+    var(--table-header-bg),
+    var(--accent-color) 6%
+  ) !important;
 }
 
 .datagrid-wrapper .grouped-datagrid-table tbody td,
@@ -498,9 +522,75 @@ body {
   color: var(--text-primary);
 }
 
-.users-search .search-icon{
+.users-search .search-icon {
   position: absolute;
   top: 50%;
   left: 4%;
   transform: translateY(-50%);
+}
+
+/* Css for Entity Mapping Console */
+
+.mapping-tree {
+  font-size: 0.95rem;
+}
+
+.tree-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+}
+
+.tree-root {
+  font-weight: 600;
+}
+
+.tree-children {
+  margin-left: 8px;
+  padding-left: 18px;
+  border-left: 1px dashed #c8ccd4;
+}
+
+.tree-children:last-child {
+  border-left: 1px dashed #c8ccd4;
+}
+
+/* .tree-branch:last-child > .tree-children {
+    border-left: 1px dashed transparent;
+  } */
+
+.tree-agency::before,
+.tree-fos::before {
+  content: "";
+  position: absolute;
+  left: -18px;
+  top: 50%;
+  width: 14px;
+  border-top: 1px dashed #c8ccd4;
+}
+
+.tree-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.badge-co {
+  background: #f5dfdf;
+  color: #b80909;
+}
+
+.badge-ag {
+  background: #e7f1ff;
+  color: #0d6efd;
+}
+
+.badge-fos {
+  background: #e6f8e7;
+  color: #0f9a26;
 }

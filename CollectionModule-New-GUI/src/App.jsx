@@ -82,6 +82,8 @@ import FrmAgencyCreation from './pages/Admin/FrmAgencyCreation'
 import FrmAgencyCreation2 from './pages/Agency/FrmAgencyCreation'
 import CompanyAgencyMapping from './pages/MappingManagement/CompanyAgencyMapping'
 import FrmExcelUpload from './pages/Admin/FrmExcelUpload'
+import EntityMappingConsole from './pages/Mapping/EntityMappingConsole'
+import FosMapping from './pages/Mapping/FosMapping'
 
 
 function App() {
@@ -165,6 +167,8 @@ function App() {
         <Route path="admin/FrmImageUploadMobApp2" element={<FrmImageUploadMobApp2 />} />
         <Route path='admin/settings' element={<Settings />} />
         <Route path='admin/create-mapping' element={<FrmCreateMapping />} />
+        <Route path='admin/entity-mapping-console' element={<EntityMappingConsole />} />
+        <Route path='admin/fos-mapping' element={<FosMapping />} />
         <Route path='admin/excel-upload' element={<FrmExcelUpload />} />
       </Route>
       <Route path="/map-view" element={<MapViewPage />} />

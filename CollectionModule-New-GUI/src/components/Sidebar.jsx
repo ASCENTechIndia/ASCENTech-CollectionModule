@@ -53,7 +53,9 @@ const userMenuItems = [
 ]
 
 const mappingMenuItems = [
-  { to: "/admin/create-mapping", label: "Create Mapping"}
+  { to: "/admin/create-mapping", label: "Create Mapping"},
+  { to: "/admin/entity-mapping-console", label: "Entity Mapping Console"},
+  { to: "/admin/fos-mapping", label: "FOS Mapping"}
 ]
 
 // const tablesMenuItems = [{ to: '/tables/datatables', label: 'DataTables' }]
