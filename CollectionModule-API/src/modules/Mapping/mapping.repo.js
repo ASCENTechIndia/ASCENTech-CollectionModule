@@ -590,7 +590,7 @@ async function getViewMappingRepo() {
 async function createFosMappingRepo(payload) {
   const statement = `
   BEGIN 
-    AOUP_AGENCY_FOS_ASSIGN(
+    etech_cm.AOUP_AGENCY_FOS_ASSIGN(
     :P_entity_ID,
     :P_FOS_ID,
     :P_CREATED_BY,
@@ -618,7 +618,6 @@ async function createFosMappingRepo(payload) {
   };
 
   const result = await executeProcedure({ statement, binds, useTx: false });
-  console.log("result :", result);
   return result.outBinds;
 }
 

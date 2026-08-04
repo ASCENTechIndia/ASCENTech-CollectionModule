@@ -4,12 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { useNotification } from "../../context/NotificationContext";
 import apiClient from "../../services/apiClient";
 import { useAuth } from "../../context/AuthContext";
+import { useLoader } from "../../context/LoaderContext";
 
 const FosMapping = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { setLoader } = useLoader();
   const userId = user?.userId;
-  console.log("User Id ;", userId);
   const { showSuccess, showError, showWarning } = useNotification();
 
   const {
@@ -23,7 +24,8 @@ const FosMapping = () => {
       agency: "",
       fos: "",
       action: "1",
-      effectiveDate: "",
+      effectiveFromDate: "",
+      effectiveToDate: "",
       remark: "",
     },
   });
@@ -60,10 +62,33 @@ const FosMapping = () => {
     return `${day}-${months[Number(month) - 1]}-${year}`;
   };
 
-  const onSubmit = (data) => {
-    console.log("Form Data:", data);
-    showSuccess("FOS Mapping submitted successfully (dummy)");
-    reset();
+  const onSubmit = async (data) => {
+    if (!userId) {
+      alert("User Id is not set");
+      return;
+    }
+    try {
+      setLoader(true);
+      const payload = {
+        entityId: data.agency,
+        fosId: data.fos,
+        userId: userId,
+        effectiveFromDate: formatDate(data.effectiveFromDate),
+        effectiveToDate: formatDate(data.effectiveToDate),
+        remark: data.remark,
+      };
+      const res = await apiClient.post("/mapping/create-fos-mapping", payload);
+      if (res?.success && Number(res?.code) === 9999) {
+        showSuccess(res.message);
+        reset();
+      } else {
+        showError(res.message);
+      }
+    } catch (error) {
+      showError(error.message);
+    } finally {
+      setLoader(false);
+    }
   };
 
   const fetchList = async () => {
@@ -196,20 +221,41 @@ const FosMapping = () => {
               </div>
 
               <div className="col-md-6 mb-3">
-                <label className="form-label">
-                  Effective Date <span className="text-danger">*</span>
-                </label>
-                <input
-                  type="date"
-                  {...register("effectiveDate", {
-                    required: "Effective Date is required",
-                  })}
-                  className={`form-control ${
-                    errors.effectiveDate ? "is-invalid" : ""
-                  }`}
-                />
-                <div className="invalid-feedback">
-                  {errors.effectiveDate?.message}
+                <div className="row">
+                  <div className="col-md-6 col-12">
+                    <label className="form-label">
+                      Effective Date <span className="text-danger">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      {...register("effectiveFromDate", {
+                        required: "Effective Date is required",
+                      })}
+                      className={`form-control ${
+                        errors.effectiveFromDate ? "is-invalid" : ""
+                      }`}
+                    />
+                    <div className="invalid-feedback">
+                      {errors.effectiveFromDate?.message}
+                    </div>
+                  </div>
+                  <div className="col-md-6 col-12">
+                    <label className="form-label">
+                      Effective To <span className="text-danger">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      {...register("effectiveToDate", {
+                        required: "Effective Date is required",
+                      })}
+                      className={`form-control ${
+                        errors.effectiveToDate ? "is-invalid" : ""
+                      }`}
+                    />
+                    <div className="invalid-feedback">
+                      {errors.effectiveToDate?.message}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
