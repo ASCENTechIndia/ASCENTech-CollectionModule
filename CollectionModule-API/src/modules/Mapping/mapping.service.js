@@ -413,17 +413,17 @@ async function getViewMappingService() {
 async function createFosMappingService(payload) {
   try {
     const result = await createFosMappingRepo(payload);
-    const isSuccess = String(result.Out_errorCode) === "9999";
+    const isSuccess = String(result.OUT_ERRORCODE) === "9999";
     if (!isSuccess) {
-      throw new AppError(result.Out_ErrorMsg || "Failed to map fos to agency", 400);
+      throw new AppError(result.OUT_ERRORMSG || "Failed to map fos to agency", 400);
     }
     return {
       success: true,
-      message: result.Out_ErrorMsg,
-      data: result,
+      message: result.OUT_ERRORMSG,
+      OUT_ERRORCODE: result.OUT_ERRORCODE
     };
   } catch (error) {
-    throw new AppError(`Failed to create fos to agency mapping`, 400);
+    throw new AppError(`${error.message || "Failed to create fos to agency mapping"}`, 400);
   }
 }
 

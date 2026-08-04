@@ -553,8 +553,8 @@ async function createFosMappingController(req, res, next) {
 
     return res.status(201).json({
       success: true,
-      message: result.out_errormsg || "Fos mapping successfully",
-      data: result,
+      message: result.message || "Fos mapping successfully",
+      code: result.OUT_ERRORCODE
     });
   } catch (error) {
     logApiError(req, 400, error.message, "Failed to map fos to agency");
