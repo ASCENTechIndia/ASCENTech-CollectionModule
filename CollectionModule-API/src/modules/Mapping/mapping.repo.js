@@ -641,8 +641,37 @@ async function getEntityMappingRelationRepo(payload) {
     },
   };
 
-  const result = await executeProcedure({statement, binds, useTx: false})
-  return JSON.parse(result.outBinds.P_JSON) || []
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return JSON.parse(result.outBinds.P_JSON) || [];
+}
+
+async function getEntityCountsRepo() {
+  const query1 = `SELECT  count (distinct VAR_COMPANYMST_COMPNAME) as company FROM etech_cm.aoup_companymst_def a`;
+  const query2 = `SELECT   count  (distinct NUM_AGENCYMST_ID) as agency FROM etech_cm.aoup_agencymst_def a`;
+  const query3 = `SELECT count (Distinct VAR_USERMST_USERID) as fosagents FROM etech_cm.aoup_usermst_def a where NUM_USERMST_USERTYPE='1'`;
+  const query4 = `SELECT
+    (
+            (SELECT COUNT(DISTINCT NUM_MAP_ID)
+            FROM AOUP_AGENCY_FOS_MAP
+            WHERE VAR_STATUS = 'ACTIVE')
+            +
+            (SELECT COUNT(DISTINCT NUM_FROM_ENTITYID)
+            FROM AOUP_COMPANY_AGENCY_MAP
+            WHERE VAR_STATUS = 'ACTIVE')
+        ) AS TOTAL_COUNT
+    FROM DUAL`
+
+  const result1 = await executeQuery(query1);
+  const result2 = await executeQuery(query2);
+  const result3 = await executeQuery(query3);
+  const result4 = await executeQuery(query4)
+
+  return {
+    companies: result1.rows[0],
+    agency: result2.rows[0],
+    fosAgent: result3.rows[0],
+    activeMapping: result4.rows[0]
+  };
 }
 
 module.exports = {
@@ -662,5 +691,6 @@ module.exports = {
   createMappingRepo,
   getViewMappingRepo,
   createFosMappingRepo,
-  getEntityMappingRelationRepo
+  getEntityMappingRelationRepo,
+  getEntityCountsRepo
 };

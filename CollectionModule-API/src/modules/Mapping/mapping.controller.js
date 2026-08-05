@@ -15,6 +15,7 @@ const {
   getViewMappingService,
   createFosMappingService,
   getEntityMappingRelationService,
+  getEntityCountService,
 } = require("./mapping.service");
 const { auditLog } = require("../../utils/audit-log");
 const { logApiSuccess, logApiError } = require("../../utils/log");
@@ -584,6 +585,19 @@ async function getEntityRelationController(req, res, next) {
   }
 }
 
+async function getEntityCountController(req, res, next) {
+  try {
+    const result = await getEntityCountService();
+
+    logApiSuccess(req, 200, result.data, "FOS fetched successfully");
+
+    return res.ok(result.data);
+  } catch (error) {
+    logApiError(req, 400, error.message, "Agency fetch failed");
+    return next(error);
+  }
+}
+
 module.exports = {
   getFormOptionsHandler,
   getBranchesHandler,
@@ -601,5 +615,6 @@ module.exports = {
   getViewMappingHandler,
   uploadExcelData,
   createFosMappingController,
-  getEntityRelationController
+  getEntityRelationController,
+  getEntityCountController
 };

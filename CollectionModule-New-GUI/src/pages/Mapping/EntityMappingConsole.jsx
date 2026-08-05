@@ -29,6 +29,54 @@ const EntityMappingConsole = () => {
   const [mappingTree, setMappingTree] = useState([]);
   const [loadingTree, setLoadingTree] = useState(false);
 
+  const [stats, setStats] = useState({
+    companies: 0,
+    agency: 0,
+    fosAgent: 0,
+    activeMapping: 0,
+  });
+  const [loadingStats, setLoadingStats] = useState(false);
+
+  useEffect(() => {
+    fetchCounts();
+  }, []);
+
+  const fetchCounts = async () => {
+    try {
+      setLoadingStats(true);
+      setLoader(true);
+      const response = await apiClient.get("/mapping/get-count");
+      if (response?.success && response?.data) {
+        setStats({
+          companies: response.data.companies?.COMPANY || 0,
+          agency: response.data.agency?.AGENCY || 0,
+          fosAgent: response.data.fosAgent?.FOSAGENTS || 0,
+          activeMapping: response.data.activeMapping?.TOTAL_COUNT || 0,
+        });
+      } else {
+        setStats({
+          companies: 0,
+          agency: 0,
+          fosAgent: 0,
+          activeMapping: 0,
+        });
+        showWarning("Could not load summary counts");
+      }
+    } catch (error) {
+      console.error(error);
+      setStats({
+        companies: 0,
+        agency: 0,
+        fosAgent: 0,
+        activeMapping: 0,
+      });
+      showError(error.message || "Failed to fetch summary counts");
+    } finally {
+      setLoadingStats(false);
+      setLoader(false);
+    }
+  };
+
   // Reset values
   useEffect(() => {
     setToEntities([]);
@@ -92,7 +140,7 @@ const EntityMappingConsole = () => {
 
       if (response?.success && response?.data?.length > 0) {
         setMappingTree(response.data || []);
-        showSuccess(response.message)
+        showSuccess(response.message);
       } else {
         setMappingTree([]);
         showWarning("Entity fos relationship data not found");
@@ -130,25 +178,61 @@ const EntityMappingConsole = () => {
           <div className="row">
             <div className="col-lg-3 col-6 px-1">
               <div className="py-3 d-flex justify-content-center align-items-center flex-column rounded-3 bg-light ">
-                <p className="m-0 fw-bold fs-4">12</p>
+                <p className="m-0 fw-bold fs-4">
+                  {loadingStats ? (
+                    <span
+                      className="spinner-border spinner-border-sm text-secondary"
+                      role="status"
+                    />
+                  ) : (
+                    stats.companies
+                  )}
+                </p>
                 <p className="m-0">Companies</p>
               </div>
             </div>
             <div className="col-lg-3 col-6 px-1">
               <div className="py-3 d-flex justify-content-center align-items-center flex-column rounded-3 bg-light ">
-                <p className="m-0 fw-bold fs-4">47</p>
+                <p className="m-0 fw-bold fs-4">
+                  {loadingStats ? (
+                    <span
+                      className="spinner-border spinner-border-sm text-secondary"
+                      role="status"
+                    />
+                  ) : (
+                    stats.agency
+                  )}
+                </p>
                 <p className="m-0">Agency</p>
               </div>
             </div>
             <div className="col-lg-3 col-6 px-1">
               <div className="py-3 d-flex justify-content-center align-items-center flex-column rounded-3 bg-light ">
-                <p className="m-0 fw-bold fs-4">318</p>
+                <p className="m-0 fw-bold fs-4">
+                  {loadingStats ? (
+                    <span
+                      className="spinner-border spinner-border-sm text-secondary"
+                      role="status"
+                    />
+                  ) : (
+                    stats.fosAgent
+                  )}
+                </p>
                 <p className="m-0">FOS Agents</p>
               </div>
             </div>
             <div className="col-lg-3 col-6 px-1">
               <div className="py-3 d-flex justify-content-center align-items-center flex-column rounded-3 bg-light ">
-                <p className="m-0 fw-bold fs-4">204</p>
+                <p className="m-0 fw-bold fs-4">
+                  {loadingStats ? (
+                    <span
+                      className="spinner-border spinner-border-sm text-secondary"
+                      role="status"
+                    />
+                  ) : (
+                    stats.activeMapping
+                  )}
+                </p>
                 <p className="m-0">Active Mappings</p>
               </div>
             </div>

@@ -31,7 +31,8 @@ const {
   getViewMappingHandler,
   uploadExcelData,
   createFosMappingController,
-  getEntityRelationController
+  getEntityRelationController,
+  getEntityCountController
 } = require('./mapping.controller');
 
 const router = express.Router();
@@ -104,6 +105,7 @@ router.get('/view-mapping', getViewMappingHandler);
 router.post("/excel-data", uploadExcel.single("file"), uploadExcelData),
 router.post("/create-fos-mapping", createFosMappingController)
 router.post("/entity-relationship", getEntityRelationController)
+router.get("/get-count", getEntityCountController)
 
 
 module.exports = router;

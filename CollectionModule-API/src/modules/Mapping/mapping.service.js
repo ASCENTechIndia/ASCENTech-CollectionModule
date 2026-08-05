@@ -16,6 +16,7 @@ const {
   getViewMappingRepo,
   createFosMappingRepo,
   getEntityMappingRelationRepo,
+  getEntityCountsRepo,
 } = require("./mapping.repo");
 const { AppError } = require("../../utils/app-error");
 
@@ -446,6 +447,18 @@ async function getEntityMappingRelationService(payload) {
   }
 }
 
+async function getEntityCountService() {
+  try {
+    const result = await getEntityCountsRepo();
+    return {
+      success: true,
+      data: result,
+    };
+  } catch (error) {
+    throw new AppError(`Failed to fetch fos: ${error.message}`, 400);
+  }
+}
+
 module.exports = {
   getFormOptionsService,
   getBranchesService,
@@ -463,4 +476,5 @@ module.exports = {
   getViewMappingService,
   createFosMappingService,
   getEntityMappingRelationService,
+  getEntityCountService
 };
