@@ -164,8 +164,6 @@ async function createUserRepo(payload) {
     },
   };
 
-  console.log("bind pyalod :", binds);
-
   const result = await executeProcedure({ statement, binds, useTx: false });
   return result.outBinds;
 }
