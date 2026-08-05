@@ -567,7 +567,7 @@ async function getEntityRelationController(req, res, next) {
   try {
     const payload = req.body;
     const result = await getEntityMappingRelationService(payload);
-    logApiSuccess(req, 200, result.data, "Entity relationship data fetched successfully");
+    logApiSuccess(req, 200, result, "Entity relationship data fetched successfully");
     return res.status(201).json({
       success: true,
       message: "Entity relationship data fetched successfully",
