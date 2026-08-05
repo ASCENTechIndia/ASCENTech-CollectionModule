@@ -621,6 +621,30 @@ async function createFosMappingRepo(payload) {
   return result.outBinds;
 }
 
+async function getEntityMappingRelationRepo(payload) {
+  const statement = `
+  BEGIN
+    etech_cm.AOUP_GET_AGENCY_PERSONS(
+    :P_COMPANY_ID,
+    :P_FROM_ENTITY,
+    :P_JSON
+    );
+  END; 
+  `;
+
+  const binds = {
+    P_COMPANY_ID: Number(payload.entityId),
+    P_FROM_ENTITY: payload.entityType,
+    P_JSON: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+    },
+  };
+
+  const result = await executeProcedure({statement, binds, useTx: false})
+  return JSON.parse(result.outBinds.P_JSON) || []
+}
+
 module.exports = {
   getFormOptionsRepo,
   getBranchesRepo,
@@ -638,4 +662,5 @@ module.exports = {
   createMappingRepo,
   getViewMappingRepo,
   createFosMappingRepo,
+  getEntityMappingRelationRepo
 };

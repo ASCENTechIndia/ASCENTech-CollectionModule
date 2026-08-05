@@ -14,6 +14,7 @@ const {
   createMappingService,
   getViewMappingService,
   createFosMappingService,
+  getEntityMappingRelationService,
 } = require("./mapping.service");
 const { auditLog } = require("../../utils/audit-log");
 const { logApiSuccess, logApiError } = require("../../utils/log");
@@ -554,10 +555,31 @@ async function createFosMappingController(req, res, next) {
     return res.status(201).json({
       success: true,
       message: result.message || "Fos mapping successfully",
-      code: result.OUT_ERRORCODE
+      code: result.OUT_ERRORCODE,
     });
   } catch (error) {
     logApiError(req, 400, error.message, "Failed to map fos to agency");
+    return next(error);
+  }
+}
+
+async function getEntityRelationController(req, res, next) {
+  try {
+    const payload = req.body;
+    const result = await getEntityMappingRelationService(payload);
+    logApiSuccess(req, 200, result.data, "Entity relationship data fetched successfully");
+    return res.status(201).json({
+      success: true,
+      message: "Entity relationship data fetched successfully",
+      data: result,
+    });
+  } catch (error) {
+    logApiError(
+      req,
+      400,
+      error.message,
+      "Failed to fetch entity relationship data",
+    );
     return next(error);
   }
 }
@@ -578,5 +600,6 @@ module.exports = {
   createMappingHandler,
   getViewMappingHandler,
   uploadExcelData,
-  createFosMappingController
+  createFosMappingController,
+  getEntityRelationController
 };

@@ -15,6 +15,7 @@ const {
   createMappingRepo,
   getViewMappingRepo,
   createFosMappingRepo,
+  getEntityMappingRelationRepo,
 } = require("./mapping.repo");
 const { AppError } = require("../../utils/app-error");
 
@@ -415,15 +416,33 @@ async function createFosMappingService(payload) {
     const result = await createFosMappingRepo(payload);
     const isSuccess = String(result.OUT_ERRORCODE) === "9999";
     if (!isSuccess) {
-      throw new AppError(result.OUT_ERRORMSG || "Failed to map fos to agency", 400);
+      throw new AppError(
+        result.OUT_ERRORMSG || "Failed to map fos to agency",
+        400,
+      );
     }
     return {
       success: true,
       message: result.OUT_ERRORMSG,
-      OUT_ERRORCODE: result.OUT_ERRORCODE
+      OUT_ERRORCODE: result.OUT_ERRORCODE,
     };
   } catch (error) {
-    throw new AppError(`${error.message || "Failed to create fos to agency mapping"}`, 400);
+    throw new AppError(
+      `${error.message || "Failed to create fos to agency mapping"}`,
+      400,
+    );
+  }
+}
+
+async function getEntityMappingRelationService(payload) {
+  try {
+    const rows = await getEntityMappingRelationRepo(payload);
+    return rows;
+  } catch (error) {
+    throw new AppError(
+      `${error.message || "Failed to fetch entity relationship data"}`,
+      400,
+    );
   }
 }
 
@@ -443,4 +462,5 @@ module.exports = {
   createMappingService,
   getViewMappingService,
   createFosMappingService,
+  getEntityMappingRelationService,
 };

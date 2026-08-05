@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import apiClient from "../../services/apiClient";
 import { useNotification } from "../../context/NotificationContext";
+import { useLoader } from "../../context/LoaderContext";
 
 const EntityMappingConsole = () => {
-  const { showError } = useNotification();
+  const { showError, showWarning, showSuccess } = useNotification();
+  const { setLoader } = useLoader();
 
   const {
     register,
@@ -20,30 +22,18 @@ const EntityMappingConsole = () => {
 
   const entityType = watch("entityType");
   const selectedEntity = watch("entity");
-  console.log("entiry :", selectedEntity);
 
   const [toEntities, setToEntities] = useState([]);
   const [loadingToEntity, setLoadingToEntity] = useState(false);
 
-  const [mappingTree, setMappingTree] = useState([
-    {
-      agency: "First Agency",
-      persons: ["Person 1", "Person 2"],
-    },
-    {
-      agency: "Second Agency",
-      persons: ["Person 1", "Person 2", "Person 3"],
-    },
-    {
-      agency: "Second Agency",
-      persons: ["Person 1"],
-    },
-  ]);
+  const [mappingTree, setMappingTree] = useState([]);
+  const [loadingTree, setLoadingTree] = useState(false);
 
   // Reset values
   useEffect(() => {
     setToEntities([]);
     setValue("entity", "");
+    setMappingTree([]);
     if (entityType) {
       loadToEntities(entityType);
     }
@@ -86,7 +76,45 @@ const EntityMappingConsole = () => {
     }
   };
 
-  // Extracting label of the currently selected entity type
+  const fetchEntityFosTreeData = async () => {
+    try {
+      setLoadingTree(true);
+      setLoader(true);
+      const payload = {
+        entityType,
+        entityId: selectedEntity,
+      };
+
+      const response = await apiClient.post(
+        "/mapping/entity-relationship",
+        payload,
+      );
+
+      if (response?.success && response?.data?.length > 0) {
+        setMappingTree(response.data || []);
+        showSuccess(response.message)
+      } else {
+        setMappingTree([]);
+        showWarning("Entity fos relationship data not found");
+      }
+    } catch (error) {
+      setMappingTree([]);
+      showError(error.message || "Failed to fetch entity fos graph data");
+    } finally {
+      setLoadingTree(false);
+      setLoader(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedEntity) {
+      fetchEntityFosTreeData();
+    } else {
+      setMappingTree([]);
+    }
+  }, [selectedEntity]);
+
+  // Extracting label of the currently selected entity
   const selectedEntityLabel = toEntities.find(
     (item) => String(item.value) === String(selectedEntity),
   )?.label;
@@ -185,7 +213,17 @@ const EntityMappingConsole = () => {
         <div className="card-body">
           <p className="fw-bold fs-5 mb-3">Relationship Graph</p>
 
-          {selectedEntity ? (
+          {!selectedEntity ? (
+            <p className="text-muted m-0">
+              Select an entity above to view the mapping hierarchy.
+            </p>
+          ) : loadingTree ? (
+            <p className="text-muted m-0">Loading hierarchy...</p>
+          ) : mappingTree.length === 0 ? (
+            <p className="text-muted m-0">
+              No mapping data found for this entity.
+            </p>
+          ) : (
             <div className="mapping-tree">
               <div className="tree-row tree-root">
                 <span className="tree-badge badge-co">CO</span>
@@ -212,10 +250,6 @@ const EntityMappingConsole = () => {
                 ))}
               </div>
             </div>
-          ) : (
-            <p className="text-muted m-0">
-              Select an entity above to view the mapping hierarchy.
-            </p>
           )}
         </div>
       </div>
