@@ -26,6 +26,7 @@ function AdminLayout() {
   const [companyMenuManualOpen, setCompanyMenuManualOpen] = useState(false)
   const [fosMenuManualOpen, setFosMenuManualOpen] = useState(false)
   const [mappingMgmtOpen, setMappingMgmtOpen] = useState(false);
+  const [allocationRulesMenuOpen, setAllocationRulesMenuOpen] = useState(false);
   const [theme, setTheme] = useState(() => {
     const savedTheme = localStorage.getItem('theme')
 
@@ -91,7 +92,9 @@ function AdminLayout() {
   const companyRouteActive = location.pathname.startsWith('/admin') && location.pathname.includes('company')
   const fosRouteActive = location.pathname.startsWith('/admin') && location.pathname.includes('fos')
   const mappingRouteActive = location.pathname.startsWith('/admin') && location.pathname.includes('mapping')
+  const allocationRouteActive = location.pathname.startsWith('/allocation');
 
+  const allocationRulesOpen = allocationRouteActive || allocationRulesMenuOpen;
   const authMenuOpen = authRouteActive || authMenuManualOpen
   const formsMenuOpen = formsRouteActive || formsMenuManualOpen
   const componentsMenuOpen = componentsRouteActive || componentsMenuManualOpen
@@ -192,6 +195,7 @@ function AdminLayout() {
         companyMenuOpen={companyMenuOpen}
         fosMenuOpen={fosMenuOpen}
         mappingMgmtOpen={mappingMenuOpen}
+        allocationRulesMenuOpen={allocationRulesOpen}
         onToggleAuthMenu={() => setAuthMenuManualOpen((value) => !value)}
         onToggleFormsMenu={() => setFormsMenuManualOpen((value) => !value)}
         onToggleComponentsMenu={() => setComponentsMenuManualOpen((value) => !value)}
@@ -209,6 +213,7 @@ function AdminLayout() {
         onToggleFosMenu={() => setFosMenuManualOpen((value) => !value)}
         onToggleMappingMgmtMenu={() => setMappingMgmtOpen((value) => !value)}
         onCloseMobile={() => setMobileOpen(false)}
+        onToggleAllocationRulesMenu={() => setAllocationRulesMenuOpen(prev => !prev)}
       />
 
       <main className="main">

@@ -84,6 +84,9 @@ import CompanyAgencyMapping from './pages/MappingManagement/CompanyAgencyMapping
 import FrmExcelUpload from './pages/Admin/FrmExcelUpload'
 import EntityMappingConsole from './pages/Mapping/EntityMappingConsole'
 import FosMapping from './pages/Mapping/FosMapping'
+import CaseAllocationRules from './pages/Allocation/CaseAllocationRules'
+import AddAllocationRules from './pages/Allocation/AddAllocationRules'
+import AllocationRulePage from './pages/Allocation/AllocationRulePage'
 
 
 function App() {
@@ -170,6 +173,9 @@ function App() {
         <Route path='admin/entity-mapping-console' element={<EntityMappingConsole />} />
         <Route path='admin/fos-mapping' element={<FosMapping />} />
         <Route path='admin/excel-upload' element={<FrmExcelUpload />} />
+        <Route path='allocation/case-allocation' element={<CaseAllocationRules />} />
+        <Route path='allocation/add-allocation-rules' element={<AddAllocationRules />} />
+        <Route path='allocation/allocation-rule' element={<AllocationRulePage />} />
       </Route>
       <Route path="/map-view" element={<MapViewPage />} />
       <Route
