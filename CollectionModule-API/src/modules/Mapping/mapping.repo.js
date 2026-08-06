@@ -665,10 +665,10 @@ async function getEntityCountsRepo() {
   const result4 = await executeQuery(query4)
 
   return {
-    companies: result1.rows[0],
-    agency: result2.rows[0],
-    fosAgent: result3.rows[0],
-    activeMapping: result4.rows[0]
+    companies: result1.rows[0].COMPANY,
+    agency: result2.rows[0].AGENCY,
+    fosAgent: result3.rows[0].FOSAGENTS,
+    activeMapping: result4.rows[0].TOTAL_COUNT
   };
 }
 

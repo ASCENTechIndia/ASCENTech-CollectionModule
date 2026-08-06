@@ -46,12 +46,12 @@ const EntityMappingConsole = () => {
       setLoadingStats(true);
       setLoader(true);
       const response = await apiClient.get("/mapping/get-count");
-      if (response?.success && response?.data) {
+      if (response?.success && Object.keys(response?.data).length > 0) {
         setStats({
-          companies: response.data.companies?.COMPANY || 0,
-          agency: response.data.agency?.AGENCY || 0,
-          fosAgent: response.data.fosAgent?.FOSAGENTS || 0,
-          activeMapping: response.data.activeMapping?.TOTAL_COUNT || 0,
+          companies: response.data?.companies || 0,
+          agency: response.data?.agency || 0,
+          fosAgent: response.data?.fosAgent || 0,
+          activeMapping: response.data?.activeMapping || 0,
         });
       } else {
         setStats({
