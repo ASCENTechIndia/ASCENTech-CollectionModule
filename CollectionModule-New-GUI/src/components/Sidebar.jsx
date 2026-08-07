@@ -323,7 +323,7 @@ function Sidebar({
                 aria-expanded={allocationRulesMenuOpen}
               >
                 <span className="nav-icon">
-                  <i className="bi bi-rule" /> {/* or any icon */}
+                  <i className="ph-light ph-list-checks" />
                 </span>
                 <span className="nav-text">Allocation Rules</span>
                 <span className="nav-badge">
