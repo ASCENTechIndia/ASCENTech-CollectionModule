@@ -93,8 +93,8 @@ const reportsMenuItems = [
 
 const casesAllocationRulesMenuItems = [
   { to: "/allocation/case-allocation", label: "Case Allocation" },
-  { to: "/allocation/add-allocation-rules", label: "Add Allocation Rules" },
   { to: "/allocation/allocation-rule", label: "Allocation Rules" },
+  { to: "/allocation/add-allocation-rules", label: "Add Allocation Rules" },
 ];
 
 // const widgetsMenuItems = [

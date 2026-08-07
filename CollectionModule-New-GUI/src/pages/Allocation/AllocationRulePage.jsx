@@ -15,6 +15,18 @@ const AllocationRulePage = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusDropdown, setStatusDropdown] = useState([
+    { value: "all", label: "All Status" },
+    { value: "active", label: "Active" },
+    { value: "draft", label: "Draft" },
+    { value: "paused", label: "Paused" },
+  ]);
+  const [priorityDropdown, setPriorityDropdown] = useState([
+    { value: "all", label: "All Priority" },
+    { value: "high", label: "High" },
+    { value: "medium", label: "Medium" },
+    { value: "low", label: "Low" },
+  ]);
 
   const [rules] = useState([
     {
@@ -187,9 +199,11 @@ const AllocationRulePage = () => {
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
-            <option value="all">All Statuses</option>
-            <option value="active">Active</option>
-            <option value="pending review">Pending Review</option>
+            {statusDropdown.map((item) => (
+              <option value={item.value} key={item.value}>
+                {item.label}
+              </option>
+            ))}
           </select>
 
           <select
@@ -197,10 +211,11 @@ const AllocationRulePage = () => {
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
           >
-            <option value="all">All Priorities</option>
-            <option value="high">High Priority</option>
-            <option value="medium">Medium Priority</option>
-            <option value="low">Low Priority</option>
+            {priorityDropdown.map((item) => (
+              <option value={item.value} key={item.value}>
+                {item.label}
+              </option>
+            ))}
           </select>
         </div>
 

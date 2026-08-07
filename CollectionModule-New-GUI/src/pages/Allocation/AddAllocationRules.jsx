@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useNotification } from "../../context/NotificationContext";
@@ -16,52 +16,59 @@ const AddAllocationRules = () => {
     defaultValues: {
       ruleName: "",
       priority: "",
-      status: "Draft",
+      status: "",
       minDebtAmount: "",
       maxDebtAmount: "",
       debtAgeMin: "",
       debtAgeMax: "",
-      accountType: "",
-      region: "",
+      accountType: "all",
+      region: "all",
       collectorSuccessRate: "",
       collectorExperience: "",
-      assignedTo: "",
+      assignedTo: "Select Team/Collector",
     },
   });
 
-  const priorityOptions = [
-    { value: "High", label: "High" },
-    { value: "Medium", label: "Medium" },
-    { value: "Low", label: "Low" },
-  ];
+  const [priorityDropdown, setPriorityDropdown] = useState([
+    { value: "high", label: "High" },
+    { value: "medium", label: "Medium" },
+    { value: "low", label: "Low" },
+  ]);
 
-  const statusOptions = [
-    { value: "Draft", label: "Draft" },
-    { value: "Active", label: "Active" },
-    { value: "Inactive", label: "Inactive" },
-  ];
+  const [statusDropdown, setStatusDropdown] = useState([
+    { value: "active", label: "Active" },
+    { value: "draft", label: "Draft" },
+    { value: "paused", label: "Paused" },
+  ]);
 
-  const accountTypeOptions = [
-    { value: "All Types", label: "All Types" },
-    { value: "Savings", label: "Savings" },
-    { value: "Current", label: "Current" },
-    { value: "Credit Card", label: "Credit Card" },
-  ];
+  const [accountDropdown, setAccountDropdown] = useState([
+    { value: "all", label: "All Types" },
+    { value: "credit card", label: "Credit Card" },
+    { value: "personal load", label: "Personal Loan" },
+    { value: "medical", label: "Medical" },
+    { value: "utility", label: "Utility" },
+    { value: "Other", label: "Other" },
+  ]);
 
-  const regionOptions = [
-    { value: "All Regions", label: "All Regions" },
+  const [regionDropdown, setRegionDropdown] = useState([
+    { value: "all", label: "All Regions" },
     { value: "North", label: "North" },
     { value: "South", label: "South" },
     { value: "East", label: "East" },
     { value: "West", label: "West" },
-  ];
+    { value: "International", label: "International" },
+  ]);
 
-  const assignedToOptions = [
+  const [assignedToDropdown, setAssignedToDropdown] = useState([
     { value: "Select Team/Collector", label: "Select Team/Collector" },
-    { value: "Team A", label: "Team A" },
-    { value: "Team B", label: "Team B" },
-    { value: "Collector X", label: "Collector X" },
-  ];
+    { value: "Senior Collector Team A", label: "Senior Collector Team A" },
+    { value: "Collector  Team B", label: "Collector Team B" },
+    { value: "Senior Collector Team C", label: "Senior Collector Team C" },
+    {
+      value: "New Collector Training Pool",
+      label: "New Collector Training Pool",
+    },
+  ]);
 
   const onSubmit = (data) => {
     console.log("Rule Data:", data);
@@ -115,7 +122,7 @@ const AddAllocationRules = () => {
                   }`}
                 >
                   <option value="">Select Priority</option>
-                  {priorityOptions.map((opt) => (
+                  {priorityDropdown.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
                     </option>
@@ -127,14 +134,23 @@ const AddAllocationRules = () => {
               </div>
 
               <div className="col-md-3 mb-3">
-                <label className="form-label">Status</label>
-                <select {...register("status")} className="form-select">
-                  {statusOptions.map((opt) => (
+                <label className="form-label">
+                  Status <span className="text-danger">*</span>
+                </label>
+                <select
+                  {...register("status", {
+                    required: "Status is required",
+                  })}
+                  className={`form-select ${errors.status ? "is-invalid" : ""}`}
+                >
+                  <option value="">Select Status</option>
+                  {statusDropdown.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
                     </option>
                   ))}
                 </select>
+                <div className="invalid-feedback">{errors.status?.message}</div>
               </div>
             </div>
 
@@ -189,7 +205,7 @@ const AddAllocationRules = () => {
               <div className="col-md-3 mb-3">
                 <label className="form-label">Account Type</label>
                 <select {...register("accountType")} className="form-select">
-                  {accountTypeOptions.map((opt) => (
+                  {accountDropdown.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
                     </option>
@@ -200,7 +216,7 @@ const AddAllocationRules = () => {
               <div className="col-md-3 mb-3">
                 <label className="form-label">Region</label>
                 <select {...register("region")} className="form-select">
-                  {regionOptions.map((opt) => (
+                  {regionDropdown.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
                     </option>
@@ -240,7 +256,7 @@ const AddAllocationRules = () => {
               <div className="col-md-6 mb-3">
                 <label className="form-label">Assigned To</label>
                 <select {...register("assignedTo")} className="form-select">
-                  {assignedToOptions.map((opt) => (
+                  {assignedToDropdown.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
                     </option>
