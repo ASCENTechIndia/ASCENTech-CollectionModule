@@ -87,6 +87,7 @@ import FosMapping from './pages/Mapping/FosMapping'
 import CaseAllocationRules from './pages/Allocation/CaseAllocationRules'
 import AddAllocationRules from './pages/Allocation/AddAllocationRules'
 import AllocationRulePage from './pages/Allocation/AllocationRulePage'
+import AllocationWorkspace from './pages/AllocationRules/AllocationWorkspace'
 
 
 function App() {
@@ -175,7 +176,9 @@ function App() {
         <Route path='admin/excel-upload' element={<FrmExcelUpload />} />
         <Route path='allocation/case-allocation' element={<CaseAllocationRules />} />
         <Route path='allocation/add-allocation-rules' element={<AddAllocationRules />} />
-        <Route path='allocation/allocation-rule' element={<AllocationRulePage />} />
+        {/* <Route path='allocation/allocation-rule' element={<AllocationRulePage />} /> */}
+        <Route path='allocation/allocation-rule' element={<AllocationWorkspace />} />
+
       </Route>
       <Route path="/map-view" element={<MapViewPage />} />
       <Route
