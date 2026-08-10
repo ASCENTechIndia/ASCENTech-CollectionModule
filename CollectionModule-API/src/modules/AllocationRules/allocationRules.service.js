@@ -1,5 +1,7 @@
 const { AppError } = require("../../utils/app-error");
-const { insertRepo,  updateRepo, getAllRuleRepo, getRuleRepo } = require("./allocationRules.repo");
+const { insertRepo,  updateRepo, getAllRuleRepo, getRuleRepo ,
+  deleteRuleRepo
+} = require("./allocationRules.repo");
 
 async function insertRuleService(payload) {
   try {
@@ -91,10 +93,36 @@ async function getRuleService(ruleId) {
   }
 }
 
+async function deleteRuleService(ruleId) {
+  try {
+    const result = await deleteRuleRepo(ruleId);
+
+    if (!result) {
+      throw new AppError(
+        "Failed to delete allocation rule",
+        400
+      );
+    }
+
+    return {
+      success: true,
+      message: "Success",
+      data: result,
+    };
+  } catch (error) {
+    throw new AppError(
+      `Failed to delete allocation rule: ${error.message}`,
+      400
+    );
+  }
+}
+
+
 
 module.exports = {
   insertRuleService,
   updateRuleService,
   getAllRuleService,
-  getRuleService
+  getRuleService,
+  deleteRuleService
 };
