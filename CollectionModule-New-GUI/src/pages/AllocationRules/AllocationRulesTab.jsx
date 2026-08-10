@@ -72,33 +72,33 @@ const AllocationRulesTab = () => {
     defaultValues: defaultValues,
   });
 
-  const priorityDropdown = [
+  const [priorityDropdown, setPriorityDropdown] = useState([
     { value: "high", label: "High" },
     { value: "medium", label: "Medium" },
     { value: "low", label: "Low" },
-  ];
-  const statusDropdown = [
+  ]);
+  const [statusDropdown, setStatusDropdown] = useState([
     { value: "active", label: "Active" },
     { value: "draft", label: "Draft" },
     { value: "paused", label: "Paused" },
-  ];
-  const accountDropdown = [
+  ]);
+  const [accountDropdown, setAccountDropdown] = useState([
     { value: "all", label: "All Types" },
     { value: "credit card", label: "Credit Card" },
     { value: "personal load", label: "Personal Loan" },
     { value: "medical", label: "Medical" },
     { value: "utility", label: "Utility" },
     { value: "Other", label: "Other" },
-  ];
-  const regionDropdown = [
+  ]);
+  const [regionDropdown, setRegionDropdown] = useState([
     { value: "all", label: "All Regions" },
     { value: "North", label: "North" },
     { value: "South", label: "South" },
     { value: "East", label: "East" },
     { value: "West", label: "West" },
     { value: "International", label: "International" },
-  ];
-  const assignedToDropdown = [
+  ]);
+  const [assignedToDropdown, setAssignedToDropdown] = useState([
     { value: "Select Team/Collector", label: "Select Team/Collector" },
     { value: "Senior Collector Team A", label: "Senior Collector Team A" },
     { value: "Collector  Team B", label: "Collector Team B" },
@@ -107,7 +107,7 @@ const AllocationRulesTab = () => {
       value: "New Collector Training Pool",
       label: "New Collector Training Pool",
     },
-  ];
+  ]);
 
   const onSubmit = (data) => {
     console.log("Rule Data:", data);
