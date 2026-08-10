@@ -1,7 +1,9 @@
 const { AppError } = require("../../utils/app-error");
 const { auditLog } = require("../../utils/audit-log");
 const { logApiSuccess, logApiError } = require("../../utils/log");
-const { insertRuleService,updateRuleService , getAllRuleService, getRuleService} = require("./allocationRules.service");
+const { insertRuleService,updateRuleService , getAllRuleService, getRuleService,
+  deleteRuleService
+} = require("./allocationRules.service");
 
 async function insertRuleController(req, res, next) {
   try {
@@ -109,10 +111,57 @@ async function getRuleController(req, res, next) {
   }
 }
 
+
+async function deleteRuleController(req, res, next) {
+  try {
+    const { ruleId } = req.query;
+
+    const result = await deleteRuleService(ruleId);
+
+    if (!result) {
+      throw new AppError(
+        "Failed to delete allocation rule",
+        400
+      );
+    }
+
+    auditLog({
+      action: "ALLOCATION_RULE_DELETE",
+      actor: req.user?.userId || "system",
+      module: "allocationRule",
+      entityId: ruleId || "",
+      status: result.message,
+      details: {},
+      requestMeta: "",
+    });
+
+    logApiSuccess(
+      req,
+      200,
+      result,
+      "Allocation rule deleted successfully"
+    );
+
+    return res.ok(result.data.outBinds);
+  } catch (error) {
+    logApiError(
+      req,
+      400,
+      error.message,
+      "Failed to delete allocation rule"
+    );
+
+    return next(error);
+  }
+}
+
+
+
 module.exports = {
   insertRuleController,
   updateRuleController,
   getAllRuleController,
-  getRuleController
+  getRuleController,
+  deleteRuleController
   
 };
