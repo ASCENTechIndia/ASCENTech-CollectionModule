@@ -139,9 +139,9 @@ const EntityMappingConsole = () => {
       );
 
       if (response?.success && response?.data?.length > 0) {
-        setMappingTree(response.data || []);
-        showSuccess(response.message);
-      } else {
+  setMappingTree(response.data || []);
+  showSuccess(response.message);
+} else {
         setMappingTree([]);
         showWarning("Entity fos relationship data not found");
       }
@@ -259,7 +259,7 @@ const EntityMappingConsole = () => {
                 <option value="">--SELECT--</option>
                 <option value="COMPANY">Company</option>
                 <option value="AGENCY">Agency</option>
-                <option value="FOS">FOS</option>
+                {/* <option value="FOS">FOS</option> */}
               </select>
               <div className="invalid-feedback">
                 {errors.entityType?.message}
@@ -310,9 +310,24 @@ const EntityMappingConsole = () => {
           ) : (
             <div className="mapping-tree">
               <div className="tree-row tree-root">
-                <span className="tree-badge badge-co">CO</span>
-                <span>{selectedEntityLabel || "Selected Entity"}</span>
-              </div>
+              <span
+                className={`tree-badge ${
+                  entityType === "COMPANY"
+                    ? "badge-co"
+                    : entityType === "AGENCY"
+                      ? "badge-ag"
+                      : "badge-fos"
+                }`}
+              >
+                {entityType === "COMPANY"
+                  ? "CO"
+                  : entityType === "AGENCY"
+                    ? "AG"
+                    : "FOS"}
+              </span>
+
+              <span>{selectedEntityLabel || "Selected Entity"}</span>
+            </div>
 
               <div className="tree-children">
                 {mappingTree.map((agencyItem, idx) => (

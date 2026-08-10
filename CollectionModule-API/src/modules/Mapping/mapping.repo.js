@@ -620,14 +620,24 @@ async function createFosMappingRepo(payload) {
 }
 
 async function getEntityMappingRelationRepo(payload) {
+  let procedureName;
+
+  if (payload.entityType === "COMPANY") {
+    procedureName = "etech_cm.AOUP_GET_AGENCY_PERSONS";
+  } else if (payload.entityType === "AGENCY") {
+    procedureName = "etech_cm.aoup_get_agency_FOS_DIRECT";
+  } else {
+    throw new Error(`Unsupported entity type: ${payload.entityType}`);
+  }
+
   const statement = `
-  BEGIN
-    etech_cm.AOUP_GET_AGENCY_PERSONS(
-    :P_COMPANY_ID,
-    :P_FROM_ENTITY,
-    :P_JSON
-    );
-  END; 
+    BEGIN
+      ${procedureName}(
+        :P_COMPANY_ID,
+        :P_FROM_ENTITY,
+        :P_JSON
+      );
+    END;
   `;
 
   const binds = {
@@ -639,7 +649,12 @@ async function getEntityMappingRelationRepo(payload) {
     },
   };
 
-  const result = await executeProcedure({ statement, binds, useTx: false });
+  const result = await executeProcedure({
+    statement,
+    binds,
+    useTx: false,
+  });
+
   return JSON.parse(result.outBinds.P_JSON) || [];
 }
 
