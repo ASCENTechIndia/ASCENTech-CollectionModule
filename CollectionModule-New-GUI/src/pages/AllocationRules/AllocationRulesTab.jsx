@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Plus, PlayCircle, Pencil, X } from "lucide-react";
+import { Plus, PlayCircle, Pencil, Trash2 } from "lucide-react";
 import { useNotification } from "../../context/NotificationContext";
 
 const AllocationRulesTab = () => {
   const { showSuccess } = useNotification();
   const [modalOpen, setModalOpen] = useState(false);
-  const [rules] = useState([
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+
+  const [rules, setRules] = useState([
     {
       id: 1,
       conditionParts: [
@@ -45,6 +47,7 @@ const AllocationRulesTab = () => {
       isFallback: true,
     },
   ]);
+
   const defaultValues = {
     ruleName: "",
     priority: "",
@@ -113,6 +116,22 @@ const AllocationRulesTab = () => {
     setModalOpen(false);
   };
 
+  const handleDelete = (id) => {
+    setDeleteTargetId(id);
+  };
+
+  const confirmDelete = () => {
+    if (deleteTargetId !== null) {
+      setRules(rules.filter((rule) => rule.id !== deleteTargetId));
+      showSuccess("Rule deleted successfully");
+      setDeleteTargetId(null);
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeleteTargetId(null);
+  };
+
   return (
     <>
       <div className="art-wrap">
@@ -139,13 +158,22 @@ const AllocationRulesTab = () => {
                 </div>
                 <div className="art-rule-route">{rule.route}</div>
               </div>
-              <button
-                className="art-edit-btn"
-                title="Edit rule"
-                onClick={() => setModalOpen(true)}
-              >
-                <Pencil size={15} />
-              </button>
+              <div className="d-flex gap-1">
+                <button
+                  className="art-edit-btn"
+                  title="Edit rule"
+                  onClick={() => setModalOpen(true)}
+                >
+                  <Pencil size={15} />
+                </button>
+                <button
+                  className="art-edit-btn text-danger"
+                  title="Delete rule"
+                  onClick={() => handleDelete(rule.id)}
+                >
+                  <Trash2 size={15} />
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -163,7 +191,6 @@ const AllocationRulesTab = () => {
         </div>
       </div>
 
-      {/* Modal */}
       {modalOpen && (
         <div
           className="modal fade show"
@@ -181,7 +208,6 @@ const AllocationRulesTab = () => {
               </div>
               <div className="modal-body">
                 <form onSubmit={handleSubmit(onSubmit)}>
-                  {/* Rule Details */}
                   <div className="row">
                     <div className="col-md-6 mb-3">
                       <label className="form-label">
@@ -384,6 +410,45 @@ const AllocationRulesTab = () => {
                     </button>
                   </div>
                 </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteTargetId !== null && (
+        <div
+          className="modal fade show"
+          style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
+        >
+          <div className="modal-dialog modal-sm modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Confirm Delete</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={cancelDelete}
+                />
+              </div>
+              <div className="modal-body">
+                <p>Are you sure you want to delete this rule?</p>
+              </div>
+              <div className="modal-footer py-3 justify-content-center">
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={cancelDelete}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger btn-sm"
+                  onClick={confirmDelete}
+                >
+                  Delete
+                </button>
               </div>
             </div>
           </div>
