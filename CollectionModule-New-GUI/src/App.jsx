@@ -19,6 +19,7 @@ import AuthResetPasswordPage from './pages/AuthResetPasswordPage'
 import SMASummaryReport from './pages/Reports/SMASummaryReport'
 import FrmUserList from './pages/user/FrmUserList'
 import FrmUserCreation from './pages/user/FrmUserCreation'
+import FrmActiveAgents from './pages/Dashboard/FrmActiveAgents'
 import FrmAccountAllocationReport from './pages/Reports/FrmAccountAllocationReport'
 import RptDaywisedata from './pages/Reports/RptDaywisedata'
 import FrmInactiveUserPincodeHistory from './pages/Reports/FrmInactiveUserPincodeHistory'
@@ -27,6 +28,7 @@ import FrmNonVisitDoneSummaryReport from './pages/Reports/FrmNonVisitDoneSummary
 import FrmVisitDoneSummaryReport from './pages/Reports/FrmVisitDoneSummaryReport'
 import FrmTransactionReport from './pages/Reports/FrmTransactionReport'
 import FrmUserCreationWeb from './pages/user/FrmUserCreationWeb'
+import FrmNewDashboard2 from './pages/Dashboard/FrmNewDashboard2'
 import FrmUserRouteReport from './pages/Reports/FrmUserRouteReport'
 import FrmUnallocatedCasesReport from './pages/Reports/FrmUnallocatedCasesReport'
 import FrmUserLocationTracking from './pages/Admin/FrmUserLocationTracking'
@@ -38,6 +40,12 @@ import FrmUserPinAllocation from './pages/user/FrmUserPinAllocation'
 import FrmUnassignCases from './pages/user/FrmUnassignCases'
 import FrmResetPassword from './pages/user/FrmResetPassword'
 import FrmChangePassword from './pages/user/FrmChangePassword'
+import FrmCompanyCreation from './pages/Company/FrmCompanyCreation'
+import CompanyList from './pages/Company/CompanyList'
+import  AgencyList from './pages/Agency/AgencyList'
+import FrmFosCreation from './pages/Fos/FrmFosCreation'
+import FosList from './pages/Fos/FosList'
+import  FrmCreateMapping from './pages/Mapping/FrmCreateMapping'
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth()
@@ -56,6 +64,31 @@ import FrmAccessofPages from './pages/user/FrmAccessofPages'
 import FrmPincodeMstrInserion from './pages/user/FrmPincodeMstrInserion'
 import FrmInactiveUserAcs from './pages/user/FrmInactiveUserAcs'
 import MapViewPage from './components/ui/MapViewPage'
+import FrmDailyVisit from './pages/Dashboard/FrmDailyVisit'
+import UsersList from './pages/user/Userlist'
+import Roles from './pages/user/Roles'
+import UserPinAllocation from './pages/user/UserPinAllocation'
+import UnAssignedPincode from './pages/user/UnAssignedPincode'
+import FrmActiveAgentsNew from './pages/Dashboard/FrmActiveAgentsNew'
+import FrmNewDashboard2New from './pages/Dashboard/FrmNewDashboard2New'
+import DailyVisitNew from './pages/Dashboard/DailyVisitNew'
+import FrmPincodeList from './pages/user/FrmPincodeList'
+import Home from './pages/Home'
+import FrmImageUploadmobapp from './pages/Admin/FrmImageUploadmobapp'
+import FrmImageUploadMobApp2 from './pages/Admin/FrmImageUploadMobApp2'
+import TwoFactor from './pages/TwoFactor'
+import Settings from './pages/Settings'
+import FrmAgencyCreation from './pages/Admin/FrmAgencyCreation'
+import FrmAgencyCreation2 from './pages/Agency/FrmAgencyCreation'
+import CompanyAgencyMapping from './pages/MappingManagement/CompanyAgencyMapping'
+import FrmExcelUpload from './pages/Admin/FrmExcelUpload'
+import EntityMappingConsole from './pages/Mapping/EntityMappingConsole'
+import FosMapping from './pages/Mapping/FosMapping'
+import CaseAllocationRules from './pages/Allocation/CaseAllocationRules'
+import AddAllocationRules from './pages/Allocation/AddAllocationRules'
+import AllocationRulePage from './pages/Allocation/AllocationRulePage'
+import AllocationWorkspace from './pages/AllocationRules/AllocationWorkspace'
+
 
 function App() {
   return (
@@ -64,12 +97,13 @@ function App() {
       <Route
         path="/"
         element={
+          // <AdminLayout />
           <ProtectedRoute>
-            <AdminLayout />
+           <AdminLayout />
           </ProtectedRoute>
         }
       >
-        <Route index element={<DashboardPage />} />
+        <Route index element={<Home />} />
         <Route path="users" element={<UsersPage />} />
         <Route path="roles" element={<RolesPage />} />
         <Route path="widgets" element={<WidgetsMenuPage />} />
@@ -81,15 +115,24 @@ function App() {
         <Route path="charts/chartjs" element={<ChartsChartJsPage />} />
         <Route path="charts/echarts" element={<ChartsEChartsPage />} />
         <Route path="reports/sma-summary" element={<SMASummaryReport />} />
-        <Route path="User/FrmUserList" element={<FrmUserList />} />
+        <Route path="user/FrmUserList" element={<FrmUserList />} />
         <Route path="User/FrmUserCreation" element={<FrmUserCreation />} />
         <Route path="User/FrmUserCreationWeb" element={<FrmUserCreationWeb />} />
+        <Route path='/home' element={<Home />} />
+        {/* Dashboard */}
+        <Route path='/Dashboard/FrmActiveAgents' element={<FrmActiveAgents />} />
+        <Route path="Dashboard/FrmNewDashboard2" element={<FrmNewDashboard2 />} />
+        <Route path='Dashboard/FrmDailyVisit' element={<FrmDailyVisit />} />
+        <Route path='/Dashboard/FrmActiveAgentsNew' element={<FrmActiveAgentsNew />} />
+        <Route path="Dashboard/FrmNewDashboard2New" element={<FrmNewDashboard2New />} />
+         <Route path='/Dashboard/DailyVisitNew' element={<DailyVisitNew />} />
         
         {/* User */}
         <Route path='/User/FrmUserModification' element={<FrmUserModification/>}/>
         <Route path="/FrmAccessofPages" element={<FrmAccessofPages />} />
         <Route path='/User/FrmPincodeMstrInserion' element={<FrmPincodeMstrInserion/>}/>
         <Route path='/User/FrmInactiveUserAcs' element={<FrmInactiveUserAcs/>}/>
+        <Route path='/pincode/FrmPincodeList' element={<FrmPincodeList />} />
 
 
 
@@ -107,12 +150,35 @@ function App() {
         <Route path="admin/user-location-tracking" element={<FrmUserLocationTracking />} />
         <Route path="admin/last-login-history" element={<FrmLastLoginHistory />} />
         <Route path="admin/bucket-setter" element={<FrmBucketSetter />} />
+        <Route path="admin/agency-creation" element={<FrmAgencyCreation />} />
+        <Route path="admin/agency-creation2" element={<FrmAgencyCreation2 />} />
+        <Route path="admin/company-creation" element={<FrmCompanyCreation />} />
+        <Route path="admin/fos-creation" element={<FrmFosCreation />} />
+        <Route path="admin/fos-list" element={<FosList />} />
+        <Route path="admin/company-list" element={<CompanyList />} />
+        <Route path="admin/agency-list" element={<AgencyList />} />
         <Route path="admin/contract-allocation" element={<FrmContractAllocation />} />
         <Route path="admin/distance-matrix" element={<FrmDistanceMatrix />} />
         <Route path="user/pin-allocation" element={<FrmUserPinAllocation />} />
         <Route path="user/unassign-cases" element={<FrmUnassignCases />} />
         <Route path="user/reset-password" element={<FrmResetPassword />} />
         <Route path="user/change-password" element={<FrmChangePassword />} />
+        <Route path="user/user-list" element={<UsersList />} />
+        <Route path="user/roles" element={<Roles />} />
+        <Route path="user/pincode-allocation" element={<UserPinAllocation />} />
+        <Route path="user/unassigned-Pincode" element={<UnAssignedPincode />} />
+        <Route path="admin/FrmImageUploadmobapp" element={<FrmImageUploadmobapp />} />
+        <Route path="admin/FrmImageUploadMobApp2" element={<FrmImageUploadMobApp2 />} />
+        <Route path='admin/settings' element={<Settings />} />
+        <Route path='admin/create-mapping' element={<FrmCreateMapping />} />
+        <Route path='admin/entity-mapping-console' element={<EntityMappingConsole />} />
+        <Route path='admin/fos-mapping' element={<FosMapping />} />
+        <Route path='admin/excel-upload' element={<FrmExcelUpload />} />
+        <Route path='allocation/case-allocation' element={<CaseAllocationRules />} />
+        <Route path='allocation/add-allocation-rules' element={<AddAllocationRules />} />
+        {/* <Route path='allocation/allocation-rule' element={<AllocationRulePage />} /> */}
+        <Route path='allocation/allocation-rule' element={<AllocationWorkspace />} />
+
       </Route>
       <Route path="/map-view" element={<MapViewPage />} />
       <Route
@@ -123,15 +189,15 @@ function App() {
             visual={
               <>
                 <Link to="/" className="fauth-logo">
-                  <img src="/assets/img/logo.webp" alt="FlexAdmin" />
+                  <img src="/assets/img/logo.png" alt="Collection Module" />
                   <span>Collection Module</span>
                 </Link>
-                <h2 className="fauth-visual-title">Command your operations from one modern control center.</h2>
-                <p className="fauth-visual-text">Track growth, team activity, and operational risk with a dashboard built for fast decisions.</p>
+                <h2 className="fauth-visual-title">Manage collection operations from one unified control center.</h2>
+                <p className="fauth-visual-text">Track field performance, collection efficiency, and risk trends with real-time operational visibility.</p>
                 <div className="fauth-visual-points">
-                  <div className="fauth-point"><i className="bi bi-graph-up-arrow" /> Real-time business insights</div>
-                  <div className="fauth-point"><i className="bi bi-shield-lock" /> Enterprise-grade account protection</div>
-                  <div className="fauth-point"><i className="bi bi-lightning-charge" /> Fast collaboration workflows</div>
+                  <div className="fauth-point"><i className="bi bi-graph-up-arrow" /> Real-time collection insights</div>
+                  <div className="fauth-point"><i className="bi bi-shield-lock" /> Secure user access and controls</div>
+                  <div className="fauth-point"><i className="bi bi-lightning-charge" /> Faster field and branch coordination</div>
                 </div>
               </>
             }
@@ -144,6 +210,7 @@ function App() {
       <Route path="/auth" element={<AuthLayout />}>
         <Route path="forgot-password" element={<AuthForgotPasswordPage />} />
         <Route path="reset-password" element={<AuthResetPasswordPage />} />
+        <Route path="/auth/two-factor-authentication" element={<TwoFactor />} />
       </Route>
 
       <Route path="/auth-login" element={<Navigate to="/auth/login" replace />} />
@@ -196,17 +263,20 @@ function App() {
       <Route path="/Admin/FrmBucketSetter" element={<Navigate to="/admin/bucket-setter" replace />} />
       <Route path="/Admin/FrmContractAllocation" element={<Navigate to="/admin/contract-allocation" replace />} />
       <Route path="/Admin/FrmDistanceMatrix" element={<Navigate to="/admin/distance-matrix" replace />} />
+      <Route path="/User/Userlist" element={<Navigate to="/user/user-list" replace />} />
+      <Route path="/User/Roles" element={<Navigate to="/user/roles" replace />} />
+      <Route path="/User/UserPinAllocation" element={<Navigate to="/user/pincode-allocation" replace />} />
 
 
 
 
 
 
-
-
-      <Route path="/User" element={<Navigate to="/User/FrmUserList" replace />} />
+      <Route path="/User" element={<Navigate to="/user/FrmUserList" replace />} />
       <Route path="/User" element={<Navigate to="/User/FrmUserCreation" replace />} />
       <Route path="/User" element={<Navigate to="User/FrmUserCreationWeb" replace />} />
+
+
       <Route path="/404" element={<Error404Page />} />
       <Route path="*" element={<Navigate to="/404" replace />} />
     </Routes>

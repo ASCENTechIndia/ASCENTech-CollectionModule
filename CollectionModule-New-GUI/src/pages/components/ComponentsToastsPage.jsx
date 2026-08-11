@@ -599,7 +599,7 @@ function ComponentsToastsPage() {
                       </div>
                       <div className="toast-body d-flex align-items-center gap-3">
                         <div className="bg-light rounded p-2" style={{width: 50, height: 50}}>
-                          <img src="/assets/img/logo.webp" alt="Product" className="img-fluid" />
+                          <img src="/assets/img/logo.png" alt="Product" className="img-fluid" />
                         </div>
                         <div className="flex-grow-1">
                           <p className="mb-0 fw-medium">Wireless Headphones</p>

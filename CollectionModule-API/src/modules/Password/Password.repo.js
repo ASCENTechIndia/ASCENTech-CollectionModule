@@ -8,7 +8,7 @@ async function resetPwd(userId) {
   const password = "Cbi2024!";
 
   await executeQuery(
-    `UPDATE etech.aoup_usermst_def
+    `UPDATE etech_cm.aoup_usermst_def
      SET var_usermst_password1 = :password
      WHERE var_usermst_userid = :userId`,
     { userId: fullUserId, password },
@@ -16,7 +16,7 @@ async function resetPwd(userId) {
   );
 
   await executeQuery(
-    `UPDATE asadmins.aoup_user_def
+    `UPDATE asadmins_cm.aoup_user_def
      SET var_user_password1 = :password
      WHERE var_user_username = :userId`,
     { userId: fullUserId, password },
@@ -32,10 +32,10 @@ async function getusertypeanddesig(userId) {
         a.var_usermst_userid,
         a.NUM_USERMST_DESGID,
         a.NUM_USERMST_USERTYPE
-    from etech.aoup_usermst_def a
-    left outer join etech.aoup_userlevelmst_def b 
+    from etech_cm.aoup_usermst_def a
+    left outer join etech_cm.aoup_userlevelmst_def b 
         on b.var_userlevelmst_id = a.var_usermst_status  
-    inner join etech.branchlist c 
+    inner join etech_cm.branchlist c 
         on c.brid = a.num_usermst_brid  
     where a.var_usermst_userid = 'E' || :userId
     and a.VAR_USERMST_STATUS != 'I'
@@ -50,7 +50,7 @@ async function getusertypeanddesig(userId) {
 async function changepwdIns(payload) {
   const statement = `
     BEGIN
-      etech.aoup_changepassword_ins(
+      etech_cm.aoup_changepassword_ins(
         :in_UserId,
         :in_OldPassword,
         :in_NewPassword, 

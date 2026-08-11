@@ -1,113 +1,315 @@
-import { Link } from 'react-router-dom'
-import { useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import ReusableDataGrid from '../../components/ReusableDataGrid'
-import apiClient from '../../services/apiClient'
-import { useNotification } from '../../context/useNotification'
+import { Link } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
+import ReusableDataGrid from "../../components/ReusableDataGrid";
+import apiClient from "../../services/apiClient";
+import { useNotification } from "../../context/useNotification";
+import DataTable from "../../components/Datatable";
+import { useLoader } from "../../context/LoaderContext";
+
+// Debounce utility
+function debounce(fn, delay) {
+  let timer = null;
+  return (...args) => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}
 
 function FrmLastLoginHistory() {
-  const { showError, showWarning } = useNotification()
+  const { showError, showWarning, showSuccess } = useNotification();
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
-      userId: '',
+      userId: "",
     },
-  })
-  const [rows, setRows] = useState([])
-  const [loading, setLoading] = useState(false)
+  });
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const { setLoader } = useLoader();
+
+  // 🔍 Search state for user name/id
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState("");
+  const [userId, setUserId] = useState("");
 
   const columns = [
-    { label: 'User ID', sortable: true },
-    { label: 'IP Address', sortable: true },
-    { label: 'Login Date', sortable: true },
-  ]
+    { label: "User ID", sortable: true },
+    { label: "IP Address", sortable: true },
+    { label: "Login Date", sortable: true },
+  ];
+
+  const columns2 = [
+    {
+      key: "userId",
+      label: "User ID",
+      sortable: true,
+      render: (val) =>
+        val ? (
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span
+              style={{
+                width: 30,
+                height: 30,
+                borderRadius: "50%",
+                background: "#e8f0fe",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <i
+                className="bi bi-person-fill"
+                style={{ color: "#1a73e8", fontSize: "0.85rem" }}
+              />
+            </span>
+            <span
+              style={{ fontSize: "0.82rem", fontWeight: 500, color: "#1e293b" }}
+            >
+              {val}
+            </span>
+          </div>
+        ) : (
+          <span className="text-muted">—</span>
+        ),
+    },
+    {
+      key: "ip",
+      label: "IP Address",
+      sortable: true,
+      render: (val) =>
+        val ? (
+          <span className="badge bg-success text-white">{val}</span>
+        ) : (
+          <span className="text-muted">-</span>
+        ),
+    },
+    { key: "logdate", label: "Login Date", sortable: true },
+  ];
 
   const tableRows = useMemo(
-    () => rows.map((item) => [item.userid, item.ipaddress, item.logdate]),
+    () =>
+      rows.map((item) => ({
+        userId: item.userid,
+        ip: item.ipaddress,
+        logdate: item.logdate,
+      })),
     [rows],
-  )
+  );
 
-  const onSubmit = async (values) => {
-    const trimmedUserId = String(values.userId || '').trim()
-
-    setLoading(true)
+  // Debounced search
+  const doSearch = debounce(async (term) => {
+    if (!term) {
+      setSearchResults([]);
+      setSearchError("");
+      // setSearchLoading(false);
+      setLoader(false);
+      return;
+    }
+    setSearchLoading(true);
+    // setLoader(true);
+    setSearchError("");
     try {
-      const response = await apiClient.get('/admin/getLastLogin', {
-        params: { userId: trimmedUserId },
-      })
+      const response = await apiClient.get("/users/search-user-by-name-id", {
+        params: { search: term },
+      });
+      if (response?.success && Array.isArray(response.data)) {
+        setSearchResults(response.data);
+      } else {
+        setSearchResults([]);
+        setSearchError("No results found");
+      }
+    } catch {
+      setSearchResults([]);
+      setSearchError("Search failed");
+    } finally {
+      setSearchLoading(false);
+      // setLoader(false);
+    }
+  }, 400);
 
-      const success = response?.success
-      const data = Array.isArray(response?.data) ? response.data : []
+  const handleSearchInput = (e) => {
+    const val = e.target.value;
+    setSearchTerm(val);
+    doSearch(val);
+  };
+
+  const handleSelectUser = (selectedUser) => {
+    setSearchTerm(selectedUser.VAR_USERMST_USERFULLNAME);
+    setSearchResults([]);
+    // Remove leading "E" if present
+    const cleanId = String(selectedUser.VAR_USERMST_USERID).replace(/^E/i, "");
+    setUserId(cleanId);
+    setValue("userId", cleanId);
+    setSearchError("");
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setSearchResults([]);
+    setSearchError("");
+    setUserId("");
+    setValue("userId", "");
+  };
+
+  const onSubmit = async () => {
+    const trimmedUserId = userId.trim();
+
+    if (!trimmedUserId) {
+      showError("User ID is required");
+      return;
+    }
+
+    // setLoading(true);
+    setLoader(true);
+    try {
+      const response = await apiClient.get("/admin/getLastLogin", {
+        params: { userId: trimmedUserId },
+      });
+
+      const success = response?.success;
+      const data = Array.isArray(response?.data) ? response.data : [];
 
       if (success && data.length > 0) {
         const mapped = data.map((item) => ({
-          userid: String(item.USERID ?? item.userid ?? ''),
-          ipaddress: String(item.IP_ADDRESS ?? item.ip_address ?? ''),
-          logdate: String(item.LOG_DATE ?? item.log_date ?? ''),
-        }))
-        setRows(mapped)
+          userid: String(item.USERID ?? item.userid ?? ""),
+          ipaddress: String(item.IP_ADDRESS ?? item.ip_address ?? ""),
+          logdate: String(item.LOG_DATE ?? item.log_date ?? ""),
+        }));
+        setRows(mapped);
+        showSuccess(`Found ${mapped.length} records`);
       } else {
-        setRows([])
-        showWarning('No data available')
+        setRows([]);
+        showWarning("No data available");
       }
     } catch (apiError) {
-      setRows([])
-      const message = apiError?.message || 'Failed to fetch login history'
-      showError(message)
+      setRows([]);
+      const message = apiError?.message || "Failed to fetch login history";
+      showError(message);
     } finally {
-      setLoading(false)
+      // setLoading(false);
+      setLoader(false);
     }
-  }
+  };
 
   return (
     <div className="main-content page-last-login-history">
       <div className="page-header">
         <h1 className="page-title">Web Users Login History</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">Home</Link>
-          <span className="breadcrumb-item">Admin</span>
-          <span className="breadcrumb-item active">Last Login History</span>
-        </nav>
       </div>
 
       <div className="card mb-4">
-        <div className="card-header">
+        <div className="card-header d-flex justify-content-between align-items-center gap-3 flex-wrap">
           <h5 className="card-title mb-0">Search</h5>
         </div>
+
         <div className="card-body">
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="row g-3 align-items-end">
-              <div className="col-md-8">
+            <div className="row g-3">
+              <div className="col-md-6">
+                {/* 🔍 User search input (name or ID) */}
+                <label htmlFor="userId" className="form-label">
+                  Search name or userId<span className="text-danger">*</span>
+                </label>
+                <div
+                  className="position-relative"
+                  style={{
+                    width: "100%",
+                  }}
+                >
+                  <div className="input-group position-relative">
+                    <span className="input-group-text bg-white border-end-0">
+                      <i className="bi bi-search text-muted"></i>
+                    </span>
+                    <input
+                      type="text"
+                      className="form-control border-start-0 pe-5"
+                      placeholder="Type name or user ID..."
+                      value={searchTerm}
+                      onChange={handleSearchInput}
+                      autoComplete="off"
+                    />
+                    {searchTerm && (
+                      <button
+                        type="button"
+                        onClick={handleClearSearch}
+                        className="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 p-0"
+                      >
+                        <i className="bi bi-x-circle text-muted"></i>
+                      </button>
+                    )}
+                  </div>
+
+                  {searchLoading && (
+                    <div className="spinner-border spinner-border-sm position-absolute end-0 top-50 translate-middle-y me-2" />
+                  )}
+
+                  {searchResults.length > 0 && (
+                    <ul
+                      className="list-group position-absolute w-100 shadow z-3"
+                      style={{ maxHeight: 180, overflowY: "auto", top: "100%" }}
+                    >
+                      {searchResults.map((userItem, idx) => (
+                        <li
+                          key={userItem.VAR_USERMST_USERID || idx}
+                          className="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-2 px-2"
+                          style={{ cursor: "pointer", fontSize: "13px" }}
+                          onClick={() => handleSelectUser(userItem)}
+                        >
+                          <div className="d-flex flex-column">
+                            <span className="fw-medium">
+                              {userItem.VAR_USERMST_USERFULLNAME}
+                            </span>
+                            <small className="text-muted">
+                              {userItem.VAR_USERMST_USERID}
+                            </small>
+                          </div>
+                          <i className="bi bi-person text-primary"></i>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {searchError && (
+                    <div className="text-danger small mt-1">{searchError}</div>
+                  )}
+                </div>
+              </div>
+              <div className="col-md-6">
                 <label htmlFor="userId" className="form-label">
                   User ID <span className="text-danger">*</span>
                 </label>
                 <input
                   id="userId"
                   type="text"
-                  className={`form-control ${errors.userId ? 'is-invalid' : ''}`}
-                  placeholder="Enter User ID"
-                  maxLength={20}
-                  inputMode="numeric"
+                  className={`form-control ${errors.userId ? "is-invalid" : ""}`}
+                  placeholder="Select from search"
+                  readOnly
                   value={userId}
-                  {...register('userId', {
-                    required: 'Enter User ID',
-                    pattern: {
-                      value: /^\d+$/,
-                      message: 'User ID must contain numbers only',
-                    },
-                    onChange: (event) => setUserId(event.target.value.replace(/\D/g, '')),
-                  })}
+                  {...register("userId", { required: "User ID is required" })}
                 />
-                {errors.userId && <div className="invalid-feedback">{errors.userId.message}</div>}
+                {errors.userId && (
+                  <div className="invalid-feedback">
+                    {errors.userId.message}
+                  </div>
+                )}
               </div>
-              <div className="col-md-4 d-grid">
-                <button type="submit" className="btn btn-primary" disabled={loading}>
-                  {loading ? 'Searching...' : 'Search'}
-                </button>
-              </div>
+            </div>
+            <div className="d-flex justify-content-center mt-4">
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={loading}
+              >
+                {loading ? "Searching..." : "Search"}
+              </button>
             </div>
           </form>
         </div>
@@ -116,12 +318,18 @@ function FrmLastLoginHistory() {
       {tableRows.length > 0 && (
         <div className="card">
           <div className="card-body">
-            <ReusableDataGrid rows={tableRows} columns={columns} pageSize={10} />
+            <DataTable
+              data={tableRows}
+              columns={columns2}
+              defaultPerPage={10}
+              title="Last Login History"
+              csvFilename="Last_login_history.csv"
+            />
           </div>
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default FrmLastLoginHistory
+export default FrmLastLoginHistory;

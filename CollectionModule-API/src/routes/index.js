@@ -10,7 +10,14 @@ const dispositionDashboardRoutes = require('../modules/Dashboard/DispositionDash
 const reportRoutes = require('../modules/Reports/Reports.routes');
 const dailyVisitRoutes = require('../modules/Dashboard/DailyVisit/dailyVisit.routes');
 const transactionReportRoutes = require('../modules/TransactionReport/TransactionReport.routes');
-
+const imageUploadMobAppRoutes = require('../modules/ImageUploadMobApp/ImageUploadMobApp.routes');
+const userCreationRoutes = require('../modules/UserCreation/userCreation.routes');
+const webCreationRoutes = require('../modules/WebUserCreation/webUserCreation.routes');
+const agencyCreationRoutes = require('../modules/AgencyCreation/agencyCreation.routes');
+const companyRoutes = require('../modules/Company/company.routes');
+const mappingRoutes = require('../modules/Mapping/mapping.routes');
+const excelUploadRoutes = require('../modules/ExcelUpload/ExcelUpload.routes');
+const allocationRulesRoutes = require("../modules/AllocationRules/allocationRules.routes")
 const router = express.Router();
 
 router.get('/health', (req, res) => {
@@ -37,5 +44,14 @@ router.use('/inactive-user-accounts', inactiveUserAccountsRoutes);
 router.use('/active-agents', activeAgentsRoutes);
 router.use('/disposition-dashboard', dispositionDashboardRoutes);
 router.use('/daily-visit', dailyVisitRoutes);
+router.use('/image-upload-mobapp', imageUploadMobAppRoutes);
+router.use('/user-creation', userCreationRoutes);
+router.use('/web-creation', webCreationRoutes);
+router.use('/agency-creation', agencyCreationRoutes);
+router.use('/company', companyRoutes);
+router.use('/mapping', mappingRoutes);
+router.use('/excel-upload', excelUploadRoutes);
+router.use("/allocation", allocationRulesRoutes)
+
 
 module.exports = router;

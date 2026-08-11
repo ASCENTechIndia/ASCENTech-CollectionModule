@@ -89,6 +89,14 @@ const agentSchema = z.object({
   brid:z.string().trim().min(1)
 })
 
+const agentSchemaNew = z.object({
+  brid: z.string().optional(),
+  status: z.enum(['A', 'I']).optional(),   // Active / Inactive
+  roleId: z.string().optional(),
+  page: z.string().optional(),
+  limit: z.string().optional()
+});
+
 const numericString = z.string().trim().regex(/^\d+$/, 'Only numeric value allowed');
 
 const mobileUserSubmitSchema = z.object({
@@ -167,6 +175,14 @@ const pageAccessUpdateSchema = z.object({
   menuIds: z.array(z.union([z.coerce.number().int(), z.string().trim().min(1)])).default([]),
 });
 
+const userLookupSchema = z.object({
+  search: z
+    .string()
+    .trim()
+    .min(1, "Search value is required")
+    .max(50, "Too long input"),
+});
+
 module.exports = {
   createUserSchema,
   createWebUserSchema,
@@ -186,4 +202,6 @@ module.exports = {
   userModifyStatusSubmitSchema,
   pageAccessQuerySchema,
   pageAccessUpdateSchema,
+  agentSchemaNew,
+  userLookupSchema
 };

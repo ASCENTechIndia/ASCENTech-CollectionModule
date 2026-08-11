@@ -40,10 +40,10 @@
 }
 
 /* Page Header */
-.page-header,
-.pagetitle {
-  margin-bottom: var(--spacing-xl);
-}
+// .page-header,
+// .pagetitle {
+//   margin-bottom: var(--spacing-xl);
+// }
 
 .page-header {
   display: flex;
@@ -60,7 +60,7 @@
 
 .page-title,
 .pagetitle h1 {
-  font-size: 1.5rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: var(--heading-color);
   margin: 0 0 var(--spacing-sm);

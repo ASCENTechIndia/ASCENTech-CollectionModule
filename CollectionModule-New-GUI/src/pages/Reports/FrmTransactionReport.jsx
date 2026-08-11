@@ -1,11 +1,20 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import ReusableDataGrid from '../../components/ReusableDataGrid'
-import ImageViewer from '../../components/ui/ImageViewer'
-import apiClient from '../../services/apiClient'
-import { useAuth } from '../../context/AuthContext'
-import { useNotification } from '../../context/useNotification'
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import ImageViewer from "../../components/ui/ImageViewer";
+import apiClient from "../../services/apiClient";
+import { useAuth } from "../../context/AuthContext";
+import { useNotification } from "../../context/useNotification";
+import DataTable from "../../components/Datatable";
+import { useLoader } from "../../context/LoaderContext";
+
+function debounce(fn, delay) {
+  let timer = null;
+  return (...args) => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}
 
 const formatDateForAPI = (dateStr) => {
   if (!dateStr) return "";
@@ -13,35 +22,47 @@ const formatDateForAPI = (dateStr) => {
   return `${day}/${month}/${year}`;
 };
 
-const getPayload = (response) => response?.data ?? response ?? {}
+const formatToDDMMYYYY = (isoString) => {
+  if (!isoString) return "";
+  const date = new Date(isoString);
+  if (isNaN(date)) return "";
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
+const getPayload = (response) => response?.data ?? response ?? {};
 const getDataRows = (response) => {
   const payload = getPayload(response);
-
   if (Array.isArray(payload)) return payload;
   if (Array.isArray(payload?.data)) return payload.data;
   if (Array.isArray(payload?.data?.data)) return payload.data.data;
   if (Array.isArray(payload?.rows)) return payload.rows;
-
   return [];
 };
 
 function FrmTransactionReport() {
-  const navigate = useNavigate()
-  const { user } = useAuth()
-  const { showError, showSuccess, showWarning } = useNotification()
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { setLoader } = useLoader();
+  const { showError, showSuccess, showWarning } = useNotification();
   const {
     register,
     handleSubmit: handleFormSubmit,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
-      fromDate: '',
-      toDate: '',
-      userId: '',
+      fromDate: "",
+      toDate: "",
+      userId: "",
     },
-  })
-  const brid = user?.brid ?? user?.BRID ?? user?.num_usermst_brid ?? null
-  const brCategory = user?.brCategory ?? user?.brcategory ?? user?.BRCATEGORY ?? null
+  });
+
+  const brid = user?.brid ?? user?.BRID ?? user?.num_usermst_brid ?? null;
+  const brCategory =
+    user?.brCategory ?? user?.brcategory ?? user?.BRCATEGORY ?? null;
 
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -63,28 +84,151 @@ function FrmTransactionReport() {
   const [loadingBranches, setLoadingBranches] = useState(false);
   const [loadingCollection, setLoadingCollection] = useState(false);
 
-  const [rows, setRows] = useState([])
-  const [searching, setSearching] = useState(false)
-  const [error, setError] = useState('')
+  const [rows, setRows] = useState([]);
+  const [rows2, setRows2] = useState([]);
+  const [searching, setSearching] = useState(false);
+  const [error, setError] = useState("");
 
   const [selectedImageCode, setSelectedImageCode] = useState("");
   const [showImageViewer, setShowImageViewer] = useState(false);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState("");
+
+  const [dateRangeOption, setDateRangeOption] = useState("currentMonth");
+
+  const getTodayDate = () => new Date().toISOString().split("T")[0];
+  const getFirstDay = (year, monthIndex) =>
+    `${year}-${String(monthIndex + 1).padStart(2, "0")}-01`;
+  const getLastDay = (year, monthIndex) => {
+    const lastDay = new Date(year, monthIndex + 1, 0).getDate();
+    return `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+  };
+
+  const updateDatesFromOption = (option) => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+
+    if (option === "currentMonth") {
+      const firstDay = getFirstDay(currentYear, currentMonth);
+      const today = getTodayDate();
+      setFromDate(firstDay);
+      setToDate(today);
+      setValue("fromDate", firstDay);
+      setValue("toDate", today);
+    } else if (option === "lastMonth") {
+      const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+      const lastMonthIndex = currentMonth === 0 ? 11 : currentMonth - 1;
+      const firstDay = getFirstDay(lastMonthYear, lastMonthIndex);
+      const lastDay = getLastDay(lastMonthYear, lastMonthIndex);
+      setFromDate(firstDay);
+      setToDate(lastDay);
+      setValue("fromDate", firstDay);
+      setValue("toDate", lastDay);
+    } else if (option === "lastThreeMonths") {
+      let startYear = currentYear;
+      let startMonth = currentMonth - 2;
+      if (startMonth < 0) {
+        startYear = currentYear - 1;
+        startMonth += 12;
+      }
+      const startFirstDay = getFirstDay(startYear, startMonth);
+      const endYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+      const endMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+      const endLastDay = getLastDay(endYear, endMonth);
+      setFromDate(startFirstDay);
+      setToDate(endLastDay);
+      setValue("fromDate", startFirstDay);
+      setValue("toDate", endLastDay);
+    }
+  };
+
+  const handleDateRangeChange = (e) => {
+    const option = e.target.value;
+    setDateRangeOption(option);
+    updateDatesFromOption(option);
+  };
+
+  // Set default dates on mount (today) and dateRangeOption to currentMonth
+  useEffect(() => {
+    const today = getTodayDate();
+    setFromDate(today);
+    setToDate(today);
+    setValue("fromDate", today);
+    setValue("toDate", today);
+    setDateRangeOption("currentMonth");
+  }, []);
 
   const transactionTypeOptions = [
     { label: "Collection", value: "1" },
     { label: "Feedback", value: "2" },
   ];
-
   const smaTypeOptions = [
     { value: "SMA1", label: "SMA1" },
     { value: "SMA2", label: "SMA2" },
   ];
 
+  // User search debounced API
+  const doSearch = debounce(async (term) => {
+    if (!term) {
+      setSearchResults([]);
+      setSearchError("");
+      setSearchLoading(false);
+      return;
+    }
+    setSearchLoading(true);
+    setSearchError("");
+    try {
+      const response = await apiClient.get("/users/search-user-by-name-id", {
+        params: { search: term },
+      });
+      if (response?.success && Array.isArray(response.data)) {
+        setSearchResults(response.data);
+      } else {
+        setSearchResults([]);
+        setSearchError("No results found");
+      }
+    } catch {
+      setSearchResults([]);
+      setSearchError("Search failed");
+    } finally {
+      setSearchLoading(false);
+    }
+  }, 400);
+
+  const handleSearchInput = (e) => {
+    const val = e.target.value;
+    setSearchTerm(val);
+    doSearch(val);
+  };
+
+  const handleSelectUser = (selectedUser) => {
+    setSearchTerm(selectedUser.VAR_USERMST_USERFULLNAME);
+    setSearchResults([]);
+    const cleanId = String(selectedUser.VAR_USERMST_USERID).replace(/^E/i, "");
+    setUserId(cleanId);
+    setValue("userId", cleanId);
+    setSearchError("");
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setSearchResults([]);
+    setSearchError("");
+    setUserId("");
+    setValue("userId", "");
+  };
+
+  // Dropdown fetches
   useEffect(() => {
     const fetchZones = async () => {
       if (brid === null || brCategory === null) return;
       setLoadingZones(true);
       try {
+        setLoader(true);
         const res = await apiClient.get("/transactionReports/getZones", {
           params: { brid, brcategory: brCategory },
         });
@@ -111,6 +255,7 @@ function FrmTransactionReport() {
         setError(apiError?.message || "Failed to load zones");
       } finally {
         setLoadingZones(false);
+        setLoader(false);
       }
     };
     fetchZones();
@@ -129,6 +274,7 @@ function FrmTransactionReport() {
       }
       setLoadingRegions(true);
       try {
+        setLoader(true);
         const res = await apiClient.get("/transactionReports/getRegions", {
           params: { zoneId: zone, brid, brcategory: brCategory },
         });
@@ -158,6 +304,7 @@ function FrmTransactionReport() {
         setError(apiError?.message || "Failed to load regions");
       } finally {
         setLoadingRegions(false);
+        setLoader(false);
       }
     };
     fetchRegions();
@@ -174,6 +321,7 @@ function FrmTransactionReport() {
       }
       setLoadingBranches(true);
       try {
+        setLoader(true);
         const res = await apiClient.get("/transactionReports/getBranches", {
           params: { regionId: region, brid, brcategory: brCategory },
         });
@@ -203,6 +351,7 @@ function FrmTransactionReport() {
         setError(apiError?.message || "Failed to load branches");
       } finally {
         setLoadingBranches(false);
+        setLoader(false);
       }
     };
     fetchBranches();
@@ -216,14 +365,12 @@ function FrmTransactionReport() {
         return;
       }
       const bridParam = String(branch || region || zone || "");
-
       setLoadingCollection(true);
       try {
+        setLoader(true);
         const res = await apiClient.get(
           "/transactionReports/getCollAssociate",
-          {
-            params: { brid: bridParam },
-          },
+          { params: { brid: bridParam } },
         );
         const dataArray = getDataRows(res);
         if (dataArray.length > 0) {
@@ -239,7 +386,6 @@ function FrmTransactionReport() {
                 item.VAR_USERMST_USERID ||
                 item.var_usermst_userid ||
                 optionValue;
-
               return {
                 value: String(optionValue),
                 label: String(optionLabel),
@@ -258,6 +404,7 @@ function FrmTransactionReport() {
         setError(apiError?.message || "Failed to load collection associates");
       } finally {
         setLoadingCollection(false);
+        setLoader(false);
       }
     };
     fetchCollectionAssociates();
@@ -293,20 +440,46 @@ function FrmTransactionReport() {
     window.open(`/map-view?lat=${lat.trim()}&lng=${lng.trim()}`, "_blank");
   };
 
-  // Handle numeric input only for User ID
-  const handleUserIdChange = (event) => {
-    const numericValue = event.target.value.replace(/\D/g, "");
-    setUserId(numericValue);
-  };
+  function formatDateToAbbr(dateStr) {
+    const parts = dateStr.split("/");
+    if (parts.length !== 3) return dateStr;
+    const day = parts[0].padStart(2, "0");
+    const month = parseInt(parts[1], 10);
+    const year = parts[2];
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    if (month < 1 || month > 12) return dateStr;
+    const monthAbbr = monthNames[month - 1];
+    return `${day}-${monthAbbr}-${year}`;
+  }
 
+  // Main search
   const handleSearch = async () => {
-    setError('')
-
+    setError("");
     const fromDateFormatted = fromDate ? formatDateForAPI(fromDate) : "";
     const toDateFormatted = toDate ? formatDateForAPI(toDate) : "";
 
-    const zoneName = zoneOptions.find((opt) => opt.value == zone)?.label || ''
-    const regionName = regionOptions.find((opt) => opt.value == region)?.label || ''
+    if (!fromDateFormatted || !toDateFormatted) {
+      showError("From Date and To Date are required");
+      setError("From Date and To Date are required");
+      return;
+    }
+
+    const zoneName = zoneOptions.find((opt) => opt.value == zone)?.label || "";
+    const regionName =
+      regionOptions.find((opt) => opt.value == region)?.label || "";
 
     const params = {
       fromDate: fromDateFormatted,
@@ -314,7 +487,7 @@ function FrmTransactionReport() {
       zoneName,
       regionName,
       brid: branch,
-      userId: trimmedUserId,
+      userId: userId.trim(),
       associateId: collectionAssociated || "",
       transtype: transactionType || "",
       smaType: smaType || "",
@@ -325,17 +498,13 @@ function FrmTransactionReport() {
     setRows([]);
 
     try {
+      setLoader(true);
       const response = await apiClient.get(
         "/transactionReports/getTransDetails",
-        {
-          params,
-        },
+        { params },
       );
-      console.log("trans :", response);
-
       const success = response?.success;
       const apiData = response?.data;
-      console.log("api data");
 
       if (success && apiData && apiData.length > 0) {
         const mappedRows = apiData.map((item) => [
@@ -359,12 +528,34 @@ function FrmTransactionReport() {
           item.VAR_BANKDATA_DPDBUCKET || "",
           item.VISITSTSTS || "",
         ]);
+        const mappedRows2 = apiData.map((item) => ({
+          userId: item.USERID || "",
+          collectionassociate: item.USERNAME || "",
+          transactionId: item.TRANSID || "",
+          accountNumber: item.CONTRACTNUM || "",
+          distanceKm: item.DIST_VAR_BANKDATA_MATRIX_DISTANCE || "",
+          customerName: item.CUSTNAME || "",
+          mobileNo: item.MOBILENO || "",
+          overdueamount: item.COLLECTAMOUNT || "",
+          feedback: item.FEEDBACK || "",
+          paymode: item.PAYMODE || "",
+          amount: item.PAIDAMT || "",
+          ptpdate: item.PTPDATE || "",
+          transactiondate: formatDateToAbbr(item.TRANS_DATE) || "",
+          transactiontime: item.TRANS_TIME || "",
+          view: item.IMAGECODE || "",
+          geolocation: item.GOLOCATION || "",
+          mdmid: item.MDM_ID || "",
+          smatype: item.VAR_BANKDATA_DPDBUCKET || "",
+          transactiontype: item.VISITSTSTS || "",
+        }));
         setRows(mappedRows);
+        setRows2(mappedRows2);
         showSuccess(`Found ${mappedRows.length} records`);
       } else {
-        setRows([])
-        showWarning('No records found')
-        setError('No records found')
+        setRows([]);
+        showWarning("No records found");
+        setError("No records found");
       }
     } catch (apiError) {
       setRows([]);
@@ -380,27 +571,148 @@ function FrmTransactionReport() {
       );
     } finally {
       setSearching(false);
+      setLoader(false);
     }
   };
 
-  const columns = [
-    { label: "User Id", sortable: true, field: "userId" },
-    { label: "Collection Associate", sortable: true },
-    { label: "Transaction Id", sortable: true },
-    { label: "Account Number", sortable: true },
-    { label: "Distance KM", sortable: true },
-    { label: "Customer Name", sortable: true },
-    { label: "Customer RMN", sortable: true },
-    { label: "OverDue Amount", sortable: true },
-    { label: "Feedback", sortable: true },
-    { label: "Payment Mode", sortable: true },
-    { label: "Amount", sortable: true },
-    { label: "PTP Date", sortable: true },
-    { label: "Transaction date", sortable: true },
-    { label: "Transaction Time", sortable: true },
+  const columns2 = [
     {
+      key: "userId",
+      label: "User ID",
+      render: (val) =>
+        val ? (
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span
+              style={{
+                width: 30,
+                height: 30,
+                borderRadius: "50%",
+                background: "#e8f0fe",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <i
+                className="bi bi-person-fill"
+                style={{ color: "#1a73e8", fontSize: "0.85rem" }}
+              />
+            </span>
+            <span
+              style={{ fontSize: "0.82rem", fontWeight: 500, color: "#1e293b" }}
+            >
+              {val}
+            </span>
+          </div>
+        ) : (
+          <span className="text-muted">—</span>
+        ),
+    },
+    { key: "collectionassociate", label: "Collection Associate" },
+    {
+      key: "transactionId",
+      label: "Transaction ID",
+      render: (val) =>
+        val ? (
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "5px",
+              background: "#f8f9fa",
+              color: "#495057",
+              padding: "3px 10px",
+              borderRadius: "6px",
+              fontSize: "0.78rem",
+              fontFamily: "monospace",
+              border: "1px solid #dee2e6",
+              letterSpacing: "0.03em",
+            }}
+          >
+            <i
+              className="bi bi-file-earmark-text"
+              style={{ color: "#6c757d" }}
+            />
+            {val}
+          </span>
+        ) : (
+          <span className="text-muted">—</span>
+        ),
+    },
+    {
+      key: "accountNumber",
+      label: "Account Number",
+      render: (val) => (
+        <span className="badge bg-success text-white">{val}</span>
+      ),
+    },
+    {
+      key: "distanceKm",
+      label: "Distance KM",
+      render: (val) =>
+        val ? <span>{val}</span> : <span className="text-muted">-</span>,
+    },
+    {
+      key: "customerName",
+      label: "Customer Name",
+      render: (val) =>
+        val ? <span>{val}</span> : <span className="text-muted">-</span>,
+    },
+    {
+      key: "mobileNo",
+      label: "Customer RMN",
+      render: (val) =>
+        val ? <span>{val}</span> : <span className="text-muted">-</span>,
+    },
+    {
+      key: "overdueamount",
+      label: "Overdue Amount",
+      render: (val) => <span>₹ {val}</span>,
+    },
+    {
+      key: "feedback",
+      label: "Feedback",
+      render: (val) =>
+        val ? <span>{val}</span> : <span className="text-muted">-</span>,
+    },
+    {
+      key: "paymode",
+      label: "Payment Mode",
+      render: (val) =>
+        val ? <span>{val}</span> : <span className="text-muted">-</span>,
+    },
+    {
+      key: "amount",
+      label: "Amount",
+      render: (val) =>
+        val ? <span>{val}</span> : <span className="text-muted">-</span>,
+    },
+    {
+      key: "ptpdate",
+      label: "PTP Date",
+      render: (val) =>
+        val ? (
+          <span>{formatToDDMMYYYY(val)}</span>
+        ) : (
+          <span className="text-muted">-</span>
+        ),
+    },
+    {
+      key: "transactiondate",
+      label: "Transaction Date",
+      render: (val) =>
+        val ? <span>{val}</span> : <span className="text-muted">-</span>,
+    },
+    {
+      key: "transactiontime",
+      label: "Transaction Time",
+      render: (val) =>
+        val ? <span>{val}</span> : <span className="text-muted">-</span>,
+    },
+    {
+      key: "view",
       label: "View",
-      sortable: false,
       render: (value) => (
         <button
           type="button"
@@ -412,8 +724,8 @@ function FrmTransactionReport() {
       ),
     },
     {
+      key: "geolocation",
       label: "Geolocation",
-      sortable: false,
       render: (value) => (
         <button
           type="button"
@@ -424,69 +736,190 @@ function FrmTransactionReport() {
         </button>
       ),
     },
-    { label: "MDM ID", sortable: true },
-    { label: "SMA TYPE", sortable: true },
-    { label: "Transaction Type", sortable: true },
+    {
+      key: "mdmid",
+      label: "MDM ID",
+      render: (val) =>
+        val ? <span>{val}</span> : <span className="text-muted">-</span>,
+    },
+    {
+      key: "smatype",
+      label: "SMA Type",
+      render: (val) =>
+        val === "SMA1" ? (
+          <span className="badge bg-info text-white">{val}</span>
+        ) : (
+          <span className="badge bg-primary text-white">{val}</span>
+        ),
+    },
+    {
+      key: "transactiontype",
+      label: "Transaction Type",
+      render: (val) =>
+        val ? <span>{val}</span> : <span className="text-muted">-</span>,
+    },
   ];
-
-  // Validation helper for User ID red border (only after search and non-numeric)
-  const isUserIdInvalid =
-    searched && userId.trim() && !/^\d+$/.test(userId.trim());
 
   return (
     <div className="main-content page-transaction-report">
       <div className="page-header">
-        <h1 className="page-title">Transaction Report</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">
-            Home
-          </Link>
-          <span className="breadcrumb-item">Reports</span>
-          <span className="breadcrumb-item active">Transaction Report</span>
-        </nav>
+        <h1 className="page-title">
+          Transaction Report
+          <span className="info-icon">
+            <i className="bi bi-info-circle-fill text-muted"></i>
+            <span className="info-icon-text">
+              This report displays transaction details including user, account,
+              amount, feedback, location, and image.
+            </span>
+          </span>
+        </h1>
       </div>
 
       <div className="card mb-4">
-        <div className="card-header">
+        <div className="card-header d-flex justify-content-between align-items-center gap-3 flex-wrap">
           <h5 className="card-title mb-0">Search Filters</h5>
         </div>
+
         <div className="card-body">
           <form onSubmit={handleFormSubmit(handleSearch)}>
             <div className="row g-3">
-              <div className="col-md-6">
+              <div className="col-md-4">
+                <label className="form-label">Date Range Preset</label>
+                <select
+                  className="form-select"
+                  value={dateRangeOption}
+                  onChange={handleDateRangeChange}
+                >
+                  <option value="currentMonth">Current Month</option>
+                  <option value="lastMonth">Last Month</option>
+                  <option value="lastThreeMonths">Last Three Months</option>
+                </select>
+              </div>
+              <div className="col-md-4">
                 <label htmlFor="fromDate" className="form-label">
                   From Date <span className="text-danger">*</span>
                 </label>
                 <input
                   id="fromDate"
                   type="date"
-                  className={`form-control ${errors.fromDate ? 'is-invalid' : ''}`}
+                  className={`form-control ${errors.fromDate ? "is-invalid" : ""}`}
                   value={fromDate}
-                  {...register('fromDate', {
-                    required: 'From Date is required',
-                    onChange: (event) => setFromDate(event.target.value),
+                  {...register("fromDate", {
+                    required: "From Date is required",
+                    onChange: (e) => setFromDate(e.target.value),
                   })}
                 />
-                {errors.fromDate && <div className="invalid-feedback">{errors.fromDate.message}</div>}
+                {errors.fromDate && (
+                  <div className="invalid-feedback">
+                    {errors.fromDate.message}
+                  </div>
+                )}
               </div>
 
-              <div className="col-md-6">
+              <div className="col-md-4">
                 <label htmlFor="toDate" className="form-label">
                   To Date <span className="text-danger">*</span>
                 </label>
                 <input
                   id="toDate"
                   type="date"
-                  className={`form-control ${errors.toDate ? 'is-invalid' : ''}`}
+                  className={`form-control ${errors.toDate ? "is-invalid" : ""}`}
                   value={toDate}
-                  {...register('toDate', {
-                    required: 'To Date is required',
-                    onChange: (event) => setToDate(event.target.value),
+                  {...register("toDate", {
+                    required: "To Date is required",
+                    onChange: (e) => setToDate(e.target.value),
                   })}
                 />
-                {errors.toDate && <div className="invalid-feedback">{errors.toDate.message}</div>}
+                {errors.toDate && (
+                  <div className="invalid-feedback">
+                    {errors.toDate.message}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="row g-3 mt-2">
+              <div className="col-md-6">
+                <label className="form-label">Search name or userId</label>
+                <div style={{ width: "100%" }}>
+                  <div className="input-group position-relative">
+                    <span className="input-group-text bg-white border-end-0">
+                      <i className="bi bi-search text-muted"></i>
+                    </span>
+                    <input
+                      type="text"
+                      className="form-control border-start-0 pe-5"
+                      placeholder="Type name or user ID..."
+                      value={searchTerm}
+                      onChange={handleSearchInput}
+                      autoComplete="off"
+                    />
+                    {searchTerm && (
+                      <button
+                        type="button"
+                        onClick={handleClearSearch}
+                        className="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 p-0"
+                      >
+                        <i className="bi bi-x-circle text-muted"></i>
+                      </button>
+                    )}
+                  </div>
+                  {searchLoading && (
+                    <div className="spinner-border spinner-border-sm position-absolute end-0 top-50 translate-middle-y me-2" />
+                  )}
+                  {searchResults.length > 0 && (
+                    <ul
+                      className="list-group position-absolute w-100 shadow z-3"
+                      style={{ maxHeight: 180, overflowY: "auto", top: "100%" }}
+                    >
+                      {searchResults.map((userItem, idx) => (
+                        <li
+                          key={userItem.VAR_USERMST_USERID || idx}
+                          className="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-2 px-2"
+                          style={{ cursor: "pointer", fontSize: "13px" }}
+                          onClick={() => handleSelectUser(userItem)}
+                        >
+                          <div className="d-flex flex-column">
+                            <span className="fw-medium">
+                              {userItem.VAR_USERMST_USERFULLNAME}
+                            </span>
+                            <small className="text-muted">
+                              {userItem.VAR_USERMST_USERID}
+                            </small>
+                          </div>
+                          <i className="bi bi-person text-primary"></i>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {searchError && (
+                    <div className="text-danger small mt-1">{searchError}</div>
+                  )}
+                </div>
               </div>
 
+              <div className="col-md-6">
+                <label htmlFor="userId" className="form-label">
+                  User Id
+                </label>
+                <input
+                  id="userId"
+                  type="text"
+                  className={`form-control ${errors.userId ? "is-invalid" : ""}`}
+                  value={userId}
+                  placeholder="Select from search"
+                  readOnly
+                  {...register("userId")}
+                />
+                {errors.userId && (
+                  <div className="invalid-feedback">
+                    {errors.userId.message}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="row g-3 mt-2">
               <div className="col-md-6">
                 <label htmlFor="zone" className="form-label">
                   Zone
@@ -495,7 +928,7 @@ function FrmTransactionReport() {
                   id="zone"
                   className="form-select"
                   value={zone}
-                  onChange={(event) => setZone(event.target.value)}
+                  onChange={(e) => setZone(e.target.value)}
                   disabled={loadingZones}
                 >
                   <option value="">Select Zone</option>
@@ -515,7 +948,7 @@ function FrmTransactionReport() {
                   id="region"
                   className="form-select"
                   value={region}
-                  onChange={(event) => setRegion(event.target.value)}
+                  onChange={(e) => setRegion(e.target.value)}
                   disabled={!zone || loadingRegions}
                 >
                   <option value="">Select Region</option>
@@ -526,7 +959,9 @@ function FrmTransactionReport() {
                   ))}
                 </select>
               </div>
+            </div>
 
+            <div className="row g-3 mt-2">
               <div className="col-md-6">
                 <label htmlFor="branch" className="form-label">
                   Branch
@@ -535,7 +970,7 @@ function FrmTransactionReport() {
                   id="branch"
                   className="form-select"
                   value={branch}
-                  onChange={(event) => setBranch(event.target.value)}
+                  onChange={(e) => setBranch(e.target.value)}
                   disabled={!region || loadingBranches}
                 >
                   <option value="">Select Branch</option>
@@ -546,27 +981,6 @@ function FrmTransactionReport() {
                   ))}
                 </select>
               </div>
-
-              <div className="col-md-6">
-                <label htmlFor="userId" className="form-label">
-                  User Id
-                </label>
-                <input
-                  id="userId"
-                  type="text"
-                  className={`form-control ${errors.userId ? 'is-invalid' : ''}`}
-                  value={userId}
-                  placeholder="Enter User Id"
-                  inputMode="numeric"
-                  maxLength={20}
-                  {...register('userId', {
-                    validate: (value) => !value || /^\d+$/.test(value) || 'User ID must contain numbers only',
-                    onChange: (event) => setUserId(event.target.value.replace(/\D/g, '')),
-                  })}
-                />
-                {errors.userId && <div className="invalid-feedback">{errors.userId.message}</div>}
-              </div>
-
               <div className="col-md-6">
                 <label htmlFor="collectionAssociated" className="form-label">
                   Collection Associate
@@ -575,9 +989,7 @@ function FrmTransactionReport() {
                   id="collectionAssociated"
                   className="form-select"
                   value={collectionAssociated}
-                  onChange={(event) =>
-                    setCollectionAssociated(event.target.value)
-                  }
+                  onChange={(e) => setCollectionAssociated(e.target.value)}
                   disabled={!zone || loadingCollection}
                 >
                   <option value="">Select Collection Associate</option>
@@ -588,7 +1000,9 @@ function FrmTransactionReport() {
                   ))}
                 </select>
               </div>
+            </div>
 
+            <div className="row g-3 mt-2">
               <div className="col-md-6">
                 <label htmlFor="transactionType" className="form-label">
                   Transaction Type
@@ -597,7 +1011,7 @@ function FrmTransactionReport() {
                   id="transactionType"
                   className="form-select"
                   value={transactionType}
-                  onChange={(event) => setTransactionType(event.target.value)}
+                  onChange={(e) => setTransactionType(e.target.value)}
                 >
                   <option value="">Select Transaction Type</option>
                   {transactionTypeOptions.map((opt) => (
@@ -616,7 +1030,7 @@ function FrmTransactionReport() {
                   id="smaType"
                   className="form-select"
                   value={smaType}
-                  onChange={(event) => setSmaType(event.target.value)}
+                  onChange={(e) => setSmaType(e.target.value)}
                 >
                   <option value="">Select SMA Type</option>
                   {smaTypeOptions.map((opt) => (
@@ -648,17 +1062,16 @@ function FrmTransactionReport() {
         </div>
       </div>
 
-      {error && (
-        <div className="alert alert-danger" role="alert">
-          <i className="bi bi-exclamation-triangle me-2" />
-          {error}
-        </div>
-      )}
-
       {rows.length > 0 && (
         <div className="card">
           <div className="card-body">
-            <ReusableDataGrid rows={rows} columns={columns} pageSize={10} />
+            <DataTable
+              title="Transaction Report Table"
+              csvFilename="transaction_report.csv"
+              data={rows2}
+              columns={columns2}
+              defaultPerPage={10}
+            />
           </div>
         </div>
       )}

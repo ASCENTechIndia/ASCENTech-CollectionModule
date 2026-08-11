@@ -1,13 +1,19 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams, useNavigate } from 'react-router-dom'
+import authService from '../services/authService'
 
 function AuthResetPasswordPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState('')
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const userId = searchParams.get('userId')
+  const token = searchParams.get('token')
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
     const form = new FormData(event.currentTarget)
     const password = String(form.get('password') || '')
@@ -26,7 +32,33 @@ function AuthResetPasswordPage() {
     }
 
     setError('')
-    setIsSubmitted(true)
+    setIsLoading(true)
+    setIsSubmitted(false)
+
+    try {
+      await authService.resetPasswordWithToken(userId, token, password)
+      setIsSubmitted(true)
+      setTimeout(() => {
+        navigate('/auth/login')
+      }, 3000)
+    } catch (err) {
+      setError(err.message || 'Something went wrong. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  if (!token || !userId) {
+    return (
+      <div className="fauth-card fauth-card-sm">
+        <div className="fauth-card-head text-center">
+          <span className="fauth-icon text-danger"><i className="bi bi-x-circle" /></span>
+          <h1 className="fauth-title">Invalid Link</h1>
+          <p className="fauth-subtitle">The password reset link is invalid or missing information.</p>
+        </div>
+        <p className="fauth-foot-text mt-4 text-center"><Link to="/auth/forgot-password" className="fauth-link">Request a new link</Link></p>
+      </div>
+    )
   }
 
   return (
@@ -73,9 +105,11 @@ function AuthResetPasswordPage() {
         </div>
 
         {error ? <div className="alert alert-danger mb-3">{error}</div> : null}
-        {isSubmitted ? <div className="alert alert-success mb-3">Password reset request submitted successfully.</div> : null}
+        {isSubmitted ? <div className="alert alert-success mb-3">Password reset request submitted successfully. Redirecting to login...</div> : null}
 
-        <button type="submit" className="btn btn-primary w-100">Reset Password</button>
+        <button type="submit" className="btn btn-primary w-100" disabled={isLoading}>
+          {isLoading ? 'Resetting...' : 'Reset Password'}
+        </button>
       </form>
 
       <p className="fauth-foot-text"><Link to="/auth/login" className="fauth-link"><i className="bi bi-arrow-left" /> Back to login</Link></p>

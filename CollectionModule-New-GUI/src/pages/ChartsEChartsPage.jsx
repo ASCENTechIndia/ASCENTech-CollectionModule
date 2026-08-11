@@ -207,10 +207,26 @@ function ChartsEChartsPage() {
       <section className="section">
         <h5 className="section-title mb-3">Line Charts</h5>
         <div className="row g-4">
-          <div className="col-lg-6"><ChartCard title="Basic Line Chart"><div className="echart-container" ref={basicLine} /></ChartCard></div>
-          <div className="col-lg-6"><ChartCard title="Smooth Line Chart"><div className="echart-container" ref={smoothLine} /></ChartCard></div>
-          <div className="col-lg-6"><ChartCard title="Stacked Line Chart"><div className="echart-container" ref={stackedLine} /></ChartCard></div>
-          <div className="col-lg-6"><ChartCard title="Gradient Area Chart"><div className="echart-container" ref={gradientArea} /></ChartCard></div>
+          <div className="col-lg-6">
+            <ChartCard title="Basic Line Chart">
+              <div className="echart-container" ref={basicLine} />
+            </ChartCard>
+          </div>
+          <div className="col-lg-6">
+            <ChartCard title="Smooth Line Chart">
+              <div className="echart-container" ref={smoothLine} />
+            </ChartCard>
+          </div>
+          <div className="col-lg-6">
+            <ChartCard title="Stacked Line Chart">
+              <div className="echart-container" ref={stackedLine} />
+            </ChartCard>
+          </div>
+          <div className="col-lg-6">
+            <ChartCard title="Gradient Area Chart">
+              <div className="echart-container" ref={gradientArea} />
+            </ChartCard>
+          </div>
         </div>
       </section>
 

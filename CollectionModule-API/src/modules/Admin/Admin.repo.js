@@ -11,7 +11,7 @@ function normalizeNullable(value) {
 
 async function getUserLocationTracking(userId, cDate) {
   let sql = `
-    SELECT userid, location, TO_CHAR(cdate, 'DD/MM/YYYY') AS cdate FROM etech.aoup_userLocation WHERE 
+    SELECT userid, location, TO_CHAR(cdate, 'DD/MM/YYYY') AS cdate FROM etech_cm.aoup_userLocation WHERE 
     userid = :userId AND TRUNC(cdate) = TO_DATE(:cDate, 'YYYY-MM-DD')
     order by ROWID DESC FETCH FIRST 1 ROW ONLY
   `;
@@ -28,7 +28,7 @@ async function getUserLastLogin(userId) {
             userid, 
             ip_address, 
             TO_CHAR(log_date, 'DD-MON-YYYY HH:MI:SS AM') AS log_date 
-        FROM atbss.Aoup_user_ip_log 
+        FROM atbss_cm.Aoup_user_ip_log 
         WHERE userid = :userId
         ORDER BY log_date DESC
     ) 
@@ -43,7 +43,7 @@ async function getUserLastLogin(userId) {
 async function bucketSetter() {
   const statement = `
     BEGIN
-      atbss.Aoup_update_typesubcase(
+      atbss_cm.Aoup_update_typesubcase(
         :p_output,
         :p_updated_count
       );
@@ -79,7 +79,7 @@ async function fetchUsersWithPincodes() {
     SELECT
       var_bankdata_userid,
       num_bankdata_pincode
-    FROM atbss.aoup_etech_bankdata
+    FROM atbss_cm.aoup_etech_bankdata
     WHERE var_bankdata_userid IS NOT NULL
     GROUP BY var_bankdata_userid, num_bankdata_pincode
     ORDER BY var_bankdata_userid, num_bankdata_pincode
@@ -131,7 +131,7 @@ async function unassignCases(selections) {
     });
 
     const updateSql = `
-      UPDATE atbss.aoup_etech_bankdata
+      UPDATE atbss_cm.aoup_etech_bankdata
       SET VAR_BANKDATA_USERID = NULL
       WHERE VAR_BANKDATA_USERID = :userId
         AND num_bankdata_pincode IN (${pincodePlaceholders})
@@ -236,7 +236,7 @@ async function getDistanceInKm(origin, destination, apiKey) {
 async function matrixDistanceInsertion() {
   const statement = `
     BEGIN
-      atbss.Aoup_INSERT_MATRIX_DISTINCT_BANKTRANS(
+      atbss_cm.Aoup_INSERT_MATRIX_DISTINCT_BANKTRANS(
         :out_count,
         :out_errorcode
       );
@@ -264,7 +264,7 @@ async function matrixDistanceInsertion() {
         dist_var_banktransdet_transidnew,
         dist_var_bankdata_cobrowsraddress,
         dist_var_banktransdet_golocation
-      FROM atbss.aoup_etech_matrix_distince_banktransdetails
+      FROM atbss_cm.aoup_etech_matrix_distince_banktransdetails
       WHERE DIST_VAR_BANKDATA_MATRIX_DISTANCE IS NULL
     `;
 
@@ -283,7 +283,7 @@ async function matrixDistanceInsertion() {
       const distanceKm = await getDistanceInKm(origin, destination, apiKey);
 
       const updateSql = `
-        UPDATE atbss.aoup_etech_matrix_distince_banktransdetails
+        UPDATE atbss_cm.aoup_etech_matrix_distince_banktransdetails
         SET DIST_VAR_BANKDATA_MATRIX_DISTANCE = :distance
         WHERE dist_num_banktransdet_transid = :transId
           AND dist_var_banktransdet_transidnew = :transIdNew
@@ -316,10 +316,10 @@ async function matrixDistanceInsertion() {
 async function getaccCount() {
   let sql = `
    SELECT COUNT(*) AS NullFOSCount
-    FROM atbss.aoup_etech_contractUploadAllocationDetails t1
+    FROM atbss_cm.aoup_etech_contractUploadAllocationDetails t1
     JOIN (
         SELECT CONTRACTNUMBER, MAX(CONTRACTUPLOADDATE) AS LatestUploadDate
-        FROM atbss.aoup_etech_contractUploadAllocationDetails
+        FROM atbss_cm.aoup_etech_contractUploadAllocationDetails
         GROUP BY CONTRACTNUMBER
     ) t2
     ON t1.CONTRACTNUMBER = t2.CONTRACTNUMBER
@@ -333,11 +333,11 @@ async function getaccCount() {
 }
 
 async function accountAllocation(payload) {
-  //for atbss.aoup_contract_pincode_map procedure :in_UserId use this instead :IN_UserName
+  //for atbss_cm.aoup_contract_pincode_map procedure :in_UserId use this instead :IN_UserName
 
   const statement = `
     BEGIN
-      atbss.aoup_contract_pincode_map_CBI_Prod(
+      atbss_cm.aoup_contract_pincode_map_CBI_Prod(
         :IN_UserName,
         :OUT_ERRCODE,
         :OUT_ERRTEXT,
@@ -363,7 +363,7 @@ async function accountAllocation(payload) {
   const out = result.outBinds;
   if (out.OUT_ERRCODE === 9999) {
     const insertSql = `
-      INSERT INTO atbss.aoup_etech_bank_Allocationcount
+      INSERT INTO atbss_cm.aoup_etech_bank_Allocationcount
       (DATEFIELD, TOTALCOUNT, ALLOCATED, UNALLOCATED)
       VALUES (
         :dateVal,

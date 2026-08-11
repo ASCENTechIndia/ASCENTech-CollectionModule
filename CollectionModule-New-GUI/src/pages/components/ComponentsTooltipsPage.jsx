@@ -6,11 +6,6 @@ function ComponentsTooltipsPage() {
         {/* Page Header */}
         <div className="page-header">
           <h1 className="page-title">Tooltips</h1>
-          <nav className="breadcrumb">
-            <Link to="/" className="breadcrumb-item">Home</Link>
-            <a href="#" onClick={(event) => event.preventDefault()} className="breadcrumb-item">Components</a>
-            <span className="breadcrumb-item active">Tooltips</span>
-          </nav>
         </div>
         {/* Basic Tooltips */}
         <section className="section">

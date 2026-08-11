@@ -21,8 +21,18 @@ const pincodeMasterInsertSchema = z.object({
     .refine((value) => value !== '000000', 'Pincode cannot be 000000'),
 });
 
+const pinCodeDeleteSchema = z.object({
+  pincode: z
+    .string({ required_error: 'Pincode cannot be empty' })
+    .trim()
+    .min(1, 'Pincode cannot be empty')
+    .length(6, 'Pincode must be exactly 6 digits')
+    .regex(/^\d+$/, 'Pincode must contain only numeric values')
+    .refine((value) => value !== '000000', 'Pincode cannot be 000000'),});
+
 module.exports = {
   userFindSchema,
   pinCodeAssignSchema,
   pincodeMasterInsertSchema,
+  pinCodeDeleteSchema
 }

@@ -1,50 +1,101 @@
-import { NavLink } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { NavLink } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const navItems = [
-  { to: '/', label: 'Dashboard', icon: 'ph-light ph-squares-four' },
+  { to: "/", label: "Home", icon: "ph-light ph-house" },
   // { to: '/users', label: 'Users', icon: 'ph-light ph-users-three' },
   // { to: '/roles', label: 'Roles', icon: 'ph-light ph-shield' },
-]
+];
+
+const dashboardMenuItems = [
+  { to: "/Dashboard/FrmActiveAgentsNew", label: "Active Agents Dashboard" },
+  { to: "/Dashboard/FrmNewDashboard2New", label: "Disposition Dashboard" },
+  { to: "/Dashboard/DailyVisitNew", label: "Daily Visit Dashboard" },
+];
+
+const pincodeMenuItems = [
+  { to: "/pincode/FrmPincodeList", label: "Pincode List" },
+];
+
+const agencyMenuItems = [
+  { to: "/admin/agency-creation", label: "Agency Creation Old" },
+  { to: "/admin/agency-creation2", label: "Agency Creation New" },
+  { to: "/admin/agency-list", label: "Agency List" },
+];
+
+const companyMenuItems = [
+  { to: "/admin/company-creation", label: "Company Creation" },
+  { to: "/admin/company-list", label: "Company List" },
+];
+
+const fosMenuItems = [
+  { to: "/admin/fos-creation", label: "FOS Creation" },
+  { to: "/admin/fos-list", label: "FOS List" },
+];
 
 const adminMenuItems = [
-  { to: '/admin/user-location-tracking', label: 'User Location Tracking' },
-  { to: '/admin/last-login-history', label: 'Last Login History' },
-  { to: '/admin/bucket-setter', label: 'Bucket Setter' },
-  { to: '/admin/contract-allocation', label: 'Contract Allocation' },
-  { to: '/admin/distance-matrix', label: 'Distance Matrix' },
-]
+  { to: "/admin/user-location-tracking", label: "User Location Tracking" },
+  { to: "/admin/last-login-history", label: "Last Login History" },
+  { to: "/admin/bucket-setter", label: "Bucket Setter" },
+  { to: "/admin/contract-allocation", label: "Contract Allocation" },
+  { to: "/admin/distance-matrix", label: "Distance Matrix" },
+  { to: "admin/FrmImageUploadMobApp2", label: "Mobile Notification" },
+  { to: "/admin/excel-upload", label: "Excle Data Upload" },
+  // { to: 'admin/entity-mapping', label: "Entity Mapping Console"}
+];
 
 const userMenuItems = [
-  { to: "/User/FrmUserList", label: "User List" },
-  { to: "/User/FrmUserModification", label: "User Modification" },
-  { to: "/User/FrmPincodeMstrInserion", label: "Pincode Master" },
-  { to: '/user/pin-allocation', label: 'Assigned Pincode FOS' },
-  { to: '/user/unassign-cases', label: 'Unassigned Cases' },
-  { to: '/user/reset-password', label: 'Reset Password' },
-  { to: '/user/change-password', label: 'Change Password' },
-]
+  { to: "/user/user-list", label: "Users" },
+  { to: "/user/unassigned-Pincode", label: "Unassigned Cases" },
+  { to: "/User/FrmInactiveUserAcs", label: "Unallocated Accounts History" },
+  { to: "/user/reset-password", label: "Reset Password" },
+  { to: "/user/change-password", label: "Change Password" },
+];
+
+const mappingMenuItems = [
+  { to: "/admin/create-mapping", label: "Create Mapping" },
+  { to: "/admin/entity-mapping-console", label: "Entity Mapping Console" },
+  { to: "/admin/fos-mapping", label: "FOS Mapping" },
+];
 
 // const tablesMenuItems = [{ to: '/tables/datatables', label: 'DataTables' }]
 
-const chartsMenuItems = [
-  { to: '/charts/apexcharts', label: 'ApexCharts' },
-  { to: '/charts/chartjs', label: 'Chart.js' },
-  { to: '/charts/echarts', label: 'ECharts' },
-]
+// const chartsMenuItems = [
+//   { to: '/charts/apexcharts', label: 'ApexCharts' },
+//   { to: '/charts/chartjs', label: 'Chart.js' },
+//   { to: '/charts/echarts', label: 'ECharts' },
+// ]
 
 const reportsMenuItems = [
-  { to: '/reports/account-allocation', label: 'Account Allocation Report' },
-  { to: '/reports/daywise-data', label: 'Daily Uploaded Report' },
-  { to: '/reports/inactive-user-pincode-history', label: 'Inactive User Pincode History' },
-  { to: '/reports/overall-performance-summary', label: 'Overall Performance Report' },
-  { to: '/reports/non-visit-done-summary', label: 'Non Visit Done Summary Report' },
-  { to: '/reports/visit-done-summary', label: 'Visit Done Summary Report' },
-  { to: '/reports/transaction-report', label: 'Transaction Report' },
-  { to: '/reports/user-route-report', label: 'User Route Report' },
-  { to: '/reports/unallocated-cases-report', label: 'Unallocated Cases Report' },
-  { to: '/reports/sma-summary', label: 'SMA Summary Report' },
-]
+  { to: "/reports/account-allocation", label: "Account Allocation Report" },
+  { to: "/reports/daywise-data", label: "Daily Uploaded Report" },
+  {
+    to: "/reports/inactive-user-pincode-history",
+    label: "Inactive User Pincode History",
+  },
+  {
+    to: "/reports/overall-performance-summary",
+    label: "Overall Performance Report",
+  },
+  {
+    to: "/reports/non-visit-done-summary",
+    label: "Non Visit Done Summary Report",
+  },
+  { to: "/reports/visit-done-summary", label: "Visit Done Summary Report" },
+  { to: "/reports/transaction-report", label: "Transaction Report" },
+  { to: "/reports/user-route-report", label: "User Route Report" },
+  {
+    to: "/reports/unallocated-cases-report",
+    label: "Unallocated Cases Report",
+  },
+  { to: "/reports/sma-summary", label: "SMA Summary Report" },
+];
+
+const casesAllocationRulesMenuItems = [
+  { to: "/allocation/case-allocation", label: "Case Allocation" },
+  { to: "/allocation/allocation-rule", label: "Allocation Rules" },
+  { to: "/allocation/add-allocation-rules", label: "Add Allocation Rules" },
+];
 
 // const widgetsMenuItems = [
 //   { to: '/widgets/widgets-cards', label: 'Cards' },
@@ -89,6 +140,7 @@ const reportsMenuItems = [
 function Sidebar({
   desktopCollapsed,
   mobileOpen,
+  dashboardMenuOpen,
   // authMenuOpen,
   userMenuOpen,
   // formsMenuOpen,
@@ -98,6 +150,11 @@ function Sidebar({
   // widgetsMenuOpen,
   reportsMenuOpen,
   adminMenuOpen,
+  pincodeMenuOpen,
+  agencyMenuOpen,
+  companyMenuOpen,
+  fosMenuOpen,
+  mappingMgmtOpen,
   // onToggleAuthMenu,
   onToggleUserMenu,
   // onToggleFormsMenu,
@@ -105,20 +162,30 @@ function Sidebar({
   // onToggleTablesMenu,
   onToggleChartsMenu,
   // onToggleWidgetsMenu,
+  onToggleDashboardMenu,
   onToggleReportsMenu,
   onToggleAdminMenu,
+  onTogglePincodeMenu,
+  onToggleAgencyMenu,
+  onToggleCompanyMenu,
+  onToggleFosMenu,
+  onToggleMappingMgmtMenu,
   onCloseMobile,
   // userManagementMenuOpen,
-  // onToggleuserManagementMenu
-
+  // onToggleuserManagementMenu,
+  allocationRulesMenuOpen = { allocationRulesOpen },
+  onToggleAllocationRulesMenu = { toggleAllocationRulesMenu },
 }) {
-  const { user } = useAuth()
-  const displayName = user?.name || user?.userName || user?.fullName || user?.userId || 'User'
-  const displayRole = user?.role || user?.designation || 'User'
+  const { user } = useAuth();
+  const displayName =
+    user?.name || user?.userName || user?.fullName || user?.userId || "User";
+  const displayRole = user?.role || user?.designation || "User";
 
   return (
     <>
-      <aside className={`sidebar ${desktopCollapsed ? 'collapsed' : ''} ${mobileOpen ? 'open' : ''}`}>
+      <aside
+        className={`sidebar ${desktopCollapsed ? "collapsed" : ""} ${mobileOpen ? "open" : ""}`}
+      >
         <nav className="sidebar-nav">
           <ul className="nav-menu">
             {/* Static Nav Items */}
@@ -126,8 +193,10 @@ function Sidebar({
               <li className="nav-item" key={item.to}>
                 <NavLink
                   to={item.to}
-                  end={item.to === '/'}
-                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                  end={item.to === "/"}
+                  className={({ isActive }) =>
+                    `nav-link ${isActive ? "active" : ""}`
+                  }
                   onClick={onCloseMobile}
                 >
                   <span className="nav-icon">
@@ -137,6 +206,48 @@ function Sidebar({
                 </NavLink>
               </li>
             ))}
+
+            <li
+              className={`nav-item has-submenu ${dashboardMenuOpen ? "open" : ""}`}
+            >
+              <button
+                type="button"
+                className="nav-link w-100 text-start border-0 bg-transparent"
+                onClick={onToggleDashboardMenu}
+                aria-expanded={dashboardMenuOpen}
+              >
+                <span className="nav-icon">
+                  <i className="ph-light ph-squares-four" />
+                </span>
+                <span className="nav-text">Dashboard</span>
+                <span className="nav-badge">{dashboardMenuItems.length}</span>
+                <span className="nav-arrow">
+                  <i className="bi bi-chevron-right" />
+                </span>
+              </button>
+              <ul
+                className={`nav-submenu ${dashboardMenuOpen ? "show" : ""}`}
+                style={{
+                  maxHeight: dashboardMenuOpen
+                    ? `${dashboardMenuItems.length * 36 + 20}px`
+                    : "0px",
+                }}
+              >
+                {dashboardMenuItems.map((item) => (
+                  <li key={item.to}>
+                    <NavLink
+                      to={item.to}
+                      className={({ isActive }) =>
+                        `nav-link ${isActive ? "active" : ""}`
+                      }
+                      onClick={onCloseMobile}
+                    >
+                      <span className="nav-dot" /> {item.label}
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </li>
 
             {/* Authentication Menu (dropdown) */}
             {/* <li className={`nav-item has-submenu ${authMenuOpen ? 'open' : ''}`}>
@@ -159,22 +270,294 @@ function Sidebar({
             </li> */}
 
             {/* User Menu (dropdown) – separate state and handler */}
-            <li className={`nav-item has-submenu ${userMenuOpen ? 'open' : ''}`}>
+            <li
+              className={`nav-item has-submenu ${userMenuOpen ? "open" : ""}`}
+            >
               <button
                 type="button"
                 className="nav-link w-100 text-start border-0 bg-transparent"
                 onClick={onToggleUserMenu}
                 aria-expanded={userMenuOpen}
               >
-                <span className="nav-icon"><i className="ph-light ph-user" /></span>
-                <span className="nav-text">User</span>
+                <span className="nav-icon">
+                  <i className="ph-light ph-user" />
+                </span>
+                <span className="nav-text">User Management</span>
                 <span className="nav-badge">{userMenuItems.length}</span>
-                <span className="nav-arrow"><i className="bi bi-chevron-right" /></span>
+                <span className="nav-arrow">
+                  <i className="bi bi-chevron-right" />
+                </span>
               </button>
-              <ul className={`nav-submenu ${userMenuOpen ? 'show' : ''}`} style={{ maxHeight: userMenuOpen ? `${userMenuItems.length * 36 + 20}px` : '0px' }}>
+              <ul
+                className={`nav-submenu ${userMenuOpen ? "show" : ""}`}
+                style={{
+                  maxHeight: userMenuOpen
+                    ? `${userMenuItems.length * 36 + 20}px`
+                    : "0px",
+                }}
+              >
                 {userMenuItems.map((item) => (
                   <li key={item.to}>
-                    <NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}>
+                    <NavLink
+                      to={item.to}
+                      className={({ isActive }) =>
+                        `nav-link ${isActive ? "active" : ""}`
+                      }
+                      onClick={onCloseMobile}
+                    >
+                      <span className="nav-dot" /> {item.label}
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </li>
+
+            {/* Allocation Rules */}
+            <li
+              className={`nav-item has-submenu ${allocationRulesMenuOpen ? "open" : ""}`}
+            >
+              <button
+                type="button"
+                className="nav-link w-100 text-start border-0 bg-transparent"
+                onClick={onToggleAllocationRulesMenu}
+                aria-expanded={allocationRulesMenuOpen}
+              >
+                <span className="nav-icon">
+                  <i className="ph-light ph-list-checks" />
+                </span>
+                <span className="nav-text">Allocation Rules</span>
+                <span className="nav-badge">
+                  {casesAllocationRulesMenuItems.length}
+                </span>
+                <span className="nav-arrow">
+                  <i className="bi bi-chevron-right" />
+                </span>
+              </button>
+              <ul
+                className={`nav-submenu ${allocationRulesMenuOpen ? "show" : ""}`}
+                style={{
+                  maxHeight: allocationRulesMenuOpen
+                    ? `${casesAllocationRulesMenuItems.length * 36 + 20}px`
+                    : "0px",
+                }}
+              >
+                {casesAllocationRulesMenuItems.map((item) => (
+                  <li key={item.to}>
+                    <NavLink
+                      to={item.to}
+                      className={({ isActive }) =>
+                        `nav-link ${isActive ? "active" : ""}`
+                      }
+                      onClick={onCloseMobile}
+                    >
+                      <span className="nav-dot" /> {item.label}
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </li>
+
+            <li
+              className={`nav-item has-submenu ${pincodeMenuOpen ? "open" : ""}`}
+            >
+              <button
+                type="button"
+                className="nav-link w-100 text-start border-0 bg-transparent"
+                onClick={onTogglePincodeMenu}
+                aria-expanded={pincodeMenuOpen}
+              >
+                <span className="nav-icon">
+                  <i className="ph-light ph-map-pin" />
+                </span>
+                <span className="nav-text">Pincode Management</span>
+                <span className="nav-badge">{pincodeMenuItems.length}</span>
+                <span className="nav-arrow">
+                  <i className="bi bi-chevron-right" />
+                </span>
+              </button>
+              <ul
+                className={`nav-submenu ${pincodeMenuOpen ? "show" : ""}`}
+                style={{
+                  maxHeight: pincodeMenuOpen
+                    ? `${pincodeMenuItems.length * 36 + 20}px`
+                    : "0px",
+                }}
+              >
+                {pincodeMenuItems.map((item) => (
+                  <li key={item.to}>
+                    <NavLink
+                      to={item.to}
+                      className={({ isActive }) =>
+                        `nav-link ${isActive ? "active" : ""}`
+                      }
+                      onClick={onCloseMobile}
+                    >
+                      <span className="nav-dot" /> {item.label}
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </li>
+
+            <li
+              className={`nav-item has-submenu ${companyMenuOpen ? "open" : ""}`}
+            >
+              <button
+                type="button"
+                className="nav-link w-100 text-start border-0 bg-transparent"
+                onClick={onToggleCompanyMenu}
+                aria-expanded={companyMenuOpen}
+              >
+                <span className="nav-icon">
+                  <i className="ph-light ph-buildings" />
+                </span>
+                <span className="nav-text">Company Management</span>
+                <span className="nav-badge">{companyMenuItems.length}</span>
+                <span className="nav-arrow">
+                  <i className="bi bi-chevron-right" />
+                </span>
+              </button>
+              <ul
+                className={`nav-submenu ${companyMenuOpen ? "show" : ""}`}
+                style={{
+                  maxHeight: companyMenuOpen
+                    ? `${companyMenuItems.length * 36 + 20}px`
+                    : "0px",
+                }}
+              >
+                {companyMenuItems.map((item) => (
+                  <li key={item.to}>
+                    <NavLink
+                      to={item.to}
+                      className={({ isActive }) =>
+                        `nav-link ${isActive ? "active" : ""}`
+                      }
+                      onClick={onCloseMobile}
+                    >
+                      <span className="nav-dot" /> {item.label}
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </li>
+
+            <li
+              className={`nav-item has-submenu ${agencyMenuOpen ? "open" : ""}`}
+            >
+              <button
+                type="button"
+                className="nav-link w-100 text-start border-0 bg-transparent"
+                onClick={onToggleAgencyMenu}
+                aria-expanded={agencyMenuOpen}
+              >
+                <span className="nav-icon">
+                  <i className="ph-light ph-buildings" />
+                </span>
+                <span className="nav-text">Agency Management</span>
+                <span className="nav-badge">{agencyMenuItems.length}</span>
+                <span className="nav-arrow">
+                  <i className="bi bi-chevron-right" />
+                </span>
+              </button>
+              <ul
+                className={`nav-submenu ${agencyMenuOpen ? "show" : ""}`}
+                style={{
+                  maxHeight: agencyMenuOpen
+                    ? `${agencyMenuItems.length * 36 + 20}px`
+                    : "0px",
+                }}
+              >
+                {agencyMenuItems.map((item) => (
+                  <li key={item.to}>
+                    <NavLink
+                      to={item.to}
+                      className={({ isActive }) =>
+                        `nav-link ${isActive ? "active" : ""}`
+                      }
+                      onClick={onCloseMobile}
+                    >
+                      <span className="nav-dot" /> {item.label}
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </li>
+
+            <li
+              className={`nav-item has-submenu ${mappingMgmtOpen ? "open" : ""}`}
+            >
+              <button
+                type="button"
+                className="nav-link w-100 text-start border-0 bg-transparent"
+                onClick={onToggleMappingMgmtMenu}
+                aria-expanded={mappingMgmtOpen}
+              >
+                <span className="nav-icon">
+                  <i className="bi bi-link-45deg"></i>
+                </span>
+                <span className="nav-text">Entity Mapping</span>
+                <span className="nav-badge">{mappingMenuItems.length}</span>
+                <span className="nav-arrow">
+                  <i className="bi bi-chevron-right" />
+                </span>
+              </button>
+              <ul
+                className={`nav-submenu ${mappingMgmtOpen ? "show" : ""}`}
+                style={{
+                  maxHeight: mappingMgmtOpen
+                    ? `${mappingMenuItems.length * 36 + 20}px`
+                    : "0px",
+                }}
+              >
+                {mappingMenuItems.map((item) => (
+                  <li key={item.to}>
+                    <NavLink
+                      to={item.to}
+                      className={({ isActive }) =>
+                        `nav-link ${isActive ? "active" : ""}`
+                      }
+                      onClick={onCloseMobile}
+                    >
+                      <span className="nav-dot" /> {item.label}
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </li>
+
+            <li className={`nav-item has-submenu ${fosMenuOpen ? "open" : ""}`}>
+              <button
+                type="button"
+                className="nav-link w-100 text-start border-0 bg-transparent"
+                onClick={onToggleFosMenu}
+                aria-expanded={fosMenuOpen}
+              >
+                <span className="nav-icon">
+                  <i className="ph-light ph-buildings" />
+                </span>
+                <span className="nav-text">FOS Management</span>
+                <span className="nav-badge">{fosMenuItems.length}</span>
+                <span className="nav-arrow">
+                  <i className="bi bi-chevron-right" />
+                </span>
+              </button>
+              <ul
+                className={`nav-submenu ${fosMenuOpen ? "show" : ""}`}
+                style={{
+                  maxHeight: fosMenuOpen
+                    ? `${fosMenuItems.length * 36 + 20}px`
+                    : "0px",
+                }}
+              >
+                {fosMenuItems.map((item) => (
+                  <li key={item.to}>
+                    <NavLink
+                      to={item.to}
+                      className={({ isActive }) =>
+                        `nav-link ${isActive ? "active" : ""}`
+                      }
+                      onClick={onCloseMobile}
+                    >
                       <span className="nav-dot" /> {item.label}
                     </NavLink>
                   </li>
@@ -227,8 +610,6 @@ function Sidebar({
               </ul>
             </li> */}
 
-           
-
             {/* Widgets Menu */}
             {/* <li className={`nav-item has-submenu ${widgetsMenuOpen ? 'open' : ''}`}>
               <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleWidgetsMenu}>
@@ -244,37 +625,92 @@ function Sidebar({
               </ul>
             </li> */}
 
-             <li className={`nav-item has-submenu ${adminMenuOpen ? 'open' : ''}`}>
-              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleAdminMenu} aria-expanded={adminMenuOpen}>
-                <span className="nav-icon"><i className="ph-light ph-gear-six" /></span>
+            <li
+              className={`nav-item has-submenu ${adminMenuOpen ? "open" : ""}`}
+            >
+              <button
+                type="button"
+                className="nav-link w-100 text-start border-0 bg-transparent"
+                onClick={onToggleAdminMenu}
+                aria-expanded={adminMenuOpen}
+              >
+                <span className="nav-icon">
+                  <i className="ph-light ph-gear-six" />
+                </span>
                 <span className="nav-text">Admin</span>
                 <span className="nav-badge">{adminMenuItems.length}</span>
-                <span className="nav-arrow"><i className="bi bi-chevron-right" /></span>
+                <span className="nav-arrow">
+                  <i className="bi bi-chevron-right" />
+                </span>
               </button>
-              <ul className={`nav-submenu ${adminMenuOpen ? 'show' : ''}`} style={{ maxHeight: adminMenuOpen ? `${adminMenuItems.length * 36 + 20}px` : '0px' }}>
+              <ul
+                className={`nav-submenu ${adminMenuOpen ? "show" : ""}`}
+                style={{
+                  maxHeight: adminMenuOpen
+                    ? `${adminMenuItems.length * 36 + 20}px`
+                    : "0px",
+                }}
+              >
                 {adminMenuItems.map((item) => (
-                  <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
+                  <li key={item.to}>
+                    <NavLink
+                      to={item.to}
+                      className={({ isActive }) =>
+                        `nav-link ${isActive ? "active" : ""}`
+                      }
+                      onClick={onCloseMobile}
+                    >
+                      <span className="nav-dot" /> {item.label}
+                    </NavLink>
+                  </li>
                 ))}
               </ul>
             </li>
 
             {/* Reports Menu */}
-            <li className={`nav-item has-submenu ${reportsMenuOpen ? 'open' : ''}`}>
-              <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleReportsMenu}>
-                <span className="nav-icon"><i className="ph-light ph-chart-bar" /></span>
+            <li
+              className={`nav-item has-submenu ${reportsMenuOpen ? "open" : ""}`}
+            >
+              <button
+                type="button"
+                className="nav-link w-100 text-start border-0 bg-transparent"
+                onClick={onToggleReportsMenu}
+              >
+                <span className="nav-icon">
+                  <i className="ph-light ph-chart-bar" />
+                </span>
                 <span className="nav-text">Reports</span>
                 <span className="nav-badge">{reportsMenuItems.length}</span>
-                <span className="nav-arrow"><i className="bi bi-chevron-right" /></span>
+                <span className="nav-arrow">
+                  <i className="bi bi-chevron-right" />
+                </span>
               </button>
-              <ul className={`nav-submenu ${reportsMenuOpen ? 'show' : ''}`} style={{ maxHeight: reportsMenuOpen ? `${reportsMenuItems.length * 36 + 20}px` : '0px' }}>
+              <ul
+                className={`nav-submenu ${reportsMenuOpen ? "show" : ""}`}
+                style={{
+                  maxHeight: reportsMenuOpen
+                    ? `${reportsMenuItems.length * 36 + 20}px`
+                    : "0px",
+                }}
+              >
                 {reportsMenuItems.map((item) => (
-                  <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
+                  <li key={item.to}>
+                    <NavLink
+                      to={item.to}
+                      className={({ isActive }) =>
+                        `nav-link ${isActive ? "active" : ""}`
+                      }
+                      onClick={onCloseMobile}
+                    >
+                      <span className="nav-dot" /> {item.label}
+                    </NavLink>
+                  </li>
                 ))}
               </ul>
             </li>
 
-             {/* Charts Menu */}
-            <li className={`nav-item has-submenu ${chartsMenuOpen ? 'open' : ''}`}>
+            {/* Charts Menu */}
+            {/* <li className={`nav-item has-submenu ${chartsMenuOpen ? 'open' : ''}`}>
               <button type="button" className="nav-link w-100 text-start border-0 bg-transparent" onClick={onToggleChartsMenu}>
                 <span className="nav-icon"><i className="ph-light ph-chart-line-up" /></span>
                 <span className="nav-text">Charts</span>
@@ -286,14 +722,22 @@ function Sidebar({
                   <li key={item.to}><NavLink to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}><span className="nav-dot" /> {item.label}</NavLink></li>
                 ))}
               </ul>
-            </li>
+            </li> */}
           </ul>
         </nav>
 
         <div className="sidebar-footer">
           <div className="sidebar-footer-user">
-            <a href="#" className="sidebar-footer-profile" onClick={(event) => event.preventDefault()}>
-              <img src="/assets/img/profile-img.jpg" alt="User" className="sidebar-footer-avatar" />
+            <a
+              href="#"
+              className="sidebar-footer-profile"
+              onClick={(event) => event.preventDefault()}
+            >
+              <img
+                src="/assets/img/profile-img.jpg"
+                alt="User"
+                className="sidebar-footer-avatar"
+              />
               <div className="sidebar-footer-info">
                 <div className="sidebar-footer-name">{displayName}</div>
                 <div className="sidebar-footer-role">{displayRole}</div>
@@ -304,18 +748,18 @@ function Sidebar({
       </aside>
 
       <div
-        className={`sidebar-overlay ${mobileOpen ? 'show' : ''}`}
+        className={`sidebar-overlay ${mobileOpen ? "show" : ""}`}
         onClick={onCloseMobile}
         role="button"
         tabIndex={0}
         onKeyDown={(event) => {
-          if (event.key === 'Enter' || event.key === ' ') {
-            onCloseMobile()
+          if (event.key === "Enter" || event.key === " ") {
+            onCloseMobile();
           }
         }}
       />
     </>
-  )
+  );
 }
 
-export default Sidebar
+export default Sidebar;

@@ -7,7 +7,7 @@ const { config } = require('../../config/env');
 async function loginWithStoredProcedure(userId, password) {
   const plsql = `
     BEGIN
-      aoup_login_fetch(
+      etech_cm.aoup_login_fetch(
         :in_UserId,
         :in_password,
         :Out_CompId,
@@ -68,11 +68,28 @@ async function loginWithStoredProcedure(userId, password) {
   }
 const proofTypeResult = await executeQuery(
   `SELECT NUM_USERMST_USERPROOFTYPE 
-   FROM etech.aoup_usermst_def 
+   FROM etech_cm.aoup_usermst_def 
    WHERE VAR_USERMST_USERID = :userId`,
   { userId }
 );
 const userProofType = proofTypeResult.rows?.[0]?.NUM_USERMST_USERPROOFTYPE;
+  // Fetch brand image
+  let brandImage = null;
+  try {
+    // Remove leading 'E' if present in userId for brand image query
+    let numericUserId = String(userId);
+    if (numericUserId.startsWith('E')) {
+      numericUserId = numericUserId.slice(1);
+    }
+    const brandImageResult = await executeQuery(
+      `SELECT BASE64IMG FROM AOUP_ETECH_BANNER_IMAGE WHERE NUM_AGENCY_ID = :agencyId AND USERID = :userId AND IS_ACTIVE = 'Y'`,
+      { agencyId: '100', userId: numericUserId }
+    );
+    brandImage = brandImageResult.rows?.[0]?.BASE64IMG || null;
+  } catch (e) {
+    brandImage = null;
+  }
+
   const user = {
     userId,
     compId: out.Out_CompId,
@@ -91,7 +108,8 @@ const userProofType = proofTypeResult.rows?.[0]?.NUM_USERMST_USERPROOFTYPE;
     desgName: out.Out_desgname,
     brCategory: out.Out_brcategory,
     role: out.Out_role,
-    userProofType
+    userProofType,
+    brandImage
   };
 
   const token = jwt.sign(
@@ -113,6 +131,70 @@ const userProofType = proofTypeResult.rows?.[0]?.NUM_USERMST_USERPROOFTYPE;
   };
 }
 
+async function generateResetToken(email) {
+  const statement = `
+    BEGIN
+      etech_cm.aoup_generate_reset_token(
+        :in_email,
+        :out_userid,
+        :out_token,
+        :out_errorcode,
+        :out_errormsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_email: email,
+    out_userid: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 200 },
+    out_token: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 2000 },
+    out_errorcode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    out_errormsg: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 4000 },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  const out = result.outBinds;
+
+  return {
+    userId: out.out_userid,
+    token: out.out_token,
+    errorCode: out.out_errorcode,
+    errorMsg: out.out_errormsg
+  };
+}
+
+async function resetPasswordWithDbToken(userId, token, newPassword) {
+  const statement = `
+    BEGIN
+      etech_cm.aoup_reset_password(
+        :in_userid,
+        :in_token,
+        :in_newpassword,
+        :out_errorcode,
+        :out_errormsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_userid: String(userId).trim(),
+    in_token: String(token).trim(),
+    in_newpassword: newPassword,
+    out_errorcode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    out_errormsg: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 4000 },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  const out = result.outBinds;
+
+  return {
+    errorCode: out.out_errorcode,
+    errorMsg: out.out_errormsg
+  };
+}
+
 module.exports = {
   loginWithStoredProcedure,
+  generateResetToken,
+  resetPasswordWithDbToken,
 };

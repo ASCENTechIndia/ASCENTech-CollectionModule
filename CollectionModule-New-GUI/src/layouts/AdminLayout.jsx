@@ -2,6 +2,8 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import Header from '../components/Header'
 import Sidebar from '../components/Sidebar'
+import BackToTopButton from '../components/ui/BackToTopButton'
+import ScrollToTop from '../pages/ScrollToTop'
 
 function AdminLayout() {
   const location = useLocation()
@@ -12,12 +14,19 @@ function AdminLayout() {
   const [formsMenuManualOpen, setFormsMenuManualOpen] = useState(false)
   const [componentsMenuManualOpen, setComponentsMenuManualOpen] = useState(false)
   const [tablesMenuManualOpen, setTablesMenuManualOpen] = useState(false)
+  const [dashboardMenuManualOpen, setDashboardMenuManualOpen] = useState(false)
   const [chartsMenuManualOpen, setChartsMenuManualOpen] = useState(false)
   const [widgetsMenuManualOpen, setWidgetsMenuManualOpen] = useState(false)
   const [userMgmtMenuOpen, setUserMgmtMenuOpen] = useState(false);
   const [reportsMenuManualOpen, setReportsMenuManualOpen] = useState(false)
   const [adminMenuManualOpen, setAdminMenuManualOpen] = useState(false)
   const [userMenuManualOpen, setUserMenuManualOpen] = useState(false)
+  const [pincodeMenuManualOpen, setPincodeMenuManualOpen] = useState(false)
+  const [agencyMenuManualOpen, setAgencyMenuManualOpen] = useState(false)
+  const [companyMenuManualOpen, setCompanyMenuManualOpen] = useState(false)
+  const [fosMenuManualOpen, setFosMenuManualOpen] = useState(false)
+  const [mappingMgmtOpen, setMappingMgmtOpen] = useState(false);
+  const [allocationRulesMenuOpen, setAllocationRulesMenuOpen] = useState(false);
   const [theme, setTheme] = useState(() => {
     const savedTheme = localStorage.getItem('theme')
 
@@ -32,27 +41,6 @@ function AdminLayout() {
     return 'light'
   })
   const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: 'New support ticket',
-      message: 'Acme Corp opened ticket #4921.',
-      time: '2m ago',
-      read: false,
-    },
-    {
-      id: 2,
-      title: 'Monthly report ready',
-      message: 'Sales performance report is available.',
-      time: '14m ago',
-      read: false,
-    },
-    {
-      id: 3,
-      title: 'Deployment completed',
-      message: 'Production deployment finished successfully.',
-      time: '1h ago',
-      read: true,
-    },
   ])
   const searchInputRef = useRef(null)
 
@@ -92,23 +80,37 @@ function AdminLayout() {
   const formsRouteActive = location.pathname.startsWith('/forms')
   const componentsRouteActive = location.pathname.startsWith('/components')
   const tablesRouteActive = location.pathname.startsWith('/tables')
+  const dashboardRouteActive = location.pathname.startsWith('/Dashboard') || location.pathname.startsWith('/dashboard')
   const chartsRouteActive = location.pathname.startsWith('/charts')
   const widgetsRouteActive = location.pathname.startsWith('/widgets')
   const userMgmtRouteActive = location.pathname.startsWith('/user')
   const reportsRouteActive = location.pathname.startsWith('/reports')
   const adminRouteActive = location.pathname.startsWith('/admin')
   const userRouteActive = location.pathname.startsWith('/user')
+  const pincodeRouteActive = location.pathname.startsWith('/pincode')
+  const agencyRouteActive = location.pathname.startsWith('/admin') && location.pathname.includes('agency')
+  const companyRouteActive = location.pathname.startsWith('/admin') && location.pathname.includes('company')
+  const fosRouteActive = location.pathname.startsWith('/admin') && location.pathname.includes('fos')
+  const mappingRouteActive = location.pathname.startsWith('/admin') && location.pathname.includes('mapping')
+  const allocationRouteActive = location.pathname.startsWith('/allocation');
 
+  const allocationRulesOpen = allocationRouteActive || allocationRulesMenuOpen;
   const authMenuOpen = authRouteActive || authMenuManualOpen
   const formsMenuOpen = formsRouteActive || formsMenuManualOpen
   const componentsMenuOpen = componentsRouteActive || componentsMenuManualOpen
   const tablesMenuOpen = tablesRouteActive || tablesMenuManualOpen
+  const dashboardMenuOpen = dashboardRouteActive || dashboardMenuManualOpen
   const chartsMenuOpen = chartsRouteActive || chartsMenuManualOpen
   const widgetsMenuOpen = widgetsRouteActive || widgetsMenuManualOpen
   const userMgmtOpen = userMgmtRouteActive || userMgmtMenuOpen
   const reportsMenuOpen = reportsRouteActive || reportsMenuManualOpen
   const adminMenuOpen = adminRouteActive || adminMenuManualOpen
   const userMenuOpen = userRouteActive || userMenuManualOpen
+  const pincodeMenuOpen = pincodeRouteActive || pincodeMenuManualOpen
+  const agencyMenuOpen = agencyRouteActive || agencyMenuManualOpen
+  const companyMenuOpen = companyRouteActive || companyMenuManualOpen
+  const fosMenuOpen = fosRouteActive || fosMenuManualOpen
+  const mappingMenuOpen = mappingRouteActive || mappingMgmtOpen
 
   const toggleSidebar = () => {
     // Debounce toggle to prevent rapid state changes during animations
@@ -156,6 +158,13 @@ function AdminLayout() {
     )
   }
 
+  useEffect(() => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth", // you can remove "smooth" if you want instant
+  });
+}, [location.pathname]);
+
   return (
     <>
       <Header
@@ -174,27 +183,42 @@ function AdminLayout() {
         formsMenuOpen={formsMenuOpen}
         componentsMenuOpen={componentsMenuOpen}
         tablesMenuOpen={tablesMenuOpen}
+        dashboardMenuOpen={dashboardMenuOpen}
         chartsMenuOpen={chartsMenuOpen}
         widgetsMenuOpen={widgetsMenuOpen}
         userManagementMenuOpen={userMgmtOpen}
         reportsMenuOpen={reportsMenuOpen}
         adminMenuOpen={adminMenuOpen}
         userMenuOpen={userMenuOpen}
+        pincodeMenuOpen={pincodeMenuOpen}
+        agencyMenuOpen={agencyMenuOpen}
+        companyMenuOpen={companyMenuOpen}
+        fosMenuOpen={fosMenuOpen}
+        mappingMgmtOpen={mappingMenuOpen}
+        allocationRulesMenuOpen={allocationRulesOpen}
         onToggleAuthMenu={() => setAuthMenuManualOpen((value) => !value)}
         onToggleFormsMenu={() => setFormsMenuManualOpen((value) => !value)}
         onToggleComponentsMenu={() => setComponentsMenuManualOpen((value) => !value)}
         onToggleTablesMenu={() => setTablesMenuManualOpen((value) => !value)}
+        onToggleDashboardMenu={() => setDashboardMenuManualOpen((value) => !value)}
         onToggleChartsMenu={() => setChartsMenuManualOpen((value) => !value)}
         onToggleWidgetsMenu={() => setWidgetsMenuManualOpen((value) => !value)}
         onToggleuserManagementMenu= {() => setUserMgmtMenuOpen((value) => !value)}
         onToggleReportsMenu={() => setReportsMenuManualOpen((value) => !value)}
         onToggleAdminMenu={() => setAdminMenuManualOpen((value) => !value)}
         onToggleUserMenu={() => setUserMenuManualOpen((value) => !value)}
+        onTogglePincodeMenu={() => setPincodeMenuManualOpen((value) => !value)}
+        onToggleAgencyMenu={() => setAgencyMenuManualOpen((value) => !value)}
+        onToggleCompanyMenu={() => setCompanyMenuManualOpen((value) => !value)}
+        onToggleFosMenu={() => setFosMenuManualOpen((value) => !value)}
+        onToggleMappingMgmtMenu={() => setMappingMgmtOpen((value) => !value)}
         onCloseMobile={() => setMobileOpen(false)}
+        onToggleAllocationRulesMenu={() => setAllocationRulesMenuOpen(prev => !prev)}
       />
 
       <main className="main">
         <Outlet />
+        <ScrollToTop />
 
         <footer className="footer">
           <div className="footer-content">
@@ -203,6 +227,7 @@ function AdminLayout() {
             </div>
           </div>
         </footer>
+        <BackToTopButton />
       </main>
     </>
   )

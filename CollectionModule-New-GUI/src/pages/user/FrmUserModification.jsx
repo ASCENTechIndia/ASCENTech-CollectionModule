@@ -34,7 +34,6 @@ const FrmUserModification = () => {
     try {
       const response = await apiClient.get(`/users/search-by-userid?userId=${userId}`)
       if (response?.success) {
-        console.log("hearch res :", response)
         setUserDetails(response.data)
         setValue('userName', response.data.userName)
         setValue('userCurrentStatus', response.data.currentStatus)
@@ -63,7 +62,6 @@ const FrmUserModification = () => {
         insBy: webUserId,
       }
       const response = await apiClient.post('/users/modify-status-submit', payload)
-      console.log("response :", response)
       if (response.success && response.data.out_ErrorCode === -100) {
         showSuccess(response.data.out_ErrorMsg || 'User status updated successfully')
         setOpenModifyStatusModal(false)
@@ -83,11 +81,6 @@ const FrmUserModification = () => {
       {/* Page Header */}
       <div className="page-header">
         <h1 className="page-title">User Modification</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">Home</Link>
-          <span className="breadcrumb-item">User Management</span>
-          <span className="breadcrumb-item active">User Modification</span>
-        </nav>
       </div>
 
       {/* Form Card */}
@@ -113,7 +106,6 @@ const FrmUserModification = () => {
                     validate: (value) => /^\d+$/.test(value) || 'User ID must contain only numbers',
                   })}
                 />
-                {errors.userId && <div className="invalid-feedback">{errors.userId.message}</div>}
               </div>
               <div className="col-md-4">
                 <button
@@ -181,7 +173,7 @@ const FrmUserModification = () => {
               <button
                 type="button"
                 className="btn btn-secondary"
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/')}
               >
                 Close
               </button>
@@ -196,8 +188,9 @@ const FrmUserModification = () => {
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title">Modify Status</h5>
-              <button type="button" className="btn-close" onClick={() => setOpenModifyStatusModal(false)}></button>
+              <button type="button" className="btn-close" onClick={() => navigate('/')} />
             </div>
+            
             <div className="modal-body">
               <div className="row mb-3">
                 <div className="col-6">

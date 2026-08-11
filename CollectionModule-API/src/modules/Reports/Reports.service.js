@@ -1,6 +1,6 @@
 const {
   accAllocationReport, getDailyUploadedReport, getpincodeHistoryReport, getnonvisitdoneSummary,
-  overallPerformanceSummary, getvisitdoneSummary, getSMASummary, getUserRouteReport,
+  overallPerformanceSummary, getvisitdoneSummary, getSMASummary, getLastThreeMonthPivot, getUserRouteReport,
   getUserRouteExport, getUnallocatedCases
 } = require('./Reports.repo');
 
@@ -40,13 +40,17 @@ async function smaSummaryService() {
   return getSMASummary();
 }
 
+async function getLastThreeMonthPivotService() {
+  return getLastThreeMonthPivot();
+}
+
 async function unallocatedCasesService(filters) {
   return getUnallocatedCases(filters);
 }
 
 module.exports = {
  accAllocationService, dailyUploadedReport, pincodeHistoryReport, nonVisitDoneService, overallPerfService,
- visitDoneService, smaSummaryService, 
+ visitDoneService, smaSummaryService, getLastThreeMonthPivotService,
   userRouteService,
   userRouteExportService, unallocatedCasesService
 };

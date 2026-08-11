@@ -162,12 +162,6 @@ function RolesPage() {
         <div className="page-header">
           <div>
             <h1 className="page-title">Roles & Permissions</h1>
-            <nav className="breadcrumb">
-              <Link to="/" className="breadcrumb-item">
-                Home
-              </Link>
-              <span className="breadcrumb-item active">Roles & Permissions</span>
-            </nav>
           </div>
           <div className="page-header-actions">
             <button className="btn btn-primary btn-sm" onClick={handleAddRoleClick}>

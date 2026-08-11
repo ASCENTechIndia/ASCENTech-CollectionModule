@@ -1,6 +1,23 @@
 const {
-  pincodes, fetchUsername, fetchUserPincodes, assignPincode, insertPincodeMaster
+  pincodes, fetchUsername, fetchUserPincodes, assignPincode, insertPincodeMaster,
+  fetchAllPincodes, deletePincode
 } = require('./assignPincode.service');
+async function deletePincodeHandler(req, res, next) {
+  try {
+    const { pincode } = req.body;
+    const out = await deletePincode(pincode);
+    if (out.isSuccess) {
+      logApiSuccess(req, 200, `Pincode deleted successfully`);
+      return res.ok({ message: out.message , success: true });
+    } else {
+      logApiError(req, 400, out.message, 'Delete pincode error');
+      return res.status(400).json({ message: out.message , success: false});
+    }
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Delete pincode error');
+    return next(error);
+  }
+}
 const { auditLog } = require('../../utils/audit-log');
 const { logApiSuccess, logApiError } = require('../../utils/log');
 
@@ -109,10 +126,24 @@ async function pincodeMasterInsertHandler(req, res, next) {
   }
 }
 
+async function PincodeHandler(req, res, next) {
+  try {  
+    const rows = await fetchAllPincodes();
+    console.log("rows :", rows)
+    logApiSuccess(req, 200, { count: rows?.length || 0 }, `User Pincode retrieved`);
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'User Pincode error');
+    return next(error);
+  }
+}
+
 module.exports = {
   pincodeListHandler,
   usernameHandler,
   userPincodeHandler,
   pincodeAssignHandler,
   pincodeMasterInsertHandler,
+  PincodeHandler,
+  deletePincodeHandler
 }

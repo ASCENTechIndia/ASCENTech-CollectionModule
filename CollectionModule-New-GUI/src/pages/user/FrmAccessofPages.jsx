@@ -107,11 +107,6 @@ function FrmAccessofPages() {
       {/* Page Header */}
       <div className="page-header">
         <h1 className="page-title">Page Access</h1>
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">Home</Link>
-          <span className="breadcrumb-item">User Management</span>
-          <span className="breadcrumb-item active">Page Access</span>
-        </nav>
       </div>
 
       {/* Form Card */}

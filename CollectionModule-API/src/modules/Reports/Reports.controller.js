@@ -1,6 +1,6 @@
 const {
   accAllocationService, dailyUploadedReport, pincodeHistoryReport, nonVisitDoneService, overallPerfService,
-  visitDoneService, smaSummaryService ,
+  visitDoneService, smaSummaryService, getLastThreeMonthPivotService,
   userRouteService,
   userRouteExportService, unallocatedCasesService
 } = require('./Reports.service');
@@ -151,8 +151,19 @@ async function unallocatedCasesHandler(req, res, next) {
   }
 }
 
+async function getLastThreeMonthPivotHandler(req, res, next) {
+  try {
+    const rows = await getLastThreeMonthPivotService();
+    logApiSuccess( req, 200, { count: rows?.length || 0 }, 'Last Three Month Pivot Report completed' );
+    return res.ok(rows);
+  } catch (error) {
+    logApiError(req, 500, error.message, 'Last Three Month Pivot Report search error');
+    return next(error);
+  }
+}
+
 module.exports = {
   accAllocationHandler, dailyUploadedReportHandler, pinCodeHistoryHandler, nonVisitDoneHandler, overallPerformanceHandler,
-  visitDoneHandler, smaSummaryHandler,  userRouteHandler,
+  visitDoneHandler, smaSummaryHandler, getLastThreeMonthPivotHandler, userRouteHandler,
   userRouteExportHandler, unallocatedCasesHandler
 };

@@ -5,9 +5,9 @@ const { executeProcedure } = require('../../db/procedureExecutor');
 function resolveSourceTable(userType) {
   const normalized = String(userType || '').toLowerCase();
   if (normalized === '1' || normalized === 'inactive') {
-    return 'atbss.aoup_history_unassigned_accounts';
+    return 'atbss_cm.aoup_history_unassigned_accounts';
   }
-  return 'atbss.aoup_history_allunassigned_accounts';
+  return 'atbss_cm.aoup_history_allunassigned_accounts';
 }
 
 async function searchUnallocatedAccounts(filters) {
@@ -39,7 +39,7 @@ async function searchUnallocatedAccounts(filters) {
 async function unallocateAllUsersAccounts() {
   const statement = `
     BEGIN
-      atbss.AOUP_ALLUNASSIGN_ACCOUNTS(
+      atbss_cm.AOUP_ALLUNASSIGN_ACCOUNTS(
         :out_ErrorCode,
         :out_ErrorMsg
       );

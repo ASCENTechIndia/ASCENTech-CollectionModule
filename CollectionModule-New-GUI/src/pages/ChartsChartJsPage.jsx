@@ -184,7 +184,9 @@ function ChartsChartJsPage() {
         <div className="row g-4">
           <div className="col-lg-4"><ChartCard title="Pie Chart"><canvas ref={pie} /></ChartCard></div>
           <div className="col-lg-4"><ChartCard title="Doughnut Chart"><canvas ref={doughnut} /></ChartCard></div>
-          <div className="col-lg-4"><ChartCard title="Doughnut with Center Text"><div className="position-relative"><canvas ref={doughnutCenter} /><div className="chart-center-text"><div className="chart-center-value">75%</div><div className="chart-center-label">Complete</div></div></div></ChartCard></div>
+          <div className="col-lg-4">
+            <ChartCard title="Doughnut with Center Text">
+              <div className="position-relative"><canvas ref={doughnutCenter} /><div className="chart-center-text"><div className="chart-center-value">75%</div><div className="chart-center-label">Complete</div></div></div></ChartCard></div>
         </div>
       </section>
 

@@ -119,38 +119,38 @@ async function getDashboardData({ userId, brCategory, query }) {
     ? `
       SELECT TO_CHAR(dat_banktransdet_transdat, 'dd/mm/yyyy') AS TRANS_DATE,
              COUNT(DISTINCT VAR_BANKTRANSDET_USERID) AS NUM_TRANSACTIONS
-        FROM atbss.aoup_etech_banktransdetails bt
-        LEFT OUTER JOIN atbss.aoup_etech_bankingtransmast
+        FROM atbss_cm.aoup_etech_banktransdetails bt
+        LEFT OUTER JOIN atbss_cm.aoup_etech_bankingtransmast
                 ON num_banktransmast_transid = num_banktransdet_transid
-        LEFT OUTER JOIN atbss.aoup_etech_bankdata bd
+        LEFT OUTER JOIN atbss_cm.aoup_etech_bankdata bd
                 ON bd.var_bankdata_contractnum = var_banktransmast_contrctno
-        INNER JOIN etech.aoup_usermst_def c
+        INNER JOIN etech_cm.aoup_usermst_def c
                 ON var_banktransdet_userid = var_usermst_userid
-        INNER JOIN etech.view_user_level_new
+        INNER JOIN etech_cm.view_user_level_new
                 ON Main_compid = num_usermst_brid
                 OR center_compid = num_usermst_brid
                 OR Zone_compid = num_usermst_brid
                 OR State_compid = num_usermst_brid
                 OR branch_compid = num_usermst_brid
-        INNER JOIN etech.aoup_usermst_def t
+        INNER JOIN etech_cm.aoup_usermst_def t
                 ON Main_compid = t.num_usermst_brid
                 OR center_compid = t.num_usermst_brid
                 OR Zone_compid = t.num_usermst_brid
                 OR State_compid = t.num_usermst_brid
                 OR branch_compid = t.num_usermst_brid
-        INNER JOIN etech.aoup_companymst_def
+        INNER JOIN etech_cm.aoup_companymst_def
                 ON num_companymst_compid = t.num_usermst_brid
-        LEFT OUTER JOIN atbss.aoup_etech_bankingtransmast mst
+        LEFT OUTER JOIN atbss_cm.aoup_etech_bankingtransmast mst
                 ON mst.num_banktransmast_transid = num_banktransdet_transid
-        LEFT OUTER JOIN atbss.aoup_etech_visitstatus_mst
+        LEFT OUTER JOIN atbss_cm.aoup_etech_visitstatus_mst
                 ON num_visitstatus_id = var_banktransdet_visitststs
-        LEFT OUTER JOIN atbss.aoup_etech_feedbacktype_mst
+        LEFT OUTER JOIN atbss_cm.aoup_etech_feedbacktype_mst
                 ON var_feedbacktype_mst_id = var_banktransdet_custfeedbck
         LEFT OUTER JOIN aoup_companycode_mas
                 ON num_companycode_id = c.num_usermst_compcode
-        LEFT OUTER JOIN atbss.aoup_etech_rfdmaster
+        LEFT OUTER JOIN atbss_cm.aoup_etech_rfdmaster
                 ON num_rfdmst_id = num_banktransdet_rfdid
-        LEFT OUTER JOIN atbss.aoup_etech_rcstatusmst
+        LEFT OUTER JOIN atbss_cm.aoup_etech_rcstatusmst
                 ON num_rcstatus_id = num_banktransdet_rcid
        WHERE TO_CHAR(dat_banktransdet_transdat, 'MM - YYYY') = :monthYearWithSpaces
          AND TRIM(var_bankdata_branch) = TRIM(var_companymst_branchname)
@@ -161,32 +161,32 @@ async function getDashboardData({ userId, brCategory, query }) {
     : `
       SELECT TO_CHAR(dat_banktransdet_transdat, 'dd/mm/yyyy') AS TRANS_DATE,
              COUNT(DISTINCT VAR_BANKTRANSDET_USERID) AS NUM_TRANSACTIONS
-        FROM atbss.aoup_etech_banktransdetails bt
-        INNER JOIN etech.aoup_usermst_def c
+        FROM atbss_cm.aoup_etech_banktransdetails bt
+        INNER JOIN etech_cm.aoup_usermst_def c
                 ON var_banktransdet_userid = var_usermst_userid
-        INNER JOIN etech.view_user_level_new
+        INNER JOIN etech_cm.view_user_level_new
                 ON Main_compid = num_usermst_brid
                 OR center_compid = num_usermst_brid
                 OR Zone_compid = num_usermst_brid
                 OR State_compid = num_usermst_brid
                 OR branch_compid = num_usermst_brid
-        INNER JOIN etech.aoup_usermst_def t
+        INNER JOIN etech_cm.aoup_usermst_def t
                 ON Main_compid = t.num_usermst_brid
                 OR center_compid = t.num_usermst_brid
                 OR Zone_compid = t.num_usermst_brid
                 OR State_compid = t.num_usermst_brid
                 OR branch_compid = t.num_usermst_brid
-        LEFT OUTER JOIN atbss.aoup_etech_bankingtransmast
+        LEFT OUTER JOIN atbss_cm.aoup_etech_bankingtransmast
                 ON num_banktransmast_transid = num_banktransdet_transid
-        LEFT OUTER JOIN atbss.aoup_etech_visitstatus_mst
+        LEFT OUTER JOIN atbss_cm.aoup_etech_visitstatus_mst
                 ON num_visitstatus_id = var_banktransdet_visitststs
-        LEFT OUTER JOIN atbss.aoup_etech_feedbacktype_mst
+        LEFT OUTER JOIN atbss_cm.aoup_etech_feedbacktype_mst
                 ON var_feedbacktype_mst_id = var_banktransdet_custfeedbck
         LEFT OUTER JOIN aoup_companycode_mas
                 ON num_companycode_id = c.num_usermst_compcode
-        LEFT OUTER JOIN atbss.aoup_etech_rfdmaster
+        LEFT OUTER JOIN atbss_cm.aoup_etech_rfdmaster
                 ON num_rfdmst_id = num_banktransdet_rfdid
-        LEFT OUTER JOIN atbss.aoup_etech_rcstatusmst
+        LEFT OUTER JOIN atbss_cm.aoup_etech_rcstatusmst
                 ON num_rcstatus_id = num_banktransdet_rcid
        WHERE TO_CHAR(dat_banktransdet_transdat, 'MM-YYYY') = :monthYear
          AND t.var_usermst_userid = :userId
@@ -198,26 +198,26 @@ async function getDashboardData({ userId, brCategory, query }) {
     ? `
       SELECT TO_CHAR(TO_DATE(DAT_BANKTRANSDET_TRANSDAT, 'DD-MM-YY'), 'DD') AS day,
              COUNT(*) AS transaction_count
-        FROM atbss.aoup_etech_banktransdetails
-        LEFT OUTER JOIN atbss.aoup_etech_bankingtransmast
+        FROM atbss_cm.aoup_etech_banktransdetails
+        LEFT OUTER JOIN atbss_cm.aoup_etech_bankingtransmast
                 ON num_banktransmast_transid = num_banktransdet_transid
-        LEFT OUTER JOIN atbss.aoup_etech_bankdata bd
+        LEFT OUTER JOIN atbss_cm.aoup_etech_bankdata bd
                 ON bd.var_bankdata_contractnum = var_banktransmast_contrctno
-        INNER JOIN etech.aoup_usermst_def
+        INNER JOIN etech_cm.aoup_usermst_def
                 ON var_usermst_userid = var_banktransdet_userid
-        INNER JOIN etech.view_user_level_new
+        INNER JOIN etech_cm.view_user_level_new
                 ON Main_compid = num_usermst_brid
                 OR center_compid = num_usermst_brid
                 OR Zone_compid = num_usermst_brid
                 OR State_compid = num_usermst_brid
                 OR branch_compid = num_usermst_brid
-        INNER JOIN etech.aoup_usermst_def t
+        INNER JOIN etech_cm.aoup_usermst_def t
                 ON Main_compid = t.num_usermst_brid
                 OR center_compid = t.num_usermst_brid
                 OR Zone_compid = t.num_usermst_brid
                 OR State_compid = t.num_usermst_brid
                 OR branch_compid = t.num_usermst_brid
-        INNER JOIN etech.aoup_companymst_def
+        INNER JOIN etech_cm.aoup_companymst_def
                 ON num_companymst_compid = t.num_usermst_brid
        WHERE TO_CHAR(TO_DATE(DAT_BANKTRANSDET_TRANSDAT, 'DD-MM-YY'), 'MM') = :month
          AND TO_CHAR(TO_DATE(DAT_BANKTRANSDET_TRANSDAT, 'DD-MM-YY'), 'YYYY') = :year
@@ -229,16 +229,16 @@ async function getDashboardData({ userId, brCategory, query }) {
     : `
       SELECT TO_CHAR(TO_DATE(DAT_BANKTRANSDET_TRANSDAT, 'DD-MM-YY'), 'DD') AS day,
              COUNT(*) AS transaction_count
-        FROM atbss.aoup_etech_banktransdetails
-        INNER JOIN etech.aoup_usermst_def
+        FROM atbss_cm.aoup_etech_banktransdetails
+        INNER JOIN etech_cm.aoup_usermst_def
                 ON var_usermst_userid = var_banktransdet_userid
-        INNER JOIN etech.view_user_level_new
+        INNER JOIN etech_cm.view_user_level_new
                 ON Main_compid = num_usermst_brid
                 OR center_compid = num_usermst_brid
                 OR Zone_compid = num_usermst_brid
                 OR State_compid = num_usermst_brid
                 OR branch_compid = num_usermst_brid
-        INNER JOIN etech.aoup_usermst_def t
+        INNER JOIN etech_cm.aoup_usermst_def t
                 ON Main_compid = t.num_usermst_brid
                 OR center_compid = t.num_usermst_brid
                 OR Zone_compid = t.num_usermst_brid
@@ -302,30 +302,30 @@ async function getDashboardData({ userId, brCategory, query }) {
              c.var_usermst_empcode AS employecode,
              SUBSTR(var_banktransdet_golocation, 1, INSTR(var_banktransdet_golocation, ',') - 1) AS lattitude,
              SUBSTR(var_banktransdet_golocation, INSTR(var_banktransdet_golocation, ',') + 1) AS longtitude
-        FROM atbss.aoup_etech_banktransdetails
-        LEFT OUTER JOIN atbss.aoup_etech_bankingtransmast
+        FROM atbss_cm.aoup_etech_banktransdetails
+        LEFT OUTER JOIN atbss_cm.aoup_etech_bankingtransmast
                 ON num_banktransmast_transid = num_banktransdet_transid
-        LEFT OUTER JOIN atbss.aoup_etech_bankdata bd
+        LEFT OUTER JOIN atbss_cm.aoup_etech_bankdata bd
                 ON bd.var_bankdata_contractnum = var_banktransmast_contrctno
-        LEFT OUTER JOIN atbss.aoup_etech_visitstatus_mst
+        LEFT OUTER JOIN atbss_cm.aoup_etech_visitstatus_mst
                 ON num_visitstatus_id = var_banktransdet_visitststs
-        LEFT OUTER JOIN atbss.aoup_etech_feedbacktype_mst
+        LEFT OUTER JOIN atbss_cm.aoup_etech_feedbacktype_mst
                 ON var_feedbacktype_mst_id = var_banktransdet_custfeedbck
-        INNER JOIN etech.aoup_usermst_def c
+        INNER JOIN etech_cm.aoup_usermst_def c
                 ON c.var_usermst_userid = var_banktransdet_userid
-        INNER JOIN etech.view_user_level_new
+        INNER JOIN etech_cm.view_user_level_new
                 ON Main_compid = num_usermst_brid
                 OR center_compid = num_usermst_brid
                 OR Zone_compid = num_usermst_brid
                 OR State_compid = num_usermst_brid
                 OR branch_compid = num_usermst_brid
-        INNER JOIN etech.aoup_usermst_def t
+        INNER JOIN etech_cm.aoup_usermst_def t
                 ON Main_compid = t.num_usermst_brid
                 OR center_compid = t.num_usermst_brid
                 OR Zone_compid = t.num_usermst_brid
                 OR State_compid = t.num_usermst_brid
                 OR branch_compid = t.num_usermst_brid
-        INNER JOIN etech.aoup_companymst_def
+        INNER JOIN etech_cm.aoup_companymst_def
                 ON num_companymst_compid = t.num_usermst_brid
                  WHERE (TO_CHAR(dat_banktransdet_transdat, 'MM-YYYY') = :monthYear
                          OR TO_CHAR(dat_banktransdet_transdat, 'MM - YYYY') = :monthYearWithSpaces)
@@ -383,24 +383,24 @@ async function getDashboardData({ userId, brCategory, query }) {
              c.var_usermst_empcode AS employecode,
              SUBSTR(var_banktransdet_golocation, 1, INSTR(var_banktransdet_golocation, ',') - 1) AS lattitude,
              SUBSTR(var_banktransdet_golocation, INSTR(var_banktransdet_golocation, ',') + 1) AS longtitude
-        FROM atbss.aoup_etech_banktransdetails
-        LEFT OUTER JOIN atbss.aoup_etech_bankingtransmast
+        FROM atbss_cm.aoup_etech_banktransdetails
+        LEFT OUTER JOIN atbss_cm.aoup_etech_bankingtransmast
                 ON num_banktransmast_transid = num_banktransdet_transid
-        LEFT OUTER JOIN atbss.aoup_etech_bankdata bd
+        LEFT OUTER JOIN atbss_cm.aoup_etech_bankdata bd
                 ON bd.var_bankdata_contractnum = var_banktransmast_contrctno
-        LEFT OUTER JOIN atbss.aoup_etech_visitstatus_mst
+        LEFT OUTER JOIN atbss_cm.aoup_etech_visitstatus_mst
                 ON num_visitstatus_id = var_banktransdet_visitststs
-        LEFT OUTER JOIN atbss.aoup_etech_feedbacktype_mst
+        LEFT OUTER JOIN atbss_cm.aoup_etech_feedbacktype_mst
                 ON var_feedbacktype_mst_id = var_banktransdet_custfeedbck
-        INNER JOIN etech.aoup_usermst_def c
+        INNER JOIN etech_cm.aoup_usermst_def c
                 ON c.var_usermst_userid = var_banktransdet_userid
-        INNER JOIN etech.view_user_level_new
+        INNER JOIN etech_cm.view_user_level_new
                 ON Main_compid = num_usermst_brid
                 OR center_compid = num_usermst_brid
                 OR Zone_compid = num_usermst_brid
                 OR State_compid = num_usermst_brid
                 OR branch_compid = num_usermst_brid
-        INNER JOIN etech.aoup_usermst_def t
+        INNER JOIN etech_cm.aoup_usermst_def t
                 ON Main_compid = t.num_usermst_brid
                 OR center_compid = t.num_usermst_brid
                 OR Zone_compid = t.num_usermst_brid

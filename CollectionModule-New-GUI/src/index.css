@@ -1,4 +1,4 @@
-@import url('/assets/css/main.css');
+@import url("/assets/css/main.css");
 
 body {
   margin: 0;
@@ -9,7 +9,10 @@ body {
 .main,
 .header-left,
 .sidebar {
-  transition: margin-left var(--transition-base), width var(--transition-base), min-width var(--transition-base);
+  transition:
+    margin-left var(--transition-base),
+    width var(--transition-base),
+    min-width var(--transition-base);
 }
 
 /* Main content area - let it flow naturally with margin-left for sidebar */
@@ -328,7 +331,10 @@ body {
   border-radius: 14px;
   background: var(--bg-secondary);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
 .datatable-search-shell:focus-within {
@@ -371,7 +377,9 @@ body {
   height: 28px;
   border-radius: 999px;
   flex-shrink: 0;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .datatable-search-clear:hover {
@@ -456,4 +464,461 @@ body {
 
 .table > :not(caption) > * > * {
   color: inherit !important;
+}
+
+.datagrid-wrapper .grouped-datagrid-table,
+.datagrid-wrapper .reusable-datagrid-table {
+  --bs-table-bg: var(--bg-primary);
+  --bs-table-color: var(--text-primary);
+  --bs-table-border-color: var(--border-color);
+  --bs-table-striped-bg: color-mix(
+    in srgb,
+    var(--table-stripe-bg),
+    var(--bg-primary) 35%
+  );
+  --bs-table-hover-bg: color-mix(
+    in srgb,
+    var(--table-hover-bg),
+    var(--accent-color) 6%
+  );
+  border-color: var(--border-color);
+  background-color: var(--bg-primary);
+}
+
+.datagrid-wrapper .grouped-datagrid-table thead th,
+.datagrid-wrapper .reusable-datagrid-table thead th {
+  background-color: var(--table-header-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.datagrid-wrapper .grouped-datagrid-table thead tr:first-child th,
+.datagrid-wrapper .reusable-datagrid-table thead tr:first-child th {
+  border-top: 2px solid var(--border-color-dark) !important;
+  border-bottom: 2px solid var(--border-color-dark) !important;
+  border-left: 1px solid var(--border-color-dark) !important;
+  border-right: 1px solid var(--border-color-dark) !important;
+}
+
+.datagrid-wrapper .grouped-datagrid-table thead th.table-secondary {
+  background: color-mix(
+    in srgb,
+    var(--table-header-bg),
+    var(--accent-color) 14%
+  ) !important;
+}
+
+.datagrid-wrapper .grouped-datagrid-table thead th.table-light {
+  background: color-mix(
+    in srgb,
+    var(--table-header-bg),
+    var(--accent-color) 6%
+  ) !important;
+}
+
+.datagrid-wrapper .grouped-datagrid-table tbody td,
+.datagrid-wrapper .reusable-datagrid-table tbody td {
+  border-color: var(--border-color) !important;
+  color: var(--text-primary);
+}
+
+.users-search .search-icon {
+  position: absolute;
+  top: 50%;
+  left: 4%;
+  transform: translateY(-50%);
+}
+
+/* Css for Entity Mapping Console */
+
+.mapping-tree {
+  font-size: 0.95rem;
+}
+
+.tree-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+}
+
+.tree-root {
+  font-weight: 600;
+}
+
+.tree-children {
+  margin-left: 8px;
+  padding-left: 18px;
+  border-left: 1px dashed #c8ccd4;
+}
+
+.tree-children:last-child {
+  border-left: 1px dashed #c8ccd4;
+}
+
+.tree-agency::before,
+.tree-fos::before {
+  content: "";
+  position: absolute;
+  left: -18px;
+  top: 50%;
+  width: 14px;
+  border-top: 1px dashed #c8ccd4;
+}
+
+.tree-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.badge-co {
+  background: #f5dfdf;
+  color: #b80909;
+}
+
+.badge-ag {
+  background: #e7f1ff;
+  color: #0d6efd;
+}
+
+.badge-fos {
+  background: #e6f8e7;
+  color: #0f9a26;
+}
+
+/* cases Allocation rules */
+.aw-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #e9ecef;
+  gap: 4px;
+}
+
+.aw-tab-btn {
+  border: none;
+  background: none;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #868e96;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s ease-in-out;
+}
+
+.aw-tab-btn:hover {
+  color: #212529;
+}
+
+.aw-tab-btn.active {
+  color: #1a1a2e;
+  font-weight: 600;
+  border-bottom: 2px solid #1a1a2e;
+}
+
+@media (max-width: 576px) {
+  .aw-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .aw-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .aw-tab-btn {
+    white-space: nowrap;
+    padding: 10px 12px;
+    font-size: 0.85rem;
+  }
+}
+
+.dbt-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dbt-stat-label {
+  font-size: 0.82rem;
+  color: #868e96;
+}
+
+.dbt-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.dbt-card {
+  border: 1px solid #eef0f2;
+  box-shadow: none;
+}
+
+.dbt-card-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.dbt-segment-label {
+  font-size: 0.85rem;
+  color: #495057;
+}
+
+.dbt-segment-count {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.dbt-progress-track {
+  width: 100%;
+  height: 6px;
+  background: #f1f3f5;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.dbt-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.dbt-run-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f3f5;
+  font-size: 0.88rem;
+}
+
+.dbt-run-row:last-child {
+  border-bottom: none;
+}
+
+.dbt-run-name {
+  color: #212529;
+}
+
+.dbt-run-status {
+  color: #2b8a3e;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.dbt-run-time {
+  color: #868e96;
+  font-size: 0.85rem;
+}
+
+.art-title {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: #1a1a2e;
+  margin-bottom: 16px;
+}
+
+.art-rule-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid #eef0f2;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.art-fallback {
+  background: #eff1f4;
+}
+
+.art-rule-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  border-radius: 50%;
+  background: #e7f1ff;
+  color: #1971c2;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.art-rule-body {
+  flex: 1;
+}
+
+.art-rule-condition {
+  font-size: 0.88rem;
+  color: #212529;
+  margin-bottom: 4px;
+}
+
+.art-rule-code {
+  background: none;
+  color: #212529;
+  font-weight: 700;
+  font-family: inherit;
+  padding: 0;
+}
+
+.art-rule-route {
+  font-size: 0.82rem;
+  color: #868e96;
+}
+
+.art-edit-btn {
+  background: none;
+  border: none;
+  color: #adb5bd;
+  padding: 4px;
+  margin-top: 2px;
+}
+
+.art-edit-btn:hover {
+  color: #495057;
+}
+
+.cqt-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 8px 12px;
+  min-width: 220px;
+  padding-left: 36px;
+}
+
+.cqt-search .search-icon {
+  color: #adb5bd;
+  margin-right: 8px;
+}
+
+.cqt-search input {
+  border: none;
+  outline: none;
+  font-size: 0.85rem;
+  width: 100%;
+  background: transparent;
+}
+
+.cqt-segment-select {
+  width: auto;
+  font-size: 0.85rem;
+}
+
+.cqt-table th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  color: #868e96;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-bottom: 1px solid #eef0f2;
+}
+
+.cqt-table td {
+  font-size: 0.88rem;
+  border-bottom: 1px solid #f4f5f7;
+}
+
+.cqt-route-badge {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.cqt-route-green {
+  background: #d3f9d8;
+  color: #2b8a3e;
+}
+
+.cqt-route-red {
+  background: #ffe3e3;
+  color: #c92a2a;
+}
+
+.cqt-route-gray {
+  background: #f1f3f5;
+  color: #495057;
+}
+
+.cqt-showing {
+  font-size: 0.85rem;
+}
+
+.act-card {
+  border: 1px solid #eef0f2;
+  box-shadow: none;
+}
+
+.act-team-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #1a1a2e;
+}
+
+.act-team-count {
+  font-size: 0.82rem;
+  color: #868e96;
+}
+
+.act-progress-track {
+  width: 100%;
+  height: 6px;
+  background: #f1f3f5;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.act-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.rrt-config-card {
+  border: 1px solid #eef0f2;
+  box-shadow: none;
+}
+
+.rrt-card-title {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.rrt-label {
+  font-size: 0.82rem;
+  color: #868e96;
+  font-weight: 500;
+}
+
+.rrt-preview-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 4px;
+  font-size: 0.88rem;
+  color: #212529;
+  border-bottom: 1px solid #f4f5f7;
+}
+
+.rrt-preview-total {
+  border-bottom: none;
+  font-weight: 700;
+  padding-top: 12px;
 }
