@@ -230,7 +230,7 @@ const AllocationRulesTab = () => {
       case "high":
         return "bg-danger";
       case "medium":
-        return "bg-warning text-dark";
+        return "bg-warning text-white";
       case "low":
         return "bg-info";
       default:
@@ -243,7 +243,7 @@ const AllocationRulesTab = () => {
       case "active":
         return "bg-success";
       case "draft":
-        return "bg-warning text-dark";
+        return "bg-warning text-white";
       case "paused":
         return "bg-secondary";
       default:
