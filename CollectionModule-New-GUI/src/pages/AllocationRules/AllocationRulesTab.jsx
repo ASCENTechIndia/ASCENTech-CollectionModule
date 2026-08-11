@@ -411,6 +411,7 @@ const AllocationRulesTab = () => {
                       </label>
                       <input
                         type="number"
+                        min={0}
                         {...register("minDebtAmount", {
                           required: "Minimum debt amount is required",
                         })}
@@ -428,6 +429,7 @@ const AllocationRulesTab = () => {
                       </label>
                       <input
                         type="number"
+                        min={0}
                         {...register("maxDebtAmount", {
                           required: "Maximum debt amount is required",
                         })}
@@ -448,6 +450,7 @@ const AllocationRulesTab = () => {
                       </label>
                       <input
                         type="number"
+                        min={0}
                         {...register("debtAgeMin", {
                           required: "Minimum debt age is required",
                         })}
@@ -464,6 +467,7 @@ const AllocationRulesTab = () => {
                       </label>
                       <input
                         type="number"
+                        min={0}
                         {...register("debtAgeMax", {
                           required: "Maximum debt age is required",
                         })}
@@ -524,6 +528,7 @@ const AllocationRulesTab = () => {
                       </label>
                       <input
                         type="number"
+                        min={0}
                         {...register("collectorSuccessRate", {
                           required: "Collector success rate is required",
                         })}
@@ -541,6 +546,7 @@ const AllocationRulesTab = () => {
                       </label>
                       <input
                         type="number"
+                        min={0}
                         {...register("collectorExperience", {
                           required: "Collector experience is required",
                         })}
