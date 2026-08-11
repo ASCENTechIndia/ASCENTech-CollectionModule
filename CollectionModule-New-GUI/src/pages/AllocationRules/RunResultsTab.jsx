@@ -1,5 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useNotification } from "../../context/NotificationContext";
+import { useLoader } from "../../context/LoaderContext";
+import apiClient from "../../services/apiClient";
 
 const scopeOptions = [
   { label: "All unallocated cases", value: "all" },
@@ -13,6 +16,10 @@ const ruleSetOptions = [
 ];
 
 const RunResultsTab = () => {
+  const { showError, showSuccess, showWarning } = useNotification();
+  const { setLoader } = useLoader();
+  const [preview, setPreview] = useState([]);
+  const [totalPreview, setTotalPreview] = useState(0);
   const {
     register,
     handleSubmit,
@@ -24,15 +31,6 @@ const RunResultsTab = () => {
     },
   });
 
-  const [preview, setPreview] = useState([
-    { label: "In-house early-stage", count: 842 },
-    { label: "High-propensity specialists", count: 310 },
-    { label: "Meridian (external)", count: 1120 },
-    { label: "Castlebrook (external)", count: 890 },
-  ]);
-
-  const total = preview.reduce((sum, item) => sum + item.count, 0);
-
   const onSimulate = (data) => {
     console.log("Simulate run with:", data);
   };
@@ -40,6 +38,37 @@ const RunResultsTab = () => {
   const onRunAllocation = (data) => {
     console.log("Run allocation with:", data);
   };
+
+  const fetchSimulationPreviewList = async () => {
+    try {
+      setLoader(true);
+      const res = await apiClient.get(
+        "/allocation/allocation-rules/simulation-preview",
+      );
+      if (res?.success && res?.data?.length > 0) {
+        let total = 0;
+        const data = res.data.map((item) => {
+          total += item.MATCHING_COUNT;
+          return { label: item.VAR_RULE_NAME, count: item.MATCHING_COUNT };
+        });
+        setTotalPreview(total);
+        setPreview(data);
+      } else {
+        setPreview([]);
+        showWarning("Simulation Preview list data not found");
+      }
+    } catch (error) {
+      setPreview([]);
+      console.error(error);
+      showError(error.message);
+    } finally {
+      setLoader(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSimulationPreviewList();
+  }, []);
 
   return (
     <div className="rrt-wrap">
@@ -121,7 +150,7 @@ const RunResultsTab = () => {
         ))}
         <div className="rrt-preview-row rrt-preview-total">
           <span>Total</span>
-          <span>{total.toLocaleString()} cases</span>
+          <span>{totalPreview} cases</span>
         </div>
       </div>
     </div>
