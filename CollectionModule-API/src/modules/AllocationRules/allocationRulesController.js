@@ -2,7 +2,7 @@ const { AppError } = require("../../utils/app-error");
 const { auditLog } = require("../../utils/audit-log");
 const { logApiSuccess, logApiError } = require("../../utils/log");
 const { insertRuleService,updateRuleService , getAllRuleService, getRuleService,
-  deleteRuleService
+  deleteRuleService, simulationPreviewService
 } = require("./allocationRules.service");
 
 async function insertRuleController(req, res, next) {
@@ -155,6 +155,38 @@ async function deleteRuleController(req, res, next) {
   }
 }
 
+async function simulationPreviewController(req, res, next) {
+  try {
+    const result = await simulationPreviewService();
+
+    if (!result) {
+      throw new AppError(
+        "Failed to fetch simulation preview",
+        400
+      );
+    }
+
+    logApiSuccess(
+      req,
+      200,
+      result,
+      "Simulation preview fetched successfully"
+    );
+
+    return res.ok(result.data);
+  } catch (error) {
+    logApiError(
+      req,
+      400,
+      error.message,
+      "Failed to fetch simulation preview"
+    );
+
+    return next(error);
+  }
+}
+
+
 
 
 module.exports = {
@@ -162,6 +194,7 @@ module.exports = {
   updateRuleController,
   getAllRuleController,
   getRuleController,
-  deleteRuleController
+  deleteRuleController,
+  simulationPreviewController
   
 };

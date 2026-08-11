@@ -1,5 +1,6 @@
 const oracledb = require("oracledb");
 const { executeProcedure } = require("../../db/procedureExecutor");
+const { executeQuery } = require('../../db/queryExecutor');
 
 async function insertRepo(payload) {
   const statement = `
@@ -368,6 +369,19 @@ async function deleteRuleRepo(ruleId) {
   return result;
 }
 
+async function simulationPreviewRepo() {
+  const sql = `
+    SELECT
+      NUM_RULE_ID,
+      VAR_RULE_NAME,
+      MATCHING_COUNT
+    FROM ATBSS_CM.VW_AOUP_RULE_MATCHING_COUNT
+  `;
+
+  const result = await executeQuery(sql, {}, { dbName: "db3" });
+
+  return result.rows || [];
+}
 
 
 
@@ -376,5 +390,6 @@ module.exports = {
   updateRepo,
   getAllRuleRepo,
   getRuleRepo,
-  deleteRuleRepo
+  deleteRuleRepo,
+  simulationPreviewRepo
 };

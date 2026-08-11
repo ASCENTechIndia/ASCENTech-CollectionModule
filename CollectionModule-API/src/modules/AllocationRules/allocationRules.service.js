@@ -1,6 +1,6 @@
 const { AppError } = require("../../utils/app-error");
 const { insertRepo,  updateRepo, getAllRuleRepo, getRuleRepo ,
-  deleteRuleRepo
+  deleteRuleRepo, simulationPreviewRepo
 } = require("./allocationRules.repo");
 
 async function insertRuleService(payload) {
@@ -117,6 +117,31 @@ async function deleteRuleService(ruleId) {
   }
 }
 
+async function simulationPreviewService() {
+  try {
+    const result = await simulationPreviewRepo();
+
+    if (!result) {
+      throw new AppError(
+        "Failed to fetch simulation preview",
+        400
+      );
+    }
+
+    return {
+      success: true,
+      message: "Success",
+      data: result,
+    };
+  } catch (error) {
+    throw new AppError(
+      `Failed to fetch simulation preview: ${error.message}`,
+      400
+    );
+  }
+}
+
+
 
 
 module.exports = {
@@ -124,5 +149,6 @@ module.exports = {
   updateRuleService,
   getAllRuleService,
   getRuleService,
-  deleteRuleService
+  deleteRuleService,
+  simulationPreviewService
 };
