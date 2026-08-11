@@ -56,6 +56,7 @@ async function insertRepo(payload) {
   };
 
   const result = await executeProcedure({ statement, binds, useTx: false, dbName: "db3" });
+  console.log("result :", result)
   return result;
 }
 
