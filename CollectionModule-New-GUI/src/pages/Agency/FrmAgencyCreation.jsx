@@ -404,7 +404,7 @@ const FrmAgencyCreation = () => {
                 {...register("slaConfig", { required: "SLA Config is required" })}
                 className={`form-select ${errors.slaConfig ? "is-invalid" : ""}`}
               >
-                <option value="">--SELECT--</option>
+                <option value="">Select</option>
                 <option value="1">SLA-1</option>
                 <option value="2">SLA-2</option>
                 <option value="3">SLA-3</option>

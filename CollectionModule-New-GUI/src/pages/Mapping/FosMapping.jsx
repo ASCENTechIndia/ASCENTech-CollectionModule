@@ -168,7 +168,7 @@ const FosMapping = () => {
                   })}
                   className={`form-select ${errors.agency ? "is-invalid" : ""}`}
                 >
-                  <option value="">--SELECT--</option>
+                  <option value="">Select</option>
                   {agencyOptions.map((item) => (
                     <option key={item.value} value={item.value}>
                       {item.label}
@@ -188,7 +188,7 @@ const FosMapping = () => {
                   })}
                   className={`form-select ${errors.fos ? "is-invalid" : ""}`}
                 >
-                  <option value="">--SELECT--</option>
+                  <option value="">Select</option>
                   {fosOptions.map((item) => (
                     <option key={item.value} value={item.value}>
                       {item.label}
@@ -210,7 +210,7 @@ const FosMapping = () => {
                   })}
                   className={`form-select ${errors.action ? "is-invalid" : ""}`}
                 >
-                  <option value="">--SELECT--</option>
+                  <option value="">Select</option>
                   {actionOptions.map((item) => (
                     <option key={item.value} value={item.value}>
                       {item.label}

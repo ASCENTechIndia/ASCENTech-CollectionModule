@@ -25,6 +25,8 @@ const FrmCreateMapping = () => {
     reset,
     setValue,
     formState: { errors },
+    setError,
+    clearErrors,
   } = useForm({
     defaultValues: {
       fromEntityType: "",
@@ -55,7 +57,6 @@ const FrmCreateMapping = () => {
   const toEntity = watch("toEntity");
   const effectiveFrom = watch("effectiveFrom");
 
-  // id of the row currently being edited (null when adding a fresh row)
   const [editingId, setEditingId] = useState(null);
   const [pendingEdit, setPendingEdit] = useState(null);
 
@@ -104,7 +105,21 @@ const FrmCreateMapping = () => {
     }
 
     loadFromEntities(fromEntityType);
-  }, [fromEntityType]);
+
+    if (fromEntityType && toEntityType && fromEntityType === toEntityType) {
+      setError("toEntityType", {
+        type: "manual",
+        message: "From entity type and to entity type cannot be same",
+      });
+      setError("fromEntityType", {
+        type: "manual",
+        message: "From entity type and to entity type cannot be same",
+      });
+    } else {
+      clearErrors("fromEntityType");
+      clearErrors("toEntityType");
+    }
+  }, [fromEntityType, toEntityType]);
 
   const loadFromEntities = async (entityType) => {
     try {
@@ -161,8 +176,6 @@ const FrmCreateMapping = () => {
         apiUrl = "/mapping/company-list";
       } else if (entityType === "AGENCY") {
         apiUrl = "/mapping/agency-list";
-      } else if (entityType === "FOS") {
-        apiUrl = "/mapping/fos-list";
       }
 
       const response = await apiClient.get(apiUrl);
@@ -192,9 +205,6 @@ const FrmCreateMapping = () => {
     }
   };
 
-  // Once the From/To entity dropdown list finishes (re)loading during an
-  // edit, restore the value the row actually had (loadFromEntities /
-  // loadToEntities always reset the select to "" right after loading).
   useEffect(() => {
     if (pendingEdit?.fromEntity !== undefined && fromEntities.length > 0) {
       setValue("fromEntity", pendingEdit.fromEntity);
@@ -236,8 +246,6 @@ const FrmCreateMapping = () => {
     return `${day}-${months[Number(month) - 1]}-${year}`;
   };
 
-  // Inverse of formatDate: turns "24-Jul-2026" back into "2026-07-24" so it
-  // can be put back into a native <input type="date"> when editing a row.
   const parseDateForInput = (dateString) => {
     if (!dateString) return "";
 
@@ -282,8 +290,6 @@ const FrmCreateMapping = () => {
     }
   };
 
-  // Add button: either appends a brand new row, or (when editingId is set)
-  // updates the existing row in place, keeping the same id.
   const handleAddRow = (values) => {
     if (values.fromEntity === values.toEntity) {
       showError("From Entity and To Entity cannot be same.");
@@ -333,9 +339,6 @@ const FrmCreateMapping = () => {
     reset();
   };
 
-  // Edit button on a row: pushes that row's values back into the form and
-  // remembers its id so the next "Add" click updates it instead of
-  // creating a duplicate.
   const handleEditRow = (row) => {
     setEditingId(row.id);
 
@@ -350,11 +353,8 @@ const FrmCreateMapping = () => {
       row.effectiveTo ? parseDateForInput(row.effectiveTo) : "",
     );
 
-    // Try setting immediately in case the entity list is already loaded...
     setValue("fromEntity", row.fromEntity);
     setValue("toEntity", row.toEntity);
-    // and also queue it in case fromEntityType/toEntityType change
-    // triggers a list reload that would otherwise wipe these back to "".
     setPendingEdit({ fromEntity: row.fromEntity, toEntity: row.toEntity });
   };
 
@@ -407,7 +407,6 @@ const FrmCreateMapping = () => {
       setLoading(true);
       setLoader(true);
 
-      // Strip out the UI-only status fields before sending to the API
       const payload = records.map(({ errorCode, errorMsg, ...rest }) => rest);
 
       const response = await apiClient.post("/mapping/create-mapping", payload);
@@ -464,7 +463,7 @@ const FrmCreateMapping = () => {
                       errors.fromEntityType ? "is-invalid" : ""
                     }`}
                   >
-                    <option value="">--SELECT--</option>
+                    <option value="">Select</option>
                     <option value="COMPANY">Company</option>
                     <option value="AGENCY">Agency</option>
                   </select>
@@ -488,10 +487,9 @@ const FrmCreateMapping = () => {
                       errors.toEntityType ? "is-invalid" : ""
                     }`}
                   >
-                    <option value="">--SELECT--</option>
+                    <option value="">Select</option>
                     <option value="COMPANY">Company</option>
                     <option value="AGENCY">Agency</option>
-                    <option value="FOS">FOS</option>
                   </select>
 
                   <div className="invalid-feedback">
@@ -515,7 +513,7 @@ const FrmCreateMapping = () => {
                       errors.relationship ? "is-invalid" : ""
                     }`}
                   >
-                    <option value="">--Select--</option>
+                    <option value="">Select</option>
                     {relationshipOptions.map((item) => (
                       <option key={item.value} value={item.value}>
                         {item.label}
@@ -722,11 +720,11 @@ const FrmCreateMapping = () => {
             style={{ maxWidth: "400px" }}
           >
             <select className="form-select">
-              <option value="">--SELECT--</option>
+              <option value="">Select</option>
               <option value="All">All Types</option>
             </select>
             <select className="form-select">
-              <option value="">--SELECT--</option>
+              <option value="">Select</option>
               <option value="All">All Status</option>
             </select>
           </div>

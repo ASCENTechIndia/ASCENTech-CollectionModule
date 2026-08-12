@@ -49,7 +49,7 @@ const RunResultsTab = () => {
         let total = 0;
         const data = res.data.map((item) => {
           total += Number(item.MATCHING_COUNT) || 0;
-          return { label: item.VAR_RULE_NAME, count: item.MATCHING_COUNT };
+          return { label: item.VAR_RULE_NAME, count: item.MATCHING_COUNT };``
         });
         setTotalPreview(total);
         setPreview(data);

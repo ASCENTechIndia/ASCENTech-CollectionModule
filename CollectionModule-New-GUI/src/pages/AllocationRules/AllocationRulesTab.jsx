@@ -37,6 +37,9 @@ const AllocationRulesTab = () => {
     formState: { errors },
     reset,
     setValue,
+    watch,
+    setError,
+    clearErrors,
   } = useForm({
     defaultValues: defaultValues,
   });
@@ -77,6 +80,22 @@ const AllocationRulesTab = () => {
       label: "New Collector Training Pool",
     },
   ];
+
+  const debtAgeMin = watch("debtAgeMin");
+  const debtAgeMax = watch("debtAgeMax");
+
+  useEffect(() => {
+    const min = Number(debtAgeMin);
+    const max = Number(debtAgeMax);
+    if (debtAgeMin && debtAgeMax && min > max) {
+      setError("debtAgeMin", {
+        type: "manual",
+        message: "Min cannot be greater than Max",
+      });
+    } else {
+      clearErrors("debtAgeMin");
+    }
+  }, [debtAgeMin, debtAgeMax, setError, clearErrors]);
 
   useEffect(() => {
     fetchRules();
@@ -130,18 +149,18 @@ const AllocationRulesTab = () => {
       const payload = {
         action: editingRule ? "UPDATE" : "INSERT",
         ruleId: editingRule ? editingRule.id : null,
-        ruleName: data.ruleName,
-        priority: data.priority,
-        status: data.status,
-        minDebtAmount: data.minDebtAmount,
-        maxDebtAmount: data.maxDebtAmount,
-        minDebtAgeDays: data.debtAgeMin,
-        maxDebtAgeDays: data.debtAgeMax,
-        accountType: data.accountType,
-        region: data.region,
-        minCollectorSuccessRate: data.collectorSuccessRate,
-        minCollectorExperience: data.collectorExperience,
-        assignedTo: data.assignedTo,
+        ruleName: data.ruleName || null,
+        priority: data.priority || null,
+        status: data.status || null,
+        minDebtAmount: data.minDebtAmount || null,
+        maxDebtAmount: data.maxDebtAmount || null,
+        minDebtAgeDays: data.debtAgeMin || null,
+        maxDebtAgeDays: data.debtAgeMax || null,
+        accountType: data.accountType || null,
+        region: data.region || null,
+        minCollectorSuccessRate: data.collectorSuccessRate || null,
+        minCollectorExperience: data.collectorExperience || null,
+        assignedTo: data.assignedTo || null,
         user: userId,
       };
 
@@ -269,11 +288,23 @@ const AllocationRulesTab = () => {
                   <div className="d-flex gap-2 align-items-center mt-2 mt-md-0">
                     <span
                       className={`badge ${getPriorityBadge(rule.priority)}`}
+                      style={{
+                        minWidth: "70px",
+                        display: "inline-block",
+                        textAlign: "center",
+                      }}
                     >
-                      {rule.priority || "N/A"}
+                      {rule.priority?.toUpperCase() || "N/A"}
                     </span>
-                    <span className={`badge ${getStatusBadge(rule.status)}`}>
-                      {rule.status || "N/A"}
+                    <span
+                      className={`badge ${getStatusBadge(rule.status)}`}
+                      style={{
+                        minWidth: "70px",
+                        display: "inline-block",
+                        textAlign: "center",
+                      }}
+                    >
+                      {rule.status?.toUpperCase() || "N/A"}
                     </span>
                   </div>
                 </div>
@@ -315,7 +346,6 @@ const AllocationRulesTab = () => {
         </div>
       </div>
 
-      {/* ===== Add/Edit Modal ===== */}
       {modalOpen && (
         <div
           className="modal fade show"
@@ -337,7 +367,6 @@ const AllocationRulesTab = () => {
               </div>
               <div className="modal-body">
                 <form onSubmit={handleSubmit(onSubmit)}>
-                  {/* --- Rule Details --- */}
                   <div className="row">
                     <div className="col-md-6 mb-3">
                       <label className="form-label">
@@ -356,15 +385,8 @@ const AllocationRulesTab = () => {
                       </div>
                     </div>
                     <div className="col-md-3 mb-3">
-                      <label className="form-label">
-                        Priority <span className="text-danger">*</span>
-                      </label>
-                      <select
-                        {...register("priority", {
-                          required: "Priority is required",
-                        })}
-                        className={`form-select ${errors.priority ? "is-invalid" : ""}`}
-                      >
+                      <label className="form-label">Priority</label>
+                      <select {...register("priority")} className="form-select">
                         <option value="">Select Priority</option>
                         {priorityDropdown.map((opt) => (
                           <option key={opt.value} value={opt.value}>
@@ -372,9 +394,6 @@ const AllocationRulesTab = () => {
                           </option>
                         ))}
                       </select>
-                      <div className="invalid-feedback">
-                        {errors.priority?.message}
-                      </div>
                     </div>
                     <div className="col-md-3 mb-3">
                       <label className="form-label">
@@ -406,54 +425,37 @@ const AllocationRulesTab = () => {
                   <div className="row">
                     <div className="col-md-6 mb-3">
                       <label className="form-label">
-                        Minimum Debt Amount ($){" "}
-                        <span className="text-danger">*</span>
+                        Minimum Debt Amount ($)
                       </label>
                       <input
                         type="number"
                         min={0}
-                        {...register("minDebtAmount", {
-                          required: "Minimum debt amount is required",
-                        })}
-                        className={`form-control ${errors.minDebtAmount ? "is-invalid" : ""}`}
+                        {...register("minDebtAmount")}
+                        className="form-control"
                         placeholder="0"
                       />
-                      <div className="invalid-feedback">
-                        {errors.minDebtAmount?.message}
-                      </div>
                     </div>
                     <div className="col-md-6 mb-3">
                       <label className="form-label">
-                        Maximum Debt Amount ($){" "}
-                        <span className="text-danger">*</span>
+                        Maximum Debt Amount ($)
                       </label>
                       <input
                         type="number"
                         min={0}
-                        {...register("maxDebtAmount", {
-                          required: "Maximum debt amount is required",
-                        })}
-                        className={`form-control ${errors.maxDebtAmount ? "is-invalid" : ""}`}
+                        {...register("maxDebtAmount")}
+                        className="form-control"
                         placeholder="No limit"
                       />
-                      <div className="invalid-feedback">
-                        {errors.maxDebtAmount?.message}
-                      </div>
                     </div>
                   </div>
 
                   <div className="row">
                     <div className="col-md-3 mb-3">
-                      <label className="form-label">
-                        Debt Age Range (Days) – Min{" "}
-                        <span className="text-danger">*</span>
-                      </label>
+                      <label className="form-label">Debt Age Range – Min</label>
                       <input
                         type="number"
                         min={0}
-                        {...register("debtAgeMin", {
-                          required: "Minimum debt age is required",
-                        })}
+                        {...register("debtAgeMin")}
                         className={`form-control ${errors.debtAgeMin ? "is-invalid" : ""}`}
                         placeholder="Min"
                       />
@@ -461,32 +463,22 @@ const AllocationRulesTab = () => {
                         {errors.debtAgeMin?.message}
                       </div>
                     </div>
+
                     <div className="col-md-3 mb-3">
-                      <label className="form-label">
-                        – Max <span className="text-danger">*</span>
-                      </label>
+                      <label className="form-label">– Max</label>
                       <input
                         type="number"
                         min={0}
-                        {...register("debtAgeMax", {
-                          required: "Maximum debt age is required",
-                        })}
-                        className={`form-control ${errors.debtAgeMax ? "is-invalid" : ""}`}
+                        {...register("debtAgeMax")}
+                        className="form-control"
                         placeholder="Max"
                       />
-                      <div className="invalid-feedback">
-                        {errors.debtAgeMax?.message}
-                      </div>
                     </div>
                     <div className="col-md-3 mb-3">
-                      <label className="form-label">
-                        Account Type <span className="text-danger">*</span>
-                      </label>
+                      <label className="form-label">Account Type</label>
                       <select
-                        {...register("accountType", {
-                          required: "Account type is required",
-                        })}
-                        className={`form-select ${errors.accountType ? "is-invalid" : ""}`}
+                        {...register("accountType")}
+                        className="form-select"
                       >
                         {accountDropdown.map((opt) => (
                           <option key={opt.value} value={opt.value}>
@@ -494,81 +486,52 @@ const AllocationRulesTab = () => {
                           </option>
                         ))}
                       </select>
-                      <div className="invalid-feedback">
-                        {errors.accountType?.message}
-                      </div>
                     </div>
                     <div className="col-md-3 mb-3">
-                      <label className="form-label">
-                        Region <span className="text-danger">*</span>
-                      </label>
-                      <select
-                        {...register("region", {
-                          required: "Region is required",
-                        })}
-                        className={`form-select ${errors.region ? "is-invalid" : ""}`}
-                      >
+                      <label className="form-label">Region</label>
+                      <select {...register("region")} className="form-select">
                         {regionDropdown.map((opt) => (
                           <option key={opt.value} value={opt.value}>
                             {opt.label}
                           </option>
                         ))}
                       </select>
-                      <div className="invalid-feedback">
-                        {errors.region?.message}
-                      </div>
                     </div>
                   </div>
 
                   <div className="row">
                     <div className="col-md-6 mb-3">
                       <label className="form-label">
-                        Minimum Collector Success Rate (%){" "}
-                        <span className="text-danger">*</span>
+                        Minimum Collector Success Rate (%)
                       </label>
                       <input
                         type="number"
                         min={0}
-                        {...register("collectorSuccessRate", {
-                          required: "Collector success rate is required",
-                        })}
-                        className={`form-control ${errors.collectorSuccessRate ? "is-invalid" : ""}`}
+                        {...register("collectorSuccessRate")}
+                        className="form-control"
                         placeholder="0"
                       />
-                      <div className="invalid-feedback">
-                        {errors.collectorSuccessRate?.message}
-                      </div>
                     </div>
                     <div className="col-md-6 mb-3">
                       <label className="form-label">
-                        Minimum Collector Experience (Years){" "}
-                        <span className="text-danger">*</span>
+                        Minimum Collector Experience (Years)
                       </label>
                       <input
                         type="number"
                         min={0}
-                        {...register("collectorExperience", {
-                          required: "Collector experience is required",
-                        })}
-                        className={`form-control ${errors.collectorExperience ? "is-invalid" : ""}`}
+                        {...register("collectorExperience")}
+                        className="form-control"
                         placeholder="0"
                       />
-                      <div className="invalid-feedback">
-                        {errors.collectorExperience?.message}
-                      </div>
                     </div>
                   </div>
 
                   <div className="row">
                     <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        Assigned To <span className="text-danger">*</span>
-                      </label>
+                      <label className="form-label">Assigned To</label>
                       <select
-                        {...register("assignedTo", {
-                          required: "Assigned to is required",
-                        })}
-                        className={`form-select ${errors.assignedTo ? "is-invalid" : ""}`}
+                        {...register("assignedTo")}
+                        className="form-select"
                       >
                         {assignedToDropdown.map((opt) => (
                           <option key={opt.value} value={opt.value}>
@@ -576,9 +539,6 @@ const AllocationRulesTab = () => {
                           </option>
                         ))}
                       </select>
-                      <div className="invalid-feedback">
-                        {errors.assignedTo?.message}
-                      </div>
                     </div>
                   </div>
 

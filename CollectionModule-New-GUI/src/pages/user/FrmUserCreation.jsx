@@ -663,7 +663,7 @@ const FrmUserCreation = () => {
                       })}
                       className={`form-select ${errors.requestStatus ? "is-invalid" : ""}`}
                     >
-                      <option value="">--SELECT--</option>
+                      <option value="">Select</option>
                       <option value="Active">Active</option>
                       <option value="On-leave">On Leave</option>
                       <option value="Suspended">Suspended</option>
@@ -705,7 +705,7 @@ const FrmUserCreation = () => {
                       })}
                       className={`form-select ${errors.requestStatus ? "is-invalid" : ""}`}
                     >
-                      <option value="">--SELECT--</option>
+                      <option value="">Select</option>
                       <option value="Zone-A">Zone A</option>
                     </select>
                     {errors.geoZones && (
@@ -933,7 +933,7 @@ const FrmUserCreation = () => {
                       })}
                       className={`form-select ${errors.teamLead ? "is-invalid" : ""}`}
                     >
-                      <option value="">--SELECT--</option>
+                      <option value="">Select</option>
                       <option value="sam">Sam</option>
                     </select>
                     {errors.teamLead && (
@@ -953,7 +953,7 @@ const FrmUserCreation = () => {
                       })}
                       className={`form-select ${errors.skills ? "is-invalid" : ""}`}
                     >
-                      <option value="">--SELECT--</option>
+                      <option value="">Select</option>
                       <option value="1">Skill 1</option>
                     </select>
                     {errors.skills && (

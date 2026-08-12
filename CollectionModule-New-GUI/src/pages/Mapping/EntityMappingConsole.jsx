@@ -256,7 +256,7 @@ const EntityMappingConsole = () => {
                   errors.entityType ? "is-invalid" : ""
                 }`}
               >
-                <option value="">--SELECT--</option>
+                <option value="">Select</option>
                 <option value="COMPANY">Company</option>
                 <option value="AGENCY">Agency</option>
                 {/* <option value="FOS">FOS</option> */}

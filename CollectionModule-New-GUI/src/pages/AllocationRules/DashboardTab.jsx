@@ -4,7 +4,7 @@ const DashboardTab = () => {
   const stats = [
     { label: "Unallocated cases", value: "4,812" },
     { label: "Allocated today", value: "1,340" },
-    { label: "Portfolio value", value: "£8.2m" },
+    { label: "Portfolio value", value: "8.2m" },
     { label: "Avg recovery rate", value: "31%" },
   ];
 
