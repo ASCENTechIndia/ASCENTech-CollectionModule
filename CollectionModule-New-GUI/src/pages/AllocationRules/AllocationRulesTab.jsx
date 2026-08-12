@@ -28,7 +28,7 @@ const AllocationRulesTab = () => {
     region: "all",
     collectorSuccessRate: "",
     collectorExperience: "",
-    assignedTo: "Select Team/Collector",
+    assignedTo: "select team/collector",
   };
 
   const {
@@ -49,34 +49,38 @@ const AllocationRulesTab = () => {
     { value: "medium", label: "Medium" },
     { value: "low", label: "Low" },
   ];
+
   const statusDropdown = [
     { value: "active", label: "Active" },
     { value: "draft", label: "Draft" },
     { value: "paused", label: "Paused" },
   ];
+
   const accountDropdown = [
     { value: "all", label: "All Types" },
     { value: "credit card", label: "Credit Card" },
     { value: "personal loan", label: "Personal Loan" },
     { value: "medical", label: "Medical" },
     { value: "utility", label: "Utility" },
-    { value: "Other", label: "Other" },
+    { value: "other", label: "Other" },
   ];
+
   const regionDropdown = [
     { value: "all", label: "All Regions" },
-    { value: "North", label: "North" },
-    { value: "South", label: "South" },
-    { value: "East", label: "East" },
-    { value: "West", label: "West" },
-    { value: "International", label: "International" },
+    { value: "north", label: "North" },
+    { value: "south", label: "South" },
+    { value: "east", label: "East" },
+    { value: "west", label: "West" },
+    { value: "international", label: "International" },
   ];
+
   const assignedToDropdown = [
-    { value: "Select Team/Collector", label: "Select Team/Collector" },
-    { value: "Senior Collector Team A", label: "Senior Collector Team A" },
-    { value: "Collector Team B", label: "Collector Team B" },
-    { value: "Senior Collector Team C", label: "Senior Collector Team C" },
+    { value: "select team/collector", label: "Select Team/Collector" },
+    { value: "senior collector team a", label: "Senior Collector Team A" },
+    { value: "collector team b", label: "Collector Team B" },
+    { value: "senior collector team c", label: "Senior Collector Team C" },
     {
-      value: "New Collector Training Pool",
+      value: "new collector training pool",
       label: "New Collector Training Pool",
     },
   ];
@@ -193,17 +197,20 @@ const AllocationRulesTab = () => {
   const handleEdit = (rule) => {
     setEditingRule(rule);
     setValue("ruleName", rule.ruleName || "");
-    setValue("priority", rule.priority || "");
-    setValue("status", rule.status || "");
+    setValue("priority", rule.priority?.toLowerCase() || "");
+    setValue("status", rule.status?.toLowerCase() || "");
     setValue("minDebtAmount", rule.minDebtAmount || "");
     setValue("maxDebtAmount", rule.maxDebtAmount || "");
     setValue("debtAgeMin", rule.debtAgeMin || "");
     setValue("debtAgeMax", rule.debtAgeMax || "");
-    setValue("accountType", rule.accountType || "all");
-    setValue("region", rule.region || "all");
+    setValue("accountType", rule.accountType?.toLowerCase() || "all");
+    setValue("region", rule.region?.toLowerCase() || "all");
     setValue("collectorSuccessRate", rule.collectorSuccessRate || "");
     setValue("collectorExperience", rule.collectorExperience || "");
-    setValue("assignedTo", rule.assignedTo || "Select Team/Collector");
+    setValue(
+      "assignedTo",
+      rule.assignedTo?.toLowerCase() || "select team/collector",
+    );
     setModalOpen(true);
   };
 
@@ -424,9 +431,7 @@ const AllocationRulesTab = () => {
 
                   <div className="row">
                     <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        Minimum Debt Amount ($)
-                      </label>
+                      <label className="form-label">Minimum Debt Amount</label>
                       <input
                         type="number"
                         min={0}
@@ -436,9 +441,7 @@ const AllocationRulesTab = () => {
                       />
                     </div>
                     <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        Maximum Debt Amount ($)
-                      </label>
+                      <label className="form-label">Maximum Debt Amount</label>
                       <input
                         type="number"
                         min={0}
