@@ -1,8 +1,14 @@
 const { AppError } = require("../../utils/app-error");
 const { auditLog } = require("../../utils/audit-log");
 const { logApiSuccess, logApiError } = require("../../utils/log");
-const { insertRuleService,updateRuleService , getAllRuleService, getRuleService,
-  deleteRuleService, simulationPreviewService
+const {
+  insertRuleService,
+  updateRuleService,
+  getAllRuleService,
+  getRuleService,
+  deleteRuleService,
+  simulationPreviewService,
+  getRulesNameListService,
 } = require("./allocationRules.service");
 
 async function insertRuleController(req, res, next) {
@@ -20,7 +26,7 @@ async function insertRuleController(req, res, next) {
       entityId: "",
       status: result.message,
       details: {},
-      requestMeta: '',
+      requestMeta: "",
     });
 
     logApiSuccess(req, 201, result, `Allocation rule inserted successfully`);
@@ -31,48 +37,43 @@ async function insertRuleController(req, res, next) {
   }
 }
 
-async function updateRuleController(req, res, next) 
-{ try { const payload = req.body; 
-  const result = await updateRuleService(payload); 
-  if (!result) { throw new AppError("Failed to update allocation rule", 400); } 
-  auditLog({ action: "ALLOCATION_RULE_UPDATE", 
-    actor: req.user?.userId || "system", 
-    module: "allocationRule", entityId: payload.ruleId || "", 
-    status: result.message, details: {}, requestMeta: "", }); 
-    logApiSuccess( req, 200, result, "Allocation rule updated successfully" ); 
-    return res.ok(result.data.outBinds); 
-  } catch (error) 
-  { 
-    logApiError( req, 400, error.message, "Failed to update allocation rule" ); 
-    return next(error); } }
+async function updateRuleController(req, res, next) {
+  try {
+    const payload = req.body;
+    const result = await updateRuleService(payload);
+    if (!result) {
+      throw new AppError("Failed to update allocation rule", 400);
+    }
+    auditLog({
+      action: "ALLOCATION_RULE_UPDATE",
+      actor: req.user?.userId || "system",
+      module: "allocationRule",
+      entityId: payload.ruleId || "",
+      status: result.message,
+      details: {},
+      requestMeta: "",
+    });
+    logApiSuccess(req, 200, result, "Allocation rule updated successfully");
+    return res.ok(result.data.outBinds);
+  } catch (error) {
+    logApiError(req, 400, error.message, "Failed to update allocation rule");
+    return next(error);
+  }
+}
 
-
-    async function getAllRuleController(req, res, next) {
+async function getAllRuleController(req, res, next) {
   try {
     const result = await getAllRuleService();
 
     if (!result) {
-      throw new AppError(
-        "Failed to fetch allocation rules",
-        400
-      );
+      throw new AppError("Failed to fetch allocation rules", 400);
     }
 
-    logApiSuccess(
-      req,
-      200,
-      result,
-      "Allocation rules fetched successfully"
-    );
+    logApiSuccess(req, 200, result, "Allocation rules fetched successfully");
 
     return res.ok(result.data.outBinds);
   } catch (error) {
-    logApiError(
-      req,
-      400,
-      error.message,
-      "Failed to fetch allocation rules"
-    );
+    logApiError(req, 400, error.message, "Failed to fetch allocation rules");
 
     return next(error);
   }
@@ -85,32 +86,18 @@ async function getRuleController(req, res, next) {
     const result = await getRuleService(ruleId);
 
     if (!result) {
-      throw new AppError(
-        "Failed to fetch allocation rule",
-        400
-      );
+      throw new AppError("Failed to fetch allocation rule", 400);
     }
 
-    logApiSuccess(
-      req,
-      200,
-      result,
-      "Allocation rule fetched successfully"
-    );
+    logApiSuccess(req, 200, result, "Allocation rule fetched successfully");
 
     return res.ok(result.data.outBinds);
   } catch (error) {
-    logApiError(
-      req,
-      400,
-      error.message,
-      "Failed to fetch allocation rule"
-    );
+    logApiError(req, 400, error.message, "Failed to fetch allocation rule");
 
     return next(error);
   }
 }
-
 
 async function deleteRuleController(req, res, next) {
   try {
@@ -119,10 +106,7 @@ async function deleteRuleController(req, res, next) {
     const result = await deleteRuleService(ruleId);
 
     if (!result) {
-      throw new AppError(
-        "Failed to delete allocation rule",
-        400
-      );
+      throw new AppError("Failed to delete allocation rule", 400);
     }
 
     auditLog({
@@ -135,21 +119,11 @@ async function deleteRuleController(req, res, next) {
       requestMeta: "",
     });
 
-    logApiSuccess(
-      req,
-      200,
-      result,
-      "Allocation rule deleted successfully"
-    );
+    logApiSuccess(req, 200, result, "Allocation rule deleted successfully");
 
     return res.ok(result.data.outBinds);
   } catch (error) {
-    logApiError(
-      req,
-      400,
-      error.message,
-      "Failed to delete allocation rule"
-    );
+    logApiError(req, 400, error.message, "Failed to delete allocation rule");
 
     return next(error);
   }
@@ -160,34 +134,42 @@ async function simulationPreviewController(req, res, next) {
     const result = await simulationPreviewService();
 
     if (!result) {
-      throw new AppError(
-        "Failed to fetch simulation preview",
-        400
-      );
+      throw new AppError("Failed to fetch simulation preview", 400);
     }
 
-    logApiSuccess(
-      req,
-      200,
-      result,
-      "Simulation preview fetched successfully"
-    );
+    logApiSuccess(req, 200, result, "Simulation preview fetched successfully");
 
     return res.ok(result.data);
   } catch (error) {
-    logApiError(
-      req,
-      400,
-      error.message,
-      "Failed to fetch simulation preview"
-    );
+    logApiError(req, 400, error.message, "Failed to fetch simulation preview");
 
     return next(error);
   }
 }
 
-
-
+async function getRulesNameListController(req, res, next) {
+  try {
+    const result = await getRulesNameListService();
+    if (!result) {
+      throw new AppError("Failed to fetch allocation rules name list", 400);
+    }
+    logApiSuccess(
+      req,
+      200,
+      result,
+      "Allocation rules name list fetch successfully",
+    );
+    return res.ok(result);
+  } catch (error) {
+    logApiError(
+      req,
+      400,
+      error.message,
+      "Failed to fetch allocation rules name list",
+    );
+    return next(error)
+  }
+}
 
 module.exports = {
   insertRuleController,
@@ -195,6 +177,6 @@ module.exports = {
   getAllRuleController,
   getRuleController,
   deleteRuleController,
-  simulationPreviewController
-  
+  simulationPreviewController,
+  getRulesNameListController,
 };

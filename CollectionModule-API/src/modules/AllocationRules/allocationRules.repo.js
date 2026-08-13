@@ -57,7 +57,6 @@ async function insertRepo(payload) {
   };
 
   const result = await executeProcedure({ statement, binds, useTx: false, dbName: "db3" });
-  console.log("result :", result)
   return result;
 }
 
@@ -141,8 +140,6 @@ async function updateRepo(payload) {
     dbName: "db3",
   });
 
-  console.log("Update result:", result);
-
   return result;
 }
 
@@ -213,8 +210,6 @@ async function getAllRuleRepo() {
     useTx: false,
     dbName: "db3",
   });
-
-  console.log("Get All result:", result);
 
   return result;
 }
@@ -287,8 +282,6 @@ async function getRuleRepo(ruleId) {
     useTx: false,
     dbName: "db3",
   });
-
-  console.log("Get single result:", result);
 
   return result;
 }
@@ -383,6 +376,12 @@ async function simulationPreviewRepo() {
   return result.rows || [];
 }
 
+async function getRulesNameListRepo(){
+  const query = `SELECT * FROM atbss_cm.VW_RULE_CASE_COUNT`;
+  const result = await executeQuery(query, {}, {dbName: "db3"})
+  return result.rows || [];
+}
+
 
 
 module.exports = {
@@ -391,5 +390,6 @@ module.exports = {
   getAllRuleRepo,
   getRuleRepo,
   deleteRuleRepo,
-  simulationPreviewRepo
+  simulationPreviewRepo,
+  getRulesNameListRepo
 };

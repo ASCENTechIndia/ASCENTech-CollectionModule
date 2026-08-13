@@ -1,6 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useLoader } from "../../context/LoaderContext";
+import { useNotification } from "../../context/NotificationContext";
+import apiClient from "../../services/apiClient";
 
 const DashboardTab = () => {
+  const { setLoader } = useLoader();
+  const { showError, showSuccess } = useNotification();
+  const [rulesNameList, setRulesNameList] = useState([]);
   const stats = [
     { label: "Unallocated cases", value: "4,812" },
     { label: "Allocated today", value: "1,340" },
@@ -40,6 +46,29 @@ const DashboardTab = () => {
     { name: "Legal escalation", status: "Complete", type: "status" },
     { name: "Manual reassignment", status: "2h ago", type: "time" },
   ];
+
+  const fetchRulesNameList = async () => {
+    try {
+      setLoader(true);
+      const res = await apiClient.get("/allocation/rules-name-list");
+      if (res?.success && res?.data?.length > 0) {
+        setRulesNameList(res.data);
+      } else {
+        setRulesNameList([]);
+        showError("Allocation rules name list not found");
+      }
+    } catch (error) {
+      setRulesNameList([]);
+      showError(error.message);
+      console.error(error);
+    } finally {
+      setLoader(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRulesNameList();
+  }, []);
 
   return (
     <div className="dbt-wrap">
@@ -99,6 +128,23 @@ const DashboardTab = () => {
                     ) : (
                       <span className="dbt-run-time">{run.status}</span>
                     )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-lg-6">
+          <div className="card dbt-card h-100">
+            <div className="card-body">
+              <h6 className="dbt-card-title">Allocation Rules Name</h6>
+
+              <div className="d-flex flex-column mt-3">
+                {rulesNameList.map((item, idx) => (
+                  <div className="dbt-run-row" key={idx}>
+                    <span className="dbt-run-name">{item.VAR_RULE_NAME}</span>
+                    <span className="fw-bold">{item.CASE_COUNT}</span>
                   </div>
                 ))}
               </div>

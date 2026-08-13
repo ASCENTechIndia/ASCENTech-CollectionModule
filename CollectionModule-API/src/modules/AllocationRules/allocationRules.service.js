@@ -1,6 +1,12 @@
 const { AppError } = require("../../utils/app-error");
-const { insertRepo,  updateRepo, getAllRuleRepo, getRuleRepo ,
-  deleteRuleRepo, simulationPreviewRepo
+const {
+  insertRepo,
+  updateRepo,
+  getAllRuleRepo,
+  getRuleRepo,
+  deleteRuleRepo,
+  simulationPreviewRepo,
+  getRulesNameListRepo,
 } = require("./allocationRules.repo");
 
 async function insertRuleService(payload) {
@@ -40,7 +46,7 @@ async function updateRuleService(payload) {
   } catch (error) {
     throw new AppError(
       `Failed to update allocation rule: ${error.message}`,
-      400
+      400,
     );
   }
 }
@@ -50,10 +56,7 @@ async function getAllRuleService() {
     const result = await getAllRuleRepo();
 
     if (!result) {
-      throw new AppError(
-        "Failed to fetch allocation rules",
-        400
-      );
+      throw new AppError("Failed to fetch allocation rules", 400);
     }
 
     return {
@@ -64,7 +67,7 @@ async function getAllRuleService() {
   } catch (error) {
     throw new AppError(
       `Failed to fetch allocation rules: ${error.message}`,
-      400
+      400,
     );
   }
 }
@@ -74,10 +77,7 @@ async function getRuleService(ruleId) {
     const result = await getRuleRepo(ruleId);
 
     if (!result) {
-      throw new AppError(
-        "Failed to fetch allocation rule",
-        400
-      );
+      throw new AppError("Failed to fetch allocation rule", 400);
     }
 
     return {
@@ -88,7 +88,7 @@ async function getRuleService(ruleId) {
   } catch (error) {
     throw new AppError(
       `Failed to fetch allocation rule: ${error.message}`,
-      400
+      400,
     );
   }
 }
@@ -98,10 +98,7 @@ async function deleteRuleService(ruleId) {
     const result = await deleteRuleRepo(ruleId);
 
     if (!result) {
-      throw new AppError(
-        "Failed to delete allocation rule",
-        400
-      );
+      throw new AppError("Failed to delete allocation rule", 400);
     }
 
     return {
@@ -112,7 +109,7 @@ async function deleteRuleService(ruleId) {
   } catch (error) {
     throw new AppError(
       `Failed to delete allocation rule: ${error.message}`,
-      400
+      400,
     );
   }
 }
@@ -122,10 +119,7 @@ async function simulationPreviewService() {
     const result = await simulationPreviewRepo();
 
     if (!result) {
-      throw new AppError(
-        "Failed to fetch simulation preview",
-        400
-      );
+      throw new AppError("Failed to fetch simulation preview", 400);
     }
 
     return {
@@ -136,13 +130,22 @@ async function simulationPreviewService() {
   } catch (error) {
     throw new AppError(
       `Failed to fetch simulation preview: ${error.message}`,
-      400
+      400,
     );
   }
 }
 
-
-
+async function getRulesNameListService() {
+  try {
+    const result = await getRulesNameListRepo();
+    if (!result || result?.length <= 0) {
+      throw new AppError(`Failed to fetch allocation rules name list`, 400);
+    }
+    return result;
+  } catch (error) {
+    throw new AppError(`Failed to fetch allocation rules name list: ${error.message}`, 400);
+  }
+}
 
 module.exports = {
   insertRuleService,
@@ -150,5 +153,6 @@ module.exports = {
   getAllRuleService,
   getRuleService,
   deleteRuleService,
-  simulationPreviewService
+  simulationPreviewService,
+  getRulesNameListService,
 };
