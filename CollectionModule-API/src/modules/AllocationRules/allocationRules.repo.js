@@ -1,6 +1,6 @@
 const oracledb = require("oracledb");
 const { executeProcedure } = require("../../db/procedureExecutor");
-const { executeQuery } = require('../../db/queryExecutor');
+const { executeQuery } = require("../../db/queryExecutor");
 
 async function insertRepo(payload) {
   const statement = `
@@ -56,7 +56,12 @@ async function insertRepo(payload) {
     },
   };
 
-  const result = await executeProcedure({ statement, binds, useTx: false, dbName: "db3" });
+  const result = await executeProcedure({
+    statement,
+    binds,
+    useTx: false,
+    dbName: "db3",
+  });
   return result;
 }
 
@@ -106,11 +111,9 @@ async function updateRepo(payload) {
     P_VAR_ACCOUNT_TYPE: payload.accountType,
     P_VAR_REGION: payload.region,
 
-    P_NUM_MIN_COLLECTOR_SUCCESS_RATE:
-      payload.minCollectorSuccessRate,
+    P_NUM_MIN_COLLECTOR_SUCCESS_RATE: payload.minCollectorSuccessRate,
 
-    P_NUM_MIN_COLLECTOR_EXPERIENCE:
-      payload.minCollectorExperience,
+    P_NUM_MIN_COLLECTOR_EXPERIENCE: payload.minCollectorExperience,
 
     P_NUM_ASSIGNED_TO: payload.assignedTo,
 
@@ -376,13 +379,43 @@ async function simulationPreviewRepo() {
   return result.rows || [];
 }
 
-async function getRulesNameListRepo(){
+async function getRulesNameListRepo() {
   const query = `SELECT * FROM atbss_cm.VW_RULE_CASE_COUNT`;
-  const result = await executeQuery(query, {}, {dbName: "db3"})
+  const result = await executeQuery(query, {}, { dbName: "db3" });
   return result.rows || [];
 }
 
+async function assignRuleUserHistoryRepo(payload) {
+  const statement = `
+    BEGIN ATBSS_CM.AOUP_ASSIGN_RULE_USER_With_History(
+    :P_NUM_RULE_ID,
+    :OUT_ERRORCODE,
+    :OUT_ERRORMSG
+    );
+    END;
+  `;
+  const binds = {
+    P_NUM_RULE_ID: Number(payload.ruleId),
+    OUT_ERRORCODE: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.NUMBER,
+      maxSize: 100,
+    },
+    OUT_ERRORMSG: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 4000,
+    },
+  };
 
+  const result = await executeProcedure({
+    statement,
+    binds,
+    useTx: false,
+    dbName: "db3",
+  });
+  return result.outBinds || null;
+}
 
 module.exports = {
   insertRepo,
@@ -391,5 +424,6 @@ module.exports = {
   getRuleRepo,
   deleteRuleRepo,
   simulationPreviewRepo,
-  getRulesNameListRepo
+  getRulesNameListRepo,
+  assignRuleUserHistoryRepo,
 };

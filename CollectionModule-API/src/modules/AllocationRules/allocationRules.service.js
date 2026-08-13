@@ -7,6 +7,7 @@ const {
   deleteRuleRepo,
   simulationPreviewRepo,
   getRulesNameListRepo,
+  assignRuleUserHistoryRepo,
 } = require("./allocationRules.repo");
 
 async function insertRuleService(payload) {
@@ -143,7 +144,28 @@ async function getRulesNameListService() {
     }
     return result;
   } catch (error) {
-    throw new AppError(`Failed to fetch allocation rules name list: ${error.message}`, 400);
+    throw new AppError(
+      `Failed to fetch allocation rules name list: ${error.message}`,
+      400,
+    );
+  }
+}
+
+async function assignRuleUserHistoryService(payload) {
+  try {
+    const result = await assignRuleUserHistoryRepo(payload);
+    if (!result) {
+      throw new AppError(`Failed to insert rule user history data`, 400);
+    }
+    return {
+      errorCode: result.OUT_ERRORCODE,
+      errorMessage: result.OUT_ERRORMSG,
+    };
+  } catch (error) {
+    throw new AppError(
+      `Failed to insert rule user history data: ${error.message}`,
+      400,
+    );
   }
 }
 
@@ -155,4 +177,5 @@ module.exports = {
   deleteRuleService,
   simulationPreviewService,
   getRulesNameListService,
+  assignRuleUserHistoryService,
 };

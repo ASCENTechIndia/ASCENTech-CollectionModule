@@ -9,6 +9,7 @@ const {
   deleteRuleService,
   simulationPreviewService,
   getRulesNameListService,
+  assignRuleUserHistoryService,
 } = require("./allocationRules.service");
 
 async function insertRuleController(req, res, next) {
@@ -167,7 +168,34 @@ async function getRulesNameListController(req, res, next) {
       error.message,
       "Failed to fetch allocation rules name list",
     );
-    return next(error)
+    return next(error);
+  }
+}
+
+async function assignRuleUserHistoryController(req, res, next) {
+  try {
+    const payload = req.body;
+    const result = await assignRuleUserHistoryService(payload);
+    auditLog({
+      action: "ASSIGN_RULE_USER_HISTORY",
+      actor: req.user?.userId || "system",
+      module: "allocationRule",
+      entityId: "",
+      status: result.message,
+      details: {},
+      requestMeta: "",
+    });
+
+    logApiSuccess(req, 201, result, `Rule user history inserted successfully`);
+    return res.ok(result);
+  } catch (error) {
+    logApiError(
+      req,
+      400,
+      error.message,
+      "Failed to insert rule user history data",
+    );
+    return next(error);
   }
 }
 
@@ -179,4 +207,5 @@ module.exports = {
   deleteRuleController,
   simulationPreviewController,
   getRulesNameListController,
+  assignRuleUserHistoryController,
 };
