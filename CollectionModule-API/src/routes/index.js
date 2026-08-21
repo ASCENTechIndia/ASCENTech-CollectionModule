@@ -51,7 +51,8 @@ router.use('/agency-creation', agencyCreationRoutes);
 router.use('/company', companyRoutes);
 router.use('/mapping', mappingRoutes);
 router.use('/excel-upload', excelUploadRoutes);
-router.use("/allocation", allocationRulesRoutes)
+router.use("/allocation", allocationRulesRoutes);
+router.use('/collection-dashboard', require('../modules/Dashboard/CollectionDashboard/CollectionDashboard.routes'));
 
 
 module.exports = router;

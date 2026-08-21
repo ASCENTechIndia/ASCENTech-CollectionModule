@@ -70,7 +70,7 @@ export default function SummaryCards() {
                   border: `2px solid ${card.iconBg}`,
                 }}
               >
-                <Icon size={24} strokeWidth={2} />
+                <Icon size={30} strokeWidth={2} />
               </div>
               <div className="card-div">
                 <div className="summary-label">{card.label}</div>
