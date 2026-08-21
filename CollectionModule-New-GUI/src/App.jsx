@@ -88,6 +88,7 @@ import CaseAllocationRules from './pages/Allocation/CaseAllocationRules'
 import AddAllocationRules from './pages/Allocation/AddAllocationRules'
 import AllocationRulePage from './pages/Allocation/AllocationRulePage'
 import AllocationWorkspace from './pages/AllocationRules/AllocationWorkspace'
+import Dashboard from './pages/Dashboard/Dashboard'
 
 
 function App() {
@@ -180,6 +181,7 @@ function App() {
         <Route path='allocation/allocation-rule' element={<AllocationWorkspace />} />
 
       </Route>
+      <Route path='/Dashboard' element={<Dashboard />} />
       <Route path="/map-view" element={<MapViewPage />} />
       <Route
         path="/auth/login"

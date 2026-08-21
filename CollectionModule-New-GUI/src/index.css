@@ -922,3 +922,238 @@ body {
   font-weight: 700;
   padding-top: 12px;
 }
+
+/* Dashboard styles */
+:root {
+  --page-bg: #f4f6fb;
+  --card-radius: 14px;
+  --text-muted: #6b7280;
+  --blue: #2f6fed;
+  --blue-dark: #1e4fd1;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--page-bg);
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #1f2937;
+}
+
+.dashboard-shell {
+  min-height: 100vh;
+  padding-bottom: 100px;
+}
+
+/* ---------- Top header ---------- */
+.dash-header {
+  background: #ffffff;
+  border-bottom: 1px solid #e9edf5;
+  padding: 0.85rem 1.25rem;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.dash-header .title {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #111827;
+}
+
+.dash-header .report-date {
+  color: var(--blue);
+  font-weight: 600;
+}
+
+.dash-header .last-updated {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* ---------- Summary cards ---------- */
+.summary-card {
+  border: none;
+  border-radius: var(--card-radius);
+  padding: 1.1rem 1.25rem;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.summary-card .icon-badge {
+  width: 60px;
+  height: 60px;
+  min-width: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+}
+
+.card-div {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.summary-card .summary-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: #4b5563;
+  text-transform: uppercase;
+  margin-bottom: 0.15rem;
+}
+
+.summary-card .summary-value {
+  font-size: 1.55rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.summary-card .summary-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* ---------- Generic panel card ---------- */
+.panel-card {
+  background: #ffffff;
+  border: none;
+  border-radius: var(--card-radius);
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.06);
+  height: 100%;
+}
+
+.panel-card .panel-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #111827;
+  padding: 1.1rem 1.25rem 0.5rem;
+  letter-spacing: 0.2px;
+}
+
+.panel-body-tight {
+  padding: 0 1rem 1rem;
+}
+
+/* ---------- Tables ---------- */
+.dash-table {
+  font-size: 0.85rem;
+  margin-bottom: 0;
+}
+
+.dash-table thead th {
+  color: #6b7280;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  border-bottom: 1px solid #eef1f6;
+  padding: 0.5rem 0.75rem;
+  white-space: nowrap;
+}
+
+.dash-table tbody td {
+  padding: 0.55rem 0.75rem;
+  vertical-align: middle;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.dash-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.rank-medal {
+  font-size: 1rem;
+}
+
+.mini-bar-track {
+  background: #eef1f8;
+  border-radius: 6px;
+  height: 8px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.mini-bar-fill {
+  background: var(--blue);
+  height: 100%;
+  border-radius: 6px;
+}
+
+.state-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+/* ---------- Bottom fixed stats bar ---------- */
+.bottom-stats-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border-top: 1px solid #111827;
+  box-shadow: 0 -2px 10px rgba(16, 24, 40, 0.08);
+  z-index: 30;
+  padding: 0.65rem 1rem;
+  overflow-x: auto;
+}
+
+.bottom-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  white-space: nowrap;
+  padding: 0 0.75rem;
+}
+
+.bottom-stat-item .icon-badge {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.bottom-stat-item .stat-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.bottom-stat-item .stat-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.bottom-stat-item .stat-sub {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+@media (max-width: 767.98px) {
+  .dash-header .d-flex.align-items-center.gap-4 {
+    flex-wrap: wrap;
+    row-gap: 0.35rem;
+  }
+  .summary-card .summary-value {
+    font-size: 1.25rem;
+  }
+  .bottom-stats-bar {
+    display: flex;
+    flex-wrap: nowrap;
+  }
+}
