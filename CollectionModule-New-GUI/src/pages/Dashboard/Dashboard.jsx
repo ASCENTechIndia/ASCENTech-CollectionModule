@@ -15,10 +15,8 @@ const Dashboard = () => {
       <DashboardHeader />
 
       <div className="container-fluid px-3 px-md-4 py-3">
-        {/* Row 1: Summary cards */}
         <SummaryCards />
 
-        {/* Row 2: Charts */}
         <div className="row g-3 mt-2">
           <div className="col-12 col-xl-4 mt-0 px-1">
             <TransactionsPerDayChart />
@@ -31,7 +29,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Row 3: Tables */}
         <div className="row g-3 mt-2">
           <div className="col-12 col-xl-5 m-0 px-1">
             <TopLCOsTable />

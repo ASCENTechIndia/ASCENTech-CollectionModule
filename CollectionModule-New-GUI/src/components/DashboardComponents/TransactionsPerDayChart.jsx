@@ -1,15 +1,50 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as echarts from "echarts";
+import { useNotification } from "../../context/NotificationContext";
+import { useLoader } from "../../context/LoaderContext";
+import apiClient from "../../services/apiClient";
 
-const chartData = {
-  days: ["14-Aug", "15-Aug", "16-Aug", "17-Aug", "18-Aug", "19-Aug"],
-  transactions: [278, 312, 297, 365, 423, 345],
+const defaultData = {
+  days: [],
+  transactions: [],
 };
 
 export default function TransactionsPerDayChart() {
   const chartRef = useRef(null);
+  const { showError } = useNotification();
+  const { setLoader } = useLoader();
+  const [chartData, setChartData] = useState(defaultData);
+
+  const fetchData = async () => {
+    try {
+      setLoader(true);
+      const res = await apiClient.get(
+        "/collection-dashboard/daily-transactions",
+      );
+      if (res?.success && res?.data?.transactions?.length > 0) {
+        const transactions = res.data.transactions;
+        const days = transactions.map((item) => item.transactionDate);
+        const values = transactions.map((item) => item.totalTransactions);
+        setChartData({ days, transactions: values });
+      } else {
+        setChartData(defaultData);
+      }
+    } catch (error) {
+      console.error(error);
+      showError(error.message || "Failed to fetch daily transactions");
+      setChartData(defaultData);
+    } finally {
+      setLoader(false);
+    }
+  };
 
   useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (!chartRef.current) return;
+
     const chartInstance = echarts.init(chartRef.current);
 
     const option = {
@@ -35,8 +70,7 @@ export default function TransactionsPerDayChart() {
       yAxis: {
         type: "value",
         min: 0,
-        max: 500,
-        interval: 100,
+
         splitLine: { lineStyle: { color: "#f1f3f7" } },
         axisLabel: { color: "#6b7280", fontSize: 11, margin: 8 },
       },
@@ -76,7 +110,7 @@ export default function TransactionsPerDayChart() {
       window.removeEventListener("resize", handleResize);
       chartInstance.dispose();
     };
-  }, []);
+  }, [chartData]);
 
   return (
     <div className="panel-card">

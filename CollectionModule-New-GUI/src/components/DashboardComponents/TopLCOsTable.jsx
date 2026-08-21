@@ -1,45 +1,7 @@
-import React from "react";
-
-// Dummy data — replace with API response later
-const lcoData = [
-  {
-    rank: 1,
-    code: "1433954358",
-    name: "LCO 1433954358",
-    transactions: 185,
-    collection: 56872.0,
-  },
-  {
-    rank: 2,
-    code: "1397741674",
-    name: "LCO 1397741674",
-    transactions: 45,
-    collection: 13420.0,
-  },
-  {
-    rank: 3,
-    code: "1424726425",
-    name: "LCO 1424726425",
-    transactions: 42,
-    collection: 12180.0,
-  },
-  {
-    rank: 4,
-    code: "1376919145",
-    name: "LCO 1376919145",
-    transactions: 35,
-    collection: 9860.0,
-  },
-  {
-    rank: 5,
-    code: "1356822512",
-    name: "LCO 1356822512",
-    transactions: 16,
-    collection: 5210.0,
-  },
-];
-
-const maxCollection = Math.max(...lcoData.map((d) => d.collection));
+import React, { useEffect, useState } from "react";
+import { useNotification } from "../../context/NotificationContext";
+import { useLoader } from "../../context/LoaderContext";
+import apiClient from "../../services/apiClient";
 
 const medal = (rank) => {
   if (rank === 1) return <span className="rank-medal">🥇</span>;
@@ -49,53 +11,71 @@ const medal = (rank) => {
 };
 
 const formatINR = (num) =>
-  num.toLocaleString("en-IN", {
+  Number(num).toLocaleString("en-IN", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
 
 export default function TopLCOsTable() {
+  const { showError } = useNotification();
+  const { setLoader } = useLoader();
+  const [data, setData] = useState([]);
+
+  const fetchData = async () => {
+    try {
+      setLoader(true);
+      const res = await apiClient.get("/collection-dashboard/transaction-mode");
+      if (res?.success && res?.data?.transactionModes?.length > 0) {
+        const modes = res.data.transactionModes;
+        const sorted = modes
+          .map((item) => ({
+            name: item.transactionMode,
+            transactions: item.totalTransactions,
+            collection: item.totalCollection,
+          }))
+          .sort((a, b) => b.collection - a.collection)
+          .map((item, index) => ({
+            rank: index + 1,
+            ...item,
+          }));
+        setData(sorted);
+      } else {
+        setData([]);
+      }
+    } catch (error) {
+      console.error(error);
+      showError(error.message || "Failed to fetch transaction mode data");
+      setData([]);
+    } finally {
+      setLoader(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   return (
     <div className="panel-card">
-      <div className="panel-title">TOP 5 LCOs BY COLLECTION</div>
+      <div className="panel-title">TOP TRANSACTION MODES BY COLLECTION</div>
       <div className="px-3 pb-3">
-        <div
-          className="panel-body-tight table-responsive p-0"
-          // style={{ maxHeight: "250px" }}
-        >
+        <div className="panel-body-tight table-responsive p-0">
           <table className="table dash-table">
             <thead>
               <tr>
                 <th>Rank</th>
-                <th>LCO Code</th>
-                <th>LCO Name</th>
+                <th>Mode</th>
                 <th>Transactions</th>
                 <th style={{ minWidth: "160px" }}>Collection (₹)</th>
               </tr>
             </thead>
             <tbody>
-              {lcoData.map((row) => (
-                <tr key={row.code}>
+              {data.map((row) => (
+                <tr key={row.rank}>
                   <td>{medal(row.rank)}</td>
-                  <td>{row.code}</td>
                   <td>{row.name}</td>
                   <td>{row.transactions}</td>
-                  <td>
-                    <div className="d-flex align-items-center gap-2">
-                      <div
-                        className="mini-bar-track"
-                        style={{ maxWidth: "90px" }}
-                      >
-                        <div
-                          className="mini-bar-fill"
-                          style={{
-                            width: `${(row.collection / maxCollection) * 100}%`,
-                          }}
-                        ></div>
-                      </div>
-                      <span>{formatINR(row.collection)}</span>
-                    </div>
-                  </td>
+                  <td>{formatINR(row.collection)}</td>
                 </tr>
               ))}
             </tbody>

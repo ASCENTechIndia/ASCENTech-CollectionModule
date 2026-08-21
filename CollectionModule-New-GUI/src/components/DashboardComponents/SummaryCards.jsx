@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Users, User, Receipt, IndianRupee } from "lucide-react";
+import { useNotification } from "../../context/NotificationContext";
+import { useLoader } from "../../context/LoaderContext";
+import apiClient from "../../services/apiClient";
 
-const summaryData = [
+const defaultData = [
   {
     id: "lcos",
     label: "Total No. of LCOs",
-    value: "24",
+    value: "0",
     sub: "Active LCOs in report",
     icon: Users,
     bg: "#e7f0ff",
@@ -16,7 +19,7 @@ const summaryData = [
   {
     id: "customers",
     label: "Total No. of Customers",
-    value: "404",
+    value: "0",
     sub: "Unique customers",
     icon: User,
     bg: "#e7f8ec",
@@ -27,7 +30,7 @@ const summaryData = [
   {
     id: "transactions",
     label: "No. of Transactions (T-1)",
-    value: "423",
+    value: "0",
     sub: "Total transactions",
     icon: Receipt,
     bg: "#fff3e0",
@@ -38,7 +41,7 @@ const summaryData = [
   {
     id: "collection",
     label: "Total Collection",
-    value: "\u20B9 1,29,351.75",
+    value: "₹ 0",
     sub: "Across all payment modes",
     icon: IndianRupee,
     bg: "#f2ecfd",
@@ -49,6 +52,81 @@ const summaryData = [
 ];
 
 export default function SummaryCards() {
+  const { showError, showSuccess } = useNotification();
+  const { setLoader } = useLoader();
+  const [summaryData, setSummaryData] = useState(defaultData);
+  const fetchData = async () => {
+    try {
+      setLoader(true);
+      const res = await apiClient.get("/collection-dashboard/summary");
+      if (res?.success && Object.keys(res?.data?.summary).length > 0) {
+        const data = res.data.summary;
+        setSummaryData([
+          {
+            id: "lcos",
+            label: "Total No. of LCOs",
+            value: data.totalLcos || 0,
+            sub: "Active LCOs in report",
+            icon: Users,
+            bg: "#e7f0ff",
+            iconBg: "#cfe0ff",
+            fg: "#2f6fed",
+            valueColor: "#2f6fed",
+          },
+          {
+            id: "customers",
+            label: "Total No. of Customers",
+            value: data.totalCustomers || 0,
+            sub: "Unique customers",
+            icon: User,
+            bg: "#e7f8ec",
+            iconBg: "#ccefd7",
+            fg: "#1fa34a",
+            valueColor: "#1fa34a",
+          },
+          {
+            id: "transactions",
+            label: "No. of Transactions (T-1)",
+            value: data.totalTransactions || 0,
+            sub: "Total transactions",
+            icon: Receipt,
+            bg: "#fff3e0",
+            iconBg: "#ffe1b8",
+            fg: "#f5a524",
+            valueColor: "#f5a524",
+          },
+          {
+            id: "collection",
+            label: "Total Collection",
+            value: `₹ ${Number(data.totalCollection || 0).toLocaleString(
+              "en-IN",
+              {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              },
+            )}`,
+            sub: "Across all payment modes",
+            icon: IndianRupee,
+            bg: "#f2ecfd",
+            iconBg: "#e3d4fa",
+            fg: "#8b5cf6",
+            valueColor: "#7c3aed",
+          },
+        ]);
+      } else {
+        setSummaryData(defaultData);
+      }
+    } catch (error) {
+      console.error(error);
+      showError(error.message || "Failed to fetch summary card values");
+      setSummaryData(defaultData);
+    } finally {
+      setLoader(false);
+    }
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
   return (
     <div className="row g-3">
       {summaryData.map((card) => {
@@ -70,7 +148,7 @@ export default function SummaryCards() {
                   border: `2px solid ${card.iconBg}`,
                 }}
               >
-                <Icon size={30} strokeWidth={2} />
+                <Icon size={24} strokeWidth={2} />
               </div>
               <div className="card-div">
                 <div className="summary-label">{card.label}</div>

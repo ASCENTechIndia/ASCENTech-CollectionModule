@@ -1,24 +1,67 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as echarts from "echarts";
+import { useNotification } from "../../context/NotificationContext";
+import { useLoader } from "../../context/LoaderContext";
+import apiClient from "../../services/apiClient";
 
-const paymentModeData = [
-  { name: "Cash", value: 128266.76, percent: "99.16%", color: "#2f6fed" },
-  { name: "Cheque", value: 10884.99, percent: "0.84%", color: "#22b04c" },
+// Fallback dummy data (same as before)
+const defaultPaymentModes = [
+  { name: "Cash", value: 0, percent: 0, color: "#2f6fed" },
+  { name: "Cheque", value: 0, percent: 0, color: "#22b04c" },
 ];
 
-const totalCollection = "\u20B9 1,29,351.75";
-
 const formatINR = (num) =>
-  "\u20B9" +
-  num.toLocaleString("en-IN", {
+  "₹" +
+  Number(num).toLocaleString("en-IN", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
 
 export default function CollectionByPaymentModeChart() {
   const chartRef = useRef(null);
+  const { showError } = useNotification();
+  const { setLoader } = useLoader();
+  const [paymentModes, setPaymentModes] = useState(defaultPaymentModes);
+  const [totalCollection, setTotalCollection] = useState(0);
+
+  const fetchData = async () => {
+    try {
+      setLoader(true);
+      const res = await apiClient.get("/collection-dashboard/payment-mode");
+      if (res?.success && res?.data?.paymentModes?.length > 0) {
+        const modes = res.data.paymentModes;
+        const mapped = modes.map((item) => ({
+          name: item.paymentMode,
+          value: item.totalCollection,
+          percent: item.collectionPercentage,
+          color: item.paymentMode === "Cash" ? "#2f6fed" : "#22b04c",
+        }));
+        setPaymentModes(mapped);
+        const total = mapped.reduce((sum, d) => sum + d.value, 0);
+        setTotalCollection(total);
+      } else {
+        setPaymentModes(defaultPaymentModes);
+        setTotalCollection(
+          defaultPaymentModes.reduce((s, d) => s + d.value, 0),
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      showError(error.message || "Failed to fetch payment mode data");
+      setPaymentModes(defaultPaymentModes);
+      setTotalCollection(defaultPaymentModes.reduce((s, d) => s + d.value, 0));
+    } finally {
+      setLoader(false);
+    }
+  };
 
   useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (!chartRef.current) return;
+
     const chartInstance = echarts.init(chartRef.current);
 
     const option = {
@@ -30,7 +73,7 @@ export default function CollectionByPaymentModeChart() {
           avoidLabelOverlap: false,
           label: { show: false },
           labelLine: { show: false },
-          data: paymentModeData.map((d) => ({
+          data: paymentModes.map((d) => ({
             name: d.name,
             value: d.value,
             itemStyle: { color: d.color },
@@ -48,11 +91,11 @@ export default function CollectionByPaymentModeChart() {
       window.removeEventListener("resize", handleResize);
       chartInstance.dispose();
     };
-  }, []);
+  }, [paymentModes]);
 
-  const total = paymentModeData.reduce((acc, curr) => {
-    return acc + (curr?.value || 0);
-  }, 0);
+  const total = paymentModes.reduce((acc, curr) => acc + curr.value, 0);
+
+  const formattedTotal = formatINR(total);
 
   return (
     <div className="panel-card">
@@ -73,7 +116,7 @@ export default function CollectionByPaymentModeChart() {
               }}
             >
               <div style={{ fontWeight: 700, fontSize: "1.05rem" }}>
-                {totalCollection}
+                {formattedTotal}
               </div>
               <div style={{ fontSize: "0.75rem", color: "#6b7280" }}>
                 Total Collection
@@ -82,7 +125,7 @@ export default function CollectionByPaymentModeChart() {
           </div>
 
           <div className="ms-3 flex-grow-1">
-            {paymentModeData.map((d) => (
+            {paymentModes.map((d) => (
               <div key={d.name} className="d-flex align-items-start mb-3">
                 <span
                   className="state-dot mt-1"
@@ -93,7 +136,7 @@ export default function CollectionByPaymentModeChart() {
                   <div style={{ fontSize: "0.85rem" }}>
                     {formatINR(d.value)}{" "}
                     <span className="text-muted">
-                      ({((d.value / total) * 100).toFixed(2)}%)
+                      ({d.percent.toFixed(2)}%)
                     </span>
                   </div>
                 </div>
