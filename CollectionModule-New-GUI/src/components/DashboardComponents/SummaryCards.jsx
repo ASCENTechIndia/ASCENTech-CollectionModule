@@ -55,16 +55,22 @@ export default function SummaryCards() {
         const Icon = card.icon;
         return (
           <div className="col-12 col-sm-6 col-xl-3 mt-3 px-1" key={card.id}>
-            <div className="summary-card" style={{ backgroundColor: card.bg, border: `2px solid ${card.iconBg}` }}>
+            <div
+              className="summary-card"
+              style={{
+                backgroundColor: card.bg,
+                border: `2px solid ${card.iconBg}`,
+              }}
+            >
               <div
                 className="icon-badge"
                 style={{
                   backgroundColor: card.iconBg,
                   color: card.fg,
-                  border: `2px solid ${card.iconBg}`
+                  border: `2px solid ${card.iconBg}`,
                 }}
               >
-                <Icon size={32} strokeWidth={2} />
+                <Icon size={24} strokeWidth={2} />
               </div>
               <div className="card-div">
                 <div className="summary-label">{card.label}</div>
