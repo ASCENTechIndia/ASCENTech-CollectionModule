@@ -1,10 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import * as echarts from "echarts";
 
-// Dummy data — replace with API response later
 const chartData = {
-  days: ["14-Aug", "15-Aug", "16-Aug", "17-Aug", "18-Aug (T-1)"],
-  transactions: [278, 312, 297, 365, 423],
+  days: ["14-Aug", "15-Aug", "16-Aug", "17-Aug", "18-Aug", "19-Aug"],
+  transactions: [278, 312, 297, 365, 423, 345],
 };
 
 export default function TransactionsPerDayChart() {
@@ -14,7 +13,7 @@ export default function TransactionsPerDayChart() {
     const chartInstance = echarts.init(chartRef.current);
 
     const option = {
-      grid: { left: 40, right: 20, top: 40, bottom: 30 },
+      grid: { left: 20, right: 20, top: 40, bottom: 30, containLabel: true },
       legend: {
         data: ["No. of Transactions"],
         top: 0,
@@ -28,6 +27,7 @@ export default function TransactionsPerDayChart() {
       xAxis: {
         type: "category",
         data: chartData.days,
+        boundaryGap: ["6px", "6px"],
         axisLine: { lineStyle: { color: "#e5e7eb" } },
         axisTick: { show: false },
         axisLabel: { color: "#6b7280", fontSize: 11, interval: 0 },
@@ -38,7 +38,7 @@ export default function TransactionsPerDayChart() {
         max: 500,
         interval: 100,
         splitLine: { lineStyle: { color: "#f1f3f7" } },
-        axisLabel: { color: "#6b7280", fontSize: 11 },
+        axisLabel: { color: "#6b7280", fontSize: 11, margin: 8 },
       },
       series: [
         {
@@ -82,7 +82,7 @@ export default function TransactionsPerDayChart() {
     <div className="panel-card">
       <div className="panel-title">TRANSACTIONS PER DAY (Till T-1)</div>
       <div className="panel-body-tight">
-        <div ref={chartRef} style={{ width: "100%", height: "300px" }} />
+        <div ref={chartRef} style={{ width: "100%", height: "230px" }} />
       </div>
     </div>
   );

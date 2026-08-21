@@ -53,13 +53,16 @@ const bottomStats = [
 export default function BottomStatsBar() {
   return (
     <div className="bottom-stats-bar">
-      <div className="d-flex justify-content-between">
+      <div className="d-flex align-items-center justify-content-between">
         {bottomStats.map((stat, idx) => {
           const Icon = stat.icon;
           return (
             <React.Fragment key={stat.id}>
               <div className="bottom-stat-item">
-                <div className="icon-badge" style={{ backgroundColor: stat.bg, color: stat.fg }}>
+                <div
+                  className="icon-badge"
+                  style={{ backgroundColor: stat.bg, color: stat.fg }}
+                >
                   <Icon size={20} strokeWidth={2} />
                 </div>
                 <div>
@@ -70,8 +73,15 @@ export default function BottomStatsBar() {
                   <div className="stat-sub">{stat.sub}</div>
                 </div>
               </div>
+
               {idx < bottomStats.length - 1 && (
-                <div className="vr d-none d-md-block mx-2" style={{ height: "40px" }}></div>
+                <div
+                  className="vr d-none d-md-block mx-2"
+                  style={{
+                    height: "40px",
+                    alignSelf: "center",
+                  }}
+                ></div>
               )}
             </React.Fragment>
           );

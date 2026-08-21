@@ -1,16 +1,17 @@
 import React, { useEffect, useRef } from "react";
 import * as echarts from "echarts";
 
-// Dummy data — replace with API response later
 const modeData = [
-  { name: "DL PORTAL\n[Offline]", value: 7, percent: "1.65%", color: "#f5a524" },
-  { name: "DL PORTAL\n[Online]", value: 13, percent: "3.07%", color: "#8b5cf6" },
-  { name: "Offline", value: 85, percent: "20.09%", color: "#22b04c" },
-  { name: "Renewal", value: 318, percent: "75.18%", color: "#2f6fed" },
+  { name: "DL PORTAL\n[Offline]", value: 7, color: "#f5a524" },
+  { name: "DL PORTAL\n[Online]", value: 13, color: "#8b5cf6" },
+  { name: "Offline", value: 85, color: "#22b04c" },
+  { name: "Renewal", value: 318, color: "#2f6fed" },
 ];
 
 export default function TransactionsByModeChart() {
   const chartRef = useRef(null);
+
+  const total = modeData.reduce((acc, curr) => acc + curr.value, 0);
 
   useEffect(() => {
     const chartInstance = echarts.init(chartRef.current);
@@ -48,8 +49,11 @@ export default function TransactionsByModeChart() {
           label: {
             show: true,
             position: "right",
-            formatter: (params) =>
-              `${modeData[params.dataIndex].value} (${modeData[params.dataIndex].percent})`,
+            formatter: (params) => {
+              const value = params.value;
+              const percent = ((value / total) * 100).toFixed(2);
+              return `${value} (${percent}%)`;
+            },
             color: "#374151",
             fontSize: 11,
             fontWeight: 600,
@@ -67,13 +71,13 @@ export default function TransactionsByModeChart() {
       window.removeEventListener("resize", handleResize);
       chartInstance.dispose();
     };
-  }, []);
+  }, [total]);
 
   return (
     <div className="panel-card">
       <div className="panel-title">TRANSACTIONS BY TRANSACTION MODE</div>
       <div className="panel-body-tight">
-        <div ref={chartRef} style={{ width: "100%", height: "300px" }} />
+        <div ref={chartRef} style={{ width: "100%", height: "230px" }} />
       </div>
     </div>
   );

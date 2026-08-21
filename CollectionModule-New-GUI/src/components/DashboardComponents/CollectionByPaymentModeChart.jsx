@@ -1,17 +1,19 @@
 import React, { useEffect, useRef } from "react";
 import * as echarts from "echarts";
 
-// Dummy data — replace with API response later
 const paymentModeData = [
   { name: "Cash", value: 128266.76, percent: "99.16%", color: "#2f6fed" },
-  { name: "Cheque", value: 1084.99, percent: "0.84%", color: "#22b04c" },
+  { name: "Cheque", value: 10884.99, percent: "0.84%", color: "#22b04c" },
 ];
 
 const totalCollection = "\u20B9 1,29,351.75";
 
 const formatINR = (num) =>
   "\u20B9" +
-  num.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  num.toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 
 export default function CollectionByPaymentModeChart() {
   const chartRef = useRef(null);
@@ -24,7 +26,7 @@ export default function CollectionByPaymentModeChart() {
       series: [
         {
           type: "pie",
-          radius: ["68%", "88%"],
+          radius: ["58%", "88%"],
           avoidLabelOverlap: false,
           label: { show: false },
           labelLine: { show: false },
@@ -48,13 +50,19 @@ export default function CollectionByPaymentModeChart() {
     };
   }, []);
 
+  const total = paymentModeData.reduce((acc, curr) => {
+    return acc + (curr?.value || 0);
+  }, 0);
+
   return (
     <div className="panel-card">
       <div className="panel-title">COLLECTION BY PAYMENT MODE</div>
       <div className="panel-body-tight">
         <div className="d-flex align-items-center flex-wrap">
-          <div style={{ position: "relative", width: "220px", height: "220px" }}>
-            <div ref={chartRef} style={{ width: "100%", height: "100%" }} />
+          <div
+            style={{ position: "relative", width: "220px", height: "230px" }}
+          >
+            <div ref={chartRef} style={{ width: "100%", height: "230px" }} />
             <div
               style={{
                 position: "absolute",
@@ -84,7 +92,9 @@ export default function CollectionByPaymentModeChart() {
                   <div className="fw-semibold">{d.name}</div>
                   <div style={{ fontSize: "0.85rem" }}>
                     {formatINR(d.value)}{" "}
-                    <span className="text-muted">({d.percent})</span>
+                    <span className="text-muted">
+                      ({((d.value / total) * 100).toFixed(2)}%)
+                    </span>
                   </div>
                 </div>
               </div>
