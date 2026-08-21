@@ -1,5 +1,5 @@
 const { fetchDashboardSummary , fetchDashboardDailyTransactions,
-  fetchDashboardPaymentMode
+  fetchDashboardPaymentMode,fetchDashboardTransactionMode
 } = require('./CollectionDashboard.service');
 const { logApiSuccess, logApiError } = require('../../../utils/log');
 
@@ -97,8 +97,41 @@ async function dashboardPaymentModeHandler(req, res, next) {
   }
 }
 
+async function dashboardTransactionModeHandler(req, res, next) {
+  try {
+
+    const data = await fetchDashboardTransactionMode();
+
+    logApiSuccess(
+      req,
+      200,
+      {
+      },
+      "Dashboard transaction mode loaded"
+    );
+
+    return res.ok(data);
+  } catch (error) {
+    const status = error?.statusCode || 500;
+
+    if (status < 500) {
+      return res.fail(error.message, status);
+    }
+
+    logApiError(
+      req,
+      500,
+      error.message,
+      "Dashboard transaction mode error"
+    );
+
+    return next(error);
+  }
+}
+
 module.exports = {
   dashboardSummaryHandler,
   dashboardDailyTransactionHandler,
-  dashboardPaymentModeHandler
+  dashboardPaymentModeHandler,
+  dashboardTransactionModeHandler
 };

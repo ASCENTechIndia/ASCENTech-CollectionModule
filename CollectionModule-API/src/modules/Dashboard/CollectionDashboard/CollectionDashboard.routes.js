@@ -1,5 +1,7 @@
 const express = require('express');
-const { dashboardSummaryHandler,dashboardDailyTransactionHandler , dashboardPaymentModeHandler} = require('./CollectionDashboard.controller');
+const { dashboardSummaryHandler,dashboardDailyTransactionHandler , dashboardPaymentModeHandler,
+  dashboardTransactionModeHandler
+} = require('./CollectionDashboard.controller');
 
 const router = express.Router();
 
@@ -16,6 +18,11 @@ router.get(
 router.get(
   "/payment-mode",
   dashboardPaymentModeHandler
+);
+
+router.get(
+  "/transaction-mode",
+  dashboardTransactionModeHandler
 );
 
 module.exports = router;

@@ -160,8 +160,52 @@ async function getDashboardPaymentModeData() {
   };
 }
 
+
+async function getDashboardTransactionModeData(payload) {
+
+  const result = await executeQuery(`
+    SELECT
+      TRANSACTION_MODE,
+      TOTAL_TRANSACTIONS,
+      TRANSACTION_PERCENTAGE,
+      TOTAL_COLLECTION
+    FROM ATBSS_CM.AOUP_V_TRANSACTION_MODE
+    ORDER BY TOTAL_COLLECTION DESC
+  `,{},{dbName: "db3"});
+
+  const rows = result?.rows || [];
+
+  const transactionModes = rows.map((row) => ({
+    transactionMode: row.TRANSACTION_MODE,
+
+    totalTransactions: asNumber(
+      row.TOTAL_TRANSACTIONS,
+      0
+    ),
+
+    transactionPercentage: Number(
+      asNumber(
+        row.TRANSACTION_PERCENTAGE,
+        0
+      ).toFixed(2)
+    ),
+
+    totalCollection: Number(
+      asNumber(
+        row.TOTAL_COLLECTION,
+        0
+      ).toFixed(2)
+    ),
+  }));
+
+  return {
+    transactionModes,
+  };
+}
+
 module.exports = {
   getDashboardSummaryData,
   getDashboardDailyTransactionsData,
-  getDashboardPaymentModeData
+  getDashboardPaymentModeData,
+  getDashboardTransactionModeData
 };
