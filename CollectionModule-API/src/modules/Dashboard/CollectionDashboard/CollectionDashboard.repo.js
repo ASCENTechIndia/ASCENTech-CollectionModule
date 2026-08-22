@@ -329,6 +329,188 @@ async function getDashboardCityCollectionData() {
   };
 }
 
+async function getDashboardCollectionCountData() {
+  const [
+    averageResult,
+    cashResult,
+    digitalResult,
+    chequeResult,
+  ] = await Promise.all([
+    executeQuery(
+      `
+        SELECT
+          AVG_COLLECTION_PER_TRANSACTION,
+          AVG_COLLECTION_PER_CUSTOMER
+        FROM ATBSS_CM.AOUP_V_DASH_SUMMARY
+      `,
+      {},
+      { dbName: "db3" }
+    ),
+
+    executeQuery(
+      `
+        SELECT
+          TOTAL_TRANSACTIONS,
+          CASH_COLLECTION,
+          CASH_COLLECTION_PERCENTAGE
+        FROM ATBSS_CM.AOUP_V_CASH_COLLECTION
+      `,
+      {},
+      { dbName: "db3" }
+    ),
+
+    executeQuery(
+      `
+        SELECT
+          TOTAL_TRANSACTIONS,
+          DIGITAL_COLLECTION,
+          DIGITAL_COLLECTION_PERCENTAGE
+        FROM ATBSS_CM.AOUP_V_DIGITAL_COLLECTION
+      `,
+      {},
+      { dbName: "db3" }
+    ),
+
+    executeQuery(
+      `
+        SELECT
+          TOTAL_TRANSACTIONS,
+          DIGITAL_COLLECTION,
+          DIGITAL_COLLECTION_PERCENTAGE
+        FROM ATBSS_CM.AOUP_V_DIGITAL_COLLECTION
+      `,
+      {},
+      { dbName: "db3" }
+    ),
+
+    executeQuery(
+      `
+        SELECT
+          TOTAL_TRANSACTIONS,
+          CHEQUE_COLLECTION,
+          CHEQUE_COLLECTION_PERCENTAGE
+        FROM ATBSS_CM.AOUP_V_CHEQUE_COLLECTION
+      `,
+      {},
+      { dbName: "db3" }
+    ),
+  ]);
+
+  const average = averageResult?.rows?.[0] || {};
+
+  const cashRows = cashResult?.rows || [];
+  const digitalRows = digitalResult?.rows || [];
+  const chequeRows = chequeResult?.rows || [];
+
+  const cashCollection = {
+    totalTransactions: cashRows.reduce(
+      (sum, row) =>
+        sum + asNumber(row.TOTAL_TRANSACTIONS, 0),
+      0
+    ),
+
+    cashCollection: cashRows.reduce(
+      (sum, row) =>
+        sum + asNumber(row.CASH_COLLECTION, 0),
+      0
+    ),
+
+    cashCollectionPercentage: cashRows.reduce(
+      (sum, row) =>
+        sum + asNumber(row.CASH_COLLECTION_PERCENTAGE, 0),
+      0
+    ),
+  };
+
+  const digitalCollection = {
+    totalTransactions: digitalRows.reduce(
+      (sum, row) =>
+        sum + asNumber(row.TOTAL_TRANSACTIONS, 0),
+      0
+    ),
+
+    digitalCollection: digitalRows.reduce(
+      (sum, row) =>
+        sum + asNumber(row.DIGITAL_COLLECTION, 0),
+      0
+    ),
+
+    digitalCollectionPercentage: digitalRows.reduce(
+      (sum, row) =>
+        sum + asNumber(row.DIGITAL_COLLECTION_PERCENTAGE, 0),
+      0
+    ),
+  };
+
+  const chequeCollection = {
+    totalTransactions: chequeRows.reduce(
+      (sum, row) =>
+        sum + asNumber(row.TOTAL_TRANSACTIONS, 0),
+      0
+    ),
+
+    chequeCollection: chequeRows.reduce(
+      (sum, row) =>
+        sum + asNumber(row.CHEQUE_COLLECTION, 0),
+      0
+    ),
+
+    chequeCollectionPercentage: chequeRows.reduce(
+      (sum, row) =>
+        sum + asNumber(row.CHEQUE_COLLECTION_PERCENTAGE, 0),
+      0
+    ),
+  };
+
+  return {
+    collectionCount: {
+      avgCollectionPerTransaction: Number(
+        asNumber(
+          average.AVG_COLLECTION_PER_TRANSACTION,
+          0
+        ).toFixed(2)
+      ),
+
+      avgCollectionPerCustomer: Number(
+        asNumber(
+          average.AVG_COLLECTION_PER_CUSTOMER,
+          0
+        ).toFixed(2)
+      ),
+
+      cashCollection: {
+        ...cashCollection,
+        cashCollection: Number(
+          cashCollection.cashCollection.toFixed(2)
+        ),
+        cashCollectionPercentage: Number(
+          cashCollection.cashCollectionPercentage.toFixed(2)
+        ),
+      },
+
+      digitalCollection: {
+        ...digitalCollection,
+        digitalCollection: Number(
+          digitalCollection.digitalCollection.toFixed(2)
+        ),
+        digitalCollectionPercentage: Number(
+          digitalCollection.digitalCollectionPercentage.toFixed(2)
+        ),
+      },
+
+      chequeCollection: {
+        ...chequeCollection,
+        chequeCollection: Number(
+          chequeCollection.chequeCollection.toFixed(2)
+        ),
+        chequeCollectionPercentage: Number(
+          chequeCollection.chequeCollectionPercentage.toFixed(2)
+        ),
+      },
+    },
+  };
+}
+
 module.exports = {
   getDashboardSummaryData,
   getDashboardDailyTransactionsData,
@@ -336,5 +518,6 @@ module.exports = {
   getDashboardTransactionModeData,
   getDashboardTopLcoCollectionData,
   getDashboardStateCollectionData,
-  getDashboardCityCollectionData
+  getDashboardCityCollectionData,
+  getDashboardCollectionCountData
 };
