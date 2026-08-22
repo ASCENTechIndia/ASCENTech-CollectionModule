@@ -1,5 +1,6 @@
 const { fetchDashboardSummary , fetchDashboardDailyTransactions,
-  fetchDashboardPaymentMode,fetchDashboardTransactionMode,fetchDashboardTopLcoCollection
+  fetchDashboardPaymentMode,fetchDashboardTransactionMode,fetchDashboardTopLcoCollection,
+  fetchDashboardStateCollection
 } = require('./CollectionDashboard.service');
 const { logApiSuccess, logApiError } = require('../../../utils/log');
 
@@ -161,10 +162,42 @@ async function dashboardTopLcoCollectionHandler(req, res, next) {
   }
 }
 
+async function dashboardStateCollectionHandler(req, res, next) {
+  try {
+    const data = await fetchDashboardStateCollection();
+
+    logApiSuccess(
+      req,
+      200,
+      {},
+      "Dashboard state collection loaded"
+    );
+
+    return res.ok(data);
+  } catch (error) {
+    const status = error?.statusCode || 500;
+
+    if (status < 500) {
+      return res.fail(error.message, status);
+    }
+
+    logApiError(
+      req,
+      500,
+      error.message,
+      "Dashboard state collection error"
+    );
+
+    return next(error);
+  }
+}
+
+
 module.exports = {
   dashboardSummaryHandler,
   dashboardDailyTransactionHandler,
   dashboardPaymentModeHandler,
   dashboardTransactionModeHandler,
-  dashboardTopLcoCollectionHandler
+  dashboardTopLcoCollectionHandler,
+  dashboardStateCollectionHandler
 };
