@@ -1,5 +1,6 @@
 const { getDashboardSummaryData,getDashboardDailyTransactionsData,getDashboardPaymentModeData,
-  getDashboardTransactionModeData,getDashboardTopLcoCollectionData,getDashboardStateCollectionData
+  getDashboardTransactionModeData,getDashboardTopLcoCollectionData,getDashboardStateCollectionData,
+  getDashboardCityCollectionData
  } = require('./CollectionDashboard.repo');
 
 async function fetchDashboardSummary() {
@@ -26,11 +27,16 @@ async function fetchDashboardStateCollection() {
   return getDashboardStateCollectionData();
 }
 
+async function fetchDashboardCityCollection() {
+  return getDashboardCityCollectionData();
+}
+
 module.exports = {
   fetchDashboardSummary,
   fetchDashboardDailyTransactions,
   fetchDashboardPaymentMode,
   fetchDashboardTransactionMode,
   fetchDashboardTopLcoCollection,
-  fetchDashboardStateCollection
+  fetchDashboardStateCollection,
+  fetchDashboardCityCollection
 };

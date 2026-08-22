@@ -1,6 +1,6 @@
 const express = require('express');
 const { dashboardSummaryHandler,dashboardDailyTransactionHandler , dashboardPaymentModeHandler,
-  dashboardTransactionModeHandler,dashboardTopLcoCollectionHandler, dashboardStateCollectionHandler
+  dashboardTransactionModeHandler,dashboardTopLcoCollectionHandler, dashboardStateCollectionHandler, dashboardCityCollectionHandler
 } = require('./CollectionDashboard.controller');
 
 const router = express.Router();
@@ -33,6 +33,11 @@ router.get(
 router.get(
   "/state-collection",
   dashboardStateCollectionHandler
+);
+
+router.get(
+  "/city-collection",
+  dashboardCityCollectionHandler
 );
 
 
