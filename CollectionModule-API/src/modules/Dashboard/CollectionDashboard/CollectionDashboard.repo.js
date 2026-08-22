@@ -244,10 +244,53 @@ async function getDashboardTopLcoCollectionData() {
   };
 }
 
+async function getDashboardStateCollectionData(payload) {
+
+  const result = await executeQuery(`
+    SELECT
+      STATE_NAME,
+      TOTAL_TRANSACTIONS,
+      TOTAL_COLLECTION,
+      COLLECTION_PERCENTAGE
+    FROM ATBSS_CM.AOUP_V_STATE_COLLECTION
+    ORDER BY TOTAL_COLLECTION DESC
+  `,{},{dbName: "db3"});
+
+  const rows = result?.rows || [];
+
+  const stateCollections = rows.map((row) => ({
+    stateName: row.STATE_NAME ?? "",
+
+    totalTransactions: asNumber(
+      row.TOTAL_TRANSACTIONS,
+      0
+    ),
+
+    totalCollection: Number(
+      asNumber(
+        row.TOTAL_COLLECTION,
+        0
+      ).toFixed(2)
+    ),
+
+    collectionPercentage: Number(
+      asNumber(
+        row.COLLECTION_PERCENTAGE,
+        0
+      ).toFixed(2)
+    ),
+  }));
+
+  return {
+    stateCollections,
+  };
+}
+
 module.exports = {
   getDashboardSummaryData,
   getDashboardDailyTransactionsData,
   getDashboardPaymentModeData,
   getDashboardTransactionModeData,
-  getDashboardTopLcoCollectionData
+  getDashboardTopLcoCollectionData,
+  getDashboardStateCollectionData
 };
