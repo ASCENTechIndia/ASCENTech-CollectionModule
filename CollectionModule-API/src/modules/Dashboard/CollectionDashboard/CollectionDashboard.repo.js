@@ -286,11 +286,55 @@ async function getDashboardStateCollectionData(payload) {
   };
 }
 
+async function getDashboardCityCollectionData() {
+
+  const result = await executeQuery(`
+    SELECT
+      RANK_NO,
+      CITY_NAME,
+      TOTAL_CUSTOMERS,
+      TOTAL_TRANSACTIONS,
+      TOTAL_COLLECTION
+    FROM ATBSS_CM.AOUP_V_CITY_COLLECTION
+    ORDER BY RANK_NO
+  `,{},{dbName: "db3"});
+
+  const rows = result?.rows || [];
+
+  const cityCollections = rows.map((row) => ({
+    rankNo: asNumber(row.RANK_NO, 0),
+
+    cityName: row.CITY_NAME ?? "",
+
+    totalCustomers: asNumber(
+      row.TOTAL_CUSTOMERS,
+      0
+    ),
+
+    totalTransactions: asNumber(
+      row.TOTAL_TRANSACTIONS,
+      0
+    ),
+
+    totalCollection: Number(
+      asNumber(
+        row.TOTAL_COLLECTION,
+        0
+      ).toFixed(2)
+    ),
+  }));
+
+  return {
+    cityCollections,
+  };
+}
+
 module.exports = {
   getDashboardSummaryData,
   getDashboardDailyTransactionsData,
   getDashboardPaymentModeData,
   getDashboardTransactionModeData,
   getDashboardTopLcoCollectionData,
-  getDashboardStateCollectionData
+  getDashboardStateCollectionData,
+  getDashboardCityCollectionData
 };
