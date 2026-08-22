@@ -18,30 +18,30 @@ const Dashboard = () => {
         <SummaryCards />
 
         <div className="row g-3 mt-3">
-          <div className="col-12 col-xl-4 mt-0 px-2">
+          <div className="col-12 col-xl-4 mt-0 px-2 py-xl-0 py-2">
             <TransactionsPerDayChart />
           </div>
-          <div className="col-12 col-xl-4 mt-0 px-2">
+          <div className="col-12 col-xl-4 mt-0 px-2 py-xl-0 py-2">
             <CollectionByPaymentModeChart />
           </div>
-          <div className="col-12 col-xl-4 mt-0 px-2">
+          <div className="col-12 col-xl-4 mt-0 px-2 py-xl-0 py-2">
             <TransactionsByModeChart />
           </div>
         </div>
 
         <div className="row g-3 mt-3">
-          <div className="col-12 col-xl-4 m-0 px-2">
+          <div className="col-12 col-xl-4 m-0 px-2 py-xl-0 py-2">
             <TopLCOsTable />
           </div>
-          <div className="col-12 col-xl-4 m-0 px-2">
+          <div className="col-12 col-xl-4 m-0 px-2 py-xl-0 py-2">
             <CollectionByStateTable />
           </div>
-          <div className="col-12 col-xl-4 m-0 px-2">
+          <div className="col-12 col-xl-4 m-0 px-2 py-xl-0 py-2">
             <TopCitiesTable />
           </div>
         </div>
         <div className="row g-3 mt-3">
-          <div className="col-12 p-0 m-0">
+          <div className="col-12 px-2 m-0">
             <BottomStatsBar />
           </div>
         </div>

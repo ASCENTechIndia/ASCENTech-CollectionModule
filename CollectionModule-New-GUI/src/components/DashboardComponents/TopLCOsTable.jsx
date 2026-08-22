@@ -64,7 +64,7 @@ export default function TopLCOsTable() {
                 <th>LCO Code</th>
                 <th>LCO Name</th>
                 <th>Trans</th>
-                <th>Collection (₹)</th>
+                <th>Collection(₹)</th>
               </tr>
             </thead>
             <tbody>

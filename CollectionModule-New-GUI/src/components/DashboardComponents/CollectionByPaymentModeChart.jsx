@@ -105,7 +105,7 @@ export default function CollectionByPaymentModeChart() {
     <div className="panel-card">
       <div className="panel-title">COLLECTION BY PAYMENT MODE</div>
       <div className="panel-body-tight">
-        <div className="d-flex align-items-center flex-wrap">
+        <div className="d-flex align-items-center">
           <div
             style={{ position: "relative", width: "220px", height: "230px" }}
           >
