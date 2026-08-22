@@ -1,6 +1,6 @@
 const express = require('express');
 const { dashboardSummaryHandler,dashboardDailyTransactionHandler , dashboardPaymentModeHandler,
-  dashboardTransactionModeHandler
+  dashboardTransactionModeHandler,dashboardTopLcoCollectionHandler
 } = require('./CollectionDashboard.controller');
 
 const router = express.Router();
@@ -23,6 +23,11 @@ router.get(
 router.get(
   "/transaction-mode",
   dashboardTransactionModeHandler
+);
+
+router.get(
+  "/top-lco-collection",
+  dashboardTopLcoCollectionHandler
 );
 
 module.exports = router;

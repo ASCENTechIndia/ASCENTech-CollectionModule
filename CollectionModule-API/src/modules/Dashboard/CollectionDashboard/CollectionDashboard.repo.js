@@ -203,9 +203,51 @@ async function getDashboardTransactionModeData(payload) {
   };
 }
 
+async function getDashboardTopLcoCollectionData() {
+
+
+  const result = await executeQuery(`
+    SELECT
+      RANK_NO,
+      LCO_CODE,
+      LCO_NAME,
+      TOTAL_TRANSACTIONS,
+      TOTAL_COLLECTION
+    FROM ATBSS_CM.AOUP_V_TOP_LCO_COLLECTION
+    FETCH FIRST 5 ROWS ONLY
+  `,{},{dbName: "db3"});
+
+  const rows = result?.rows || [];
+
+  const topLcos = rows.map((row) => ({
+    rankNo: asNumber(row.RANK_NO, 0),
+
+    lcoCode: row.LCO_CODE ?? "",
+
+    lcoName: row.LCO_NAME ?? "",
+
+    totalTransactions: asNumber(
+      row.TOTAL_TRANSACTIONS,
+      0
+    ),
+
+    totalCollection: Number(
+      asNumber(
+        row.TOTAL_COLLECTION,
+        0
+      ).toFixed(2)
+    ),
+  }));
+
+  return {
+    topLcos,
+  };
+}
+
 module.exports = {
   getDashboardSummaryData,
   getDashboardDailyTransactionsData,
   getDashboardPaymentModeData,
-  getDashboardTransactionModeData
+  getDashboardTransactionModeData,
+  getDashboardTopLcoCollectionData
 };
