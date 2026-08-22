@@ -1,45 +1,71 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useNotification } from "../../context/NotificationContext";
+import { useLoader } from "../../context/LoaderContext";
+import apiClient from "../../services/apiClient";
 
-// Dummy data — replace with API response later
-const stateData = [
-  {
-    state: "Maharashtra",
-    collection: 120456.75,
-    share: "93.13%",
-    color: "#2f6fed",
-  },
-  {
-    state: "Madhya Pradesh",
-    collection: 6682.0,
-    share: "5.17%",
-    color: "#7ea5f3",
-  },
-  { state: "Gujarat", collection: 1150.0, share: "0.89%", color: "#c7dafb" },
-  {
-    state: "Other States",
-    collection: 1063.0,
-    share: "0.82%",
-    color: "#e3ecfd",
-  },
+const COLORS = [
+  "#2f6fed",
+  "#7ea5f3",
+  "#c7dafb",
+  "#22b04c",
+  "#f5a524",
+  "#8b5cf6",
+  "#dc3545",
+  "#20c997",
+  "#6f42c1",
+  "#fd7e14",
 ];
 
-const totalRow = { collection: 129351.75, share: "100%" };
-
 const formatINR = (num) =>
-  num.toLocaleString("en-IN", {
+  Number(num).toLocaleString("en-IN", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
 
 export default function CollectionByStateTable() {
+  const { showError } = useNotification();
+  const { setLoader } = useLoader();
+  const [stateData, setStateData] = useState([]);
+  const [totalCollection, setTotalCollection] = useState(0);
+
+  const fetchData = async () => {
+    try {
+      setLoader(true);
+      const res = await apiClient.get("/collection-dashboard/state-collection");
+      if (res?.success && res?.data?.stateCollections?.length > 0) {
+        const items = res.data.stateCollections;
+        const mapped = items.map((item, index) => ({
+          state: item.stateName,
+          collection: item.totalCollection,
+          share: item.collectionPercentage,
+          color: COLORS[index % COLORS.length],
+        }));
+        setStateData(mapped);
+        const total = mapped.reduce((sum, d) => sum + d.collection, 0);
+        setTotalCollection(total);
+      } else {
+        setStateData([]);
+        setTotalCollection(0);
+      }
+    } catch (error) {
+      console.error(error);
+      showError(error.message || "Failed to fetch state collection data");
+      setStateData([]);
+      setTotalCollection(0);
+    } finally {
+      setLoader(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   return (
     <div className="panel-card">
       <div className="panel-title">COLLECTION BY STATE</div>
       <div className="px-3 pb-3">
-        <div
-          className="panel-body-tight table-responsive p-0"
-          style={{ maxHeight: "350px" }}
-        >
+        <div className="panel-body-tight table-responsive p-0">
           <table className="table dash-table">
             <thead>
               <tr>
@@ -49,24 +75,34 @@ export default function CollectionByStateTable() {
               </tr>
             </thead>
             <tbody>
-              {stateData.map((row) => (
-                <tr key={row.state}>
-                  <td>
-                    <span
-                      className="state-dot"
-                      style={{ backgroundColor: row.color }}
-                    ></span>
-                    {row.state}
+              {stateData.length > 0 ? (
+                stateData.map((row) => (
+                  <tr key={row.state}>
+                    <td className="d-flex align-items-center">
+                      <span
+                        className="state-dot"
+                        style={{ backgroundColor: row.color }}
+                      ></span>
+                      {row.state}
+                    </td>
+                    <td>{formatINR(row.collection)}</td>
+                    <td>{row.share.toFixed(2)}%</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3" className="text-center text-muted">
+                    No data available
                   </td>
-                  <td>{formatINR(row.collection)}</td>
-                  <td>{row.share}</td>
                 </tr>
-              ))}
-              <tr className="fw-bold">
-                <td>Total</td>
-                <td>{formatINR(totalRow.collection)}</td>
-                <td>{totalRow.share}</td>
-              </tr>
+              )}
+              {stateData.length > 0 && (
+                <tr className="fw-bold">
+                  <td>Total</td>
+                  <td>{formatINR(totalCollection)}</td>
+                  <td>100%</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

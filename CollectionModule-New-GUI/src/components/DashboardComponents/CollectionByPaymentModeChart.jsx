@@ -4,10 +4,17 @@ import { useNotification } from "../../context/NotificationContext";
 import { useLoader } from "../../context/LoaderContext";
 import apiClient from "../../services/apiClient";
 
-// Fallback dummy data (same as before)
-const defaultPaymentModes = [
-  { name: "Cash", value: 0, percent: 0, color: "#2f6fed" },
-  { name: "Cheque", value: 0, percent: 0, color: "#22b04c" },
+const COLORS = [
+  "#2f6fed",
+  "#22b04c",
+  "#f5a524",
+  "#8b5cf6",
+  "#dc3545",
+  "#20c997",
+  "#6f42c1",
+  "#fd7e14",
+  "#e83e8c",
+  "#17a2b8",
 ];
 
 const formatINR = (num) =>
@@ -21,7 +28,7 @@ export default function CollectionByPaymentModeChart() {
   const chartRef = useRef(null);
   const { showError } = useNotification();
   const { setLoader } = useLoader();
-  const [paymentModes, setPaymentModes] = useState(defaultPaymentModes);
+  const [paymentModes, setPaymentModes] = useState([]);
   const [totalCollection, setTotalCollection] = useState(0);
 
   const fetchData = async () => {
@@ -30,26 +37,24 @@ export default function CollectionByPaymentModeChart() {
       const res = await apiClient.get("/collection-dashboard/payment-mode");
       if (res?.success && res?.data?.paymentModes?.length > 0) {
         const modes = res.data.paymentModes;
-        const mapped = modes.map((item) => ({
+        const mapped = modes.map((item, index) => ({
           name: item.paymentMode,
           value: item.totalCollection,
           percent: item.collectionPercentage,
-          color: item.paymentMode === "Cash" ? "#2f6fed" : "#22b04c",
+          color: COLORS[index % COLORS.length],
         }));
         setPaymentModes(mapped);
         const total = mapped.reduce((sum, d) => sum + d.value, 0);
         setTotalCollection(total);
       } else {
-        setPaymentModes(defaultPaymentModes);
-        setTotalCollection(
-          defaultPaymentModes.reduce((s, d) => s + d.value, 0),
-        );
+        setPaymentModes([]);
+        setTotalCollection(0);
       }
     } catch (error) {
       console.error(error);
       showError(error.message || "Failed to fetch payment mode data");
-      setPaymentModes(defaultPaymentModes);
-      setTotalCollection(defaultPaymentModes.reduce((s, d) => s + d.value, 0));
+      setPaymentModes([]);
+      setTotalCollection(0);
     } finally {
       setLoader(false);
     }
@@ -94,7 +99,6 @@ export default function CollectionByPaymentModeChart() {
   }, [paymentModes]);
 
   const total = paymentModes.reduce((acc, curr) => acc + curr.value, 0);
-
   const formattedTotal = formatINR(total);
 
   return (

@@ -1,20 +1,63 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as echarts from "echarts";
+import { useNotification } from "../../context/NotificationContext";
+import { useLoader } from "../../context/LoaderContext";
+import apiClient from "../../services/apiClient";
 
-const modeData = [
-  { name: "DL PORTAL\n[Offline]", value: 7, color: "#f5a524" },
-  { name: "DL PORTAL\n[Online]", value: 13, color: "#8b5cf6" },
-  { name: "Offline", value: 85, color: "#22b04c" },
-  { name: "Renewal", value: 318, color: "#2f6fed" },
+const COLORS = [
+  "#2f6fed",
+  "#22b04c",
+  "#f5a524",
+  "#8b5cf6",
+  "#dc3545",
+  "#20c997",
+  "#6f42c1",
+  "#fd7e14",
+  "#e83e8c",
+  "#17a2b8",
 ];
 
 export default function TransactionsByModeChart() {
   const chartRef = useRef(null);
+  const { showError } = useNotification();
+  const { setLoader } = useLoader();
+  const [modeData, setModeData] = useState([]);
 
-  const total = modeData.reduce((acc, curr) => acc + curr.value, 0);
+  const fetchData = async () => {
+    try {
+      setLoader(true);
+      const res = await apiClient.get("/collection-dashboard/transaction-mode");
+      if (res?.success && res?.data?.transactionModes?.length > 0) {
+        const modes = res.data.transactionModes;
+        const mapped = modes.map((item, index) => ({
+          name: item.transactionMode,
+          value: item.totalTransactions,
+          percent: item.transactionPercentage,
+          color: COLORS[index % COLORS.length],
+        }));
+        setModeData(mapped);
+      } else {
+        setModeData([]);
+      }
+    } catch (error) {
+      console.error(error);
+      showError(error.message || "Failed to fetch transaction mode data");
+      setModeData([]);
+    } finally {
+      setLoader(false);
+    }
+  };
 
   useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (!chartRef.current) return;
+
     const chartInstance = echarts.init(chartRef.current);
+
+    const total = modeData.reduce((acc, curr) => acc + curr.value, 0);
 
     const option = {
       grid: { left: 90, right: 90, top: 15, bottom: 35 },
@@ -22,8 +65,6 @@ export default function TransactionsByModeChart() {
       xAxis: {
         type: "value",
         min: 0,
-        max: 350,
-        interval: 50,
         name: "No. of Transactions",
         nameLocation: "middle",
         nameGap: 25,
@@ -51,8 +92,8 @@ export default function TransactionsByModeChart() {
             position: "right",
             formatter: (params) => {
               const value = params.value;
-              const percent = ((value / total) * 100).toFixed(2);
-              return `${value} (${percent}%)`;
+              const percent = modeData[params.dataIndex]?.percent ?? 0;
+              return `${value} (${percent.toFixed(2)}%)`;
             },
             color: "#374151",
             fontSize: 11,
@@ -71,7 +112,7 @@ export default function TransactionsByModeChart() {
       window.removeEventListener("resize", handleResize);
       chartInstance.dispose();
     };
-  }, [total]);
+  }, [modeData]);
 
   return (
     <div className="panel-card">
