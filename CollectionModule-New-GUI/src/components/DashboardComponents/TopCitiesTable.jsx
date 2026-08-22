@@ -53,7 +53,7 @@ export default function TopCitiesTable() {
               <tr>
                 <th>City</th>
                 <th>Customers</th>
-                <th>Transactions</th>
+                <th>Trans</th>
                 <th>Collection (₹)</th>
               </tr>
             </thead>

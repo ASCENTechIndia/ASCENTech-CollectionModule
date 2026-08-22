@@ -63,8 +63,8 @@ export default function TopLCOsTable() {
                 <th>Rank</th>
                 <th>LCO Code</th>
                 <th>LCO Name</th>
-                <th>Transactions</th>
-                <th style={{ minWidth: "160px" }}>Collection (₹)</th>
+                <th>Trans</th>
+                <th>Collection (₹)</th>
               </tr>
             </thead>
             <tbody>

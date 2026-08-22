@@ -17,30 +17,30 @@ const Dashboard = () => {
       <div className="container-fluid px-3 px-md-4 py-3">
         <SummaryCards />
 
-        <div className="row g-3 mt-2">
-          <div className="col-12 col-xl-4 mt-0 px-1">
+        <div className="row g-3 mt-3">
+          <div className="col-12 col-xl-4 mt-0 px-2">
             <TransactionsPerDayChart />
           </div>
-          <div className="col-12 col-xl-4 mt-0 px-1">
+          <div className="col-12 col-xl-4 mt-0 px-2">
             <CollectionByPaymentModeChart />
           </div>
-          <div className="col-12 col-xl-4 mt-0 px-1">
+          <div className="col-12 col-xl-4 mt-0 px-2">
             <TransactionsByModeChart />
           </div>
         </div>
 
-        <div className="row g-3 mt-2">
-          <div className="col-12 col-xl-5 m-0 px-1">
+        <div className="row g-3 mt-3">
+          <div className="col-12 col-xl-4 m-0 px-2">
             <TopLCOsTable />
           </div>
-          <div className="col-12 col-xl-3 m-0 px-1">
+          <div className="col-12 col-xl-4 m-0 px-2">
             <CollectionByStateTable />
           </div>
-          <div className="col-12 col-xl-4 m-0 px-1">
+          <div className="col-12 col-xl-4 m-0 px-2">
             <TopCitiesTable />
           </div>
         </div>
-        <div className="row g-3 mt-2">
+        <div className="row g-3 mt-3">
           <div className="col-12 p-0 m-0">
             <BottomStatsBar />
           </div>
