@@ -23,7 +23,9 @@ export default function TransactionsPerDayChart() {
       );
       if (res?.success && res?.data?.transactions?.length > 0) {
         const transactions = res.data.transactions;
-        const days = transactions.map((item) => item.transactionDate);
+        const days = transactions.map((item) =>
+          item.transactionDate.substring(0, 2),
+        );
         const values = transactions.map((item) => item.totalTransactions);
         setChartData({ days, transactions: values });
       } else {
@@ -93,9 +95,9 @@ export default function TransactionsPerDayChart() {
           label: {
             show: true,
             position: "top",
-            fontSize: 11,
+            fontSize: 7,
             color: "#374151",
-            fontWeight: 600,
+            fontWeight: 400,
           },
         },
       ],

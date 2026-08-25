@@ -1060,7 +1060,7 @@ body {
 }
 
 .dash-table tbody td {
-  padding: 0.55rem 0.75rem;
+  padding: 0.55rem 0.45rem;
   vertical-align: middle;
   border-bottom: 1px solid #f3f4f6;
 }

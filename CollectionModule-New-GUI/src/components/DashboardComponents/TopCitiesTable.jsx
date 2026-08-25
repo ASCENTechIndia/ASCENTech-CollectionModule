@@ -45,7 +45,7 @@ export default function TopCitiesTable() {
 
   return (
     <div className="panel-card">
-      <div className="panel-title">TOP 5 CITIES BY COLLECTION</div>
+      <div className="panel-title">TOP CITIES BY COLLECTION</div>
       <div className="px-3 pb-3">
         <div className="panel-body-tight table-responsive p-0">
           <table className="table dash-table">

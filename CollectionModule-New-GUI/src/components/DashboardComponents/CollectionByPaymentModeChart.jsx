@@ -29,6 +29,7 @@ export default function CollectionByPaymentModeChart() {
   const { showError } = useNotification();
   const { setLoader } = useLoader();
   const [paymentModes, setPaymentModes] = useState([]);
+  const [allPaymentModes, setAllPaymentModes] = useState([])
   const [totalCollection, setTotalCollection] = useState(0);
 
   const fetchData = async () => {
@@ -44,17 +45,19 @@ export default function CollectionByPaymentModeChart() {
           color: COLORS[index % COLORS.length],
         }));
         setPaymentModes(mapped);
-        const total = mapped.reduce((sum, d) => sum + d.value, 0);
-        setTotalCollection(total);
+
+        // Total collection value is not used right now
+        // const total = mapped.reduce((sum, d) => sum + d.value, 0);
+        // setTotalCollection(total);
       } else {
         setPaymentModes([]);
-        setTotalCollection(0);
+        // setTotalCollection(0);
       }
     } catch (error) {
       console.error(error);
       showError(error.message || "Failed to fetch payment mode data");
       setPaymentModes([]);
-      setTotalCollection(0);
+      // setTotalCollection(0);
     } finally {
       setLoader(false);
     }
@@ -101,13 +104,21 @@ export default function CollectionByPaymentModeChart() {
   const total = paymentModes.reduce((acc, curr) => acc + curr.value, 0);
   const formattedTotal = formatINR(total);
 
+  const removeClickedItem = () => {
+
+  }
+
   return (
     <div className="panel-card">
       <div className="panel-title">COLLECTION BY PAYMENT MODE</div>
       <div className="panel-body-tight">
         <div className="d-flex align-items-center">
           <div
-            style={{ position: "relative", width: "220px", height: "230px" }}
+            style={{
+              position: "relative",
+              width: "220px",
+              height: "230px",
+            }}
           >
             <div ref={chartRef} style={{ width: "100%", height: "230px" }} />
             <div
@@ -129,23 +140,25 @@ export default function CollectionByPaymentModeChart() {
           </div>
 
           <div className="ms-3 flex-grow-1">
-            {paymentModes.map((d) => (
-              <div key={d.name} className="d-flex align-items-start mb-3">
-                <span
-                  className="state-dot mt-1"
-                  style={{ backgroundColor: d.color }}
-                ></span>
-                <div>
-                  <div className="fw-semibold">{d.name}</div>
-                  <div style={{ fontSize: "0.85rem" }}>
-                    {formatINR(d.value)}{" "}
-                    <span className="text-muted">
-                      ({d.percent.toFixed(2)}%)
-                    </span>
+            <div className="overflow-auto" style={{ height: "200px" }}>
+              {paymentModes.map((d) => (
+                <div key={d.name} className="d-flex align-items-start mb-3" onClick={() => removeClickedItem()}>
+                  <span
+                    className="state-dot mt-1"
+                    style={{ backgroundColor: d.color }}
+                  ></span>
+                  <div>
+                    <div className="fw-semibold">{d.name}</div>
+                    <div style={{ fontSize: "0.85rem" }}>
+                      {formatINR(d.value)}{" "}
+                      <span className="text-muted">
+                        ({d.percent.toFixed(2)}%)
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
