@@ -1153,3 +1153,12 @@ body {
     flex-wrap: nowrap;
   }
 }
+
+.payment-mode-div{
+  cursor: pointer;
+  border-radius: 7px;
+}
+.payment-mode-div:hover{
+  background-color: rgb(234, 232, 232);
+
+}

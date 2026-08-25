@@ -28,9 +28,15 @@ export default function CollectionByPaymentModeChart() {
   const chartRef = useRef(null);
   const { showError } = useNotification();
   const { setLoader } = useLoader();
-  const [paymentModes, setPaymentModes] = useState([]);
-  const [allPaymentModes, setAllPaymentModes] = useState([])
-  const [totalCollection, setTotalCollection] = useState(0);
+
+  const [allPaymentModes, setAllPaymentModes] = useState([]);
+  const [hiddenModes, setHiddenModes] = useState([]);
+
+  const visibleModes = allPaymentModes.filter(
+    (mode) => !hiddenModes.includes(mode.name),
+  );
+  const total = visibleModes.reduce((acc, curr) => acc + curr.value, 0);
+  const formattedTotal = formatINR(total);
 
   const fetchData = async () => {
     try {
@@ -44,20 +50,17 @@ export default function CollectionByPaymentModeChart() {
           percent: item.collectionPercentage,
           color: COLORS[index % COLORS.length],
         }));
-        setPaymentModes(mapped);
-
-        // Total collection value is not used right now
-        // const total = mapped.reduce((sum, d) => sum + d.value, 0);
-        // setTotalCollection(total);
+        setAllPaymentModes(mapped);
+        setHiddenModes([]);
       } else {
-        setPaymentModes([]);
-        // setTotalCollection(0);
+        setAllPaymentModes([]);
+        setHiddenModes([]);
       }
     } catch (error) {
       console.error(error);
       showError(error.message || "Failed to fetch payment mode data");
-      setPaymentModes([]);
-      // setTotalCollection(0);
+      setAllPaymentModes([]);
+      setHiddenModes([]);
     } finally {
       setLoader(false);
     }
@@ -81,7 +84,7 @@ export default function CollectionByPaymentModeChart() {
           avoidLabelOverlap: false,
           label: { show: false },
           labelLine: { show: false },
-          data: paymentModes.map((d) => ({
+          data: visibleModes.map((d) => ({
             name: d.name,
             value: d.value,
             itemStyle: { color: d.color },
@@ -99,14 +102,16 @@ export default function CollectionByPaymentModeChart() {
       window.removeEventListener("resize", handleResize);
       chartInstance.dispose();
     };
-  }, [paymentModes]);
+  }, [visibleModes]);
 
-  const total = paymentModes.reduce((acc, curr) => acc + curr.value, 0);
-  const formattedTotal = formatINR(total);
-
-  const removeClickedItem = () => {
-
-  }
+  const toggleMode = (name) => {
+    setHiddenModes(
+      (prev) =>
+        prev.includes(name)
+          ? prev.filter((item) => item !== name) // remove from hidden to show
+          : [...prev, name], // add to hidden to hide
+    );
+  };
 
   return (
     <div className="panel-card">
@@ -139,25 +144,45 @@ export default function CollectionByPaymentModeChart() {
             </div>
           </div>
 
-          <div className="ms-3 flex-grow-1">
+          <div className="flex-grow-1">
             <div className="overflow-auto" style={{ height: "200px" }}>
-              {paymentModes.map((d) => (
-                <div key={d.name} className="d-flex align-items-start mb-3" onClick={() => removeClickedItem()}>
-                  <span
-                    className="state-dot mt-1"
-                    style={{ backgroundColor: d.color }}
-                  ></span>
-                  <div>
-                    <div className="fw-semibold">{d.name}</div>
-                    <div style={{ fontSize: "0.85rem" }}>
-                      {formatINR(d.value)}{" "}
-                      <span className="text-muted">
-                        ({d.percent.toFixed(2)}%)
-                      </span>
+              {allPaymentModes.map((d) => {
+                const isHidden = hiddenModes.includes(d.name);
+                return (
+                  <div
+                    key={d.name}
+                    className={`d-flex align-items-start mb-3 payment-mode-div px-2 ${
+                      isHidden ? "hidden-mode" : ""
+                    }`}
+                    onClick={() => toggleMode(d.name)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <span
+                      className="state-dot mt-1"
+                      style={{
+                        backgroundColor: isHidden ? "#ccc" : d.color,
+                      }}
+                    ></span>
+                    <div>
+                      <div
+                        className="fw-semibold"
+                        style={{
+                          textDecoration: isHidden ? "line-through" : "none",
+                          color: isHidden ? "#9ca3af" : "inherit",
+                        }}
+                      >
+                        {d.name}
+                      </div>
+                      <div style={{ fontSize: "0.85rem" }}>
+                        {formatINR(d.value)}{" "}
+                        <span className="text-muted">
+                          ({d.percent.toFixed(2)}%)
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
