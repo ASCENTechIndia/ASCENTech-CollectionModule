@@ -375,18 +375,6 @@ async function getDashboardCollectionCountData() {
       `
         SELECT
           TOTAL_TRANSACTIONS,
-          DIGITAL_COLLECTION,
-          DIGITAL_COLLECTION_PERCENTAGE
-        FROM ATBSS_CM.AOUP_V_DIGITAL_COLLECTION
-      `,
-      {},
-      { dbName: "db3" }
-    ),
-
-    executeQuery(
-      `
-        SELECT
-          TOTAL_TRANSACTIONS,
           CHEQUE_COLLECTION,
           CHEQUE_COLLECTION_PERCENTAGE
         FROM ATBSS_CM.AOUP_V_CHEQUE_COLLECTION
