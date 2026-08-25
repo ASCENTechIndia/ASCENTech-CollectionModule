@@ -151,7 +151,7 @@ export default function CollectionByPaymentModeChart() {
                 return (
                   <div
                     key={d.name}
-                    className={`d-flex align-items-start mb-3 payment-mode-div px-2 ${
+                    className={`d-flex align-items-start mb-2 payment-mode-div px-2 ${
                       isHidden ? "hidden-mode" : ""
                     }`}
                     onClick={() => toggleMode(d.name)}
@@ -169,11 +169,12 @@ export default function CollectionByPaymentModeChart() {
                         style={{
                           textDecoration: isHidden ? "line-through" : "none",
                           color: isHidden ? "#9ca3af" : "inherit",
+                          fontSize: "12px",
                         }}
                       >
                         {d.name}
                       </div>
-                      <div style={{ fontSize: "0.85rem" }}>
+                      <div style={{ fontSize: "11px" }}>
                         {formatINR(d.value)}{" "}
                         <span className="text-muted">
                           ({d.percent.toFixed(2)}%)
