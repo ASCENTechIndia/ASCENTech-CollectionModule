@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Users, User, Receipt, IndianRupee } from "lucide-react";
+import { Users, User, ReceiptText, IndianRupee } from "lucide-react";
 import { useNotification } from "../../context/NotificationContext";
 import { useLoader } from "../../context/LoaderContext";
 import apiClient from "../../services/apiClient";
@@ -32,7 +32,7 @@ const defaultData = [
     label: "No. of Transactions (T-1)",
     value: "0",
     sub: "Total transactions",
-    icon: Receipt,
+    icon: ReceiptText,
     bg: "#fff3e0",
     iconBg: "#ffe1b8",
     fg: "#f5a524",
@@ -89,7 +89,7 @@ export default function SummaryCards() {
             label: "No. of Transactions (T-1)",
             value: data.totalTransactions || 0,
             sub: "Total transactions",
-            icon: Receipt,
+            icon: ReceiptText,
             bg: "#fff3e0",
             iconBg: "#ffe1b8",
             fg: "#f5a524",
@@ -148,7 +148,7 @@ export default function SummaryCards() {
                   border: `2px solid ${card.iconBg}`,
                 }}
               >
-                <Icon size={24} strokeWidth={2} />
+                <Icon size={30} strokeWidth={2} />
               </div>
               <div className="card-div">
                 <div className="summary-label">{card.label}</div>

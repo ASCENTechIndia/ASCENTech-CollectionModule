@@ -181,7 +181,9 @@ function App() {
         <Route path='allocation/allocation-rule' element={<AllocationWorkspace />} />
 
       </Route>
-      <Route path='/Dashboard' element={<Dashboard />} />
+
+      <Route path='/Dashboard' element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      
       <Route path="/map-view" element={<MapViewPage />} />
       <Route
         path="/auth/login"

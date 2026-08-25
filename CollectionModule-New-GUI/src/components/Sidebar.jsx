@@ -8,7 +8,7 @@ const navItems = [
 ];
 
 const dashboardMenuItems = [
-   { to: "/Dashboard", label: "Collection Dashboard" },
+   { to: "/Dashboard", label: "PayMyTv Dashboard" },
   { to: "/Dashboard/FrmActiveAgentsNew", label: "Active Agents Dashboard" },
   { to: "/Dashboard/FrmNewDashboard2New", label: "Disposition Dashboard" },
   { to: "/Dashboard/DailyVisitNew", label: "Daily Visit Dashboard" }
