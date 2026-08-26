@@ -8,6 +8,7 @@ const {
   simulationPreviewRepo,
   getRulesNameListRepo,
   assignRuleUserHistoryRepo,
+  assignRuleUserWithHistoryPrioritywiseRepo
 } = require("./allocationRules.repo");
 
 async function insertRuleService(payload) {
@@ -169,6 +170,30 @@ async function assignRuleUserHistoryService(payload) {
   }
 }
 
+async function assignRuleUserWithHistoryPrioritywiseService(ruleId) {
+  try {
+    const result =
+      await assignRuleUserWithHistoryPrioritywiseRepo(ruleId);
+
+    if (!result) {
+      throw new AppError(
+        "Failed to assign rule user prioritywise",
+        400
+      );
+    }
+
+    return {
+      errorCode: result.OUT_ERRORCODE,
+      errorMessage: result.OUT_ERRORMSG,
+    };
+  } catch (error) {
+    throw new AppError(
+      `Failed to assign rule user prioritywise: ${error.message}`,
+      400
+    );
+  }
+}
+
 module.exports = {
   insertRuleService,
   updateRuleService,
@@ -178,4 +203,5 @@ module.exports = {
   simulationPreviewService,
   getRulesNameListService,
   assignRuleUserHistoryService,
+  assignRuleUserWithHistoryPrioritywiseService
 };

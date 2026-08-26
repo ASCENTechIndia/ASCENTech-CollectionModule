@@ -10,6 +10,7 @@ const {
   simulationPreviewService,
   getRulesNameListService,
   assignRuleUserHistoryService,
+  assignRuleUserWithHistoryPrioritywiseService
 } = require("./allocationRules.service");
 
 async function insertRuleController(req, res, next) {
@@ -199,6 +200,47 @@ async function assignRuleUserHistoryController(req, res, next) {
   }
 }
 
+async function assignRuleUserWithHistoryPrioritywiseController(
+  req,
+  res,
+  next
+) {
+  try {
+    const { ruleId } = req.body;
+
+    const result =
+      await assignRuleUserWithHistoryPrioritywiseService(ruleId);
+
+    auditLog({
+      action: "ASSIGN_RULE_USER_HISTORY_PRIORITYWISE",
+      actor: req.user?.userId || "system",
+      module: "allocationRule",
+      entityId: ruleId || "",
+      status: result.errorMessage,
+      details: {},
+      requestMeta: "",
+    });
+
+    logApiSuccess(
+      req,
+      200,
+      result,
+      "Rule user assigned prioritywise successfully"
+    );
+
+    return res.ok(result);
+  } catch (error) {
+    logApiError(
+      req,
+      400,
+      error.message,
+      "Failed to assign rule user prioritywise"
+    );
+
+    return next(error);
+  }
+}
+
 module.exports = {
   insertRuleController,
   updateRuleController,
@@ -208,4 +250,5 @@ module.exports = {
   simulationPreviewController,
   getRulesNameListController,
   assignRuleUserHistoryController,
+  assignRuleUserWithHistoryPrioritywiseController
 };

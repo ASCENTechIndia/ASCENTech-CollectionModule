@@ -375,12 +375,56 @@ async function simulationPreviewRepo() {
       NUM_RULE_ID,
       VAR_RULE_NAME,
       MATCHING_COUNT
-    FROM ATBSS_CM.VW_AOUP_RULE_MATCHING_COUNT
+    FROM ATBSS_CM.vw_aoup_rule_matching_count_priority_wise
   `;
 
   const result = await executeQuery(sql, {}, { dbName: "db3" });
 
   return result.rows || [];
+}
+
+async function assignRuleUserWithHistoryPrioritywiseRepo(ruleId) {
+  const statement = `
+    BEGIN
+      ATBSS_CM.AOUP_ASSIGN_RULE_USER_With_History_prioritywise(
+        :P_NUM_RULE_ID,
+        :OUT_ERRORCODE,
+        :OUT_ERRORMSG
+      );
+    END;
+  `;
+
+  const binds = {
+    P_NUM_RULE_ID: {
+      val: Number(ruleId) || null,
+      type: oracledb.NUMBER,
+    },
+
+    OUT_ERRORCODE: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.NUMBER,
+    },
+
+    OUT_ERRORMSG: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 4000,
+    },
+  };
+
+  const result = await executeProcedure({
+    statement,
+    binds,
+    useTx: false,
+    dbName: "db3",
+  });
+
+  console.log(
+    "Assign Rule User Prioritywise result:",
+    result
+  );
+
+  return result;
 }
 
 
@@ -391,5 +435,6 @@ module.exports = {
   getAllRuleRepo,
   getRuleRepo,
   deleteRuleRepo,
-  simulationPreviewRepo
+  simulationPreviewRepo,
+  assignRuleUserWithHistoryPrioritywiseRepo
 };

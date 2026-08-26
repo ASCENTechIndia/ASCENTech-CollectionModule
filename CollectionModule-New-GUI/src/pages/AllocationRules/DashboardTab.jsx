@@ -66,9 +66,9 @@ const DashboardTab = () => {
     }
   };
 
-  useEffect(() => {
-    fetchRulesNameList();
-  }, []);
+  // useEffect(() => {
+  //   fetchRulesNameList();
+  // }, []);
 
   return (
     <div className="dbt-wrap">
@@ -135,7 +135,7 @@ const DashboardTab = () => {
           </div>
         </div>
 
-        <div className="col-lg-6">
+        {/* <div className="col-lg-6">
           <div className="card dbt-card h-100">
             <div className="card-body">
               <h6 className="dbt-card-title">Allocation Rules Name</h6>
@@ -150,7 +150,7 @@ const DashboardTab = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
