@@ -29,42 +29,70 @@ export default function CollectionByPaymentModeChart() {
   const { showError } = useNotification();
   const { setLoader } = useLoader();
 
+  const [totalCollection, setTotalCollection] = useState(0);
+
   const [allPaymentModes, setAllPaymentModes] = useState([]);
   const [hiddenModes, setHiddenModes] = useState([]);
 
   const visibleModes = allPaymentModes.filter(
     (mode) => !hiddenModes.includes(mode.name),
   );
-  const total = visibleModes.reduce((acc, curr) => acc + curr.value, 0);
-  const formattedTotal = formatINR(total);
+  
+  const formattedTotal = formatINR(totalCollection);
 
-  const fetchData = async () => {
-    try {
-      setLoader(true);
-      const res = await apiClient.get("/collection-dashboard/payment-mode");
-      if (res?.success && res?.data?.paymentModes?.length > 0) {
-        const modes = res.data.paymentModes;
-        const mapped = modes.map((item, index) => ({
-          name: item.paymentMode,
-          value: item.totalCollection,
-          percent: item.collectionPercentage,
-          color: COLORS[index % COLORS.length],
-        }));
-        setAllPaymentModes(mapped);
-        setHiddenModes([]);
-      } else {
-        setAllPaymentModes([]);
-        setHiddenModes([]);
-      }
-    } catch (error) {
-      console.error(error);
-      showError(error.message || "Failed to fetch payment mode data");
-      setAllPaymentModes([]);
+ const fetchData = async () => {
+  try {
+    setLoader(true);
+
+    const res = await apiClient.get(
+      "/collection-dashboard/payment-mode"
+    );
+
+    if (res?.success && res?.data?.paymentModes?.length > 0) {
+      const paymentModes = res.data.paymentModes;
+
+      // Get Total separately
+      const totalData = paymentModes.find(
+        (item) => item.paymentMode === "Total"
+      );
+
+      setTotalCollection(
+        Number(totalData?.totalCollection) || 0
+      );
+
+      // Ignore Total from chart/list
+      const modes = paymentModes.filter(
+        (item) => item.paymentMode !== "Total"
+      );
+
+      const mapped = modes.map((item, index) => ({
+        name: item.paymentMode,
+        value: Number(item.totalCollection) || 0,
+        percent: Number(item.collectionPercentage) || 0,
+        color: COLORS[index % COLORS.length],
+      }));
+
+      setAllPaymentModes(mapped);
       setHiddenModes([]);
-    } finally {
-      setLoader(false);
+    } else {
+      setAllPaymentModes([]);
+      setTotalCollection(0);
+      setHiddenModes([]);
     }
-  };
+  } catch (error) {
+    console.error(error);
+
+    showError(
+      error.message || "Failed to fetch payment mode data"
+    );
+
+    setAllPaymentModes([]);
+    setTotalCollection(0);
+    setHiddenModes([]);
+  } finally {
+    setLoader(false);
+  }
+};
 
   useEffect(() => {
     fetchData();

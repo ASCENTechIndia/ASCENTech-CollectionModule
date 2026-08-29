@@ -67,7 +67,7 @@ export default function TransactionsPerDayChart() {
         boundaryGap: ["6px", "6px"],
         axisLine: { lineStyle: { color: "#e5e7eb" } },
         axisTick: { show: false },
-        axisLabel: { color: "#6b7280", fontSize: 11, interval: 0 },
+        axisLabel: { color: "#6b7280", fontSize: 8, interval: 0 },
       },
       yAxis: {
         type: "value",

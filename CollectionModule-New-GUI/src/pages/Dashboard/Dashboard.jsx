@@ -28,7 +28,11 @@ const Dashboard = () => {
             <TransactionsByModeChart />
           </div>
         </div>
-
+<div className="row g-3 mt-3">
+          <div className="col-12 px-2 m-0">
+            <BottomStatsBar />
+          </div>
+        </div>
         <div className="row g-3 mt-3">
           <div className="col-12 col-xl-4 m-0 px-2 py-xl-0 py-2">
             <TopLCOsTable />
@@ -40,11 +44,7 @@ const Dashboard = () => {
             <TopCitiesTable />
           </div>
         </div>
-        <div className="row g-3 mt-3">
-          <div className="col-12 px-2 m-0">
-            <BottomStatsBar />
-          </div>
-        </div>
+        
       </div>
     </div>
   );

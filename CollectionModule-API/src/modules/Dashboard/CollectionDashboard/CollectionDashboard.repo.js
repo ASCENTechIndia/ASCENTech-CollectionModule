@@ -36,7 +36,7 @@ async function getDashboardSummaryData() {
         TOTAL_COLLECTION,
         AVG_COLLECTION_PER_TRANSACTION,
         AVG_COLLECTION_PER_CUSTOMER
-      FROM ATBSS_CM.AOUP_V_DASH_SUMMARY
+      FROM ATBSS_CM.VW_DASHBOARD_SUMMARY_MTD
     `,
     {},
     { dbName: 'db3' }
@@ -87,7 +87,7 @@ async function getDashboardDailyTransactionsData() {
       TRANSACTION_DATE,
       TOTAL_TRANSACTIONS,
       TOTAL_COLLECTION
-    FROM ATBSS_CM.AOUP_V_DAILY_TRANSACTION
+    FROM ATBSS_CM.VW_COLLECTION_DAILY_SUMMARY
     ORDER BY TRANSACTION_DATE
   `,{},{dbName: "db3"});
 
@@ -119,36 +119,36 @@ async function getDashboardDailyTransactionsData() {
 
 async function getDashboardPaymentModeData() {
 
-  const result = await executeQuery(`
-    SELECT
-      PAYMENT_MODE,
-      TOTAL_TRANSACTIONS,
-      TOTAL_COLLECTION,
-      COLLECTION_PERCENTAGE
-    FROM ATBSS_CM.AOUP_V_PAYMENT_MODE
-    ORDER BY TOTAL_COLLECTION DESC
-  `,{},{dbName: "db3"});
+  const result = await executeQuery(`SELECT PAYMENT_GROUP ,TRANSACTION_COUNT, TOTAL_PAID_AMOUNT , AMOUNT_PERCENTAGE
+FROM ATBSS_CM.VW_COLLECTION_BY_PAYMENT_MODE
+ORDER BY
+    CASE
+        WHEN PAYMENT_GROUP = 'Cheque' THEN 1
+        WHEN PAYMENT_GROUP = 'Cash' THEN 2
+        WHEN PAYMENT_GROUP = 'Online' THEN 3
+        WHEN PAYMENT_GROUP = 'Total' THEN 4
+    END`,{},{dbName: "db3"});
 
   const rows = result?.rows || [];
 
   const paymentModes = rows.map((row) => ({
-    paymentMode: row.PAYMENT_MODE,
+    paymentMode: row.PAYMENT_GROUP,
 
     totalTransactions: asNumber(
-      row.TOTAL_TRANSACTIONS,
+      row.TRANSACTION_COUNT,
       0
     ),
 
     totalCollection: Number(
       asNumber(
-        row.TOTAL_COLLECTION,
+        row.TOTAL_PAID_AMOUNT,
         0
       ).toFixed(2)
     ),
 
     collectionPercentage: Number(
       asNumber(
-        row.COLLECTION_PERCENTAGE,
+        row.AMOUNT_PERCENTAGE,
         0
       ).toFixed(2)
     ),
@@ -163,36 +163,37 @@ async function getDashboardPaymentModeData() {
 
 async function getDashboardTransactionModeData(payload) {
 
-  const result = await executeQuery(`
-    SELECT
-      TRANSACTION_MODE,
-      TOTAL_TRANSACTIONS,
-      TRANSACTION_PERCENTAGE,
-      TOTAL_COLLECTION
-    FROM ATBSS_CM.AOUP_V_TRANSACTION_MODE
-    ORDER BY TOTAL_COLLECTION DESC
-  `,{},{dbName: "db3"});
+  const result = await executeQuery(`SELECT ONLINE_GROUP , TRANSACTION_COUNT , TOTAL_PAID_AMOUNT , AMOUNT_PERCENTAGE
+FROM ATBSS_CM.VW_COLLECTION_BY_TRANSACTION_MODE
+ORDER BY
+    CASE
+        WHEN ONLINE_GROUP = 'Static QR' THEN 1
+        WHEN ONLINE_GROUP = 'Dynamic QR' THEN 2
+        WHEN ONLINE_GROUP = 'BBPS' THEN 3
+        WHEN ONLINE_GROUP = 'Other' THEN 4
+        WHEN ONLINE_GROUP = 'Total' THEN 5
+    END`,{},{dbName: "db3"});
 
   const rows = result?.rows || [];
 
   const transactionModes = rows.map((row) => ({
-    transactionMode: row.TRANSACTION_MODE,
+    transactionMode: row.ONLINE_GROUP,
 
     totalTransactions: asNumber(
-      row.TOTAL_TRANSACTIONS,
+      row.TRANSACTION_COUNT,
       0
     ),
 
     transactionPercentage: Number(
       asNumber(
-        row.TRANSACTION_PERCENTAGE,
+        row.AMOUNT_PERCENTAGE,
         0
       ).toFixed(2)
     ),
 
     totalCollection: Number(
       asNumber(
-        row.TOTAL_COLLECTION,
+        row.TOTAL_PAID_AMOUNT,
         0
       ).toFixed(2)
     ),
@@ -330,18 +331,13 @@ async function getDashboardCityCollectionData() {
 }
 
 async function getDashboardCollectionCountData() {
-  const [
-    averageResult,
-    cashResult,
-    digitalResult,
-    chequeResult,
-  ] = await Promise.all([
+  const [averageResult, paymentModeResult] = await Promise.all([
     executeQuery(
       `
         SELECT
           AVG_COLLECTION_PER_TRANSACTION,
           AVG_COLLECTION_PER_CUSTOMER
-        FROM ATBSS_CM.AOUP_V_DASH_SUMMARY
+        FROM ATBSS_CM.VW_DASHBOARD_SUMMARY_MTD
       `,
       {},
       { dbName: "db3" }
@@ -350,34 +346,17 @@ async function getDashboardCollectionCountData() {
     executeQuery(
       `
         SELECT
-          TOTAL_TRANSACTIONS,
-          CASH_COLLECTION,
-          CASH_COLLECTION_PERCENTAGE
-        FROM ATBSS_CM.AOUP_V_CASH_COLLECTION
-      `,
-      {},
-      { dbName: "db3" }
-    ),
-
-    executeQuery(
-      `
-        SELECT
-          TOTAL_TRANSACTIONS,
-          DIGITAL_COLLECTION,
-          DIGITAL_COLLECTION_PERCENTAGE
-        FROM ATBSS_CM.AOUP_V_DIGITAL_COLLECTION
-      `,
-      {},
-      { dbName: "db3" }
-    ),
-
-    executeQuery(
-      `
-        SELECT
-          TOTAL_TRANSACTIONS,
-          CHEQUE_COLLECTION,
-          CHEQUE_COLLECTION_PERCENTAGE
-        FROM ATBSS_CM.AOUP_V_CHEQUE_COLLECTION
+          PAYMENT_GROUP,
+          TOTAL_PAID_AMOUNT,
+          AMOUNT_PERCENTAGE
+        FROM ATBSS_CM.VW_COLLECTION_BY_PAYMENT_MODE
+        ORDER BY
+          CASE
+            WHEN PAYMENT_GROUP = 'Cheque' THEN 1
+            WHEN PAYMENT_GROUP = 'Cash' THEN 2
+            WHEN PAYMENT_GROUP = 'Digital' THEN 3
+            WHEN PAYMENT_GROUP = 'Total' THEN 4
+          END
       `,
       {},
       { dbName: "db3" }
@@ -385,68 +364,58 @@ async function getDashboardCollectionCountData() {
   ]);
 
   const average = averageResult?.rows?.[0] || {};
+  const paymentModeRows = paymentModeResult?.rows || [];
 
-  const cashRows = cashResult?.rows || [];
-  const digitalRows = digitalResult?.rows || [];
-  const chequeRows = chequeResult?.rows || [];
+  // Find individual payment modes
+  const chequeRow = paymentModeRows.find(
+    (row) => row.PAYMENT_GROUP === "Cheque"
+  );
+
+  const cashRow = paymentModeRows.find(
+    (row) => row.PAYMENT_GROUP === "Cash"
+  );
+
+  const digitalRow = paymentModeRows.find(
+    (row) => row.PAYMENT_GROUP === "Digital"
+  );
+
+  // -----------------------------
+  // Payment Mode Data
+  // -----------------------------
+
+  const chequeCollection = {
+    totalTransactions: 0,
+
+    chequeCollection: Number(
+      asNumber(chequeRow?.TOTAL_PAID_AMOUNT, 0).toFixed(2)
+    ),
+
+    chequeCollectionPercentage: Number(
+      asNumber(chequeRow?.AMOUNT_PERCENTAGE, 0).toFixed(2)
+    ),
+  };
 
   const cashCollection = {
-    totalTransactions: cashRows.reduce(
-      (sum, row) =>
-        sum + asNumber(row.TOTAL_TRANSACTIONS, 0),
-      0
+    totalTransactions: 0,
+
+    cashCollection: Number(
+      asNumber(cashRow?.TOTAL_PAID_AMOUNT, 0).toFixed(2)
     ),
 
-    cashCollection: cashRows.reduce(
-      (sum, row) =>
-        sum + asNumber(row.CASH_COLLECTION, 0),
-      0
-    ),
-
-    cashCollectionPercentage: cashRows.reduce(
-      (sum, row) =>
-        sum + asNumber(row.CASH_COLLECTION_PERCENTAGE, 0),
-      0
+    cashCollectionPercentage: Number(
+      asNumber(cashRow?.AMOUNT_PERCENTAGE, 0).toFixed(2)
     ),
   };
 
   const digitalCollection = {
-    totalTransactions: digitalRows.reduce(
-      (sum, row) =>
-        sum + asNumber(row.TOTAL_TRANSACTIONS, 0),
-      0
+    totalTransactions: 0,
+
+    digitalCollection: Number(
+      asNumber(digitalRow?.TOTAL_PAID_AMOUNT, 0).toFixed(2)
     ),
 
-    digitalCollection: digitalRows.reduce(
-      (sum, row) =>
-        sum + asNumber(row.DIGITAL_COLLECTION, 0),
-      0
-    ),
-
-    digitalCollectionPercentage: digitalRows.reduce(
-      (sum, row) =>
-        sum + asNumber(row.DIGITAL_COLLECTION_PERCENTAGE, 0),
-      0
-    ),
-  };
-
-  const chequeCollection = {
-    totalTransactions: chequeRows.reduce(
-      (sum, row) =>
-        sum + asNumber(row.TOTAL_TRANSACTIONS, 0),
-      0
-    ),
-
-    chequeCollection: chequeRows.reduce(
-      (sum, row) =>
-        sum + asNumber(row.CHEQUE_COLLECTION, 0),
-      0
-    ),
-
-    chequeCollectionPercentage: chequeRows.reduce(
-      (sum, row) =>
-        sum + asNumber(row.CHEQUE_COLLECTION_PERCENTAGE, 0),
-      0
+    digitalCollectionPercentage: Number(
+      asNumber(digitalRow?.AMOUNT_PERCENTAGE, 0).toFixed(2)
     ),
   };
 
@@ -466,35 +435,11 @@ async function getDashboardCollectionCountData() {
         ).toFixed(2)
       ),
 
-      cashCollection: {
-        ...cashCollection,
-        cashCollection: Number(
-          cashCollection.cashCollection.toFixed(2)
-        ),
-        cashCollectionPercentage: Number(
-          cashCollection.cashCollectionPercentage.toFixed(2)
-        ),
-      },
+      cashCollection,
 
-      digitalCollection: {
-        ...digitalCollection,
-        digitalCollection: Number(
-          digitalCollection.digitalCollection.toFixed(2)
-        ),
-        digitalCollectionPercentage: Number(
-          digitalCollection.digitalCollectionPercentage.toFixed(2)
-        ),
-      },
+      digitalCollection,
 
-      chequeCollection: {
-        ...chequeCollection,
-        chequeCollection: Number(
-          chequeCollection.chequeCollection.toFixed(2)
-        ),
-        chequeCollectionPercentage: Number(
-          chequeCollection.chequeCollectionPercentage.toFixed(2)
-        ),
-      },
+      chequeCollection,
     },
   };
 }

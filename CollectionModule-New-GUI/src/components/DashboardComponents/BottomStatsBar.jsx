@@ -42,7 +42,7 @@ const defaultStats = [
     id: "digital-collection",
     label: "Digital Collection",
     value: "₹ 0",
-    sub: "(0%) (DL Portal Online)",
+    sub: "(0%)",
     icon: Receipt,
     fg: "#f5a524",
     bg: "#fff3e0",
@@ -53,7 +53,7 @@ const defaultStats = [
     value: "₹ 0",
     sub: "(0%)",
     icon: Wallet,
-    fg: "#8b5cf6",
+    fg: "#2986cc",
     bg: "#f2ecfd",
   },
 ];
@@ -87,7 +87,7 @@ export default function BottomStatsBar() {
           {
             ...defaultStats[3],
             value: `₹ ${formatINR(data.digitalCollection?.digitalCollection || 0)}`,
-            sub: `(${(data.digitalCollection?.digitalCollectionPercentage || 0).toFixed(2)}%) (DL Portal Online)`,
+            sub: `(${(data.digitalCollection?.digitalCollectionPercentage || 0).toFixed(2)}%)`,
           },
           {
             ...defaultStats[4],
