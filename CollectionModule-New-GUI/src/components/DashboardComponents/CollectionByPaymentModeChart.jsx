@@ -24,7 +24,7 @@ const formatINR = (num) =>
     maximumFractionDigits: 2,
   });
 
-export default function CollectionByPaymentModeChart() {
+export default function CollectionByPaymentModeChart({ showInLacs }) {
   const chartRef = useRef(null);
   const { showError } = useNotification();
   const { setLoader } = useLoader();
@@ -37,62 +37,54 @@ export default function CollectionByPaymentModeChart() {
   const visibleModes = allPaymentModes.filter(
     (mode) => !hiddenModes.includes(mode.name),
   );
-  
-  const formattedTotal = formatINR(totalCollection);
 
- const fetchData = async () => {
-  try {
-    setLoader(true);
+  const formattedTotal = formatCollection(totalCollection);
 
-    const res = await apiClient.get(
-      "/collection-dashboard/payment-mode"
-    );
+  const fetchData = async () => {
+    try {
+      setLoader(true);
 
-    if (res?.success && res?.data?.paymentModes?.length > 0) {
-      const paymentModes = res.data.paymentModes;
+      const res = await apiClient.get("/collection-dashboard/payment-mode");
 
-      // Get Total separately
-      const totalData = paymentModes.find(
-        (item) => item.paymentMode === "Total"
-      );
+      if (res?.success && res?.data?.paymentModes?.length > 0) {
+        const paymentModes = res.data.paymentModes;
 
-      setTotalCollection(
-        Number(totalData?.totalCollection) || 0
-      );
+        const totalData = paymentModes.find(
+          (item) => item.paymentMode === "Total",
+        );
 
-      // Ignore Total from chart/list
-      const modes = paymentModes.filter(
-        (item) => item.paymentMode !== "Total"
-      );
+        setTotalCollection(Number(totalData?.totalCollection) || 0);
 
-      const mapped = modes.map((item, index) => ({
-        name: item.paymentMode,
-        value: Number(item.totalCollection) || 0,
-        percent: Number(item.collectionPercentage) || 0,
-        color: COLORS[index % COLORS.length],
-      }));
+        const modes = paymentModes.filter(
+          (item) => item.paymentMode !== "Total",
+        );
 
-      setAllPaymentModes(mapped);
-      setHiddenModes([]);
-    } else {
+        const mapped = modes.map((item, index) => ({
+          name: item.paymentMode,
+          value: Number(item.totalCollection) || 0,
+          percent: Number(item.collectionPercentage) || 0,
+          color: COLORS[index % COLORS.length],
+        }));
+
+        setAllPaymentModes(mapped);
+        setHiddenModes([]);
+      } else {
+        setAllPaymentModes([]);
+        setTotalCollection(0);
+        setHiddenModes([]);
+      }
+    } catch (error) {
+      console.error(error);
+
+      showError(error.message || "Failed to fetch payment mode data");
+
       setAllPaymentModes([]);
       setTotalCollection(0);
       setHiddenModes([]);
+    } finally {
+      setLoader(false);
     }
-  } catch (error) {
-    console.error(error);
-
-    showError(
-      error.message || "Failed to fetch payment mode data"
-    );
-
-    setAllPaymentModes([]);
-    setTotalCollection(0);
-    setHiddenModes([]);
-  } finally {
-    setLoader(false);
-  }
-};
+  };
 
   useEffect(() => {
     fetchData();
@@ -130,7 +122,7 @@ export default function CollectionByPaymentModeChart() {
       window.removeEventListener("resize", handleResize);
       chartInstance.dispose();
     };
-  }, [visibleModes]);
+  }, [visibleModes, showInLacs]);
 
   const toggleMode = (name) => {
     setHiddenModes(
@@ -140,6 +132,14 @@ export default function CollectionByPaymentModeChart() {
           : [...prev, name], // add to hidden to hide
     );
   };
+
+  function formatCollection(amount) {
+    if (showInLacs) {
+      const lakhs = amount / 100000;
+      return lakhs.toFixed(2) + " L";
+    }
+    return formatINR(amount);
+  }
 
   return (
     <div className="panel-card">
@@ -203,7 +203,7 @@ export default function CollectionByPaymentModeChart() {
                         {d.name}
                       </div>
                       <div style={{ fontSize: "11px" }}>
-                        {formatINR(d.value)}{" "}
+                        {formatCollection(d.value)}{" "}
                         <span className="text-muted">
                           ({d.percent.toFixed(2)}%)
                         </span>

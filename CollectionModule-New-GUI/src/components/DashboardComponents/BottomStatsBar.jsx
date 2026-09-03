@@ -14,43 +14,43 @@ const defaultStats = [
   {
     id: "avg-collection-txn",
     label: "Average Collection",
-    value: "₹ 0",
+    value: "0",
     sub: "Per Transaction",
     icon: Users,
-    fg: "#2f6fed",
-    bg: "#e7f0ff",
+    fg: "#ec8414",
+    bg: "#f6ebdf",
   },
   {
     id: "avg-collection-cust",
     label: "Average Collection",
-    value: "₹ 0",
+    value: "0",
     sub: "Per Customer",
     icon: Users,
-    fg: "#2f6fed",
-    bg: "#e7f0ff",
+    fg: "#d7c00b",
+    bg: "#fcfbf8",
   },
   {
     id: "cash-collection",
     label: "Cash Collection",
-    value: "₹ -",
+    value: "0",
     sub: "(0%)",
     icon: Banknote,
-    fg: "#1fa34a",
-    bg: "#e7f8ec",
+    fg: "#2f6fed",
+    bg: "#e7f3f9",
   },
   {
     id: "digital-collection",
     label: "Digital Collection",
-    value: "₹ 0",
+    value: "0",
     sub: "(0%)",
     icon: Receipt,
-    fg: "#f5a524",
-    bg: "#fff3e0",
+    fg: "#22b04c",
+    bg: "#dffdce",
   },
   {
     id: "cheque-collection",
     label: "Cheque Collection",
-    value: "₹ 0",
+    value: "0",
     sub: "(0%)",
     icon: Wallet,
     fg: "#2986cc",
@@ -58,7 +58,7 @@ const defaultStats = [
   },
 ];
 
-export default function BottomStatsBar() {
+export default function BottomStatsBar({ showInLacs }) {
   const { showError } = useNotification();
   const { setLoader } = useLoader();
   const [stats, setStats] = useState(defaultStats);
@@ -67,31 +67,32 @@ export default function BottomStatsBar() {
     try {
       setLoader(true);
       const res = await apiClient.get("/collection-dashboard/collection-count");
+      console.log("res :", res);
       if (res?.success && res?.data?.collectionCount) {
         const data = res.data.collectionCount;
 
         const updatedStats = [
           {
             ...defaultStats[0],
-            value: `₹ ${formatINR(data.avgCollectionPerTransaction || 0)}`,
+            value: `${data.avgCollectionPerTransaction || 0}`,
           },
           {
             ...defaultStats[1],
-            value: `₹ ${formatINR(data.avgCollectionPerCustomer || 0)}`,
+            value: `${data.avgCollectionPerCustomer || 0}`,
           },
           {
             ...defaultStats[2],
-            value: `₹ ${formatINR(data.cashCollection?.cashCollection || 0)}`,
+            value: `${data.cashCollection?.cashCollection || 0}`,
             sub: `(${(data.cashCollection?.cashCollectionPercentage || 0).toFixed(2)}%)`,
           },
           {
             ...defaultStats[3],
-            value: `₹ ${formatINR(data.digitalCollection?.digitalCollection || 0)}`,
+            value: `${data.digitalCollection?.digitalCollection || 0}`,
             sub: `(${(data.digitalCollection?.digitalCollectionPercentage || 0).toFixed(2)}%)`,
           },
           {
             ...defaultStats[4],
-            value: `₹ ${formatINR(data.chequeCollection?.chequeCollection || 0)}`,
+            value: `${data.chequeCollection?.chequeCollection || 0}`,
             sub: `(${(data.chequeCollection?.chequeCollectionPercentage || 0).toFixed(2)}%)`,
           },
         ];
@@ -112,6 +113,14 @@ export default function BottomStatsBar() {
     fetchData();
   }, []);
 
+  const formatCollection = (amount) => {
+    if (showInLacs) {
+      const lakhs = amount / 100000;
+      return lakhs.toFixed(2) + " L";
+    }
+    return `₹ ${formatINR(amount)}`;
+  };
+
   return (
     <div className="bottom-stats-bar">
       <div className="d-flex align-items-center justify-content-between">
@@ -129,7 +138,7 @@ export default function BottomStatsBar() {
                 <div>
                   <div className="stat-label">{stat.label}</div>
                   <div className="stat-value" style={{ color: stat.fg }}>
-                    {stat.value}
+                    {formatCollection(stat.value)}
                   </div>
                   <div className="stat-sub">{stat.sub}</div>
                 </div>

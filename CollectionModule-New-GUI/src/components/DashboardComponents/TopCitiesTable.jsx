@@ -9,11 +9,10 @@ const formatINR = (num) =>
     maximumFractionDigits: 2,
   });
 
-export default function TopCitiesTable() {
+export default function TopCitiesTable({ showInLacs }) {
   const { showError } = useNotification();
   const { setLoader } = useLoader();
   const [cityData, setCityData] = useState([]);
-  const [showInLacs, setShowInLacs] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -52,30 +51,10 @@ export default function TopCitiesTable() {
     return formatINR(amount);
   };
 
-  const handleToggle = () => {
-    setShowInLacs((prev) => !prev);
-  };
-
   return (
     <div className="panel-card">
-      <div className="panel-title d-flex justify-content-between align-items-center">
+      <div className="panel-title">
         <span>TOP CITIES BY COLLECTION</span>
-        <div className="form-check form-switch">
-          <input
-            className="form-check-input"
-            type="checkbox"
-            id="lacsToggle"
-            checked={showInLacs}
-            onChange={handleToggle}
-          />
-          <label
-            className="form-check-label"
-            htmlFor="lacsToggle"
-            style={{ width: "50px" }}
-          >
-            {showInLacs ? "Lakhs" : "Rupees"}
-          </label>
-        </div>
       </div>
       <div className="px-3 pb-3">
         <div className="panel-body-tight table-responsive p-0">

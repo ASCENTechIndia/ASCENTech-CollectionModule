@@ -9,7 +9,7 @@ const defaultData = {
   transactions: [],
 };
 
-export default function TransactionsPerDayChart() {
+export default function TransactionsPerDayChart({ showInLacs }) {
   const chartRef = useRef(null);
   const { showError } = useNotification();
   const { setLoader } = useLoader();
@@ -44,8 +44,16 @@ export default function TransactionsPerDayChart() {
     fetchData();
   }, []);
 
+  const formatNumber = (num) => {
+    if (showInLacs) {
+      const lakhs = num / 100000;
+      return lakhs.toFixed(2) + " L";
+    }
+    return Number(num).toLocaleString();
+  };
+
   useEffect(() => {
-    if (!chartRef.current) return;
+    if (!chartRef.current || chartData.days.length === 0) return;
 
     const chartInstance = echarts.init(chartRef.current);
 
@@ -60,7 +68,15 @@ export default function TransactionsPerDayChart() {
         itemHeight: 8,
         textStyle: { fontSize: 12, color: "#4b5563" },
       },
-      tooltip: { trigger: "axis" },
+      tooltip: {
+        trigger: "axis",
+        formatter: (params) => {
+          const param = params[0];
+          const date = param.name;
+          const value = param.value;
+          return `${date}<br/>Transactions: ${formatNumber(value)}`;
+        },
+      },
       xAxis: {
         type: "category",
         data: chartData.days,
@@ -72,9 +88,13 @@ export default function TransactionsPerDayChart() {
       yAxis: {
         type: "value",
         min: 0,
-
         splitLine: { lineStyle: { color: "#f1f3f7" } },
-        axisLabel: { color: "#6b7280", fontSize: 11, margin: 8 },
+        axisLabel: {
+          color: "#6b7280",
+          fontSize: 11,
+          margin: 8,
+          formatter: (value) => formatNumber(value),
+        },
       },
       series: [
         {
@@ -98,6 +118,7 @@ export default function TransactionsPerDayChart() {
             fontSize: 7,
             color: "#374151",
             fontWeight: 400,
+            formatter: (params) => formatNumber(params.value),
           },
         },
       ],
@@ -112,7 +133,7 @@ export default function TransactionsPerDayChart() {
       window.removeEventListener("resize", handleResize);
       chartInstance.dispose();
     };
-  }, [chartData]);
+  }, [chartData, showInLacs]);
 
   return (
     <div className="panel-card">

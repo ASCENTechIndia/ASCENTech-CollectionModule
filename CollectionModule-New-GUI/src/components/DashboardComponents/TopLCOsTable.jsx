@@ -16,11 +16,10 @@ const formatINR = (num) =>
     maximumFractionDigits: 2,
   });
 
-export default function TopLCOsTable() {
+export default function TopLCOsTable({ showInLacs }) {
   const { showError } = useNotification();
   const { setLoader } = useLoader();
   const [data, setData] = useState([]);
-  const [showInLacs, setShowInLacs] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -61,30 +60,10 @@ export default function TopLCOsTable() {
     return formatINR(amount);
   };
 
-  const handleToggle = () => {
-    setShowInLacs((prev) => !prev);
-  };
-
   return (
     <div className="panel-card">
-      <div className="panel-title d-flex justify-content-between align-items-center">
+      <div className="panel-title">
         <span>TOP 5 Agencies BY COLLECTION</span>
-        <div className="form-check form-switch">
-          <input
-            className="form-check-input"
-            type="checkbox"
-            id="lacsToggle"
-            checked={showInLacs}
-            onChange={handleToggle}
-          />
-          <label
-            className="form-check-label"
-            htmlFor="lacsToggle"
-            style={{ width: "50px" }}
-          >
-            {showInLacs ? "Lakhs" : "Rupees"}
-          </label>
-        </div>
       </div>
       <div className="px-3 pb-3">
         <div className="panel-body-tight table-responsive p-0">

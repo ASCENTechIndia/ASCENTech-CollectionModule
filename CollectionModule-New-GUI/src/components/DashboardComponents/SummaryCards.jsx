@@ -4,11 +4,12 @@ import { useNotification } from "../../context/NotificationContext";
 import { useLoader } from "../../context/LoaderContext";
 import apiClient from "../../services/apiClient";
 
+// Default raw data
 const defaultData = [
   {
     id: "lcos",
     label: "Total No. of LCOs",
-    value: "0",
+    value: 0,
     sub: "Active LCOs in report",
     icon: Users,
     bg: "#e7f0ff",
@@ -19,7 +20,7 @@ const defaultData = [
   {
     id: "customers",
     label: "Total No. of Customers",
-    value: "0",
+    value: 0,
     sub: "Unique customers",
     icon: User,
     bg: "#e7f8ec",
@@ -30,7 +31,7 @@ const defaultData = [
   {
     id: "transactions",
     label: "No. of Transactions (T-1)",
-    value: "0",
+    value: 0,
     sub: "Total transactions",
     icon: ReceiptText,
     bg: "#fff3e0",
@@ -41,7 +42,7 @@ const defaultData = [
   {
     id: "collection",
     label: "Total Collection",
-    value: "₹ 0",
+    value: 0,
     sub: "Across all payment modes",
     icon: IndianRupee,
     bg: "#f2ecfd",
@@ -51,10 +52,25 @@ const defaultData = [
   },
 ];
 
-export default function SummaryCards() {
-  const { showError, showSuccess } = useNotification();
+export default function SummaryCards({ showInLacs }) {
+  const { showError } = useNotification();
   const { setLoader } = useLoader();
   const [summaryData, setSummaryData] = useState(defaultData);
+
+  const formatValue = (value, id) => {
+    if (id === "collection") {
+      if (showInLacs) {
+        const lakhs = value / 100000;
+        return lakhs.toFixed(2) + " L";
+      }
+      return Number(value).toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+    }
+    return Number(value).toLocaleString();
+  };
+
   const fetchData = async () => {
     try {
       setLoader(true);
@@ -63,54 +79,20 @@ export default function SummaryCards() {
         const data = res.data.summary;
         setSummaryData([
           {
-            id: "lcos",
-            label: "Total No. of LCOs",
-            value: data.totalLcos || 0,
-            sub: "Active LCOs in report",
-            icon: Users,
-            bg: "#e7f0ff",
-            iconBg: "#cfe0ff",
-            fg: "#2f6fed",
-            valueColor: "#2f6fed",
+            ...defaultData[0],
+            value: Number(data.totalLcos || 0),
           },
           {
-            id: "customers",
-            label: "Total No. of Customers",
-            value: data.totalCustomers || 0,
-            sub: "Unique customers",
-            icon: User,
-            bg: "#e7f8ec",
-            iconBg: "#ccefd7",
-            fg: "#1fa34a",
-            valueColor: "#1fa34a",
+            ...defaultData[1],
+            value: Number(data.totalCustomers || 0),
           },
           {
-            id: "transactions",
-            label: "No. of Transactions (T-1)",
-            value: data.totalTransactions || 0,
-            sub: "Total transactions",
-            icon: ReceiptText,
-            bg: "#fff3e0",
-            iconBg: "#ffe1b8",
-            fg: "#f5a524",
-            valueColor: "#f5a524",
+            ...defaultData[2],
+            value: Number(data.totalTransactions || 0),
           },
           {
-            id: "collection",
-            label: "Total Collection",
-            value: `₹ ${Number(data.totalCollection || 0).toLocaleString(
-              "en-IN",
-              {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              },
-            )}`,
-            sub: "Across all payment modes",
-            icon: IndianRupee,
-            bg: "#f2ecfd",
-            iconBg: "#e3d4fa",
-            fg: "#8b5cf6",
-            valueColor: "#7c3aed",
+            ...defaultData[3],
+            value: Number(data.totalCollection || 0),
           },
         ]);
       } else {
@@ -124,13 +106,16 @@ export default function SummaryCards() {
       setLoader(false);
     }
   };
+
   useEffect(() => {
     fetchData();
   }, []);
+
   return (
     <div className="row g-3">
       {summaryData.map((card) => {
         const Icon = card.icon;
+        const displayValue = formatValue(card.value, card.id);
         return (
           <div className="col-12 col-sm-6 col-xl-3 mt-4 px-1" key={card.id}>
             <div
@@ -156,7 +141,7 @@ export default function SummaryCards() {
                   className="summary-value"
                   style={{ color: card.valueColor }}
                 >
-                  {card.value}
+                  {displayValue}
                 </div>
                 <div className="summary-sub">{card.sub}</div>
               </div>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import DashboardHeader from "../../components/DashboardComponents/DashboardHeader.jsx";
 import SummaryCards from "../../components/DashboardComponents/SummaryCards.jsx";
 import TransactionsPerDayChart from "../../components/DashboardComponents/TransactionsPerDayChart.jsx";
@@ -10,38 +10,42 @@ import TopCitiesTable from "../../components/DashboardComponents/TopCitiesTable.
 import BottomStatsBar from "../../components/DashboardComponents/BottomStatsBar.jsx";
 
 const Dashboard = () => {
+  const [showInLacs, setShowInLacs] = useState(true);
+  const handleToggle = () => {
+    setShowInLacs((prev) => !prev);
+  };
   return (
     <div className="dashboard-shell">
-      <DashboardHeader />
+      <DashboardHeader handleToggle={handleToggle} showInLacs={showInLacs}/>
 
       <div className="container-fluid px-3 px-md-4 py-3">
-        <SummaryCards />
+        <SummaryCards showInLacs={showInLacs}/>
 
         <div className="row g-3 mt-3">
           <div className="col-12 col-xl-4 mt-0 px-2 py-xl-0 py-2">
-            <TransactionsPerDayChart />
+            <TransactionsPerDayChart showInLacs={showInLacs}/>
           </div>
           <div className="col-12 col-xl-4 mt-0 px-2 py-xl-0 py-2">
-            <CollectionByPaymentModeChart />
+            <CollectionByPaymentModeChart showInLacs={showInLacs} />
           </div>
           <div className="col-12 col-xl-4 mt-0 px-2 py-xl-0 py-2">
-            <TransactionsByModeChart />
+            <TransactionsByModeChart showInLacs={showInLacs}/>
           </div>
         </div>
         <div className="row g-3 mt-3">
           <div className="col-12 px-2 m-0">
-            <BottomStatsBar />
+            <BottomStatsBar showInLacs={showInLacs}/>
           </div>
         </div>
         <div className="row g-3 mt-3">
           <div className="col-12 col-xl-4 m-0 px-2 py-xl-0 py-2">
-            <TopLCOsTable />
+            <TopLCOsTable showInLacs={showInLacs} />
           </div>
           <div className="col-12 col-xl-4 m-0 px-2 py-xl-0 py-2">
-            <CollectionByStateTable />
+            <CollectionByStateTable showInLacs={showInLacs}/>
           </div>
           <div className="col-12 col-xl-4 m-0 px-2 py-xl-0 py-2">
-            <TopCitiesTable />
+            <TopCitiesTable showInLacs={showInLacs}/>
           </div>
         </div>
       </div>
