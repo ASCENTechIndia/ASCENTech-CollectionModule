@@ -28,7 +28,7 @@ const Dashboard = () => {
             <TransactionsByModeChart />
           </div>
         </div>
-<div className="row g-3 mt-3">
+        <div className="row g-3 mt-3">
           <div className="col-12 px-2 m-0">
             <BottomStatsBar />
           </div>
@@ -44,7 +44,6 @@ const Dashboard = () => {
             <TopCitiesTable />
           </div>
         </div>
-        
       </div>
     </div>
   );

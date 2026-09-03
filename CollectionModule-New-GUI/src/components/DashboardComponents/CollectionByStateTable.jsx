@@ -27,6 +27,7 @@ export default function CollectionByStateTable() {
   const { setLoader } = useLoader();
   const [stateData, setStateData] = useState([]);
   const [totalCollection, setTotalCollection] = useState(0);
+  const [showInLacs, setShowInLacs] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -61,9 +62,40 @@ export default function CollectionByStateTable() {
     fetchData();
   }, []);
 
+  const formatCollection = (amount) => {
+    if (showInLacs) {
+      const lakhs = amount / 100000;
+      return lakhs.toFixed(2) + " L";
+    }
+    return formatINR(amount);
+  };
+
+  const handleToggle = () => {
+    setShowInLacs((prev) => !prev);
+  };
+
   return (
     <div className="panel-card">
-      <div className="panel-title">COLLECTION BY STATE</div>
+      <div className="panel-title d-flex justify-content-between align-items-center">
+        <span>COLLECTION BY STATE</span>
+        <div className="form-check form-switch">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            id="lacsToggle"
+            checked={showInLacs}
+            onChange={handleToggle}
+          />
+          <label
+            className="form-check-label"
+            htmlFor="lacsToggle"
+            style={{ width: "50px" }}
+          >
+            {showInLacs ? "Lakhs" : "Rupees"}
+          </label>
+        </div>
+      </div>
+
       <div className="px-3 pb-3">
         <div className="panel-body-tight table-responsive p-0">
           <table className="table dash-table">
@@ -85,7 +117,7 @@ export default function CollectionByStateTable() {
                       ></span>
                       {row.state}
                     </td>
-                    <td>{formatINR(row.collection)}</td>
+                    <td>{formatCollection(row.collection)}</td>
                     <td>{row.share.toFixed(2)}%</td>
                   </tr>
                 ))
@@ -99,7 +131,7 @@ export default function CollectionByStateTable() {
               {stateData.length > 0 && (
                 <tr className="fw-bold">
                   <td>Total</td>
-                  <td>{formatINR(totalCollection)}</td>
+                  <td>{formatCollection(totalCollection)}</td>
                   <td>100%</td>
                 </tr>
               )}

@@ -13,6 +13,7 @@ export default function TopCitiesTable() {
   const { showError } = useNotification();
   const { setLoader } = useLoader();
   const [cityData, setCityData] = useState([]);
+  const [showInLacs, setShowInLacs] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -43,9 +44,39 @@ export default function TopCitiesTable() {
     fetchData();
   }, []);
 
+  const formatCollection = (amount) => {
+    if (showInLacs) {
+      const lakhs = amount / 100000;
+      return lakhs.toFixed(2) + " L";
+    }
+    return formatINR(amount);
+  };
+
+  const handleToggle = () => {
+    setShowInLacs((prev) => !prev);
+  };
+
   return (
     <div className="panel-card">
-      <div className="panel-title">TOP CITIES BY COLLECTION</div>
+      <div className="panel-title d-flex justify-content-between align-items-center">
+        <span>TOP CITIES BY COLLECTION</span>
+        <div className="form-check form-switch">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            id="lacsToggle"
+            checked={showInLacs}
+            onChange={handleToggle}
+          />
+          <label
+            className="form-check-label"
+            htmlFor="lacsToggle"
+            style={{ width: "50px" }}
+          >
+            {showInLacs ? "Lakhs" : "Rupees"}
+          </label>
+        </div>
+      </div>
       <div className="px-3 pb-3">
         <div className="panel-body-tight table-responsive p-0">
           <table className="table dash-table">
@@ -64,7 +95,9 @@ export default function TopCitiesTable() {
                     <td>{row.city}</td>
                     <td>{row.customers}</td>
                     <td>{row.transactions}</td>
-                    <td>{formatINR(row.collection)}</td>
+                    <td style={{ textAlign: "right" }}>
+                      {formatCollection(row.collection)}
+                    </td>
                   </tr>
                 ))
               ) : (
