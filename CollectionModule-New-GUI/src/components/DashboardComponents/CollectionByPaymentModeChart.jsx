@@ -4,19 +4,6 @@ import { useNotification } from "../../context/NotificationContext";
 import { useLoader } from "../../context/LoaderContext";
 import apiClient from "../../services/apiClient";
 
-const COLORS = [
-  "#2f6fed",
-  "#22b04c",
-  "#f5a524",
-  "#8b5cf6",
-  "#dc3545",
-  "#20c997",
-  "#6f42c1",
-  "#fd7e14",
-  "#e83e8c",
-  "#17a2b8",
-];
-
 const formatINR = (num) =>
   "₹" +
   Number(num).toLocaleString("en-IN", {
@@ -45,6 +32,7 @@ export default function CollectionByPaymentModeChart({ showInLacs }) {
       setLoader(true);
 
       const res = await apiClient.get("/collection-dashboard/payment-mode");
+      console.log("res :", res);
 
       if (res?.success && res?.data?.paymentModes?.length > 0) {
         const paymentModes = res.data.paymentModes;
@@ -52,19 +40,45 @@ export default function CollectionByPaymentModeChart({ showInLacs }) {
         const totalData = paymentModes.find(
           (item) => item.paymentMode === "Total",
         );
-
         setTotalCollection(Number(totalData?.totalCollection) || 0);
 
         const modes = paymentModes.filter(
           (item) => item.paymentMode !== "Total",
         );
 
-        const mapped = modes.map((item, index) => ({
-          name: item.paymentMode,
-          value: Number(item.totalCollection) || 0,
-          percent: Number(item.collectionPercentage) || 0,
-          color: COLORS[index % COLORS.length],
-        }));
+        const fixedColors = {
+          Cash: "#22b04c",
+          Digital: "#f5a524",
+          Cheque: "#2f6fed",
+        };
+
+        const fallbackPalette = [
+          "#2f6fed",
+          "#8b5cf6",
+          "#dc3545",
+          "#20c997",
+          "#6f42c1",
+          "#fd7e14",
+          "#e83e8c",
+          "#17a2b8",
+        ];
+
+        let fallbackIndex = 0;
+
+        const mapped = modes.map((item) => {
+          const mode = item.paymentMode;
+          let color = fixedColors[mode];
+          if (!color) {
+            color = fallbackPalette[fallbackIndex % fallbackPalette.length];
+            fallbackIndex++;
+          }
+          return {
+            name: mode,
+            value: Number(item.totalCollection) || 0,
+            percent: Number(item.collectionPercentage) || 0,
+            color: color,
+          };
+        });
 
         setAllPaymentModes(mapped);
         setHiddenModes([]);
@@ -75,9 +89,7 @@ export default function CollectionByPaymentModeChart({ showInLacs }) {
       }
     } catch (error) {
       console.error(error);
-
       showError(error.message || "Failed to fetch payment mode data");
-
       setAllPaymentModes([]);
       setTotalCollection(0);
       setHiddenModes([]);

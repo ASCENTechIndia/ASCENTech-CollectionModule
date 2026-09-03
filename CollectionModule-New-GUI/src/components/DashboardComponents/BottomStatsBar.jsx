@@ -17,8 +17,8 @@ const defaultStats = [
     value: "0",
     sub: "Per Transaction",
     icon: Users,
-    fg: "#ec8414",
-    bg: "#f6ebdf",
+    fg: "#2f6fed",
+    bg: "#e7f0ff",
   },
   {
     id: "avg-collection-cust",
@@ -26,8 +26,8 @@ const defaultStats = [
     value: "0",
     sub: "Per Customer",
     icon: Users,
-    fg: "#d7c00b",
-    bg: "#fcfbf8",
+    fg: "#2f6fed",
+    bg: "#e7f0ff",
   },
   {
     id: "cash-collection",
@@ -35,8 +35,8 @@ const defaultStats = [
     value: "0",
     sub: "(0%)",
     icon: Banknote,
-    fg: "#2f6fed",
-    bg: "#e7f3f9",
+    fg: "#1fa34a",
+    bg: "#e7f8ec",
   },
   {
     id: "digital-collection",
@@ -44,8 +44,8 @@ const defaultStats = [
     value: "0",
     sub: "(0%)",
     icon: Receipt,
-    fg: "#22b04c",
-    bg: "#dffdce",
+    fg: "#f5a524",
+    bg: "#fff3e0",
   },
   {
     id: "cheque-collection",
@@ -53,7 +53,7 @@ const defaultStats = [
     value: "0",
     sub: "(0%)",
     icon: Wallet,
-    fg: "#2986cc",
+    fg: "#2f6fed",
     bg: "#f2ecfd",
   },
 ];
@@ -67,7 +67,7 @@ export default function BottomStatsBar({ showInLacs }) {
     try {
       setLoader(true);
       const res = await apiClient.get("/collection-dashboard/collection-count");
-      console.log("res :", res);
+      console.log("res :", res)
       if (res?.success && res?.data?.collectionCount) {
         const data = res.data.collectionCount;
 
@@ -114,6 +114,7 @@ export default function BottomStatsBar({ showInLacs }) {
   }, []);
 
   const formatCollection = (amount) => {
+    
     if (showInLacs) {
       const lakhs = amount / 100000;
       return lakhs.toFixed(2) + " L";
