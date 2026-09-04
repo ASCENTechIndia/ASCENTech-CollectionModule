@@ -27,8 +27,8 @@ async function fetchDashboardStateCollection(payload) {
   return getDashboardStateCollectionData(payload);
 }
 
-async function fetchDashboardCityCollection() {
-  return getDashboardCityCollectionData();
+async function fetchDashboardCityCollection(payload) {
+  return getDashboardCityCollectionData(payload);
 }
 
 async function fetchDashboardCollectionCount() {

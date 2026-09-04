@@ -195,7 +195,7 @@ async function dashboardStateCollectionHandler(req, res, next) {
 async function dashboardCityCollectionHandler(req, res, next) {
   try {
 
-    const data = await fetchDashboardCityCollection();
+    const data = await fetchDashboardCityCollection(req.query);
 
     logApiSuccess(
       req,

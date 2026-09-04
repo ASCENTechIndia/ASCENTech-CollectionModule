@@ -325,23 +325,44 @@ async function getDashboardStateCollectionData(payload) {
   };
 }
 
-async function getDashboardCityCollectionData() {
+async function getDashboardCityCollectionData(payload) {
+  const statement = `
+    BEGIN
+      ATBSS_CM.SP_COLLECTION_TOP5_CITY(
+        :P_FROM_DATE,
+        :P_TO_DATE,
+        :P_RESULT
+      );
+    END;
+  `;
 
-  const result = await executeQuery(`
-    SELECT
-      RANK_NO,
-      CITY_NAME,
-      TOTAL_CUSTOMERS,
-      TOTAL_TRANSACTIONS,
-      TOTAL_COLLECTION
-    FROM ATBSS_CM.AOUP_V_CITY_COLLECTION
-    ORDER BY RANK_NO
-  `,{},{dbName: "db3"});
+  const binds = {
+    P_FROM_DATE: parseDDMMYYYY(payload.fromDate),
+    P_TO_DATE: parseDDMMYYYY(payload.toDate),
 
-  const rows = result?.rows || [];
+    P_RESULT: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.CURSOR,
+    },
+  };
 
-  const cityCollections = rows.map((row) => ({
-    rankNo: asNumber(row.RANK_NO, 0),
+  const result = await executeProcedure({
+    statement,
+    binds,
+    useTx: false,
+    dbName: "db3",
+  });
+
+  const cursor = result?.outBinds?.P_RESULT;
+
+  if (!cursor) {
+    return {
+      cityCollections: [],
+    };
+  }
+
+  const cityCollections = cursor.map((row, index) => ({
+    rankNo: index + 1,
 
     cityName: row.CITY_NAME ?? "",
 
