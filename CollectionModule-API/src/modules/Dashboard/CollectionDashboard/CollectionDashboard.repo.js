@@ -118,23 +118,31 @@ async function getDashboardSummaryData(payload) {
   };
 }
 
-async function getDashboardDailyTransactionsData() {
+async function getDashboardDailyTransactionsData(payload) {
+  const { fromDate, toDate } = payload;
 
-  const result = await executeQuery(`
-    SELECT
-      TRANSACTION_DATE,
-      TOTAL_TRANSACTIONS,
-      TOTAL_COLLECTION
-    FROM ATBSS_CM.VW_COLLECTION_DAILY_SUMMARY
-    ORDER BY TRANSACTION_DATE
-  `,{},{dbName: "db3"});
+  const result = await executeQuery(
+    `
+      SELECT
+        TRANSACTION_DATE,
+        TOTAL_TRANSACTIONS,
+        TOTAL_COLLECTION
+      FROM ATBSS_CM.VW_COLLECTION_DAILY_SUMMARY
+      WHERE TRANSACTION_DATE >= TO_DATE(:fromDate, 'DD-MM-YYYY')
+        AND TRANSACTION_DATE <  TO_DATE(:toDate, 'DD-MM-YYYY')
+      ORDER BY TRANSACTION_DATE
+    `,
+    {
+      fromDate,
+      toDate,
+    },
+    { dbName: "db3" }
+  );
 
   const rows = result?.rows || [];
 
   const transactions = rows.map((row) => ({
-    transactionDate: formatDateDDMonYYYY(
-      row.TRANSACTION_DATE
-    ),
+    transactionDate: formatDateDDMonYYYY(row.TRANSACTION_DATE),
 
     totalTransactions: asNumber(
       row.TOTAL_TRANSACTIONS,
@@ -150,7 +158,6 @@ async function getDashboardDailyTransactionsData() {
   }));
 
   return {
-
     transactions,
   };
 }

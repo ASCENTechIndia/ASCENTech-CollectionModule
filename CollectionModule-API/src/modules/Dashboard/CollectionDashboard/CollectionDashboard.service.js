@@ -7,8 +7,9 @@ async function fetchDashboardSummary(payload) {
   return getDashboardSummaryData(payload);
 }
 
-async function fetchDashboardDailyTransactions() {
-  return getDashboardDailyTransactionsData();
+
+async function fetchDashboardDailyTransactions(payload) {
+  return getDashboardDailyTransactionsData(payload);
 }
 
 async function fetchDashboardPaymentMode(payload) {

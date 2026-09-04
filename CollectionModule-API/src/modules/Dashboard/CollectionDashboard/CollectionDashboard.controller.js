@@ -38,7 +38,7 @@ async function dashboardSummaryHandler(req, res, next) {
 async function dashboardDailyTransactionHandler(req, res, next) {
   try {
 
-    const data = await fetchDashboardDailyTransactions();
+    const data = await fetchDashboardDailyTransactions(req.query);
 
     logApiSuccess(
       req,
