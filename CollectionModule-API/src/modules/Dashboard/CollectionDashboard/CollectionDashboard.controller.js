@@ -101,7 +101,7 @@ async function dashboardPaymentModeHandler(req, res, next) {
 async function dashboardTransactionModeHandler(req, res, next) {
   try {
 
-    const data = await fetchDashboardTransactionMode();
+    const data = await fetchDashboardTransactionMode(req.query);
 
     logApiSuccess(
       req,

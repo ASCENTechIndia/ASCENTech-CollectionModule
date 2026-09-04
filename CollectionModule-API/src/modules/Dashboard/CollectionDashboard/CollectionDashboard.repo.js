@@ -221,22 +221,43 @@ async function getDashboardPaymentModeData(payload) {
 
 
 async function getDashboardTransactionModeData(payload) {
+  const statement = `
+    BEGIN
+      ATBSS_CM.SP_COLLECTION_TRANSACTION_MODE(
+        :P_FROM_DATE,
+        :P_TO_DATE,
+        :P_RESULT
+      );
+    END;
+  `;
 
-  const result = await executeQuery(`SELECT ONLINE_GROUP , TRANSACTION_COUNT , TOTAL_PAID_AMOUNT , AMOUNT_PERCENTAGE
-FROM ATBSS_CM.VW_COLLECTION_BY_TRANSACTION_MODE
-ORDER BY
-    CASE
-        WHEN ONLINE_GROUP = 'Static QR' THEN 1
-        WHEN ONLINE_GROUP = 'Dynamic QR' THEN 2
-        WHEN ONLINE_GROUP = 'BBPS' THEN 3
-        WHEN ONLINE_GROUP = 'Other' THEN 4
-        WHEN ONLINE_GROUP = 'Total' THEN 5
-    END`,{},{dbName: "db3"});
+  const binds = {
+    P_FROM_DATE: parseDDMMYYYY(payload.fromDate),
+    P_TO_DATE: parseDDMMYYYY(payload.toDate),
 
-  const rows = result?.rows || [];
+    P_RESULT: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.CURSOR,
+    },
+  };
 
-  const transactionModes = rows.map((row) => ({
-    transactionMode: row.ONLINE_GROUP,
+  const result = await executeProcedure({
+    statement,
+    binds,
+    useTx: false,
+    dbName: "db3",
+  });
+
+  const cursor = result?.outBinds?.P_RESULT;
+
+  if (!cursor) {
+    return {
+      transactionModes: [],
+    };
+  }
+
+  const transactionModes = cursor.map((row) => ({
+    transactionMode: row.ONLINE_GROUP ?? "",
 
     totalTransactions: asNumber(
       row.TRANSACTION_COUNT,

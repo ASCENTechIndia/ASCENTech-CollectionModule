@@ -15,8 +15,8 @@ async function fetchDashboardPaymentMode(payload) {
   return getDashboardPaymentModeData(payload);
 }
 
-async function fetchDashboardTransactionMode() {
-  return getDashboardTransactionModeData();
+async function fetchDashboardTransactionMode(payload) {
+  return getDashboardTransactionModeData(payload);
 }
 
 async function fetchDashboardTopLcoCollection(payload) {
