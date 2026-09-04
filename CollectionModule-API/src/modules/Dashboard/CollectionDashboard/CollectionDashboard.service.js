@@ -23,8 +23,8 @@ async function fetchDashboardTopLcoCollection(payload) {
   return getDashboardTopLcoCollectionData(payload);
 }
 
-async function fetchDashboardStateCollection() {
-  return getDashboardStateCollectionData();
+async function fetchDashboardStateCollection(payload) {
+  return getDashboardStateCollectionData(payload);
 }
 
 async function fetchDashboardCityCollection() {

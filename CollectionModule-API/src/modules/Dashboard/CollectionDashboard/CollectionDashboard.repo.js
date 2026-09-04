@@ -262,20 +262,42 @@ async function getDashboardTopLcoCollectionData(payload) {
 }
 
 async function getDashboardStateCollectionData(payload) {
+  const statement = `
+    BEGIN
+      ATBSS_CM.SP_COLLECTION_STATE_SUMMARY(
+        :P_FROM_DATE,
+        :P_TO_DATE,
+        :P_RESULT
+      );
+    END;
+  `;
 
-  const result = await executeQuery(`
-    SELECT
-      STATE_NAME,
-      TOTAL_TRANSACTIONS,
-      TOTAL_COLLECTION,
-      COLLECTION_PERCENTAGE
-    FROM ATBSS_CM.AOUP_V_STATE_COLLECTION
-    ORDER BY TOTAL_COLLECTION DESC
-  `,{},{dbName: "db3"});
+  const binds = {
+    P_FROM_DATE: parseDDMMYYYY(payload.fromDate),
+    P_TO_DATE: parseDDMMYYYY(payload.toDate),
 
-  const rows = result?.rows || [];
+    P_RESULT: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.CURSOR,
+    },
+  };
 
-  const stateCollections = rows.map((row) => ({
+  const result = await executeProcedure({
+    statement,
+    binds,
+    useTx: false,
+    dbName: "db3",
+  });
+
+  const cursor = result?.outBinds?.P_RESULT;
+
+  if (!cursor) {
+    return {
+      stateCollections: [],
+    };
+  }
+
+  const stateCollections = cursor.map((row) => ({
     stateName: row.STATE_NAME ?? "",
 
     totalTransactions: asNumber(
@@ -292,7 +314,7 @@ async function getDashboardStateCollectionData(payload) {
 
     collectionPercentage: Number(
       asNumber(
-        row.COLLECTION_PERCENTAGE,
+        row.SHARE_PERCENT,
         0
       ).toFixed(2)
     ),

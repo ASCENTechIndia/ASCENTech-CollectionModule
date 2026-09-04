@@ -164,7 +164,7 @@ async function dashboardTopLcoCollectionHandler(req, res, next) {
 
 async function dashboardStateCollectionHandler(req, res, next) {
   try {
-    const data = await fetchDashboardStateCollection();
+    const data = await fetchDashboardStateCollection(req.query);
 
     logApiSuccess(
       req,
