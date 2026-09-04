@@ -11,8 +11,8 @@ async function fetchDashboardDailyTransactions() {
   return getDashboardDailyTransactionsData();
 }
 
-async function fetchDashboardPaymentMode() {
-  return getDashboardPaymentModeData();
+async function fetchDashboardPaymentMode(payload) {
+  return getDashboardPaymentModeData(payload);
 }
 
 async function fetchDashboardTransactionMode() {

@@ -155,22 +155,44 @@ async function getDashboardDailyTransactionsData() {
   };
 }
 
-async function getDashboardPaymentModeData() {
+async function getDashboardPaymentModeData(payload) {
+  const statement = `
+    BEGIN
+      ATBSS_CM.SP_COLLECTION_PAYMENT_MODE(
+        :P_FROM_DATE,
+        :P_TO_DATE,
+        :P_RESULT
+      );
+    END;
+  `;
 
-  const result = await executeQuery(`SELECT PAYMENT_GROUP ,TRANSACTION_COUNT, TOTAL_PAID_AMOUNT , AMOUNT_PERCENTAGE
-FROM ATBSS_CM.VW_COLLECTION_BY_PAYMENT_MODE
-ORDER BY
-    CASE
-        WHEN PAYMENT_GROUP = 'Cheque' THEN 1
-        WHEN PAYMENT_GROUP = 'Cash' THEN 2
-        WHEN PAYMENT_GROUP = 'Online' THEN 3
-        WHEN PAYMENT_GROUP = 'Total' THEN 4
-    END`,{},{dbName: "db3"});
+  const binds = {
+    P_FROM_DATE: parseDDMMYYYY(payload.fromDate),
+    P_TO_DATE: parseDDMMYYYY(payload.toDate),
 
-  const rows = result?.rows || [];
+    P_RESULT: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.CURSOR,
+    },
+  };
 
-  const paymentModes = rows.map((row) => ({
-    paymentMode: row.PAYMENT_GROUP,
+  const result = await executeProcedure({
+    statement,
+    binds,
+    useTx: false,
+    dbName: "db3",
+  });
+
+  const cursor = result?.outBinds?.P_RESULT;
+
+  if (!cursor) {
+    return {
+      paymentModes: [],
+    };
+  }
+
+  const paymentModes = cursor.map((row) => ({
+    paymentMode: row.PAYMENT_GROUP ?? "",
 
     totalTransactions: asNumber(
       row.TRANSACTION_COUNT,
@@ -193,7 +215,6 @@ ORDER BY
   }));
 
   return {
-
     paymentModes,
   };
 }
