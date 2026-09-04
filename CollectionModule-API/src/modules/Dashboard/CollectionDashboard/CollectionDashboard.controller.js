@@ -7,7 +7,7 @@ const { logApiSuccess, logApiError } = require('../../../utils/log');
 async function dashboardSummaryHandler(req, res, next) {
   try {
 
-    const data = await fetchDashboardSummary();
+    const data = await fetchDashboardSummary(req.query);
 
     logApiSuccess(
       req,

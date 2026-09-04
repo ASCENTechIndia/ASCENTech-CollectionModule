@@ -3,8 +3,8 @@ const { getDashboardSummaryData,getDashboardDailyTransactionsData,getDashboardPa
   getDashboardCityCollectionData,getDashboardCollectionCountData
  } = require('./CollectionDashboard.repo');
 
-async function fetchDashboardSummary() {
-  return getDashboardSummaryData();
+async function fetchDashboardSummary(payload) {
+  return getDashboardSummaryData(payload);
 }
 
 async function fetchDashboardDailyTransactions() {

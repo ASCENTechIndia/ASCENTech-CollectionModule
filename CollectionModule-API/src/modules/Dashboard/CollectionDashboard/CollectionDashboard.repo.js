@@ -32,28 +32,57 @@ function formatDateDDMonYYYY(value) {
   });
 }
 
-async function getDashboardSummaryData() {
-  const result = await executeQuery(
-    `
-      SELECT
-        TOTAL_LCOS,
-        TOTAL_CUSTOMERS,
-        TOTAL_TRANSACTIONS,
-        TOTAL_COLLECTION,
-        AVG_COLLECTION_PER_TRANSACTION,
-        AVG_COLLECTION_PER_CUSTOMER
-      FROM ATBSS_CM.VW_DASHBOARD_SUMMARY_MTD
-    `,
-    {},
-    { dbName: 'db3' }
-  );
+async function getDashboardSummaryData(payload) {
+  const statement = `
+    BEGIN
+      ATBSS_CM.SP_COLLECTION_DASHBOARD_SUMMARY(
+        :P_FROM_DATE,
+        :P_TO_DATE,
+        :P_RESULT
+      );
+    END;
+  `;
 
-  const row = result?.rows?.[0] || {};
+  const binds = {
+    P_FROM_DATE: parseDDMMYYYY(payload.fromDate),
+    P_TO_DATE: parseDDMMYYYY(payload.toDate),
+
+    P_RESULT: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.CURSOR,
+    },
+  };
+
+  const result = await executeProcedure({
+    statement,
+    binds,
+    useTx: false,
+    dbName: "db3",
+  });
+
+  const cursor = result?.outBinds?.P_RESULT;
+
+  if (!cursor || cursor.length === 0) {
+    return {
+      summary: {
+        totalLcos: 0,
+        totalCustomers: 0,
+        totalTransactions: 0,
+        totalCollection: 0,
+        avgCollectionPerTransaction: 0,
+        avgCollectionPerCustomer: 0,
+      },
+    };
+  }
+
+  const row = cursor[0];
 
   return {
-
     summary: {
-      totalLcos: asNumber(row.TOTAL_LCOS, 0),
+      totalLcos: asNumber(
+        row.TOTAL_LCOS,
+        0
+      ),
 
       totalCustomers: asNumber(
         row.TOTAL_CUSTOMERS,
@@ -66,7 +95,10 @@ async function getDashboardSummaryData() {
       ),
 
       totalCollection: Number(
-        asNumber(row.TOTAL_COLLECTION, 0).toFixed(2)
+        asNumber(
+          row.TOTAL_COLLECTION,
+          0
+        ).toFixed(2)
       ),
 
       avgCollectionPerTransaction: Number(
