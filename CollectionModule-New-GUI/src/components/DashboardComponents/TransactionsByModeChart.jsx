@@ -22,6 +22,7 @@ export default function TransactionsByModeChart({
   toDate,
 }) {
   const chartRef = useRef(null);
+  const chartInstanceRef = useRef(null);
   const { showError } = useNotification();
   const [modeData, setModeData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -57,9 +58,7 @@ export default function TransactionsByModeChart({
   };
 
   useEffect(() => {
-    if (fromDate && toDate) {
-      fetchData();
-    }
+    if (fromDate && toDate) fetchData();
   }, [fromDate, toDate]);
 
   const formatINR = (num) =>
@@ -77,9 +76,15 @@ export default function TransactionsByModeChart({
   };
 
   useEffect(() => {
-    if (!chartRef.current || modeData.length === 0 || loading) return;
+    if (!chartRef.current || loading || modeData.length === 0) return;
+
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.dispose();
+      chartInstanceRef.current = null;
+    }
 
     const chartInstance = echarts.init(chartRef.current);
+    chartInstanceRef.current = chartInstance;
 
     const option = {
       grid: { left: 90, right: 90, top: 15, bottom: 35 },
@@ -171,7 +176,10 @@ export default function TransactionsByModeChart({
 
     return () => {
       window.removeEventListener("resize", handleResize);
-      chartInstance.dispose();
+      if (chartInstanceRef.current) {
+        chartInstanceRef.current.dispose();
+        chartInstanceRef.current = null;
+      }
     };
   }, [modeData, showInLacs, loading]);
 

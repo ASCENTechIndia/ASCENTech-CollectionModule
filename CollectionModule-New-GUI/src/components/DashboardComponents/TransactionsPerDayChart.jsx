@@ -14,6 +14,7 @@ export default function TransactionsPerDayChart({
   toDate,
 }) {
   const chartRef = useRef(null);
+  const chartInstanceRef = useRef(null); // 👈 store instance
   const { showError } = useNotification();
   const [chartData, setChartData] = useState(defaultData);
   const [loading, setLoading] = useState(false);
@@ -45,9 +46,7 @@ export default function TransactionsPerDayChart({
   };
 
   useEffect(() => {
-    if (fromDate && toDate) {
-      fetchData();
-    }
+    if (fromDate && toDate) fetchData();
   }, [fromDate, toDate]);
 
   const formatNumber = (num) => {
@@ -59,9 +58,16 @@ export default function TransactionsPerDayChart({
   };
 
   useEffect(() => {
-    if (!chartRef.current || chartData.days.length === 0) return;
+    if (!chartRef.current || loading || chartData.days.length === 0) return;
+
+    // Dispose old instance
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.dispose();
+      chartInstanceRef.current = null;
+    }
 
     const chartInstance = echarts.init(chartRef.current);
+    chartInstanceRef.current = chartInstance;
 
     const option = {
       grid: { left: 20, right: 20, top: 40, bottom: 30, containLabel: true },
@@ -137,9 +143,12 @@ export default function TransactionsPerDayChart({
 
     return () => {
       window.removeEventListener("resize", handleResize);
-      chartInstance.dispose();
+      if (chartInstanceRef.current) {
+        chartInstanceRef.current.dispose();
+        chartInstanceRef.current = null;
+      }
     };
-  }, [chartData, showInLacs]);
+  }, [chartData, showInLacs, loading]);
 
   return (
     <div className="panel-card">
