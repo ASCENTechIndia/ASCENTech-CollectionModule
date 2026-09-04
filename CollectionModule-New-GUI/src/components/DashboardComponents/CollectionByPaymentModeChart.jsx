@@ -18,6 +18,7 @@ export default function CollectionByPaymentModeChart({
 }) {
   const chartRef = useRef(null);
   const chartInstanceRef = useRef(null);
+
   const { showError } = useNotification();
 
   const [totalCollection, setTotalCollection] = useState(0);
@@ -31,140 +32,242 @@ export default function CollectionByPaymentModeChart({
 
   const formattedTotal = formatCollection(totalCollection);
 
-  const fetchData = async () => {
+  // =====================================================
+  // FETCH DATA
+  // =====================================================
+  useEffect(() => {
     if (!fromDate || !toDate) return;
-    setLoading(true);
-    let bottomStatData = {
-      cashCollection: 0,
-      digitalCollection: 0,
-      chequeCollection: 0,
-    };
-    try {
-      const res = await apiClient.get(
-        `/collection-dashboard/payment-mode?fromDate=${fromDate}&toDate=${toDate}`,
-      );
 
-      if (res?.success && res?.data?.paymentModes?.length > 0) {
-        const paymentModes = res.data.paymentModes;
+    const fetchData = async () => {
+      setLoading(true);
 
-        const totalData = paymentModes.find(
-          (item) => item.paymentMode === "Total",
-        );
-        setTotalCollection(Number(totalData?.totalCollection) || 0);
+      const bottomStatData = {
+        cashCollection: 0,
+        digitalCollection: 0,
+        chequeCollection: 0,
+      };
 
-        const modes = paymentModes.filter(
-          (item) => item.paymentMode !== "Total",
+      try {
+        const res = await apiClient.get(
+          `/collection-dashboard/payment-mode?fromDate=${fromDate}&toDate=${toDate}`,
         );
 
-        const fixedColors = {
-          Cash: "#22b04c",
-          Digital: "#f5a524",
-          Cheque: "#2f6fed",
-        };
+        if (
+          res?.success &&
+          res?.data?.paymentModes?.length > 0
+        ) {
+          const paymentModes = res.data.paymentModes;
 
-        const fallbackPalette = [
-          "#2f6fed",
-          "#8b5cf6",
-          "#dc3545",
-          "#20c997",
-          "#6f42c1",
-          "#fd7e14",
-          "#e83e8c",
-          "#17a2b8",
-        ];
+          // -----------------------------
+          // Total Collection
+          // -----------------------------
+          const totalData = paymentModes.find(
+            (item) => item.paymentMode === "Total",
+          );
 
-        let fallbackIndex = 0;
+          setTotalCollection(
+            Number(totalData?.totalCollection) || 0,
+          );
 
-        const mapped = modes.map((item) => {
-          const mode = item.paymentMode;
-          let color = fixedColors[mode];
-          if (!color) {
-            color = fallbackPalette[fallbackIndex % fallbackPalette.length];
-            fallbackIndex++;
-          }
-          if (mode === "Cash") {
-            bottomStatData.cashCollection = item.totalCollection;
-          } else if (mode === "Cheque") {
-            bottomStatData.chequeCollection = item.totalCollection;
-          } else if (mode === "Digital") {
-            bottomStatData.digitalCollection = item.totalCollection;
-          }
-          return {
-            name: mode,
-            value: Number(item.totalCollection) || 0,
-            percent: Number(item.collectionPercentage) || 0,
-            color: color,
+          // -----------------------------
+          // Remove Total
+          // -----------------------------
+          const modes = paymentModes.filter(
+            (item) => item.paymentMode !== "Total",
+          );
+
+          // -----------------------------
+          // Fixed Colors
+          // -----------------------------
+          const fixedColors = {
+            Cash: "#22b04c",
+            Digital: "#f5a524",
+            Cheque: "#2f6fed",
           };
-        });
 
-        setBottomStatBarData((prev) => ({ ...prev, ...bottomStatData }));
-        setAllPaymentModes(mapped);
-        setHiddenModes([]);
-      } else {
+          const fallbackPalette = [
+            "#2f6fed",
+            "#8b5cf6",
+            "#dc3545",
+            "#20c997",
+            "#6f42c1",
+            "#fd7e14",
+            "#e83e8c",
+            "#17a2b8",
+          ];
+
+          let fallbackIndex = 0;
+
+          // -----------------------------
+          // Map Payment Modes
+          // -----------------------------
+          const mapped = modes.map((item) => {
+            const mode = item.paymentMode;
+
+            let color = fixedColors[mode];
+
+            if (!color) {
+              color =
+                fallbackPalette[
+                  fallbackIndex % fallbackPalette.length
+                ];
+
+              fallbackIndex++;
+            }
+
+            // Bottom stat data
+            if (mode === "Cash") {
+              bottomStatData.cashCollection =
+                Number(item.totalCollection) || 0;
+            } else if (mode === "Cheque") {
+              bottomStatData.chequeCollection =
+                Number(item.totalCollection) || 0;
+            } else if (mode === "Digital") {
+              bottomStatData.digitalCollection =
+                Number(item.totalCollection) || 0;
+            }
+
+            return {
+              name: mode,
+              value: Number(item.totalCollection) || 0,
+              percent:
+                Number(item.collectionPercentage) || 0,
+              color,
+            };
+          });
+
+          setBottomStatBarData((prev) => ({
+            ...prev,
+            ...bottomStatData,
+          }));
+
+          setAllPaymentModes(mapped);
+          setHiddenModes([]);
+        } else {
+          setAllPaymentModes([]);
+          setTotalCollection(0);
+          setHiddenModes([]);
+
+          setBottomStatBarData((prev) => ({
+            ...prev,
+            ...bottomStatData,
+          }));
+        }
+      } catch (error) {
+        console.error(error);
+
+        setBottomStatBarData((prev) => ({
+          ...prev,
+          ...bottomStatData,
+        }));
+
+        showError(
+          error.message ||
+            "Failed to fetch payment mode data",
+        );
+
         setAllPaymentModes([]);
         setTotalCollection(0);
         setHiddenModes([]);
-        setBottomStatBarData((prev) => ({ ...prev, ...bottomStatData }));
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error(error);
-      setBottomStatBarData((prev) => ({ ...prev, ...bottomStatData }));
-      showError(error.message || "Failed to fetch payment mode data");
-      setAllPaymentModes([]);
-      setTotalCollection(0);
-      setHiddenModes([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (fromDate && toDate) fetchData();
-  }, [fromDate, toDate]);
-
-  useEffect(() => {
-    if (!chartRef.current || loading || visibleModes.length === 0) return;
-
-    if (chartInstanceRef.current) {
-      chartInstanceRef.current.dispose();
-      chartInstanceRef.current = null;
-    }
-
-    const chartInstance = echarts.init(chartRef.current);
-    chartInstanceRef.current = chartInstance;
-
-    const option = {
-      tooltip: { trigger: "item" },
-      series: [
-        {
-          type: "pie",
-          radius: ["58%", "88%"],
-          avoidLabelOverlap: false,
-          label: { show: false },
-          labelLine: { show: false },
-          data: visibleModes.map((d) => ({
-            name: d.name,
-            value: d.value,
-            itemStyle: { color: d.color },
-          })),
-        },
-      ],
     };
 
-    chartInstance.setOption(option);
+    fetchData();
+  }, [fromDate, toDate]);
 
-    const handleResize = () => chartInstance.resize();
+  // =====================================================
+  // FORMAT COLLECTION
+  // =====================================================
+  function formatCollection(amount) {
+    if (showInLacs) {
+      const lakhs = amount / 100000;
+      return lakhs.toFixed(2) + " L";
+    }
+
+    return formatINR(amount);
+  }
+
+  // =====================================================
+  // INITIALIZE ECHARTS ONCE
+  // =====================================================
+  useEffect(() => {
+    if (!chartRef.current) return;
+
+    const chart = echarts.init(chartRef.current);
+
+    chartInstanceRef.current = chart;
+
+    const handleResize = () => {
+      chart.resize();
+    };
+
     window.addEventListener("resize", handleResize);
 
     return () => {
       window.removeEventListener("resize", handleResize);
+
       if (chartInstanceRef.current) {
         chartInstanceRef.current.dispose();
         chartInstanceRef.current = null;
       }
     };
-  }, [visibleModes, showInLacs, loading]);
+  }, []);
 
+  // =====================================================
+  // UPDATE PIE CHART
+  // =====================================================
+  useEffect(() => {
+    const chart = chartInstanceRef.current;
+
+    if (!chart) return;
+
+    // Clear chart when nothing is visible
+    if (visibleModes.length === 0) {
+      chart.clear();
+      return;
+    }
+
+    const option = {
+      tooltip: {
+        trigger: "item",
+      },
+
+      series: [
+        {
+          type: "pie",
+
+          radius: ["58%", "88%"],
+
+          avoidLabelOverlap: false,
+
+          label: {
+            show: false,
+          },
+
+          labelLine: {
+            show: false,
+          },
+
+          data: visibleModes.map((d) => ({
+            name: d.name,
+            value: d.value,
+
+            itemStyle: {
+              color: d.color,
+            },
+          })),
+        },
+      ],
+    };
+
+    chart.setOption(option, true);
+  }, [visibleModes]);
+
+  // =====================================================
+  // TOGGLE PAYMENT MODE
+  // =====================================================
   const toggleMode = (name) => {
     setHiddenModes((prev) =>
       prev.includes(name)
@@ -173,96 +276,172 @@ export default function CollectionByPaymentModeChart({
     );
   };
 
-  function formatCollection(amount) {
-    if (showInLacs) {
-      const lakhs = amount / 100000;
-      return lakhs.toFixed(2) + " L";
-    }
-    return formatINR(amount);
-  }
-
+  // =====================================================
+  // UI
+  // =====================================================
   return (
     <div className="panel-card">
-      <div className="panel-title">COLLECTION BY PAYMENT MODE</div>
-      <div className="panel-body-tight">
-        {loading ? (
+      <div className="panel-title">
+        COLLECTION BY PAYMENT MODE
+      </div>
+
+      <div
+        className="panel-body-tight"
+        style={{
+          position: "relative",
+        }}
+      >
+        {/* =================================================
+            MAIN CONTENT
+        ================================================= */}
+        <div className="d-flex align-items-center">
+          {/* =================================================
+              PIE CHART
+          ================================================= */}
           <div
-            className="d-flex justify-content-center align-items-center"
-            style={{ height: "230px", width: "100%" }}
+            style={{
+              position: "relative",
+              width: "220px",
+              height: "230px",
+            }}
           >
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-          </div>
-        ) : (
-          <div className="d-flex align-items-center">
+            {/* IMPORTANT:
+                This DIV is ALWAYS mounted.
+            */}
             <div
+              ref={chartRef}
               style={{
-                position: "relative",
-                width: "220px",
+                width: "100%",
                 height: "230px",
               }}
+            />
+
+            {/* Center Text */}
+            <div
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                textAlign: "center",
+                pointerEvents: "none",
+              }}
             >
-              <div ref={chartRef} style={{ width: "100%", height: "230px" }} />
               <div
                 style={{
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  transform: "translate(-50%, -50%)",
-                  textAlign: "center",
+                  fontWeight: 700,
+                  fontSize: "1.05rem",
                 }}
               >
-                <div style={{ fontWeight: 700, fontSize: "1.05rem" }}>
-                  {formattedTotal}
-                </div>
-                <div style={{ fontSize: "0.75rem", color: "#6b7280" }}>
-                  Total Collection
-                </div>
+                {formattedTotal}
+              </div>
+
+              <div
+                style={{
+                  fontSize: "0.75rem",
+                  color: "#6b7280",
+                }}
+              >
+                Total Collection
               </div>
             </div>
+          </div>
 
-            <div className="flex-grow-1">
-              <div className="overflow-auto" style={{ height: "200px" }}>
-                {allPaymentModes.map((d) => {
-                  const isHidden = hiddenModes.includes(d.name);
-                  return (
-                    <div
-                      key={d.name}
-                      className={`d-flex align-items-start mb-2 payment-mode-div px-2 ${
-                        isHidden ? "hidden-mode" : ""
-                      }`}
-                      onClick={() => toggleMode(d.name)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <span
-                        className="state-dot mt-1"
+          {/* =================================================
+              PAYMENT MODE LIST
+          ================================================= */}
+          <div className="flex-grow-1">
+            <div
+              className="overflow-auto"
+              style={{
+                height: "200px",
+              }}
+            >
+              {allPaymentModes.map((d) => {
+                const isHidden = hiddenModes.includes(d.name);
+
+                return (
+                  <div
+                    key={d.name}
+                    className={`d-flex align-items-start mb-2 payment-mode-div px-2 ${
+                      isHidden ? "hidden-mode" : ""
+                    }`}
+                    onClick={() => toggleMode(d.name)}
+                    style={{
+                      cursor: "pointer",
+                    }}
+                  >
+                    <span
+                      className="state-dot mt-1"
+                      style={{
+                        backgroundColor: isHidden
+                          ? "#ccc"
+                          : d.color,
+                      }}
+                    />
+
+                    <div>
+                      <div
+                        className="fw-semibold"
                         style={{
-                          backgroundColor: isHidden ? "#ccc" : d.color,
+                          textDecoration: isHidden
+                            ? "line-through"
+                            : "none",
+
+                          color: isHidden
+                            ? "#9ca3af"
+                            : "inherit",
+
+                          fontSize: "12px",
                         }}
-                      ></span>
-                      <div>
-                        <div
-                          className="fw-semibold"
-                          style={{
-                            textDecoration: isHidden ? "line-through" : "none",
-                            color: isHidden ? "#9ca3af" : "inherit",
-                            fontSize: "12px",
-                          }}
-                        >
-                          {d.name}
-                        </div>
-                        <div style={{ fontSize: "11px" }}>
-                          {formatCollection(d.value)}{" "}
-                          <span className="text-muted">
-                            ({d.percent.toFixed(2)}%)
-                          </span>
-                        </div>
+                      >
+                        {d.name}
+                      </div>
+
+                      <div
+                        style={{
+                          fontSize: "11px",
+                        }}
+                      >
+                        {formatCollection(d.value)}{" "}
+
+                        <span className="text-muted">
+                          ({d.percent.toFixed(2)}%)
+                        </span>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* =================================================
+            LOADING OVERLAY
+        ================================================= */}
+        {loading && (
+          <div
+            className="d-flex justify-content-center align-items-center"
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+
+              background: "rgba(255, 255, 255, 0.7)",
+
+              zIndex: 10,
+            }}
+          >
+            <div
+              className="spinner-border text-primary"
+              role="status"
+            >
+              <span className="visually-hidden">
+                Loading...
+              </span>
             </div>
           </div>
         )}
