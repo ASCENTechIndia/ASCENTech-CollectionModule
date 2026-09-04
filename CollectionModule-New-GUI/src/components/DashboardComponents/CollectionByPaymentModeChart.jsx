@@ -17,6 +17,7 @@ export default function CollectionByPaymentModeChart({
   setBottomStatBarData,
 }) {
   const chartRef = useRef(null);
+  const chartInstanceRef = useRef(null);
   const { showError } = useNotification();
 
   const [totalCollection, setTotalCollection] = useState(0);
@@ -118,15 +119,19 @@ export default function CollectionByPaymentModeChart({
   };
 
   useEffect(() => {
-    if (fromDate && toDate) {
-      fetchData();
-    }
+    if (fromDate && toDate) fetchData();
   }, [fromDate, toDate]);
 
   useEffect(() => {
-    if (!chartRef.current || loading) return;
+    if (!chartRef.current || loading || visibleModes.length === 0) return;
+
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.dispose();
+      chartInstanceRef.current = null;
+    }
 
     const chartInstance = echarts.init(chartRef.current);
+    chartInstanceRef.current = chartInstance;
 
     const option = {
       tooltip: { trigger: "item" },
@@ -153,7 +158,10 @@ export default function CollectionByPaymentModeChart({
 
     return () => {
       window.removeEventListener("resize", handleResize);
-      chartInstance.dispose();
+      if (chartInstanceRef.current) {
+        chartInstanceRef.current.dispose();
+        chartInstanceRef.current = null;
+      }
     };
   }, [visibleModes, showInLacs, loading]);
 

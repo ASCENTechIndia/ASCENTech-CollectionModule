@@ -29,7 +29,7 @@ const Dashboard = () => {
     setFromDate(start);
     setToDate(end);
   };
-  
+
   return (
     <div className="dashboard-shell">
       <DashboardHeader
