@@ -19,8 +19,8 @@ async function fetchDashboardTransactionMode() {
   return getDashboardTransactionModeData();
 }
 
-async function fetchDashboardTopLcoCollection() {
-  return getDashboardTopLcoCollectionData();
+async function fetchDashboardTopLcoCollection(payload) {
+  return getDashboardTopLcoCollectionData(payload);
 }
 
 async function fetchDashboardStateCollection() {

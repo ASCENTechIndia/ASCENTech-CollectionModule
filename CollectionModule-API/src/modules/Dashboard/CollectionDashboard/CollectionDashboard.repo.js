@@ -2,6 +2,12 @@ const oracledb = require('oracledb');
 const { executeQuery } = require('../../../db/queryExecutor');
 const { executeProcedure } = require('../../../db/procedureExecutor');
 
+function parseDDMMYYYY(dateString) {
+  const [day, month, year] = dateString.split("-").map(Number);
+
+  return new Date(year, month - 1, day);
+}
+
 function asNumber(value, fallback = 0) {
   const number = Number(value);
 
@@ -204,39 +210,49 @@ ORDER BY
   };
 }
 
-async function getDashboardTopLcoCollectionData() {
+async function getDashboardTopLcoCollectionData(payload) {
+  const statement = `
+    BEGIN
+      ATBSS_CM.SP_COLLECTION_TOP5_LCO(
+        :P_FROM_DATE,
+        :P_TO_DATE,
+        :P_RESULT
+      );
+    END;
+  `;
 
+  const binds = {
+    P_FROM_DATE: parseDDMMYYYY(payload.fromDate),
+    P_TO_DATE: parseDDMMYYYY(payload.toDate),
 
-  const result = await executeQuery(`
-    SELECT
-      RANK_NO,
-      LCO_CODE,
-      LCO_NAME,
-      TOTAL_TRANSACTIONS,
-      TOTAL_COLLECTION
-    FROM ATBSS_CM.AOUP_V_TOP_LCO_COLLECTION
-    FETCH FIRST 5 ROWS ONLY
-  `,{},{dbName: "db3"});
+    P_RESULT: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.CURSOR,
+    },
+  };
 
-  const rows = result?.rows || [];
+  const result = await executeProcedure({
+    statement,
+    binds,
+    useTx: false,
+    dbName: "db3",
+  });
 
-  const topLcos = rows.map((row) => ({
+  const cursor = result?.outBinds?.P_RESULT;
+
+  if (!cursor) {
+    return {
+      topLcos: [],
+    };
+  }
+
+  const topLcos = cursor.map((row) => ({
     rankNo: asNumber(row.RANK_NO, 0),
-
-    lcoCode: row.LCO_CODE ?? "",
-
+    lcoCode: row.LCOCODE ?? "",
     lcoName: row.LCO_NAME ?? "",
-
-    totalTransactions: asNumber(
-      row.TOTAL_TRANSACTIONS,
-      0
-    ),
-
+    totalTransactions: asNumber(row.TOTAL_TRANSACTIONS, 0),
     totalCollection: Number(
-      asNumber(
-        row.TOTAL_COLLECTION,
-        0
-      ).toFixed(2)
+      asNumber(row.TOTAL_COLLECTION, 0).toFixed(2)
     ),
   }));
 

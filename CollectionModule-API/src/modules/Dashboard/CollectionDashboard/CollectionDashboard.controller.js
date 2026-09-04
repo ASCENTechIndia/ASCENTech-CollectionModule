@@ -133,7 +133,7 @@ async function dashboardTransactionModeHandler(req, res, next) {
 async function dashboardTopLcoCollectionHandler(req, res, next) {
   try {
 
-    const data = await fetchDashboardTopLcoCollection();
+    const data = await fetchDashboardTopLcoCollection(req.query);
 
     logApiSuccess(
       req,
