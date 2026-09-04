@@ -22,10 +22,10 @@ export default function DashboardHeader({
     return date.toLocaleString("en-US", { month: "short" });
   };
 
-  // Generate dropdown: Apr-YYYY to Mar-YYYY+1
+  // Generate dropdown: Apr-YYYY to march next year
   const currentYear = new Date().getFullYear();
-  const startMonth = 3; // April
-  const endMonth = 2;   // March
+  const startMonth = 3; // April index 0 based
+  const endMonth = 2; // March index 0 based
   const options = [];
   for (let m = startMonth; m <= 11; m++) {
     options.push({ year: currentYear, month: m });
@@ -51,10 +51,15 @@ export default function DashboardHeader({
 
   const [selectedValue, setSelectedValue] = useState(defaultKey);
 
-  // Compute date range: from = first day of selected month, to = today (always)
+  // Compute date range:
+  // - from = first day of selected month
+  // in to field, assign current data other if selected month is previous then last date of selected month eg: 30 or 31
   const computeDateRange = (year, month) => {
     const from = new Date(year, month, 1);
-    const to = new Date(); // today's date
+    const today = new Date();
+    const isCurrentMonth =
+      year === today.getFullYear() && month === today.getMonth();
+    const to = isCurrentMonth ? today : new Date(year, month + 1, 0);
     return { from, to };
   };
 
@@ -68,7 +73,7 @@ export default function DashboardHeader({
     }
   };
 
-  // On mount, send default range
+  // when page load send default range
   useEffect(() => {
     const [year, month] = defaultKey.split("-").map(Number);
     const { from, to } = computeDateRange(year, month);
@@ -77,7 +82,8 @@ export default function DashboardHeader({
     }
   }, []);
 
-  const selectedLabel = optionItems.find((opt) => opt.value === selectedValue)?.label || "";
+  const selectedLabel =
+    optionItems.find((opt) => opt.value === selectedValue)?.label || "";
 
   return (
     <header className="dash-header">
