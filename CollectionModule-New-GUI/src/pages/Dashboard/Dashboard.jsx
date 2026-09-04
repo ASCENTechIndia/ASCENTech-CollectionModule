@@ -29,9 +29,7 @@ const Dashboard = () => {
     setFromDate(start);
     setToDate(end);
   };
-  useEffect(() => {
-    console.log("from :", fromDate, toDate);
-  }, [fromDate, toDate]);
+  
   return (
     <div className="dashboard-shell">
       <DashboardHeader
