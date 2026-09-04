@@ -1,32 +1,38 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as echarts from "echarts";
 import { useNotification } from "../../context/NotificationContext";
-import { useLoader } from "../../context/LoaderContext";
 import apiClient from "../../services/apiClient";
 
 const COLORS = [
-  "#ef476f", // pinkish red
-  "#06d6a0", // mint green
-  "#f4a261", // warm orange
-  "#118ab2", // teal blue
-  "#00b4d8", // bright cyan
-  "#9b5de5", // violet
-  "#7209b7", // deep purple
-  "#f94144", // coral red
-  "#ffd166", // sunflower yellow
-  "#e76f51", // burnt orange
+  "#ef476f",
+  "#06d6a0",
+  "#f4a261",
+  "#118ab2",
+  "#00b4d8",
+  "#9b5de5",
+  "#7209b7",
+  "#f94144",
+  "#ffd166",
+  "#e76f51",
 ];
 
-export default function TransactionsByModeChart({ showInLacs }) {
+export default function TransactionsByModeChart({
+  showInLacs,
+  fromDate,
+  toDate,
+}) {
   const chartRef = useRef(null);
   const { showError } = useNotification();
-  const { setLoader } = useLoader();
   const [modeData, setModeData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const fetchData = async () => {
+    if (!fromDate || !toDate) return;
+    setLoading(true);
     try {
-      setLoader(true);
-      const res = await apiClient.get("/collection-dashboard/transaction-mode");
+      const res = await apiClient.get(
+        `/collection-dashboard/transaction-mode?fromDate=${fromDate}&toDate=${toDate}`,
+      );
       if (res?.success && res?.data?.transactionModes?.length > 0) {
         const modes = res.data.transactionModes.filter(
           (item) => item.transactionMode !== "Total",
@@ -46,13 +52,15 @@ export default function TransactionsByModeChart({ showInLacs }) {
       showError(error.message || "Failed to fetch transaction mode data");
       setModeData([]);
     } finally {
-      setLoader(false);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (fromDate && toDate) {
+      fetchData();
+    }
+  }, [fromDate, toDate]);
 
   const formatINR = (num) =>
     Number(num).toLocaleString("en-IN", {
@@ -68,9 +76,8 @@ export default function TransactionsByModeChart({ showInLacs }) {
     return `₹ ${formatINR(amount)}`;
   };
 
-  // Chart rendering effect
   useEffect(() => {
-    if (!chartRef.current || modeData.length === 0) return;
+    if (!chartRef.current || modeData.length === 0 || loading) return;
 
     const chartInstance = echarts.init(chartRef.current);
 
@@ -166,7 +173,7 @@ export default function TransactionsByModeChart({ showInLacs }) {
       window.removeEventListener("resize", handleResize);
       chartInstance.dispose();
     };
-  }, [modeData, showInLacs]);
+  }, [modeData, showInLacs, loading]);
 
   return (
     <div className="panel-card">
@@ -174,7 +181,18 @@ export default function TransactionsByModeChart({ showInLacs }) {
         Digital Transactions Breakup
       </div>
       <div className="panel-body-tight">
-        <div ref={chartRef} style={{ width: "100%", height: "230px" }} />
+        {loading ? (
+          <div
+            className="d-flex justify-content-center align-items-center"
+            style={{ height: "230px" }}
+          >
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        ) : (
+          <div ref={chartRef} style={{ width: "100%", height: "230px" }} />
+        )}
       </div>
     </div>
   );

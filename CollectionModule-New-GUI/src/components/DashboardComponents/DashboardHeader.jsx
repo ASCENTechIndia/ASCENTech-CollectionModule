@@ -1,17 +1,83 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Home, RotateCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-export default function DashboardHeader({ handleToggle, showInLacs }) {
+// Format date as DD-MM-YYYY
+const formatDate = (date) => {
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}-${month}-${year}`;
+};
+
+export default function DashboardHeader({
+  handleToggle,
+  showInLacs,
+  onDateRangeChange,
+}) {
   const navigate = useNavigate();
 
-  const currentDate = new Date();
+  const getMonthName = (monthIndex) => {
+    const date = new Date(2000, monthIndex, 1);
+    return date.toLocaleString("en-US", { month: "short" });
+  };
 
-  const currentMonth = currentDate.toLocaleDateString("en-US", {
-    month: "long",
-  });
+  // Generate dropdown: Apr-YYYY to Mar-YYYY+1
+  const currentYear = new Date().getFullYear();
+  const startMonth = 3; // April
+  const endMonth = 2;   // March
+  const options = [];
+  for (let m = startMonth; m <= 11; m++) {
+    options.push({ year: currentYear, month: m });
+  }
+  for (let m = 0; m <= endMonth; m++) {
+    options.push({ year: currentYear + 1, month: m });
+  }
 
-  const currentYear = currentDate.getFullYear();
+  const optionItems = options.map(({ year, month }) => ({
+    label: `${getMonthName(month)}-${year}`,
+    value: `${year}-${month}`,
+  }));
+
+  // Default to current month
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYearNow = now.getFullYear();
+  const defaultKey =
+    optionItems.find((opt) => {
+      const [y, m] = opt.value.split("-").map(Number);
+      return y === currentYearNow && m === currentMonth;
+    })?.value || optionItems[0].value;
+
+  const [selectedValue, setSelectedValue] = useState(defaultKey);
+
+  // Compute date range: from = first day of selected month, to = today (always)
+  const computeDateRange = (year, month) => {
+    const from = new Date(year, month, 1);
+    const to = new Date(); // today's date
+    return { from, to };
+  };
+
+  const handleMonthChange = (e) => {
+    const value = e.target.value;
+    setSelectedValue(value);
+    const [year, month] = value.split("-").map(Number);
+    const { from, to } = computeDateRange(year, month);
+    if (onDateRangeChange) {
+      onDateRangeChange(formatDate(from), formatDate(to));
+    }
+  };
+
+  // On mount, send default range
+  useEffect(() => {
+    const [year, month] = defaultKey.split("-").map(Number);
+    const { from, to } = computeDateRange(year, month);
+    if (onDateRangeChange) {
+      onDateRangeChange(formatDate(from), formatDate(to));
+    }
+  }, []);
+
+  const selectedLabel = optionItems.find((opt) => opt.value === selectedValue)?.label || "";
 
   return (
     <header className="dash-header">
@@ -23,8 +89,22 @@ export default function DashboardHeader({ handleToggle, showInLacs }) {
             role="button"
             onClick={() => navigate("/")}
           />
-
           <span className="title">Collection &amp; Transaction Dashboard</span>
+        </div>
+
+        <div>
+          <select
+            className="form-select form-select-sm"
+            value={selectedValue}
+            onChange={handleMonthChange}
+            style={{ width: "140px" }}
+          >
+            {optionItems.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="d-flex align-items-center gap-4">
@@ -46,12 +126,8 @@ export default function DashboardHeader({ handleToggle, showInLacs }) {
           </div>
           <div>
             <span className="text-secondary me-1">Report Month :</span>
-
-            <span className="report-date">
-              {currentMonth} {currentYear}
-            </span>
+            <span className="report-date">{selectedLabel}</span>
           </div>
-
           <RotateCw
             size={20}
             className="text-primary"

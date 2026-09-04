@@ -8,7 +8,7 @@ class ApiClient {
       data = null,
       params = null,
       headers = {},
-      timeout = 60000,
+      timeout = 120000,
     } = options
 
     const baseUrl = `${API_BASE_URL}${endpoint}`

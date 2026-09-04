@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNotification } from "../../context/NotificationContext";
-import { useLoader } from "../../context/LoaderContext";
 import apiClient from "../../services/apiClient";
 
 const formatINR = (num) =>
@@ -9,15 +8,18 @@ const formatINR = (num) =>
     maximumFractionDigits: 2,
   });
 
-export default function TopCitiesTable({ showInLacs }) {
+export default function TopCitiesTable({ showInLacs, fromDate, toDate }) {
   const { showError } = useNotification();
-  const { setLoader } = useLoader();
   const [cityData, setCityData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const fetchData = async () => {
+    if (!fromDate || !toDate) return;
+    setLoading(true);
     try {
-      setLoader(true);
-      const res = await apiClient.get("/collection-dashboard/city-collection");
+      const res = await apiClient.get(
+        `/collection-dashboard/city-collection?fromDate=${fromDate}&toDate=${toDate}`,
+      );
       if (res?.success && res?.data?.cityCollections?.length > 0) {
         const items = res.data.cityCollections;
         const mapped = items.map((item) => ({
@@ -35,13 +37,15 @@ export default function TopCitiesTable({ showInLacs }) {
       showError(error.message || "Failed to fetch city collection data");
       setCityData([]);
     } finally {
-      setLoader(false);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (fromDate && toDate) {
+      fetchData();
+    }
+  }, [fromDate, toDate]);
 
   const formatCollection = (amount) => {
     if (showInLacs) {
@@ -68,7 +72,24 @@ export default function TopCitiesTable({ showInLacs }) {
               </tr>
             </thead>
             <tbody>
-              {cityData.length > 0 ? (
+              {loading ? (
+                <tr>
+                  <td
+                    colSpan="4"
+                    className="text-center"
+                    style={{ height: "200px" }}
+                  >
+                    <div className="d-flex justify-content-center align-items-center h-100">
+                      <div
+                        className="spinner-border text-primary"
+                        role="status"
+                      >
+                        <span className="visually-hidden">Loading...</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ) : cityData.length > 0 ? (
                 cityData.map((row) => (
                   <tr key={row.city}>
                     <td>{row.city}</td>

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNotification } from "../../context/NotificationContext";
-import { useLoader } from "../../context/LoaderContext";
 import apiClient from "../../services/apiClient";
 
 const COLORS = [
@@ -22,16 +21,23 @@ const formatINR = (num) =>
     maximumFractionDigits: 2,
   });
 
-export default function CollectionByStateTable({ showInLacs }) {
+export default function CollectionByStateTable({
+  showInLacs,
+  fromDate,
+  toDate,
+}) {
   const { showError } = useNotification();
-  const { setLoader } = useLoader();
   const [stateData, setStateData] = useState([]);
   const [totalCollection, setTotalCollection] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const fetchData = async () => {
+    if (!fromDate || !toDate) return;
+    setLoading(true);
     try {
-      setLoader(true);
-      const res = await apiClient.get("/collection-dashboard/state-collection");
+      const res = await apiClient.get(
+        `/collection-dashboard/state-collection?fromDate=${fromDate}&toDate=${toDate}`,
+      );
       if (res?.success && res?.data?.stateCollections?.length > 0) {
         const items = res.data.stateCollections;
         const mapped = items.map((item, index) => ({
@@ -53,13 +59,15 @@ export default function CollectionByStateTable({ showInLacs }) {
       setStateData([]);
       setTotalCollection(0);
     } finally {
-      setLoader(false);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (fromDate && toDate) {
+      fetchData();
+    }
+  }, [fromDate, toDate]);
 
   const formatCollection = (amount) => {
     if (showInLacs) {
@@ -86,32 +94,49 @@ export default function CollectionByStateTable({ showInLacs }) {
               </tr>
             </thead>
             <tbody>
-              {stateData.length > 0 ? (
-                stateData.map((row) => (
-                  <tr key={row.state}>
-                    <td className="d-flex align-items-center">
-                      <span
-                        className="state-dot"
-                        style={{ backgroundColor: row.color }}
-                      ></span>
-                      {row.state}
-                    </td>
-                    <td>{formatCollection(row.collection)}</td>
-                    <td>{row.share.toFixed(2)}%</td>
+              {loading ? (
+                <tr>
+                  <td
+                    colSpan="3"
+                    className="text-center"
+                    style={{ height: "200px" }}
+                  >
+                    <div className="d-flex justify-content-center align-items-center h-100">
+                      <div
+                        className="spinner-border text-primary"
+                        role="status"
+                      >
+                        <span className="visually-hidden">Loading...</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ) : stateData.length > 0 ? (
+                <>
+                  {stateData.map((row) => (
+                    <tr key={row.state}>
+                      <td className="d-flex align-items-center">
+                        <span
+                          className="state-dot"
+                          style={{ backgroundColor: row.color }}
+                        ></span>
+                        {row.state}
+                      </td>
+                      <td>{formatCollection(row.collection)}</td>
+                      <td>{row.share.toFixed(2)}%</td>
+                    </tr>
+                  ))}
+                  <tr className="fw-bold">
+                    <td>Total</td>
+                    <td>{formatCollection(totalCollection)}</td>
+                    <td>100%</td>
                   </tr>
-                ))
+                </>
               ) : (
                 <tr>
                   <td colSpan="3" className="text-center text-muted">
                     No data available
                   </td>
-                </tr>
-              )}
-              {stateData.length > 0 && (
-                <tr className="fw-bold">
-                  <td>Total</td>
-                  <td>{formatCollection(totalCollection)}</td>
-                  <td>100%</td>
                 </tr>
               )}
             </tbody>
