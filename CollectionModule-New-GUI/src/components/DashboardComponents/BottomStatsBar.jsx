@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Users, Banknote, Receipt, Wallet } from "lucide-react";
-import { useNotification } from "../../context/NotificationContext";
-import { useLoader } from "../../context/LoaderContext";
-import apiClient from "../../services/apiClient";
 
 const formatINR = (num) =>
   Number(num).toLocaleString("en-IN", {
@@ -58,106 +55,110 @@ const defaultStats = [
   },
 ];
 
-export default function BottomStatsBar({ showInLacs }) {
-  const { showError } = useNotification();
-  const { setLoader } = useLoader();
+export default function BottomStatsBar({ showInLacs, bottomStatBarData }) {
   const [stats, setStats] = useState(defaultStats);
 
-  const fetchData = async () => {
-    try {
-      setLoader(true);
-      const res = await apiClient.get("/collection-dashboard/collection-count");
-      console.log("res :", res)
-      if (res?.success && res?.data?.collectionCount) {
-        const data = res.data.collectionCount;
-
-        const updatedStats = [
-          {
-            ...defaultStats[0],
-            value: `${data.avgCollectionPerTransaction || 0}`,
-          },
-          {
-            ...defaultStats[1],
-            value: `${data.avgCollectionPerCustomer || 0}`,
-          },
-          {
-            ...defaultStats[2],
-            value: `${data.cashCollection?.cashCollection || 0}`,
-            sub: `(${(data.cashCollection?.cashCollectionPercentage || 0).toFixed(2)}%)`,
-          },
-          {
-            ...defaultStats[3],
-            value: `${data.digitalCollection?.digitalCollection || 0}`,
-            sub: `(${(data.digitalCollection?.digitalCollectionPercentage || 0).toFixed(2)}%)`,
-          },
-          {
-            ...defaultStats[4],
-            value: `${data.chequeCollection?.chequeCollection || 0}`,
-            sub: `(${(data.chequeCollection?.chequeCollectionPercentage || 0).toFixed(2)}%)`,
-          },
-        ];
-        setStats(updatedStats);
-      } else {
-        setStats(defaultStats);
-      }
-    } catch (error) {
-      console.error(error);
-      showError(error.message || "Failed to fetch collection counts");
-      setStats(defaultStats);
-    } finally {
-      setLoader(false);
-    }
-  };
-
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (!bottomStatBarData) {
+      setStats(defaultStats);
+      return;
+    }
+
+    const {
+      avgCollectionPerTransaction = 0,
+      avgCollectionPerCustomer = 0,
+      cashCollection = 0,
+      digitalCollection = 0,
+      chequeCollection = 0,
+    } = bottomStatBarData;
+
+    const total = cashCollection + digitalCollection + chequeCollection;
+
+    const updatedStats = [
+      {
+        ...defaultStats[0],
+        value: String(avgCollectionPerTransaction),
+      },
+      {
+        ...defaultStats[1],
+        value: String(avgCollectionPerCustomer),
+      },
+      {
+        ...defaultStats[2],
+        value: String(cashCollection),
+        sub: `(${total ? ((cashCollection / total) * 100).toFixed(2) : 0}%)`,
+      },
+      {
+        ...defaultStats[3],
+        value: String(digitalCollection),
+        sub: `(${total ? ((digitalCollection / total) * 100).toFixed(2) : 0}%)`,
+      },
+      {
+        ...defaultStats[4],
+        value: String(chequeCollection),
+        sub: `(${total ? ((chequeCollection / total) * 100).toFixed(2) : 0}%)`,
+      },
+    ];
+
+    setStats(updatedStats);
+  }, [bottomStatBarData]);
 
   const formatCollection = (amount) => {
-    
+    const num = Number(amount);
     if (showInLacs) {
-      const lakhs = amount / 100000;
+      const lakhs = num / 100000;
       return lakhs.toFixed(2) + " L";
     }
-    return `₹ ${formatINR(amount)}`;
+    return `₹ ${formatINR(num)}`;
   };
 
   return (
     <div className="bottom-stats-bar">
-      <div className="d-flex align-items-center justify-content-between">
-        {stats.map((stat, idx) => {
-          const Icon = stat.icon;
-          return (
-            <React.Fragment key={stat.id}>
-              <div className="bottom-stat-item">
-                <div
-                  className="icon-badge"
-                  style={{ backgroundColor: stat.bg, color: stat.fg }}
-                >
-                  <Icon size={20} strokeWidth={2} />
-                </div>
-                <div>
-                  <div className="stat-label">{stat.label}</div>
-                  <div className="stat-value" style={{ color: stat.fg }}>
-                    {formatCollection(stat.value)}
+      {!bottomStatBarData ? (
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{ height: "60px" }}
+        >
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      ) : (
+        <div className="d-flex align-items-center justify-content-between">
+          {stats.map((stat, idx) => {
+            const Icon = stat.icon;
+            return (
+              <React.Fragment key={stat.id}>
+                <div className="bottom-stat-item">
+                  <div
+                    className="icon-badge"
+                    style={{ backgroundColor: stat.bg, color: stat.fg }}
+                  >
+                    <Icon size={20} strokeWidth={2} />
                   </div>
-                  <div className="stat-sub">{stat.sub}</div>
+                  <div>
+                    <div className="stat-label">{stat.label}</div>
+                    <div className="stat-value" style={{ color: stat.fg }}>
+                      {formatCollection(stat.value)}
+                    </div>
+                    <div className="stat-sub">{stat.sub}</div>
+                  </div>
                 </div>
-              </div>
 
-              {idx < stats.length - 1 && (
-                <div
-                  className="vr d-none d-md-block mx-2"
-                  style={{
-                    height: "40px",
-                    alignSelf: "center",
-                  }}
-                ></div>
-              )}
-            </React.Fragment>
-          );
-        })}
-      </div>
+                {idx < stats.length - 1 && (
+                  <div
+                    className="vr d-none d-md-block mx-2"
+                    style={{
+                      height: "40px",
+                      alignSelf: "center",
+                    }}
+                  ></div>
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

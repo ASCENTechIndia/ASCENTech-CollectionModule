@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNotification } from "../../context/NotificationContext";
-import { useLoader } from "../../context/LoaderContext";
 import apiClient from "../../services/apiClient";
 
 const medal = (rank) => {
@@ -16,16 +15,17 @@ const formatINR = (num) =>
     maximumFractionDigits: 2,
   });
 
-export default function TopLCOsTable({ showInLacs }) {
+export default function TopLCOsTable({ showInLacs, fromDate, toDate }) {
   const { showError } = useNotification();
-  const { setLoader } = useLoader();
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const fetchData = async () => {
+    if (!fromDate || !toDate) return;
+    setLoading(true);
     try {
-      setLoader(true);
       const res = await apiClient.get(
-        "/collection-dashboard/top-lco-collection",
+        `/collection-dashboard/top-lco-collection?fromDate=${fromDate}&toDate=${toDate}`,
       );
       if (res?.success && res?.data?.topLcos?.length > 0) {
         const mapped = res.data.topLcos.map((item) => ({
@@ -44,13 +44,15 @@ export default function TopLCOsTable({ showInLacs }) {
       showError(error.message || "Failed to fetch top LCOs");
       setData([]);
     } finally {
-      setLoader(false);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (fromDate && toDate) {
+      fetchData();
+    }
+  }, [fromDate, toDate]);
 
   const formatCollection = (amount) => {
     if (showInLacs) {
@@ -78,7 +80,24 @@ export default function TopLCOsTable({ showInLacs }) {
               </tr>
             </thead>
             <tbody>
-              {data.length > 0 ? (
+              {loading ? (
+                <tr>
+                  <td
+                    colSpan="4"
+                    className="text-center"
+                    style={{ height: "200px" }}
+                  >
+                    <div className="d-flex justify-content-center align-items-center h-100">
+                      <div
+                        className="spinner-border text-primary"
+                        role="status"
+                      >
+                        <span className="visually-hidden">Loading...</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ) : data.length > 0 ? (
                 data.map((row) => (
                   <tr key={row.rank}>
                     <td>{medal(row.rank)}</td>

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Users, User, ReceiptText, IndianRupee } from "lucide-react";
 import { useNotification } from "../../context/NotificationContext";
-import { useLoader } from "../../context/LoaderContext";
 import apiClient from "../../services/apiClient";
 
 // Default raw data
@@ -52,10 +51,15 @@ const defaultData = [
   },
 ];
 
-export default function SummaryCards({ showInLacs }) {
+export default function SummaryCards({
+  showInLacs,
+  fromDate,
+  toDate,
+  setBottomStatBarData,
+}) {
   const { showError } = useNotification();
-  const { setLoader } = useLoader();
   const [summaryData, setSummaryData] = useState(defaultData);
+  const [loading, setLoading] = useState(false);
 
   const formatValue = (value, id) => {
     if (id === "collection") {
@@ -72,44 +76,66 @@ export default function SummaryCards({ showInLacs }) {
   };
 
   const fetchData = async () => {
+    if (!fromDate || !toDate) return;
+    setLoading(true);
     try {
-      setLoader(true);
-      const res = await apiClient.get("/collection-dashboard/summary");
+      const res = await apiClient.get(
+        `/collection-dashboard/summary?fromDate=${fromDate}&toDate=${toDate}`,
+      );
       if (res?.success && Object.keys(res?.data?.summary).length > 0) {
         const data = res.data.summary;
         setSummaryData([
-          {
-            ...defaultData[0],
-            value: Number(data.totalLcos || 0),
-          },
-          {
-            ...defaultData[1],
-            value: Number(data.totalCustomers || 0),
-          },
-          {
-            ...defaultData[2],
-            value: Number(data.totalTransactions || 0),
-          },
-          {
-            ...defaultData[3],
-            value: Number(data.totalCollection || 0),
-          },
+          { ...defaultData[0], value: Number(data.totalLcos || 0) },
+          { ...defaultData[1], value: Number(data.totalCustomers || 0) },
+          { ...defaultData[2], value: Number(data.totalTransactions || 0) },
+          { ...defaultData[3], value: Number(data.totalCollection || 0) },
         ]);
+
+        setBottomStatBarData((prev) => ({
+          ...prev,
+          avgCollectionPerTransaction: data.avgCollectionPerTransaction,
+          avgCollectionPerCustomer: data.avgCollectionPerCustomer,
+        }));
       } else {
         setSummaryData(defaultData);
+        setBottomStatBarData((prev) => ({
+          ...prev,
+          avgCollectionPerTransaction: 0,
+          avgCollectionPerCustomer: 0,
+        }));
       }
     } catch (error) {
       console.error(error);
       showError(error.message || "Failed to fetch summary card values");
       setSummaryData(defaultData);
+      setBottomStatBarData((prev) => ({
+        ...prev,
+        avgCollectionPerTransaction: 0,
+        avgCollectionPerCustomer: 0,
+      }));
     } finally {
-      setLoader(false);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (fromDate && toDate) {
+      fetchData();
+    }
+  }, [fromDate, toDate]);
+
+  // Show loading spinner while fetching
+  if (loading) {
+    return (
+      <div className="row g-3">
+        <div className="col-12 text-center py-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="row g-3">

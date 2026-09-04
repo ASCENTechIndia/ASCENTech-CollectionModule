@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as echarts from "echarts";
 import { useNotification } from "../../context/NotificationContext";
-import { useLoader } from "../../context/LoaderContext";
 import apiClient from "../../services/apiClient";
 
 const defaultData = {
@@ -9,17 +8,22 @@ const defaultData = {
   transactions: [],
 };
 
-export default function TransactionsPerDayChart({ showInLacs }) {
+export default function TransactionsPerDayChart({
+  showInLacs,
+  fromDate,
+  toDate,
+}) {
   const chartRef = useRef(null);
   const { showError } = useNotification();
-  const { setLoader } = useLoader();
   const [chartData, setChartData] = useState(defaultData);
+  const [loading, setLoading] = useState(false);
 
   const fetchData = async () => {
+    if (!fromDate || !toDate) return;
+    setLoading(true);
     try {
-      setLoader(true);
       const res = await apiClient.get(
-        "/collection-dashboard/daily-transactions",
+        `/collection-dashboard/daily-transactions?fromDate=${fromDate}&toDate=${toDate}`,
       );
       if (res?.success && res?.data?.transactions?.length > 0) {
         const transactions = res.data.transactions;
@@ -36,13 +40,15 @@ export default function TransactionsPerDayChart({ showInLacs }) {
       showError(error.message || "Failed to fetch daily transactions");
       setChartData(defaultData);
     } finally {
-      setLoader(false);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (fromDate && toDate) {
+      fetchData();
+    }
+  }, [fromDate, toDate]);
 
   const formatNumber = (num) => {
     if (showInLacs) {
@@ -139,7 +145,18 @@ export default function TransactionsPerDayChart({ showInLacs }) {
     <div className="panel-card">
       <div className="panel-title">TRANSACTIONS PER DAY (Till T-1)</div>
       <div className="panel-body-tight">
-        <div ref={chartRef} style={{ width: "100%", height: "230px" }} />
+        {loading ? (
+          <div
+            className="d-flex justify-content-center align-items-center"
+            style={{ height: "230px" }}
+          >
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        ) : (
+          <div ref={chartRef} style={{ width: "100%", height: "230px" }} />
+        )}
       </div>
     </div>
   );
