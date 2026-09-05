@@ -32,9 +32,6 @@ export default function CollectionByPaymentModeChart({
 
   const formattedTotal = formatCollection(totalCollection);
 
-  // =====================================================
-  // FETCH DATA
-  // =====================================================
   useEffect(() => {
     if (!fromDate || !toDate) return;
 
@@ -52,33 +49,19 @@ export default function CollectionByPaymentModeChart({
           `/collection-dashboard/payment-mode?fromDate=${fromDate}&toDate=${toDate}`,
         );
 
-        if (
-          res?.success &&
-          res?.data?.paymentModes?.length > 0
-        ) {
+        if (res?.success && res?.data?.paymentModes?.length > 0) {
           const paymentModes = res.data.paymentModes;
 
-          // -----------------------------
-          // Total Collection
-          // -----------------------------
           const totalData = paymentModes.find(
             (item) => item.paymentMode === "Total",
           );
 
-          setTotalCollection(
-            Number(totalData?.totalCollection) || 0,
-          );
+          setTotalCollection(Number(totalData?.totalCollection) || 0);
 
-          // -----------------------------
-          // Remove Total
-          // -----------------------------
           const modes = paymentModes.filter(
             (item) => item.paymentMode !== "Total",
           );
 
-          // -----------------------------
-          // Fixed Colors
-          // -----------------------------
           const fixedColors = {
             Cash: "#22b04c",
             Digital: "#f5a524",
@@ -98,27 +81,19 @@ export default function CollectionByPaymentModeChart({
 
           let fallbackIndex = 0;
 
-          // -----------------------------
-          // Map Payment Modes
-          // -----------------------------
           const mapped = modes.map((item) => {
             const mode = item.paymentMode;
 
             let color = fixedColors[mode];
 
             if (!color) {
-              color =
-                fallbackPalette[
-                  fallbackIndex % fallbackPalette.length
-                ];
-
+              color = fallbackPalette[fallbackIndex % fallbackPalette.length];
               fallbackIndex++;
             }
 
             // Bottom stat data
             if (mode === "Cash") {
-              bottomStatData.cashCollection =
-                Number(item.totalCollection) || 0;
+              bottomStatData.cashCollection = Number(item.totalCollection) || 0;
             } else if (mode === "Cheque") {
               bottomStatData.chequeCollection =
                 Number(item.totalCollection) || 0;
@@ -130,8 +105,7 @@ export default function CollectionByPaymentModeChart({
             return {
               name: mode,
               value: Number(item.totalCollection) || 0,
-              percent:
-                Number(item.collectionPercentage) || 0,
+              percent: Number(item.collectionPercentage) || 0,
               color,
             };
           });
@@ -161,10 +135,7 @@ export default function CollectionByPaymentModeChart({
           ...bottomStatData,
         }));
 
-        showError(
-          error.message ||
-            "Failed to fetch payment mode data",
-        );
+        showError(error.message || "Failed to fetch payment mode data");
 
         setAllPaymentModes([]);
         setTotalCollection(0);
@@ -177,9 +148,6 @@ export default function CollectionByPaymentModeChart({
     fetchData();
   }, [fromDate, toDate]);
 
-  // =====================================================
-  // FORMAT COLLECTION
-  // =====================================================
   function formatCollection(amount) {
     if (showInLacs) {
       const lakhs = amount / 100000;
@@ -189,9 +157,6 @@ export default function CollectionByPaymentModeChart({
     return formatINR(amount);
   }
 
-  // =====================================================
-  // INITIALIZE ECHARTS ONCE
-  // =====================================================
   useEffect(() => {
     if (!chartRef.current) return;
 
@@ -215,9 +180,6 @@ export default function CollectionByPaymentModeChart({
     };
   }, []);
 
-  // =====================================================
-  // UPDATE PIE CHART
-  // =====================================================
   useEffect(() => {
     const chart = chartInstanceRef.current;
 
@@ -232,6 +194,11 @@ export default function CollectionByPaymentModeChart({
     const option = {
       tooltip: {
         trigger: "item",
+        formatter: (params) => {
+          const mode = visibleModes.find((d) => d.name === params.name);
+          const percent = mode?.percent ?? params.percent;
+          return `${params.name}<br/>${formatCollection(params.value)} (${percent.toFixed(2)}%)`;
+        },
       },
 
       series: [
@@ -263,11 +230,8 @@ export default function CollectionByPaymentModeChart({
     };
 
     chart.setOption(option, true);
-  }, [visibleModes]);
+  }, [visibleModes, showInLacs]);
 
-  // =====================================================
-  // TOGGLE PAYMENT MODE
-  // =====================================================
   const toggleMode = (name) => {
     setHiddenModes((prev) =>
       prev.includes(name)
@@ -276,14 +240,9 @@ export default function CollectionByPaymentModeChart({
     );
   };
 
-  // =====================================================
-  // UI
-  // =====================================================
   return (
     <div className="panel-card">
-      <div className="panel-title">
-        COLLECTION BY PAYMENT MODE
-      </div>
+      <div className="panel-title">COLLECTION BY PAYMENT MODE</div>
 
       <div
         className="panel-body-tight"
@@ -291,13 +250,7 @@ export default function CollectionByPaymentModeChart({
           position: "relative",
         }}
       >
-        {/* =================================================
-            MAIN CONTENT
-        ================================================= */}
         <div className="d-flex align-items-center">
-          {/* =================================================
-              PIE CHART
-          ================================================= */}
           <div
             style={{
               position: "relative",
@@ -305,9 +258,6 @@ export default function CollectionByPaymentModeChart({
               height: "230px",
             }}
           >
-            {/* IMPORTANT:
-                This DIV is ALWAYS mounted.
-            */}
             <div
               ref={chartRef}
               style={{
@@ -347,9 +297,6 @@ export default function CollectionByPaymentModeChart({
             </div>
           </div>
 
-          {/* =================================================
-              PAYMENT MODE LIST
-          ================================================= */}
           <div className="flex-grow-1">
             <div
               className="overflow-auto"
@@ -374,9 +321,7 @@ export default function CollectionByPaymentModeChart({
                     <span
                       className="state-dot mt-1"
                       style={{
-                        backgroundColor: isHidden
-                          ? "#ccc"
-                          : d.color,
+                        backgroundColor: isHidden ? "#ccc" : d.color,
                       }}
                     />
 
@@ -384,13 +329,9 @@ export default function CollectionByPaymentModeChart({
                       <div
                         className="fw-semibold"
                         style={{
-                          textDecoration: isHidden
-                            ? "line-through"
-                            : "none",
+                          textDecoration: isHidden ? "line-through" : "none",
 
-                          color: isHidden
-                            ? "#9ca3af"
-                            : "inherit",
+                          color: isHidden ? "#9ca3af" : "inherit",
 
                           fontSize: "12px",
                         }}
@@ -404,7 +345,6 @@ export default function CollectionByPaymentModeChart({
                         }}
                       >
                         {formatCollection(d.value)}{" "}
-
                         <span className="text-muted">
                           ({d.percent.toFixed(2)}%)
                         </span>
@@ -417,9 +357,6 @@ export default function CollectionByPaymentModeChart({
           </div>
         </div>
 
-        {/* =================================================
-            LOADING OVERLAY
-        ================================================= */}
         {loading && (
           <div
             className="d-flex justify-content-center align-items-center"
@@ -430,18 +367,13 @@ export default function CollectionByPaymentModeChart({
               right: 0,
               bottom: 0,
 
-              background: "rgba(255, 255, 255, 0.7)",
+              background: "#ffffff",
 
               zIndex: 10,
             }}
           >
-            <div
-              className="spinner-border text-primary"
-              role="status"
-            >
-              <span className="visually-hidden">
-                Loading...
-              </span>
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
             </div>
           </div>
         )}
