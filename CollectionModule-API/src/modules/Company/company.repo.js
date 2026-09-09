@@ -198,6 +198,7 @@ async function createCompanyRepo(payload) {
     statement,
     binds,
     useTx: false,
+    dbName: "db1",
   });
 
   return result.outBinds;

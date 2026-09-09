@@ -59,7 +59,7 @@ const lastLoginTime = user?.lastLogin
     <header className="header">
       <div className="header-left">
         <Link to="/" className="header-logo">
-          <img src="/assets/img/logo.png" alt="FlexAdmin" />
+          <img src="/assets/img/logo.png" alt="Collection Module" />
           <span>Collection Module</span>
         </Link>
       </div>

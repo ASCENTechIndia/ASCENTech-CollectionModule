@@ -386,12 +386,12 @@ async function simulationPreviewRepo() {
 async function assignRuleUserWithHistoryPrioritywiseRepo(ruleId) {
   const statement = `
     BEGIN
-      ATBSS_CM.AOUP_ASSIGN_RULE_USER_With_History_prioritywise(
+      ATBSS_CM.AOUP_ASSIGN_RULE_USER_With_History_prioritywise_faster(
         :P_NUM_RULE_ID,
         :OUT_ERRORCODE,
         :OUT_ERRORMSG
       );
-    END;
+    END;  
   `;
 
   const binds = {
