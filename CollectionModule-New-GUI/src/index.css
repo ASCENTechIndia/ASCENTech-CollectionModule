@@ -1162,3 +1162,334 @@ body {
 .payment-mode-div:hover {
   background-color: rgb(234, 232, 232);
 }
+
+/* Fco Performace Tracker */
+.page-fco-tracker {
+  --fpt-bg: #f5f4f0;
+  --fpt-surface: #ffffff;
+  --fpt-border: #e3e1da;
+  --fpt-text: #1d1d1b;
+  --fpt-muted: #6b6a64;
+  --fpt-track: #efede6;
+
+  --fpt-green: #5a9a1e;
+  --fpt-amber: #b8730f;
+  --fpt-red: #e04444;
+  --fpt-teal: #1aa37d;
+  --fpt-blue: #3688e0;
+  --fpt-grey: #8a8a85;
+
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--fpt-text);
+}
+
+/* ---------- Header ---------- */
+.fpt-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.fpt-header-text {
+  flex: 0 1 auto;
+}
+
+.fpt-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.fpt-subtitle {
+  margin: 4px 0 0;
+  font-size: 0.75rem;
+  color: var(--fpt-muted);
+}
+
+.fpt-select {
+  flex: 1 1 220px;
+  min-width: 180px;
+  max-width: 420px;
+  padding: 0.55rem 2rem 0.55rem 0.9rem;
+  font-size: 0.875rem;
+  color: var(--fpt-text);
+  background-color: var(--fpt-surface);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 14px 10px;
+  border: 1px solid var(--fpt-border);
+  border-radius: 8px;
+  appearance: none;
+  outline: none;
+}
+
+.fpt-select:focus-visible {
+  border-color: var(--fpt-blue);
+  box-shadow: 0 0 0 3px rgba(54, 136, 224, 0.2);
+}
+
+/* ---------- Tabs ---------- */
+.fpt-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fpt-tab {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: var(--fpt-text);
+  background: var(--fpt-surface);
+  border: 1px solid var(--fpt-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.fpt-tab:hover {
+  background: var(--fpt-bg);
+}
+
+.fpt-tab.active {
+  font-weight: 600;
+  color: #fff;
+  background: var(--fpt-text);
+  border-color: var(--fpt-text);
+}
+
+.fpt-tab:focus-visible {
+  outline: 2px solid var(--fpt-blue);
+  outline-offset: 2px;
+}
+
+/* ---------- Summary cards ---------- */
+.fpt-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.fpt-summary-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+  background: var(--fpt-bg);
+  border-radius: 10px;
+}
+
+.fpt-summary-label {
+  font-size: 0.75rem;
+  color: var(--fpt-muted);
+}
+
+.fpt-summary-value {
+  font-size: 1.75rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.fpt-summary-sub {
+  font-size: 0.6875rem;
+  color: var(--fpt-muted);
+}
+
+.fpt-summary-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+.fpt-trend-up {
+  color: var(--fpt-green);
+}
+.fpt-trend-warn {
+  color: var(--fpt-amber);
+}
+.fpt-trend-down {
+  color: var(--fpt-red);
+}
+
+/* ---------- Generic card ---------- */
+.fpt-card {
+  padding: 16px 18px;
+  background: var(--fpt-surface);
+  border: 1px solid var(--fpt-border);
+  border-radius: 12px;
+}
+
+.fpt-card-title {
+  margin: 0 0 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.fpt-empty {
+  padding: 16px 0;
+  font-size: 0.875rem;
+  color: var(--fpt-muted);
+  text-align: center;
+  list-style: none;
+}
+
+/* ---------- Progress bars (shared) ---------- */
+.fpt-track {
+  height: 6px;
+  overflow: hidden;
+  background: var(--fpt-track);
+  border-radius: 999px;
+}
+
+.fpt-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.fpt-fill-good,
+.fpt-fill-green {
+  background: var(--fpt-green);
+}
+.fpt-fill-warn {
+  background: var(--fpt-amber);
+}
+.fpt-fill-bad,
+.fpt-fill-red {
+  background: var(--fpt-red);
+}
+.fpt-fill-teal {
+  background: var(--fpt-teal);
+}
+.fpt-fill-blue {
+  background: var(--fpt-blue);
+}
+.fpt-fill-grey {
+  background: var(--fpt-grey);
+}
+
+.fpt-text-good {
+  color: var(--fpt-green);
+}
+.fpt-text-warn {
+  color: var(--fpt-amber);
+}
+.fpt-text-bad {
+  color: var(--fpt-red);
+}
+
+/* ---------- Activity breakdown ---------- */
+.fpt-officer-list,
+.fpt-outcome-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fpt-officer-row {
+  display: grid;
+  grid-template-columns: 36px minmax(120px, 1fr) minmax(0, 1.6fr) 44px;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--fpt-border);
+}
+
+.fpt-officer-row:last-child {
+  border-bottom: none;
+}
+
+.fpt-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #2b5c9e;
+  background: #dbe8f8;
+  border-radius: 50%;
+}
+
+.fpt-officer-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.fpt-officer-name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.fpt-officer-meta {
+  font-size: 0.6875rem;
+  color: var(--fpt-muted);
+}
+
+.fpt-officer-percent {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* ---------- Today's visit outcomes ---------- */
+.fpt-outcome-row {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+}
+
+.fpt-outcome-label {
+  font-size: 0.8125rem;
+}
+
+.fpt-outcome-percent {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 991px) {
+  .fpt-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 575px) {
+  .fpt-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fpt-officer-row {
+    grid-template-columns: 36px minmax(0, 1fr) 44px;
+    row-gap: 6px;
+  }
+
+  .fpt-officer-track {
+    grid-column: 2 / 4;
+    grid-row: 2;
+  }
+
+  .fpt-outcome-row {
+    grid-template-columns: 110px minmax(0, 1fr) 40px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fpt-fill,
+  .fpt-tab {
+    transition: none;
+  }
+}
