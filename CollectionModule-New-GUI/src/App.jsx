@@ -181,7 +181,7 @@ function App() {
         <Route path='allocation/add-allocation-rules' element={<AddAllocationRules />} />
         {/* <Route path='allocation/allocation-rule' element={<AllocationRulePage />} /> */}
         <Route path='allocation/allocation-rule' element={<AllocationWorkspace />} />
-        <Route path='/FcoPerformaceTracker' element={<FcoPerformaceTracker />} />
+        <Route path='/Dashboard/FcoPerformaceTracker' element={<FcoPerformaceTracker />} />
 
       </Route>
 
