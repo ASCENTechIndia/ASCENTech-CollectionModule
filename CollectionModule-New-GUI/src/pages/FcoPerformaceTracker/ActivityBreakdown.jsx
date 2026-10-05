@@ -32,7 +32,7 @@ const ActivityBreakdown = ({ officers = [] }) => {
               <div className="fpt-officer-info">
                 <span className="fpt-officer-name">{o.name}</span>
                 <span className="fpt-officer-meta">
-                  {o.visits} visits · {o.contracts} PTPs
+                  {o.visits}/{o.contracts} visits . {o.ptpCount} PTPs
                 </span>
               </div>
 

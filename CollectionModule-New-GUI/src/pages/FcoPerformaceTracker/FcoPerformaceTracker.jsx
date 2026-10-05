@@ -55,9 +55,10 @@ const mapSummaryCards = (row = {}) => [
 const mapOfficers = (rows = []) =>
   rows.map((r) => ({
     id: r.VAR_BANKDATA_USERID,
-    name: r.VAR_BANKDATA_USERID,
+    name: r.OFFICER_NAME,
     visits: r.VISITS,
     contracts: r.TOTAL_CONTRACTS,
+    ptpCount: r.PTP_CNT_COUNT,
     percent: Number(r.PERCENTAGE) || 0,
   }));
 
