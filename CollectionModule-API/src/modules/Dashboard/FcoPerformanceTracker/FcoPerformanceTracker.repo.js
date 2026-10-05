@@ -34,8 +34,8 @@ async function getPerformaceDashboardData(payload) {
 
   const [summaryResult, activityResult, feedbackResult] = await Promise.all([
     executeProcedure({
-      statement: summaryStatement, // NOT statement1
-      binds: summaryBinds, // NOT binds1
+      statement: summaryStatement, 
+      binds: summaryBinds, 
       useTx: false,
       dbName: "db3",
     }),
