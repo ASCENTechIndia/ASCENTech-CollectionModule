@@ -1,6 +1,6 @@
 const TodayVisitOutcomes = ({ outcomes = [] }) => {
   return (
-    <div className="fpt-card">
+    <div className="fpt-card" style={{ maxHeight: "400px", overflow: "auto" }}>
       <h2 className="fpt-card-title">Today&apos;s visit outcomes</h2>
 
       <ul className="fpt-outcome-list">

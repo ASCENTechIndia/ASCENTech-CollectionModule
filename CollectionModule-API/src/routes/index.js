@@ -18,6 +18,7 @@ const companyRoutes = require('../modules/Company/company.routes');
 const mappingRoutes = require('../modules/Mapping/mapping.routes');
 const excelUploadRoutes = require('../modules/ExcelUpload/ExcelUpload.routes');
 const allocationRulesRoutes = require("../modules/AllocationRules/allocationRules.routes")
+const performanceTrackerRoute = require("../modules/Dashboard/FcoPerformanceTracker/FcoPerformanceTracker.route")
 const router = express.Router();
 
 router.get('/health', (req, res) => {
@@ -53,6 +54,7 @@ router.use('/mapping', mappingRoutes);
 router.use('/excel-upload', excelUploadRoutes);
 router.use("/allocation", allocationRulesRoutes);
 router.use('/collection-dashboard', require('../modules/Dashboard/CollectionDashboard/CollectionDashboard.routes'));
+router.use('/collection-dashboard', performanceTrackerRoute);
 
 
 module.exports = router;

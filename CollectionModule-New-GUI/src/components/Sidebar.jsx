@@ -8,11 +8,12 @@ const navItems = [
 ];
 
 const dashboardMenuItems = [
-   { to: "/Dashboard", label: "PayMyTv Dashboard" },
+  { to: "/Dashboard", label: "PayMyTv Dashboard" },
   { to: "/Dashboard/FrmActiveAgentsNew", label: "Active Agents Dashboard" },
   { to: "/Dashboard/FrmNewDashboard2New", label: "Disposition Dashboard" },
   { to: "/Dashboard/DailyVisitNew", label: "Daily Visit Dashboard" },
-  { to: "/Dashboard/FcoPerformaceTracker", label: "FOS Performance Tracking" }
+  { to: "/Dashboard/FcoPerformaceTracker", label: "FOS Performance Tracking" },
+  { to: "/Dashboard/PtpFollowUpTracker", label: "PTP Follow Up Tracker" }
 ];
 
 const pincodeMenuItems = [

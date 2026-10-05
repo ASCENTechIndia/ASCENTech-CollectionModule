@@ -90,7 +90,7 @@ import AllocationRulePage from './pages/Allocation/AllocationRulePage'
 import AllocationWorkspace from './pages/AllocationRules/AllocationWorkspace'
 import Dashboard from './pages/Dashboard/Dashboard'
 import FcoPerformaceTracker from './pages/FcoPerformaceTracker/FcoPerformaceTracker'
-import FcoPerformanceTracker from './pages/FcoPerformaceTracker/FcoPerformaceTracker'
+import PtpFollowUpTracker from './pages/PtpFollowUpTracker/PtpFollowUpTracker'
 
 
 function App() {
@@ -182,6 +182,7 @@ function App() {
         {/* <Route path='allocation/allocation-rule' element={<AllocationRulePage />} /> */}
         <Route path='allocation/allocation-rule' element={<AllocationWorkspace />} />
         <Route path='/Dashboard/FcoPerformaceTracker' element={<FcoPerformaceTracker />} />
+        <Route path='/Dashboard/PtpFollowUpTracker' element={<PtpFollowUpTracker />} />
 
       </Route>
 

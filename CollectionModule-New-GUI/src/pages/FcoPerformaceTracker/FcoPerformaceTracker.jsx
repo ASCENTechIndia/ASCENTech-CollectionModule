@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import apiClient from "../../services/apiClient";
+import { useLoader } from "../../context/LoaderContext";
 import SummaryCards from "./SummaryCards";
 import ActivityBreakdown from "./ActivityBreakdown";
 import TodayVisitOutcomes from "./TodayVisitOutcomes";
 
+// Dropdown
 const ZONE_OPTIONS = [
   { label: "North zone", value: "north" },
   { label: "South zone", value: "south" },
@@ -17,67 +20,106 @@ const TABS = [
   { id: "model", label: "Data model" },
 ];
 
-const DUMMY_SUMMARY = [
-  {
-    id: "visits",
-    label: "Visits today",
-    value: "148",
-    subText: "Target: 180",
-    trend: "82% of target",
-    trendTone: "warn",
-  },
+const OUTCOME_COLORS = ["teal", "blue", "green", "grey", "red"];
+
+const formatNumber = (value) =>
+  value === null || value === undefined
+    ? ""
+    : Number(value).toLocaleString("en-IN");
+
+const formatAmount = (value) =>
+  value === null || value === undefined
+    ? ""
+    : `₹${Number(value).toLocaleString("en-IN")}`;
+
+const mapSummaryCards = (row = {}) => [
+  { id: "visits", label: "Visits (MTD)", value: formatNumber(row.VISITS_MTD) },
   {
     id: "contacts",
     label: "Contacts made",
-    value: "112",
-    subText: "76% contact rate",
-    trend: "vs 71% yesterday",
-    trendTone: "up",
+    value: formatNumber(row.CONTACTS_MADE),
   },
   {
     id: "ptps",
     label: "PTPs captured",
-    value: "64",
-    subText: "57% of contacts",
-    trend: "vs 52% yesterday",
-    trendTone: "up",
+    value: formatNumber(row.PTP_CAPTURED),
   },
   {
     id: "amount",
     label: "Amount collected",
-    value: "₹18L",
-    subText: "Target: ₹24L",
-    trend: "75% of target",
-    trendTone: "warn",
+    value: formatAmount(row.AMOUNT_COLLECTED),
   },
 ];
 
-const DUMMY_OFFICERS = [
-  { id: 1, name: "Ramesh Kumar", visitsDone: 18, visitTarget: 20, ptps: 9 },
-  { id: 2, name: "Priya Singh", visitsDone: 22, visitTarget: 20, ptps: 13 },
-  { id: 3, name: "Arjun Nair", visitsDone: 15, visitTarget: 20, ptps: 6 },
-  { id: 4, name: "Sunita Devi", visitsDone: 19, visitTarget: 20, ptps: 10 },
-  { id: 5, name: "Mohan Lal", visitsDone: 12, visitTarget: 20, ptps: 4 },
-  { id: 6, name: "Kavitha R", visitsDone: 20, visitTarget: 20, ptps: 11 },
-];
+// activityBreakdown
+const mapOfficers = (rows = []) =>
+  rows.map((r) => ({
+    id: r.VAR_BANKDATA_USERID,
+    name: r.VAR_BANKDATA_USERID,
+    visits: r.VISITS,
+    contracts: r.TOTAL_CONTRACTS,
+    percent: Number(r.PERCENTAGE) || 0,
+  }));
 
-const DUMMY_OUTCOMES = [
-  { id: "contact", label: "Contact made", percent: 76, color: "teal" },
-  { id: "locked", label: "Door locked", percent: 14, color: "grey" },
-  { id: "skip", label: "Skip / untraceable", percent: 10, color: "red" },
-  { id: "ptp", label: "PTP captured", percent: 57, color: "blue" },
-  { id: "paid", label: "Paid on visit", percent: 18, color: "green" },
-];
+// feedbackPerformance
+const mapOutcomes = (rows = []) =>
+  rows.map((r, i) => ({
+    id: r.NUM_VISITSTATUS_ID,
+    label: r.FEEDBACK_TEXT,
+    percent: Number(r.PERCENTAGE) || 0,
+    color: OUTCOME_COLORS[i % OUTCOME_COLORS.length],
+  }));
 
 const FcoPerformanceTracker = () => {
+  const { setLoader } = useLoader();
   const [zone, setZone] = useState("north");
   const [activeTab, setActiveTab] = useState("daily");
 
-  const zoneLabel = ZONE_OPTIONS.find((z) => z.value === zone)?.label ?? "";
+  const [summaryCards, setSummaryCards] = useState(mapSummaryCards());
+  const [officers, setOfficers] = useState([]);
+  const [outcomes, setOutcomes] = useState([]);
+  const [error, setError] = useState("");
 
-  const summary = DUMMY_SUMMARY;
-  const officers = DUMMY_OFFICERS;
-  const outcomes = DUMMY_OUTCOMES;
+  const zoneLabel = ZONE_OPTIONS.find((z) => z.value === zone)?.label ?? "";
+  const monthLabel = new Date().toLocaleString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
+
+  useEffect(() => {
+    const fetchPerformanceTracker = async () => {
+      try {
+        setLoader(true);
+        setError("");
+        const res = await apiClient.get(
+          "/collection-dashboard/getPerformaceTracker",
+        );
+
+        if (res?.success && res?.data) {
+          const { summaryCards, activityBreakdown, feedbackPerformance } =
+            res.data;
+          setSummaryCards(mapSummaryCards(summaryCards?.[0]));
+          setOfficers(mapOfficers(activityBreakdown));
+          setOutcomes(mapOutcomes(feedbackPerformance));
+        } else {
+          setSummaryCards(mapSummaryCards({}));
+          setOfficers(mapOfficers([]));
+          setOutcomes(mapOutcomes([]));
+          setError("No performance data available.");
+        }
+      } catch (err) {
+        setSummaryCards(mapSummaryCards({}));
+        setOfficers(mapOfficers([]));
+        setOutcomes(mapOutcomes([]));
+        console.error("Error fetching performance tracker:", err);
+        setError("Unable to load performance data. Please try again.");
+      } finally {
+        setLoader(false);
+      }
+    };
+
+    fetchPerformanceTracker();
+  }, []);
 
   return (
     <div className="main-content">
@@ -87,7 +129,7 @@ const FcoPerformanceTracker = () => {
           <div className="fpt-header-text">
             <h1 className="fpt-title">FCO performance tracker</h1>
             <p className="fpt-subtitle">
-              May 2026 · {zoneLabel} · {officers.length * 2} officers
+              {monthLabel} · {zoneLabel} · {officers.length} officers
             </p>
           </div>
 
@@ -121,10 +163,12 @@ const FcoPerformanceTracker = () => {
           ))}
         </div>
 
+        {error && <p className="fpt-empty">{error}</p>}
+
         {/* Tab content */}
         {activeTab === "daily" ? (
           <>
-            <SummaryCards cards={summary} />
+            <SummaryCards cards={summaryCards} />
             <ActivityBreakdown officers={officers} />
             <TodayVisitOutcomes outcomes={outcomes} />
           </>
