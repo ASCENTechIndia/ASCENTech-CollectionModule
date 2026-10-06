@@ -93,7 +93,7 @@ const FcoPerformanceTracker = () => {
         setLoader(true);
         setError("");
         const res = await apiClient.get(
-          "/collection-dashboard/getPerformaceTracker",
+          "/tracker-dashboard/getPerformaceTracker",
         );
 
         if (res?.success && res?.data) {

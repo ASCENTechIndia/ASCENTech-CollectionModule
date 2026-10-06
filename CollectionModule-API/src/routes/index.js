@@ -54,7 +54,7 @@ router.use('/mapping', mappingRoutes);
 router.use('/excel-upload', excelUploadRoutes);
 router.use("/allocation", allocationRulesRoutes);
 router.use('/collection-dashboard', require('../modules/Dashboard/CollectionDashboard/CollectionDashboard.routes'));
-router.use('/collection-dashboard', performanceTrackerRoute);
+router.use('/tracker-dashboard', performanceTrackerRoute);
 
 
 module.exports = router;
