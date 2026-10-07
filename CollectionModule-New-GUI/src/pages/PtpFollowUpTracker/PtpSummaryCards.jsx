@@ -6,7 +6,7 @@ const PtpSummaryCards = ({ cards = [] }) => {
   return (
     <div className="ptp-summary-grid">
       {cards.map((card) => (
-        <div key={card.id} className="ptp-summary-card">
+        <div key={card.id} className="ptp-summary-card border">
           <span className="ptp-summary-label">{card.label}</span>
           <span
             className={`ptp-summary-value ptp-tone-${card.tone || "default"}`}
