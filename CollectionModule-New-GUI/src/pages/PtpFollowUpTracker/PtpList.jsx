@@ -9,7 +9,6 @@ const getInitials = (name = "") =>
     .join("")
     .toUpperCase();
 
-// 115000 -> ₹115K
 const formatAmount = (value = 0) =>
   value >= 1000
     ? `₹${Math.round(value / 1000)}K`
@@ -17,11 +16,6 @@ const formatAmount = (value = 0) =>
 
 const PRIORITY_CLASS = { High: "high", Med: "med", Low: "low" };
 
-/**
- * items: [{ id, customerName, accountNo, officer, dpd, bucket, dueLabel,
- *           note, amount, status: "pending" | "kept" | "broken",
- *           priority: "High" | "Med" | "Low" }]
- */
 const PtpList = ({ items = [], onMarkKept, onMarkBroken, onEscalate }) => {
   return (
     <div className="ptp-card">

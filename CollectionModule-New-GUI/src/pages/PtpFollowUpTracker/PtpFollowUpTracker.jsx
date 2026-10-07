@@ -2,10 +2,6 @@ import { useMemo, useState } from "react";
 import PtpSummaryCards from "./PtpSummaryCards";
 import PtpList from "./PtpList";
 
-/* ------------------------------------------------------------------
-   DUMMY DATA – replace with API responses when the APIs are ready.
-   Keep the same shapes so the child components need no changes.
-------------------------------------------------------------------- */
 const DUMMY_SUMMARY = [
   {
     id: "due",
@@ -37,7 +33,6 @@ const DUMMY_SUMMARY = [
   },
 ];
 
-// dueStatus: "today" | "overdue" | "upcoming"
 const DUMMY_PTPS = [
   {
     id: 1,
@@ -229,7 +224,7 @@ const PtpFollowUpTracker = () => {
     [ptps],
   );
 
-  // Officer filter is applied first so tab badges respect it too
+
   const officerFiltered = useMemo(
     () => (officer === "all" ? ptps : ptps.filter((p) => p.officer === officer)),
     [ptps, officer],
@@ -250,14 +245,14 @@ const PtpFollowUpTracker = () => {
     return [...list].sort(SORTERS[sortBy]);
   }, [officerFiltered, activeTab, sortBy]);
 
-  // Local updates for now – replace with API calls (then refetch/update state)
+
   const updateStatus = (id, status) =>
     setPtps((prev) => prev.map((p) => (p.id === id ? { ...p, status } : p)));
 
   const handleMarkKept = (id) => updateStatus(id, "kept");
   const handleMarkBroken = (id) => updateStatus(id, "broken");
   const handleEscalate = (id) => {
-    console.log("Escalate PTP:", id); // TODO: hook up escalate API
+    console.log("Escalate PTP:", id); 
   };
 
   return (

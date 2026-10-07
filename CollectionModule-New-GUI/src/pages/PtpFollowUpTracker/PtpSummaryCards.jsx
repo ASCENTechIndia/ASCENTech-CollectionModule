@@ -1,7 +1,4 @@
-/**
- * cards: [{ id, label, value, subText, tone }]
- * tone (colour of the big value): "default" | "danger" | "warn" | "critical"
- */
+
 const PtpSummaryCards = ({ cards = [] }) => {
   return (
     <div className="ptp-summary-grid">
