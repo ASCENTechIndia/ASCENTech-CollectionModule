@@ -31,6 +31,34 @@ const authService = {
     }
   },
 
+  companyLogin: async (credentials) => {
+    try {
+
+      const payload = await apiClient.post('/auth/company-login', {
+        userId: credentials.userId,
+        password: credentials.password,
+      })
+
+      const data = payload?.data || {}
+
+      if (!payload?.success) {
+        throw new Error(payload?.message || 'Authentication failed')
+      }
+
+      const token = payload.token || data.token || data.accessToken || data.jwt || null
+      const user = payload.user || data.user || data.userData || data
+
+      return {
+        success: payload.success,
+        message: payload.message,
+        token,
+        user,
+      }
+    } catch (error) {
+      throw new Error(error.message || 'Login failed')
+    }
+  },
+
   logout: async () => {
     try {
       await apiClient.post('/auth/logout')
