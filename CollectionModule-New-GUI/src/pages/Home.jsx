@@ -4,7 +4,9 @@ import { useAuth } from '../context/AuthContext';
 
 const Home = () => {
 
-    const {user} =  useAuth();
+
+    const {user ,companyUser} =  useAuth();
+    console.log("com user :", companyUser)
     const displayName = user?.name || user?.userName || user?.fullName || user?.userId || 'User'
  
 

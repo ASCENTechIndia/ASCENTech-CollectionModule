@@ -1,4 +1,4 @@
-const { loginUser, loginCompanyUser } = require("./auth.service");
+const { loginUser, loginCompanyUser, agencyLoginUser } = require("./auth.service");
 const { logApiSuccess, logApiError } = require("../../utils/log");
 const { decryptPassword } = require("../../utils/login-password-crypto");
 const jwt = require("jsonwebtoken");
@@ -57,7 +57,40 @@ async function companyLogin(req, res, next) {
       : `${payload.userId}`;
 
     const result = await loginCompanyUser(normalizedUserId, payload.password);
-    console.log("back res :", result)
+
+    if (!result.success) {
+      logApiError(
+        req,
+        401,
+        result.message,
+        `Login failed for company user: ${normalizedUserId}`,
+      );
+      return res.fail(result?.message, 401, {
+        errorCode: result?.user?.OUT_ERRORCODE,
+      });
+    }
+
+    logApiSuccess(
+      req,
+      200,
+      { userId: result.user.userId, userName: result.user.OUT_USERNAME },
+      `Login successful for user: ${result.user.OUT_USERNAME}`,
+    );
+
+    return res.ok({ token: result.token, user: result.user });
+  } catch (error) {
+    logApiError(req, 500, error.message, "Login controller error");
+    return next(error);
+  }
+}
+
+async function agencyLogin(req, res, next) {
+  try {
+    const payload = req.body;
+
+    const normalizedUserId = payload.userId;
+
+    const result = await agencyLoginUser(normalizedUserId, payload.password);
 
     if (!result.success) {
       logApiError(
@@ -66,14 +99,16 @@ async function companyLogin(req, res, next) {
         result.message,
         `Login failed for user: ${normalizedUserId}`,
       );
-      return res.fail(result?.message, 401, { errorCode: result?.user?.OUT_ERRORCODE });
+      return res.fail(result?.message, 401, {
+        errorCode: result?.user?.OUT_ERRORCODE,
+      });
     }
 
     logApiSuccess(
       req,
       200,
       { userId: result.user.userId, userName: result.user.OUT_USERNAME },
-      `Login successful for user: ${result.user.OUT_USERNAME}`,
+      `Login successful for agency user: ${result.user.OUT_USERNAME}`,
     );
 
     return res.ok({ token: result.token, user: result.user });
@@ -221,4 +256,5 @@ module.exports = {
   companyLogin,
   forgotPassword,
   resetPasswordWithToken,
+  agencyLogin,
 };

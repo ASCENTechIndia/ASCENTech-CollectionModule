@@ -49,6 +49,7 @@ import  FrmCreateMapping from './pages/Mapping/FrmCreateMapping'
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth()
+  console.log("auth :", isAuthenticated)
 
   if (!isAuthenticated) {
     return <Navigate to="/auth/login" replace />
@@ -92,6 +93,7 @@ import Dashboard from './pages/Dashboard/Dashboard'
 import FcoPerformaceTracker from './pages/FcoPerformaceTracker/FcoPerformaceTracker'
 import PtpFollowUpTracker from './pages/PtpFollowUpTracker/PtpFollowUpTracker'
 import CompanyLoginPage from './pages/CompanyLoginPage'
+import AgencyLoginPage from './pages/AgencyLoginPage'
 
 
 function App() {
@@ -216,7 +218,7 @@ function App() {
         <Route index element={<AuthLoginPage />} />
       </Route>
       <Route
-        path="/auth/compay-login"
+        path="/auth/company-login"
         element={
           <AuthLayout
             split
@@ -239,6 +241,31 @@ function App() {
         }
       >
         <Route index element={<CompanyLoginPage />} />
+      </Route>
+      <Route
+        path="/auth/agency-login"
+        element={
+          <AuthLayout
+            split
+            visual={
+              <>
+                <Link to="/" className="fauth-logo">
+                  <img src="/assets/img/logo.png" alt="Collection Module" />
+                  <span>Collection Module</span>
+                </Link>
+                <h2 className="fauth-visual-title">Manage collection operations from one unified control center.</h2>
+                <p className="fauth-visual-text">Track field performance, collection efficiency, and risk trends with real-time operational visibility.</p>
+                <div className="fauth-visual-points">
+                  <div className="fauth-point"><i className="bi bi-graph-up-arrow" /> Real-time collection insights</div>
+                  <div className="fauth-point"><i className="bi bi-shield-lock" /> Secure user access and controls</div>
+                  <div className="fauth-point"><i className="bi bi-lightning-charge" /> Faster field and branch coordination</div>
+                </div>
+              </>
+            }
+          />
+        }
+      >
+        <Route index element={<AgencyLoginPage />} />
       </Route>
 
       <Route path="/auth" element={<AuthLayout />}>

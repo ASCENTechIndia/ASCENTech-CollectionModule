@@ -3,6 +3,7 @@ const oracledb = require("oracledb");
 const { executeQuery } = require("../../db/queryExecutor");
 const { executeProcedure } = require("../../db/procedureExecutor");
 const { config } = require("../../config/env");
+const { maxSize } = require("zod/v4");
 
 async function loginWithStoredProcedure(userId, password) {
   const plsql = `
@@ -249,7 +250,117 @@ async function loginWithCompanyStoredProcedure(userId, password) {
       sub: user.userId,
       userId: user.userId,
       compId: user.OUT_COMPID,
-      userName: user.OUT_USERNAME
+      userName: user.OUT_USERNAME,
+    },
+    config.jwtSecret,
+    { expiresIn: config.jwtExpiresIn },
+  );
+
+  return {
+    success: true,
+    token,
+    user,
+  };
+}
+
+async function loginWithAgencyStoredProcedure(userId, password) {
+  const plsql = `
+    BEGIN
+      etech_cm.AOUP_AGENCY_LOGIN_FETCH(
+        :IN_USERID,
+        :IN_PASSWORD,
+        :OUT_AGENCYID,
+        :OUT_AGENCYCODE,
+        :OUT_AGENCYNAME,
+        :OUT_LASTLOGIN,
+        :OUT_ISBLOCK,
+        :OUT_ERRORCODE,
+        :OUT_ERRORMSG
+      );
+    END;
+  `;
+
+  const binds = {
+    IN_USERID: userId,
+    IN_PASSWORD: password,
+    OUT_AGENCYID: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    OUT_AGENCYCODE: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 200,
+    },
+    OUT_AGENCYNAME: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 200,
+    },
+    OUT_LASTLOGIN: { dir: oracledb.BIND_OUT, type: oracledb.DATE },
+    OUT_ISBLOCK: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 20 },
+    OUT_ERRORCODE: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    OUT_ERRORMSG: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 4000,
+    },
+  };
+
+  const result = await executeProcedure({
+    statement: plsql,
+    binds,
+    useTx: false,
+  });
+  const out = result.outBinds;
+  console.log("agency outs :", out);
+
+  const errorCode = String(out.OUT_ERRORCODE ?? "0");
+  if (errorCode !== "-100") {
+    return {
+      success: false,
+      errorCode,
+      message: out.OUT_ERRORMSG || "Login failed",
+    };
+  }
+  // const proofTypeResult = await executeQuery(
+  //   `SELECT NUM_USERMST_USERPROOFTYPE
+  //  FROM etech_cm.aoup_usermst_def
+  //  WHERE VAR_USERMST_USERID = :userId`,
+  //   { userId },
+  // );
+  // const userProofType = proofTypeResult.rows?.[0]?.NUM_USERMST_USERPROOFTYPE;
+  // Fetch brand image
+  // let brandImage = null;
+  // try {
+  // Remove leading 'E' if present in userId for brand image query
+  //   let numericUserId = String(userId);
+  //   if (numericUserId.startsWith("E")) {
+  //     numericUserId = numericUserId.slice(1);
+  //   }
+  //   const brandImageResult = await executeQuery(
+  //     `SELECT BASE64IMG FROM AOUP_ETECH_BANNER_IMAGE WHERE NUM_AGENCY_ID = :agencyId AND USERID = :userId AND IS_ACTIVE = 'Y'`,
+  //     { agencyId: "100", userId: numericUserId },
+  //   );
+  //   brandImage = brandImageResult.rows?.[0]?.BASE64IMG || null;
+  // } catch (e) {
+  //   brandImage = null;
+  // }
+
+  const user = {
+    userId,
+    OUT_AGENCYID: out.OUT_AGENCYID,
+    OUT_AGENCYCODE: out.OUT_AGENCYCODE,
+    OUT_AGENCYNAME: out.OUT_AGENCYNAME,
+    OUT_LASTLOGIN: out.OUT_LASTLOGIN,
+    OUT_ISBLOCK: out.OUT_ISBLOCK,
+    OUT_ERRORCODE: out.OUT_ERRORCODE,
+    OUT_ERRORMSG: out.OUT_ERRORMSG,
+  };
+
+  const token = jwt.sign(
+    {
+      sub: user.userId,
+      userId: user.userId,
+      compId: user.OUT_AGENCYID,
+      userName: user.OUT_AGENCYNAME,
     },
     config.jwtSecret,
     { expiresIn: config.jwtExpiresIn },
@@ -335,6 +446,7 @@ async function resetPasswordWithDbToken(userId, token, newPassword) {
 module.exports = {
   loginWithStoredProcedure,
   loginWithCompanyStoredProcedure,
+  loginWithAgencyStoredProcedure,
   generateResetToken,
   resetPasswordWithDbToken,
 };

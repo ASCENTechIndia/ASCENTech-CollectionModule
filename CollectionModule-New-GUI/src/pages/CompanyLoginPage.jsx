@@ -47,8 +47,8 @@ function CompanyLoginPage() {
     setSubmitting(true);
     try {
       await companyLogin({ userId: userId.trim(), password });
-      showSuccess("Login successful");
-      navigate("/dashboard");
+      showSuccess("Company login successful");
+      navigate("/home");
     } catch (error) {
       showError(error?.message || "Login failed");
       loadCaptchaEnginge(6);
