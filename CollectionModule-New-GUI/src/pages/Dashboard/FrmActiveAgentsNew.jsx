@@ -185,11 +185,13 @@ const FrmActiveAgentsNew = () => {
         setLoader(true);
         const [month, year] = monthYear.split("-");
         const userNo = userId.split("E")[1];
+        console.log("user no :", userNo);
 
         const response = await apiClient.get(
           `/active-agents/dashboard?userId=${userNo}&month=${month}&year=${year}`,
           {},
         );
+        console.log("grid res :", response?.data?.grid);
 
         if (response.success) {
           setSummaryDetails(response.data.summary);
@@ -198,16 +200,14 @@ const FrmActiveAgentsNew = () => {
             datasets: response?.data?.chart?.data,
           });
 
-          const formattedGridData = response.data.grid.map((item) => [
-            item.GRANDPARENT_BRANCH_NAME,
-            item.PARENT_BRANCH_NAME,
-            item.CURRENT_BRANCH_NAME,
-            item.USERID,
-            item.VAR_USERMST_USERFULLNAME,
-            item?.LOGIN_DATE ? formatDate(item.LOGIN_DATE) : "",
-            item?.MIN_LOGIN ? formatDate(item.MIN_LOGIN) : "",
-            item?.MAX_LOGOUT ? formatDate(item.MAX_LOGOUT) : "",
-          ]);
+          const formattedGridData = (response.data.grid || []).map((item) => ({
+            LOGIN_DATE: item?.LOGIN_DATE ? formatDate(item.LOGIN_DATE) : "",
+            MAX_LOGOUT: item?.MAX_LOGOUT ? formatDate(item.MAX_LOGOUT) : "",
+            MDM_ID: item.MDM_ID,
+            MIN_LOGIN: item?.MIN_LOGIN ? formatDate(item.MIN_LOGIN) : "",
+            USERID: item.USERID,
+            VAR_USERMST_USERFULLNAME: item.VAR_USERMST_USERFULLNAME,
+          }));
           setTableData(formattedGridData);
         }
       } catch (error) {
@@ -227,92 +227,11 @@ const FrmActiveAgentsNew = () => {
     }
   }, [userId, fetchData]);
 
-  const data = tableData.map((rec, index) => ({
-    id: index,
-    zone: rec[0],
-    regionName: rec[1],
-    branchName: rec[2],
-    collectionAssociateId: rec[3],
-    collectionAssociate: rec[4],
-    loginDate: rec[5],
-    firstLogin: rec[6],
-    lastLogout: rec[7],
-  }));
-
   const columns1 = [
     {
-      key: "zone",
-      label: "Zone",
-      minWidth: "160px",
-      render: (val) =>
-        val ? (
-          <span
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              fontSize: "0.82rem",
-              color: "#0f5132",
-            }}
-          >
-            <i className="bi bi-geo-alt-fill" style={{ color: "#198754" }} />
-            {val}
-          </span>
-        ) : (
-          <span className="text-muted">—</span>
-        ),
-    },
-    {
-      key: "regionName",
-      label: "Region",
-      minWidth: "150px",
-      render: (val) =>
-        val ? (
-          <span
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              fontSize: "0.82rem",
-              color: "#084298",
-            }}
-          >
-            <i className="bi bi-map-fill" style={{ color: "#0d6efd" }} />
-            {val}
-          </span>
-        ) : (
-          <span className="text-muted">—</span>
-        ),
-    },
-    {
-      key: "branchName",
-      label: "Branch Name",
-      render: (val) =>
-        val ? (
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "5px",
-              background: "#f0f4ff",
-              color: "#3d5a99",
-              padding: "3px 10px",
-              borderRadius: "20px",
-              fontSize: "0.78rem",
-              fontWeight: 500,
-              border: "1px solid #c5d3f0",
-            }}
-          >
-            <i className="bi bi-bank" />
-            {val}
-          </span>
-        ) : (
-          <span className="text-muted">—</span>
-        ),
-    },
-    {
-      key: "collectionAssociateId",
-      label: "Collection Associate ID",
+      key: "USERID",
+      label: "USERID",
+      minWidth: "190px",
       render: (val) => (
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <span
@@ -341,14 +260,37 @@ const FrmActiveAgentsNew = () => {
       ),
     },
     {
-      key: "collectionAssociate",
-      label: "Collection Associate",
+      key: "VAR_USERMST_USERFULLNAME",
+      label: "User Full Name",
+      minWidth: "240px",
       render: (val) => <span className="fw-semibold">{val}</span>,
     },
     {
-      key: "loginDate",
+      key: "MDM_ID",
+      label: "MDM ID",
+      minWidth: "220px",
+      render: (val) =>
+        val ? (
+          <span
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              fontSize: "0.82rem",
+              color: "#084298",
+            }}
+          >
+            <i className="bi bi-envelope-fill" style={{ color: "#0d6efd" }} />
+            {val}
+          </span>
+        ) : (
+          <span className="text-muted">—</span>
+        ),
+    },
+    {
+      key: "LOGIN_DATE",
       label: "Login Date",
-      minWidth: "190px",
+      minWidth: "170px",
       render: (val) =>
         val ? (
           <span
@@ -368,9 +310,9 @@ const FrmActiveAgentsNew = () => {
         ),
     },
     {
-      key: "firstLogin",
-      label: "First Login of the Day",
-      minWidth: "190px",
+      key: "MIN_LOGIN",
+      label: "Min Login",
+      minWidth: "230px",
       render: (val) =>
         val ? (
           <span
@@ -393,9 +335,9 @@ const FrmActiveAgentsNew = () => {
         ),
     },
     {
-      key: "lastLogout",
-      label: "Last Logout of the Day",
-      minWidth: "190px",
+      key: "MAX_LOGOUT",
+      label: "Max Logout",
+      minWidth: "230px",
       render: (val) =>
         val ? (
           <span
@@ -527,7 +469,7 @@ const FrmActiveAgentsNew = () => {
             title="Collection Associate Login Report"
             subtitle="Daily login and logout tracking"
             columns={columns1}
-            data={data}
+            data={tableData}
             perPage={10}
             csvFilename="login_report.csv"
           />

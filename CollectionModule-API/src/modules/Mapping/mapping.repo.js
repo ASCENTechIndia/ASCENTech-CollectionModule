@@ -535,7 +535,7 @@ async function getAgencyRepo() {
 }
 
 async function getFOSRepo() {
-  const query = `Select num_user_userid as  user_id , var_user_userowner as user_name  FROM asadmins_cm.AOUP_USER_DEF  where  num_user_usertypeid='5' and VAR_USER_BLOCK ='Y' order by var_user_userowner`;
+  const query = `Select VAR_USER_USERNAME as  user_id , var_user_userowner as user_name  FROM asadmins_cm.AOUP_USER_DEF  where  num_user_usertypeid='5' and VAR_USER_BLOCK ='Y' order by var_user_userowner`;
   return executeQuery(query);
 }
 

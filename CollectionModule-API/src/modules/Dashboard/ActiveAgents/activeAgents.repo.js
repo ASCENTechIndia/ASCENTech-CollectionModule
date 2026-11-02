@@ -1,21 +1,42 @@
-
-const { executeQuery } = require('../../../db/queryExecutor');
+const { executeQuery } = require("../../../db/queryExecutor");
 
 function normalizeUserId(userId) {
-  const value = String(userId || '').trim();
+  const value = String(userId || "").trim();
   if (!value) {
     return value;
   }
-  return value.startsWith('E') ? value : `E${value}`;
+  return value.startsWith("E") ? value : `E${value}`;
 }
 
 function pad2(value) {
-  return String(value).padStart(2, '0');
+  return String(value).padStart(2, "0");
 }
 
 function daysInMonth(month, year) {
   return new Date(year, month, 0).getDate();
 }
+
+function getMonthName(monthNumber) {
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  return months[monthNumber - 1];
+}
+
+console.log(getMonthName(10)); // Output: "Oct"
+console.log(getMonthName(1)); // Output: "Jan"
 
 async function getDashboardData({ userId, month, year }) {
   const normalizedUserId = normalizeUserId(userId);
@@ -23,177 +44,175 @@ async function getDashboardData({ userId, month, year }) {
   const selectedYear = Number(year) || new Date().getFullYear();
   const monthText = pad2(selectedMonth);
   const firstDate = `01-${monthText}-${selectedYear}`;
+  const monthName = getMonthName(month);
+  console.log("user Id", userId, month, year);
 
   const chartSql = `
-    SELECT TO_CHAR(Login, 'DD') AS day,
-           COUNT(DISTINCT UserID) AS unique_user_count
-      FROM asadmins_cm.aoup_user_count
-      INNER JOIN etech_cm.aoup_usermst_def
-             ON var_usermst_userid = userid
-      INNER JOIN etech_cm.view_user_level_new
-             ON Main_compid = num_usermst_brid
-             OR center_compid = num_usermst_brid
-             OR Zone_compid = num_usermst_brid
-             OR State_compid = num_usermst_brid
-             OR branch_compid = num_usermst_brid
-      INNER JOIN etech_cm.aoup_usermst_def t
-             ON Main_compid = t.num_usermst_brid
-             OR center_compid = t.num_usermst_brid
-             OR Zone_compid = t.num_usermst_brid
-             OR State_compid = t.num_usermst_brid
-             OR branch_compid = t.num_usermst_brid
-     WHERE t.var_usermst_userid = :userId
-       AND TO_CHAR(Login, 'MM') = :month
-       AND TO_CHAR(Login, 'YYYY') = :year
-     GROUP BY TO_CHAR(Login, 'DD')
+        SELECT
+        TO_CHAR(TRUNC(UC.LOGIN), 'DD') AS DAY,
+        COUNT(DISTINCT UC.USERID) AS UNIQUE_USER_COUNT
+    FROM AOUP_COMPANY_AGENCY_MAP CAM
+
+    INNER JOIN AOUP_AGENCY_FOS_MAP M
+        ON M.NUM_AGENCY_ID = CAM.NUM_TO_ENTITYID
+      AND M.VAR_STATUS = 'ACTIVE'
+
+    INNER JOIN ASADMINS_CM.AOUP_USER_COUNT UC
+        ON UC.USERID = M.NUM_FOS_ID
+
+    WHERE CAM.NUM_FROM_ENTITYID = 10159
+      AND CAM.VAR_STATUS = 'ACTIVE'
+    AND LOGIN >= TO_DATE(:p_date, 'MON-YYYY')
+    AND LOGIN < ADD_MONTHS(TO_DATE(:p_date, 'MON-YYYY'), 1)
+
+    GROUP BY TRUNC(UC.LOGIN)
+    ORDER BY TRUNC(UC.LOGIN)
   `;
 
   const activeAgentsSql = `
-    SELECT COUNT(DISTINCT VAR_USER_USERNAME) AS UserCount
-      FROM asadmins_cm.aoup_user_def
-      INNER JOIN etech_cm.aoup_usermst_def u
-             ON var_user_username = var_usermst_userid
-      INNER JOIN etech_cm.view_user_level_new
-             ON Main_compid = num_usermst_brid
-             OR center_compid = num_usermst_brid
-             OR Zone_compid = num_usermst_brid
-             OR State_compid = num_usermst_brid
-             OR branch_compid = num_usermst_brid
-      INNER JOIN etech_cm.aoup_usermst_def t
-             ON Main_compid = t.num_usermst_brid
-             OR center_compid = t.num_usermst_brid
-             OR Zone_compid = t.num_usermst_brid
-             OR State_compid = t.num_usermst_brid
-             OR branch_compid = t.num_usermst_brid
-     WHERE u.VAR_USERMST_STATUS != 'I'
-       AND t.var_usermst_userid = :userId
+      SELECT
+        M.NUM_AGENCY_ID,
+        COUNT(M.NUM_FOS_ID) AS TOTAL_FOS
+    FROM AOUP_AGENCY_FOS_MAP M
+    WHERE M.NUM_AGENCY_ID IN
+    (
+        SELECT NUM_TO_ENTITYID
+        FROM AOUP_COMPANY_AGENCY_MAP
+        WHERE NUM_FROM_ENTITYID = :userId
+        AND VAR_STATUS = 'ACTIVE'
+    )
+    AND M.VAR_STATUS = 'ACTIVE'
+    GROUP BY M.NUM_AGENCY_ID
+
+    UNION ALL
+
+    SELECT
+        NULL AS NUM_AGENCY_ID,
+        COUNT(M.NUM_FOS_ID) AS TOTAL_FOS
+    FROM AOUP_AGENCY_FOS_MAP M
+    WHERE M.NUM_AGENCY_ID IN
+    (
+        SELECT NUM_TO_ENTITYID
+        FROM AOUP_COMPANY_AGENCY_MAP
+      WHERE NUM_FROM_ENTITYID = :userId
+        AND VAR_STATUS = 'ACTIVE'
+    )
+    AND M.VAR_STATUS = 'ACTIVE'
+
   `;
 
   const uniqueLoginsSql = `
-    SELECT COUNT(DISTINCT USERID) AS UserCount
-      FROM asadmins_cm.aoup_user_count
-      INNER JOIN etech_cm.aoup_usermst_def
-             ON var_usermst_userid = userid
-      INNER JOIN etech_cm.view_user_level_new
-             ON Main_compid = num_usermst_brid
-             OR center_compid = num_usermst_brid
-             OR Zone_compid = num_usermst_brid
-             OR State_compid = num_usermst_brid
-             OR branch_compid = num_usermst_brid
-      INNER JOIN etech_cm.aoup_usermst_def t
-             ON Main_compid = t.num_usermst_brid
-             OR center_compid = t.num_usermst_brid
-             OR Zone_compid = t.num_usermst_brid
-             OR State_compid = t.num_usermst_brid
-             OR branch_compid = t.num_usermst_brid
-     WHERE t.var_usermst_userid = :userId
-       AND TO_CHAR(Login, 'MM') = :month
-       AND TO_CHAR(Login, 'YYYY') = :year
+    SELECT
+    COUNT(DISTINCT UC.USERID) AS UNIQUE_USER_COUNT
+FROM AOUP_COMPANY_AGENCY_MAP CAM
+
+INNER JOIN AOUP_AGENCY_FOS_MAP M
+    ON M.NUM_AGENCY_ID = CAM.NUM_TO_ENTITYID
+   AND M.VAR_STATUS = 'ACTIVE'
+
+INNER JOIN ASADMINS_CM.AOUP_USER_COUNT UC
+    ON UC.USERID = M.NUM_FOS_ID
+
+WHERE CAM.NUM_FROM_ENTITYID = :userId
+  AND CAM.VAR_STATUS = 'ACTIVE'
+  AND UC.LOGIN >= TO_DATE(:p_date, 'MON-YYYY')
+  AND UC.LOGIN < ADD_MONTHS(TO_DATE(:p_date, 'MON-YYYY'), 1)
   `;
 
   const assignedAccountsSql = `
-    select count(distinct ASSIGNEDFOS) as assignedcount
-      from atbss_cm.aoup_etech_contractUploadAllocationDetails
-      inner join atbss_cm.aoup_etech_bankdata
-              on contractnumber = var_bankdata_contractnum
-      inner join etech_cm.aoup_usermst_def tb
-              on var_usermst_userid = 'E' || var_bankdata_userid
-      inner join etech_cm.view_user_level_new
-              on Main_compid = num_usermst_brid
-             or center_compid = num_usermst_brid
-             or Zone_compid = num_usermst_brid
-             or State_compid = num_usermst_brid
-             or branch_compid = num_usermst_brid
-      inner join etech_cm.aoup_usermst_def t
-              on Main_compid = t.num_usermst_brid
-             or center_compid = t.num_usermst_brid
-             or Zone_compid = t.num_usermst_brid
-             or State_compid = t.num_usermst_brid
-             or branch_compid = t.num_usermst_brid
-     where ASSIGNEDFOS is not null
-       and t.var_usermst_userid = :userId
-       and VAR_BANKDATA_CONTRACTNUM is not null
-       and TRUNC(CONTRACTALLOCATIONDATE) >= TO_DATE('${firstDate}', 'DD-MM-YYYY')
-       and TRUNC(CONTRACTALLOCATIONDATE) <= LAST_DAY(TO_DATE('${firstDate}', 'DD-MM-YYYY'))
-       and tb.VAR_USERMST_STATUS != 'I'
+    SELECT
+    COUNT(DISTINCT M.NUM_FOS_ID) AS FOS_ACCOUNT_ASSIGNED_COUNT
+ 
+
+    FROM AOUP_COMPANY_AGENCY_MAP CAM
+
+    INNER JOIN AOUP_AGENCY_FOS_MAP M
+        ON M.NUM_AGENCY_ID = CAM.NUM_TO_ENTITYID
+      AND M.VAR_STATUS = 'ACTIVE'
+
+    INNER JOIN ATBSS_CM.AOUP_ETECH_BANKDATA E
+        ON 'E' || E.VAR_BANKDATA_USERID =  M.NUM_FOS_ID
+
+    WHERE CAM.NUM_FROM_ENTITYID = :userId
+      AND CAM.VAR_STATUS = 'ACTIVE'
   `;
 
   const gridSql = `
-    WITH mergedsessions AS(
-      SELECT userid,
-             TRUNC(login) AS login_date,
-             MIN(login) AS min_login,
-             MAX(LOGOUT) AS max_logout
-        FROM asadmins_cm.aoup_user_count
-       WHERE TRUNC(login) >= TO_DATE('${firstDate}', 'DD-MM-YYYY')
-         AND TRUNC(login) <= LAST_DAY(TO_DATE('${firstDate}', 'DD-MM-YYYY'))
-       GROUP BY userid, TRUNC(login)
-    )
-    SELECT ms.userid,
-           ms.login_date,
-           MIN(ms.min_login) AS min_login,
-           MAX(ms.max_logout) AS max_logout,
-           ud.num_usermst_email AS mdm_id,
-           ud.var_usermst_userfullname,
-           cc.VAR_COMPANYMST_BRANCHNAME AS current_branch_name,
-           cc.NUM_COMPANYMST_PARENTID,
-           parent_company.VAR_COMPANYMST_BRANCHNAME AS parent_branch_name,
-           parent_company.NUM_COMPANYMST_PARENTID AS grandparent_id,
-           grandparent_company.VAR_COMPANYMST_BRANCHNAME AS grandparent_branch_name
-      FROM mergedsessions ms
-      INNER JOIN etech_cm.aoup_usermst_def ud
-              ON ud.var_usermst_userid = ms.userid
-      INNER JOIN etech_cm.AOUP_COMPANYMST_DEF cc
-              ON ud.NUM_USERMST_BRID = cc.NUM_COMPANYMST_COMPID
-      INNER JOIN etech_cm.view_user_level_new vl
-              ON vl.Main_compid = ud.num_usermst_brid
-             OR vl.center_compid = ud.num_usermst_brid
-             OR vl.Zone_compid = ud.num_usermst_brid
-             OR vl.State_compid = ud.num_usermst_brid
-             OR vl.branch_compid = ud.num_usermst_brid
-      INNER JOIN etech_cm.aoup_usermst_def t
-              ON t.num_usermst_brid = vl.Main_compid
-             OR t.num_usermst_brid = vl.center_compid
-             OR t.num_usermst_brid = vl.Zone_compid
-             OR t.num_usermst_brid = vl.State_compid
-             OR t.num_usermst_brid = vl.branch_compid
-      LEFT JOIN etech_cm.AOUP_COMPANYMST_DEF parent_company
-             ON cc.NUM_COMPANYMST_PARENTID = parent_company.NUM_COMPANYMST_COMPID
-      LEFT JOIN etech_cm.AOUP_COMPANYMST_DEF grandparent_company
-             ON parent_company.NUM_COMPANYMST_PARENTID = grandparent_company.NUM_COMPANYMST_COMPID
-     WHERE t.var_usermst_userid = :userId
-     GROUP BY ms.userid,
-              ms.login_date,
-              ud.var_usermst_userfullname,
-              ud.num_usermst_email,
-              cc.VAR_COMPANYMST_BRANCHNAME,
-              cc.NUM_COMPANYMST_PARENTID,
-              parent_company.VAR_COMPANYMST_BRANCHNAME,
-              parent_company.NUM_COMPANYMST_PARENTID,
-              grandparent_company.VAR_COMPANYMST_BRANCHNAME
-     ORDER BY ms.login_date DESC
+          SELECT
+          MS.USERID,
+          MS.LOGIN_DATE,
+          MIN(MS.MIN_LOGIN) AS MIN_LOGIN,
+          MAX(MS.MAX_LOGOUT) AS MAX_LOGOUT,
+          UD.NUM_USERMST_EMAIL AS MDM_ID,
+          UD.VAR_USERMST_USERFULLNAME
+
+      FROM
+      (
+          SELECT
+              UC.USERID,
+              TRUNC(UC.LOGIN) AS LOGIN_DATE,
+              MIN(UC.LOGIN) AS MIN_LOGIN,
+              MAX(UC.LOGOUT) AS MAX_LOGOUT
+          FROM ASADMINS_CM.AOUP_USER_COUNT UC
+
+          WHERE UC.LOGIN >= TO_DATE(:p_date, 'MON-YYYY')
+            AND UC.LOGIN < ADD_MONTHS(TO_DATE(:p_date, 'MON-YYYY'), 1)
+
+          GROUP BY UC.USERID, TRUNC(UC.LOGIN)
+      ) MS
+
+      INNER JOIN AOUP_AGENCY_FOS_MAP M
+          ON M.NUM_FOS_ID = MS.USERID
+        AND M.VAR_STATUS = 'ACTIVE'
+
+      INNER JOIN AOUP_COMPANY_AGENCY_MAP CAM
+          ON CAM.NUM_TO_ENTITYID = M.NUM_AGENCY_ID
+        AND CAM.VAR_STATUS = 'ACTIVE'
+        AND CAM.NUM_FROM_ENTITYID = :userId
+
+      INNER JOIN ETECH_CM.AOUP_USERMST_DEF UD
+          ON UD.VAR_USERMST_USERID = MS.USERID
+
+      GROUP BY
+          MS.USERID,
+          MS.LOGIN_DATE,
+          UD.NUM_USERMST_EMAIL,
+          UD.VAR_USERMST_USERFULLNAME
+
+      ORDER BY
+          MS.LOGIN_DATE,
+          MS.USERID
   `;
 
-  const [chartResult, activeAgentsResult, uniqueLoginsResult, assignedAccountsResult, gridResult] = await Promise.all([
+  const [
+    chartResult,
+    activeAgentsResult,
+    uniqueLoginsResult,
+    assignedAccountsResult,
+    gridResult,
+  ] = await Promise.all([
     executeQuery(chartSql, {
-      userId: normalizedUserId,
-      month: monthText,
-      year: String(selectedYear),
+      p_date: `${monthName}-${year}`,
     }),
-    executeQuery(activeAgentsSql, { userId: normalizedUserId }),
+    executeQuery(activeAgentsSql, { userId: Number(userId) }),
     executeQuery(uniqueLoginsSql, {
-      userId: normalizedUserId,
-      month: monthText,
-      year: String(selectedYear),
+      userId: Number(userId),
+      p_date: `${monthName}-${year}`,
     }),
-    executeQuery(assignedAccountsSql, { userId: normalizedUserId }),
-    executeQuery(gridSql, { userId: normalizedUserId }),
+    executeQuery(assignedAccountsSql, { userId: Number(userId) }),
+    executeQuery(gridSql, {
+      userId: Number(userId),
+      p_date: `${monthName}-${year}`,
+    }),
   ]);
 
   const chartMap = new Map();
   for (const row of chartResult.rows || []) {
     const day = Number(row.DAY ?? row.day);
-    chartMap.set(day, Number(row.UNIQUE_USER_COUNT ?? row.unique_user_count ?? 0));
+    chartMap.set(
+      day,
+      Number(row.UNIQUE_USER_COUNT ?? row.unique_user_count ?? 0),
+    );
   }
 
   const labels = [];
@@ -207,14 +226,23 @@ async function getDashboardData({ userId, month, year }) {
   return {
     month: selectedMonth,
     year: selectedYear,
-    monthLabel: new Date(selectedYear, selectedMonth - 1, 1).toLocaleString('en-US', {
-      month: 'long',
-      year: 'numeric',
-    }),
+    monthLabel: new Date(selectedYear, selectedMonth - 1, 1).toLocaleString(
+      "en-US",
+      {
+        month: "long",
+        year: "numeric",
+      },
+    ),
     summary: {
-      onboardedActiveAssociates: Number(activeAgentsResult.rows?.[0]?.USERCOUNT ?? activeAgentsResult.rows?.[0]?.usercount ?? 0),
-      accountsAssigned: Number(assignedAccountsResult.rows?.[0]?.ASSIGNEDCOUNT ?? assignedAccountsResult.rows?.[0]?.assignedcount ?? 0),
-      uniqueLogins: Number(uniqueLoginsResult.rows?.[0]?.USERCOUNT ?? uniqueLoginsResult.rows?.[0]?.usercount ?? 0),
+      onboardedActiveAssociates: Number(
+        activeAgentsResult.rows?.[0]?.TOTAL_FOS ?? 0,
+      ),
+      accountsAssigned: Number(
+        assignedAccountsResult.rows?.[0]?.FOS_ACCOUNT_ASSIGNED_COUNT ?? 0,
+      ),
+      uniqueLogins: Number(
+        uniqueLoginsResult.rows?.[0]?.UNIQUE_USER_COUNT ?? 0,
+      ),
     },
     chart: {
       labels,

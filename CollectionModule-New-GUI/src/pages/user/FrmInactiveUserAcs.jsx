@@ -298,10 +298,10 @@ function FrmInactiveUserAcs() {
                     value={userId}
                     onChange={(e) => setUserId(e.target.value)}
                     placeholder="Enter User ID (optional)"
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, ""); // remove non-digits
-                      setUserId(value);
-                    }}
+                    // onChange={(e) => {
+                    //   const value = e.target.value.replace(/\D/g, ""); // remove non-digits
+                    //   setUserId(value);
+                    // }}
                   />
                 </div>
 
