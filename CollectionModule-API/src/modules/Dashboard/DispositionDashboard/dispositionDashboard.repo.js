@@ -1,21 +1,21 @@
-const { executeQuery } = require('../../../db/queryExecutor');
+const { executeQuery } = require("../../../db/queryExecutor");
 
 function normalizeUserId(userId) {
-  const value = String(userId || '').trim();
+  const value = String(userId || "").trim();
   if (!value) {
     return value;
   }
-  return value.startsWith('E') ? value : `E${value}`;
+  return value.startsWith("E") ? value.substring(1) : value;
 }
 
 function pad2(value) {
-  return String(value).padStart(2, '0');
+  return String(value).padStart(2, "0");
 }
 
 function resolveMonthYear(query = {}) {
   if (query.monthYear) {
-                const value = String(query.monthYear).trim();
-                const match = value.match(/^(0[1-9]|1[0-2])\s*-\s*(\d{4})$/);
+    const value = String(query.monthYear).trim();
+    const match = value.match(/^(0[1-9]|1[0-2])\s*-\s*(\d{4})$/);
     if (match) {
       return {
         month: Number(match[1]),
@@ -35,28 +35,8 @@ function resolveMonthYear(query = {}) {
 }
 
 function getDaysInMonth(month, year) {
+  // month is 1-based; day 0 of next month = last day of this month
   return new Date(year, month, 0).getDate();
-}
-
-function buildChartSeries(rows, totalDays, dayResolver, countResolver) {
-  const counts = new Map();
-        for (const row of rows || []) {
-                const dayValue = String(dayResolver(row) || '').padStart(2, '0');
-    if (!dayValue) {
-      continue;
-    }
-                counts.set(dayValue, Number(countResolver(row) ?? 0));
-  }
-
-  const labels = [];
-  const data = [];
-  for (let day = 1; day <= totalDays; day += 1) {
-    const label = pad2(day);
-    labels.push(label);
-    data.push(counts.get(label) || 0);
-  }
-
-  return { labels, data };
 }
 
 function dedupeRowsByTransId(rows) {
@@ -64,7 +44,9 @@ function dedupeRowsByTransId(rows) {
   const output = [];
 
   for (const row of rows || []) {
-    const transId = String(row.TRANSID ?? row.transid ?? row.TRANS_ID ?? '').trim();
+    const transId = String(
+      row.TRANSID ?? row.transid ?? row.TRANS_ID ?? "",
+    ).trim();
     const key = transId || JSON.stringify(row);
     if (seen.has(key)) {
       continue;
@@ -77,33 +59,49 @@ function dedupeRowsByTransId(rows) {
 }
 
 function maskValue(value) {
-        if (!value) {
-                return value;
-        }
-        const str = String(value);
-        if (str.length <= 4) {
-                return str;
-        }
-        return '*'.repeat(str.length - 4) + str.slice(-4);
+  if (!value) {
+    return value;
+  }
+  const str = String(value);
+  if (str.length <= 4) {
+    return str;
+  }
+  return "*".repeat(str.length - 4) + str.slice(-4);
 }
 
-function resolveLegacyChart1Day(dateText) {
-        const raw = String(dateText || '').trim();
-        const match = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-        if (!match) {
-                return raw ? raw.split('/')[0] : '';
-        }
+function getMonthName(monthNumber) {
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  return months[monthNumber - 1];
+}
 
-        const dd = Number(match[1]);
-        const mm = Number(match[2]);
+function resolveDayFromDate(dateText) {
+  const raw = String(dateText || "").trim();
+  const match = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (!match) {
+    return raw ? raw.slice(0, 2) : "";
+  }
 
-        // Legacy WebForms used DateTime.Parse on dd/mm/yyyy text, which can behave
-        // like MM/DD parsing for ambiguous dates (day <= 12). Mirror that output.
-        if (dd >= 1 && dd <= 12) {
-                return pad2(mm);
-        }
+  const dd = Number(match[1]);
+  const mm = Number(match[2]);
 
-        return pad2(dd);
+  if (dd >= 1 && dd <= 12) {
+    return pad2(mm);
+  }
+
+  return pad2(dd);
 }
 
 async function getDashboardData({ userId, brCategory, query }) {
@@ -111,357 +109,250 @@ async function getDashboardData({ userId, brCategory, query }) {
   const scope = resolveMonthYear(query);
   const monthText = pad2(scope.month);
   const selectedMonthYear = scope.monthYear;
-        const selectedMonthYearWithSpaces = `${monthText} - ${scope.year}`;
+  const selectedMonthYearWithSpaces = `${monthText} - ${scope.year}`;
   const totalDays = getDaysInMonth(scope.month, scope.year);
-  const isBranchCategory = String(brCategory) === '5';
+  const isBranchCategory = String(brCategory) === "5";
 
-  const chart1Sql = isBranchCategory
-    ? `
-      SELECT TO_CHAR(dat_banktransdet_transdat, 'dd/mm/yyyy') AS TRANS_DATE,
-             COUNT(DISTINCT VAR_BANKTRANSDET_USERID) AS NUM_TRANSACTIONS
-        FROM atbss_cm.aoup_etech_banktransdetails bt
-        LEFT OUTER JOIN atbss_cm.aoup_etech_bankingtransmast
-                ON num_banktransmast_transid = num_banktransdet_transid
-        LEFT OUTER JOIN atbss_cm.aoup_etech_bankdata bd
-                ON bd.var_bankdata_contractnum = var_banktransmast_contrctno
-        INNER JOIN etech_cm.aoup_usermst_def c
-                ON var_banktransdet_userid = var_usermst_userid
-        INNER JOIN etech_cm.view_user_level_new
-                ON Main_compid = num_usermst_brid
-                OR center_compid = num_usermst_brid
-                OR Zone_compid = num_usermst_brid
-                OR State_compid = num_usermst_brid
-                OR branch_compid = num_usermst_brid
-        INNER JOIN etech_cm.aoup_usermst_def t
-                ON Main_compid = t.num_usermst_brid
-                OR center_compid = t.num_usermst_brid
-                OR Zone_compid = t.num_usermst_brid
-                OR State_compid = t.num_usermst_brid
-                OR branch_compid = t.num_usermst_brid
-        INNER JOIN etech_cm.aoup_companymst_def
-                ON num_companymst_compid = t.num_usermst_brid
-        LEFT OUTER JOIN atbss_cm.aoup_etech_bankingtransmast mst
-                ON mst.num_banktransmast_transid = num_banktransdet_transid
-        LEFT OUTER JOIN atbss_cm.aoup_etech_visitstatus_mst
-                ON num_visitstatus_id = var_banktransdet_visitststs
-        LEFT OUTER JOIN atbss_cm.aoup_etech_feedbacktype_mst
-                ON var_feedbacktype_mst_id = var_banktransdet_custfeedbck
-        LEFT OUTER JOIN aoup_companycode_mas
-                ON num_companycode_id = c.num_usermst_compcode
-        LEFT OUTER JOIN atbss_cm.aoup_etech_rfdmaster
-                ON num_rfdmst_id = num_banktransdet_rfdid
-        LEFT OUTER JOIN atbss_cm.aoup_etech_rcstatusmst
-                ON num_rcstatus_id = num_banktransdet_rcid
-       WHERE TO_CHAR(dat_banktransdet_transdat, 'MM - YYYY') = :monthYearWithSpaces
-         AND TRIM(var_bankdata_branch) = TRIM(var_companymst_branchname)
-         AND t.var_usermst_userid = :userId
-       GROUP BY TO_CHAR(dat_banktransdet_transdat, 'dd/mm/yyyy')
-       ORDER BY TO_DATE(TO_CHAR(dat_banktransdet_transdat, 'dd/mm/yyyy'), 'dd/mm/yyyy')
-    `
-    : `
-      SELECT TO_CHAR(dat_banktransdet_transdat, 'dd/mm/yyyy') AS TRANS_DATE,
-             COUNT(DISTINCT VAR_BANKTRANSDET_USERID) AS NUM_TRANSACTIONS
-        FROM atbss_cm.aoup_etech_banktransdetails bt
-        INNER JOIN etech_cm.aoup_usermst_def c
-                ON var_banktransdet_userid = var_usermst_userid
-        INNER JOIN etech_cm.view_user_level_new
-                ON Main_compid = num_usermst_brid
-                OR center_compid = num_usermst_brid
-                OR Zone_compid = num_usermst_brid
-                OR State_compid = num_usermst_brid
-                OR branch_compid = num_usermst_brid
-        INNER JOIN etech_cm.aoup_usermst_def t
-                ON Main_compid = t.num_usermst_brid
-                OR center_compid = t.num_usermst_brid
-                OR Zone_compid = t.num_usermst_brid
-                OR State_compid = t.num_usermst_brid
-                OR branch_compid = t.num_usermst_brid
-        LEFT OUTER JOIN atbss_cm.aoup_etech_bankingtransmast
-                ON num_banktransmast_transid = num_banktransdet_transid
-        LEFT OUTER JOIN atbss_cm.aoup_etech_visitstatus_mst
-                ON num_visitstatus_id = var_banktransdet_visitststs
-        LEFT OUTER JOIN atbss_cm.aoup_etech_feedbacktype_mst
-                ON var_feedbacktype_mst_id = var_banktransdet_custfeedbck
-        LEFT OUTER JOIN aoup_companycode_mas
-                ON num_companycode_id = c.num_usermst_compcode
-        LEFT OUTER JOIN atbss_cm.aoup_etech_rfdmaster
-                ON num_rfdmst_id = num_banktransdet_rfdid
-        LEFT OUTER JOIN atbss_cm.aoup_etech_rcstatusmst
-                ON num_rcstatus_id = num_banktransdet_rcid
-       WHERE TO_CHAR(dat_banktransdet_transdat, 'MM-YYYY') = :monthYear
-         AND t.var_usermst_userid = :userId
-       GROUP BY TO_CHAR(dat_banktransdet_transdat, 'dd/mm/yyyy')
-       ORDER BY TO_DATE(TO_CHAR(dat_banktransdet_transdat, 'dd/mm/yyyy'), 'dd/mm/yyyy')
-    `;
+  const monthName = getMonthName(scope.month);
+  const lastDay = getDaysInMonth(scope.month, scope.year);
+  const firstDateToken = `01-${monthName}-${scope.year}`;
+  const lastDateToken = `${pad2(lastDay)}-${monthName}-${scope.year}`;
 
-  const chart2Sql = isBranchCategory
-    ? `
-      SELECT TO_CHAR(TO_DATE(DAT_BANKTRANSDET_TRANSDAT, 'DD-MM-YY'), 'DD') AS day,
-             COUNT(*) AS transaction_count
-        FROM atbss_cm.aoup_etech_banktransdetails
-        LEFT OUTER JOIN atbss_cm.aoup_etech_bankingtransmast
-                ON num_banktransmast_transid = num_banktransdet_transid
-        LEFT OUTER JOIN atbss_cm.aoup_etech_bankdata bd
-                ON bd.var_bankdata_contractnum = var_banktransmast_contrctno
-        INNER JOIN etech_cm.aoup_usermst_def
-                ON var_usermst_userid = var_banktransdet_userid
-        INNER JOIN etech_cm.view_user_level_new
-                ON Main_compid = num_usermst_brid
-                OR center_compid = num_usermst_brid
-                OR Zone_compid = num_usermst_brid
-                OR State_compid = num_usermst_brid
-                OR branch_compid = num_usermst_brid
-        INNER JOIN etech_cm.aoup_usermst_def t
-                ON Main_compid = t.num_usermst_brid
-                OR center_compid = t.num_usermst_brid
-                OR Zone_compid = t.num_usermst_brid
-                OR State_compid = t.num_usermst_brid
-                OR branch_compid = t.num_usermst_brid
-        INNER JOIN etech_cm.aoup_companymst_def
-                ON num_companymst_compid = t.num_usermst_brid
-       WHERE TO_CHAR(TO_DATE(DAT_BANKTRANSDET_TRANSDAT, 'DD-MM-YY'), 'MM') = :month
-         AND TO_CHAR(TO_DATE(DAT_BANKTRANSDET_TRANSDAT, 'DD-MM-YY'), 'YYYY') = :year
-         AND t.var_usermst_userid = :userId
-         AND TRIM(var_bankdata_branch) = TRIM(var_companymst_branchname)
-       GROUP BY TO_CHAR(TO_DATE(DAT_BANKTRANSDET_TRANSDAT, 'DD-MM-YY'), 'DD')
-       ORDER BY day
-    `
-    : `
-      SELECT TO_CHAR(TO_DATE(DAT_BANKTRANSDET_TRANSDAT, 'DD-MM-YY'), 'DD') AS day,
-             COUNT(*) AS transaction_count
-        FROM atbss_cm.aoup_etech_banktransdetails
-        INNER JOIN etech_cm.aoup_usermst_def
-                ON var_usermst_userid = var_banktransdet_userid
-        INNER JOIN etech_cm.view_user_level_new
-                ON Main_compid = num_usermst_brid
-                OR center_compid = num_usermst_brid
-                OR Zone_compid = num_usermst_brid
-                OR State_compid = num_usermst_brid
-                OR branch_compid = num_usermst_brid
-        INNER JOIN etech_cm.aoup_usermst_def t
-                ON Main_compid = t.num_usermst_brid
-                OR center_compid = t.num_usermst_brid
-                OR Zone_compid = t.num_usermst_brid
-                OR State_compid = t.num_usermst_brid
-                OR branch_compid = t.num_usermst_brid
-       WHERE TO_CHAR(TO_DATE(DAT_BANKTRANSDET_TRANSDAT, 'DD-MM-YY'), 'MM') = :month
-         AND TO_CHAR(TO_DATE(DAT_BANKTRANSDET_TRANSDAT, 'DD-MM-YY'), 'YYYY') = :year
-         AND t.var_usermst_userid = :userId
-       GROUP BY TO_CHAR(TO_DATE(DAT_BANKTRANSDET_TRANSDAT, 'DD-MM-YY'), 'DD')
-       ORDER BY day
-    `;
+  const chart1Sql = `
+      SELECT
+        TO_CHAR(TRUNC(BT.DAT_BANKTRANSDET_TRANSDAT), 'DD/MM/YYYY') AS TRANS_DATE,
+        COUNT(DISTINCT BT.NUM_BANKTRANSDET_TRANSID) AS TOTAL_TRANSACTIONS
+        FROM ATBSS_CM.AOUP_ETECH_BANKTRANSDETAILS BT
+        LEFT JOIN ATBSS_CM.AOUP_ETECH_BANKINGTRANSMAST BM
+          ON BM.NUM_BANKTRANSMAST_TRANSID = BT.NUM_BANKTRANSDET_TRANSID
+        LEFT JOIN ATBSS_CM.AOUP_ETECH_BANKDATA BD
+          ON BD.VAR_BANKDATA_CONTRACTNUM = BM.VAR_BANKTRANSMAST_CONTRCTNO
+        INNER JOIN ETECH_CM.AOUP_USERMST_DEF C
+          ON C.VAR_USERMST_USERID = BT.VAR_BANKTRANSDET_USERID
+        INNER JOIN AOUP_AGENCY_FOS_MAP AF
+          ON AF.NUM_FOS_ID = BT.VAR_BANKTRANSDET_USERID
+         AND AF.VAR_STATUS = 'ACTIVE'
+        INNER JOIN AOUP_COMPANY_AGENCY_MAP CAM
+          ON CAM.NUM_TO_ENTITYID = AF.NUM_AGENCY_ID
+         AND CAM.VAR_STATUS = 'ACTIVE'
+       WHERE CAM.NUM_FROM_ENTITYID = :userId
+         AND BT.DAT_BANKTRANSDET_TRANSDAT >= TO_DATE(:p_from, 'DD-MON-YYYY')
+         AND BT.DAT_BANKTRANSDET_TRANSDAT <  TO_DATE(:p_to,   'DD-MON-YYYY') + 1
+       GROUP BY TRUNC(BT.DAT_BANKTRANSDET_TRANSDAT)
+       ORDER BY TRUNC(BT.DAT_BANKTRANSDET_TRANSDAT)
+  `;
 
-  const gridSql = isBranchCategory
-    ? `
-      SELECT num_banktransdet_transid AS srno,
-             '''' || var_banktransdet_transidnew AS transid,
-             c.num_usermst_email AS MDM_ID,
-             REPLACE(var_banktransdet_userid, 'E', '') AS userid,
-              c.var_usermst_userfullname AS username,
-             '''' || var_banktransmast_contrctno AS contractnum,
-             var_visitstatus_type AS visitststs,
-             var_feedbacktype_mst_desc AS feedback,
-             VAR_BANKDATA_BRANCH,
-             VAR_BANKDATA_PRODUCTCODE,
-             VAR_BANKDATA_PRODUCTNM,
-             VAR_BANKDATA_REGISTRNO,
-             CASE var_banktransdet_paymode
-               WHEN 'C' THEN 'online'
-               WHEN 'Q' THEN 'Cheque'
-               WHEN 'R' THEN 'Online'
-               ELSE var_banktransdet_paymode
-             END AS paymode,
-             num_banktransdet_paidamt AS paidamt,
-             num_banktransdet_chqno AS instrumentno,
-             dat_banktransdet_chqdt AS instrumentdt,
-             var_banktransdet_bankname AS bankname,
-             var_banktransdet_billdeskrefno AS billdeskrefno,
-             var_banktransdet_authcode AS authcode,
-             var_banktransdet_billdeskmsg AS billdeskmsg,
-             var_banktransdet_altrphno1 AS mobileno,
-             var_banktransdet_altrphno2 AS altrphno2,
-             var_banktransdet_email1 AS email1,
-             var_banktransdet_altrnatadd AS address,
-             dat_banktransmast_ptpdt AS ptpdate,
-             dat_banktransdet_reshudt AS reshudt,
-             var_banktransdet_visitremark AS visitremark,
-             var_banktransdet_panform AS panform,
-             var_banktransdet_pandetails AS pandetails,
-             var_banktransdet_settleflag AS settleflag,
-             TO_CHAR(dat_banktransdet_transdat, 'dd/mm/yyyy') AS trans_date,
-             TO_CHAR(dat_banktransdet_transdat, 'hh24:mi:ss') AS trans_time,
-             dat_banktransdet_oflntransdate AS oflntransdate,
-             var_banktransdet_golocation AS golocation,
-             var_tmfl_uploadflag AS uploadflag,
-             var_tmfl_response AS response,
-             var_creditlimit_flag AS authorisationflag,
-             bd.var_bankdata_cobrowsraddress AS customerAddress,
-             var_bankdata_branch AS lenderLocationName,
-             var_bankdata_registrno AS Product_Type,
-             var_bankdata_customernm AS customername,
-             c.var_usermst_empcode AS employecode,
-             SUBSTR(var_banktransdet_golocation, 1, INSTR(var_banktransdet_golocation, ',') - 1) AS lattitude,
-             SUBSTR(var_banktransdet_golocation, INSTR(var_banktransdet_golocation, ',') + 1) AS longtitude
-        FROM atbss_cm.aoup_etech_banktransdetails
-        LEFT OUTER JOIN atbss_cm.aoup_etech_bankingtransmast
-                ON num_banktransmast_transid = num_banktransdet_transid
-        LEFT OUTER JOIN atbss_cm.aoup_etech_bankdata bd
-                ON bd.var_bankdata_contractnum = var_banktransmast_contrctno
-        LEFT OUTER JOIN atbss_cm.aoup_etech_visitstatus_mst
-                ON num_visitstatus_id = var_banktransdet_visitststs
-        LEFT OUTER JOIN atbss_cm.aoup_etech_feedbacktype_mst
-                ON var_feedbacktype_mst_id = var_banktransdet_custfeedbck
-        INNER JOIN etech_cm.aoup_usermst_def c
-                ON c.var_usermst_userid = var_banktransdet_userid
-        INNER JOIN etech_cm.view_user_level_new
-                ON Main_compid = num_usermst_brid
-                OR center_compid = num_usermst_brid
-                OR Zone_compid = num_usermst_brid
-                OR State_compid = num_usermst_brid
-                OR branch_compid = num_usermst_brid
-        INNER JOIN etech_cm.aoup_usermst_def t
-                ON Main_compid = t.num_usermst_brid
-                OR center_compid = t.num_usermst_brid
-                OR Zone_compid = t.num_usermst_brid
-                OR State_compid = t.num_usermst_brid
-                OR branch_compid = t.num_usermst_brid
-        INNER JOIN etech_cm.aoup_companymst_def
-                ON num_companymst_compid = t.num_usermst_brid
-                 WHERE (TO_CHAR(dat_banktransdet_transdat, 'MM-YYYY') = :monthYear
-                         OR TO_CHAR(dat_banktransdet_transdat, 'MM - YYYY') = :monthYearWithSpaces)
-         AND TRIM(var_bankdata_branch) = TRIM(var_companymst_branchname)
-         AND t.var_usermst_userid = :userId
-       ORDER BY dat_banktransdet_transdat
-    `
-    : `
-      SELECT num_banktransdet_transid AS srno,
-             '''' || var_banktransdet_transidnew AS transid,
-             c.num_usermst_email AS MDM_ID,
-             REPLACE(var_banktransdet_userid, 'E', '') AS userid,
-             c.var_usermst_userfullname AS username,
-             '''' || var_banktransmast_contrctno AS contractnum,
-             var_visitstatus_type AS visitststs,
-             var_feedbacktype_mst_desc AS feedback,
-             VAR_BANKDATA_BRANCH,
-             VAR_BANKDATA_PRODUCTCODE,
-             VAR_BANKDATA_PRODUCTNM,
-             VAR_BANKDATA_REGISTRNO,
-             CASE var_banktransdet_paymode
-               WHEN 'C' THEN 'Online'
-               WHEN 'Q' THEN 'Cheque'
-               WHEN 'R' THEN 'Online'
-               ELSE var_banktransdet_paymode
-             END AS paymode,
-             num_banktransdet_paidamt AS paidamt,
-             num_banktransdet_chqno AS instrumentno,
-             dat_banktransdet_chqdt AS instrumentdt,
-             var_banktransdet_bankname AS bankname,
-             var_banktransdet_billdeskrefno AS billdeskrefno,
-             var_banktransdet_authcode AS authcode,
-             var_banktransdet_billdeskmsg AS billdeskmsg,
-             var_banktransdet_altrphno1 AS mobileno,
-             var_banktransdet_altrphno2 AS altrphno2,
-             var_banktransdet_email1 AS email1,
-             var_banktransdet_altrnatadd AS address,
-             dat_banktransmast_ptpdt AS ptpdate,
-             dat_banktransdet_reshudt AS reshudt,
-             var_banktransdet_visitremark AS visitremark,
-             var_banktransdet_panform AS panform,
-             var_banktransdet_pandetails AS pandetails,
-             var_banktransdet_settleflag AS settleflag,
-             TO_CHAR(dat_banktransdet_transdat, 'dd/mm/yyyy') AS trans_date,
-             TO_CHAR(dat_banktransdet_transdat, 'hh24:mi:ss') AS trans_time,
-             dat_banktransdet_oflntransdate AS oflntransdate,
-             var_banktransdet_golocation AS golocation,
-             var_tmfl_uploadflag AS uploadflag,
-             var_tmfl_response AS response,
-             var_creditlimit_flag AS authorisationflag,
-             bd.var_bankdata_cobrowsraddress AS customerAddress,
-             var_bankdata_branch AS lenderLocationName,
-             var_bankdata_registrno AS Product_Type,
-             var_bankdata_customernm AS customername,
-             c.var_usermst_empcode AS employecode,
-             SUBSTR(var_banktransdet_golocation, 1, INSTR(var_banktransdet_golocation, ',') - 1) AS lattitude,
-             SUBSTR(var_banktransdet_golocation, INSTR(var_banktransdet_golocation, ',') + 1) AS longtitude
-        FROM atbss_cm.aoup_etech_banktransdetails
-        LEFT OUTER JOIN atbss_cm.aoup_etech_bankingtransmast
-                ON num_banktransmast_transid = num_banktransdet_transid
-        LEFT OUTER JOIN atbss_cm.aoup_etech_bankdata bd
-                ON bd.var_bankdata_contractnum = var_banktransmast_contrctno
-        LEFT OUTER JOIN atbss_cm.aoup_etech_visitstatus_mst
-                ON num_visitstatus_id = var_banktransdet_visitststs
-        LEFT OUTER JOIN atbss_cm.aoup_etech_feedbacktype_mst
-                ON var_feedbacktype_mst_id = var_banktransdet_custfeedbck
-        INNER JOIN etech_cm.aoup_usermst_def c
-                ON c.var_usermst_userid = var_banktransdet_userid
-        INNER JOIN etech_cm.view_user_level_new
-                ON Main_compid = num_usermst_brid
-                OR center_compid = num_usermst_brid
-                OR Zone_compid = num_usermst_brid
-                OR State_compid = num_usermst_brid
-                OR branch_compid = num_usermst_brid
-        INNER JOIN etech_cm.aoup_usermst_def t
-                ON Main_compid = t.num_usermst_brid
-                OR center_compid = t.num_usermst_brid
-                OR Zone_compid = t.num_usermst_brid
-                OR State_compid = t.num_usermst_brid
-                OR branch_compid = t.num_usermst_brid
-                 WHERE (TO_CHAR(dat_banktransdet_transdat, 'MM-YYYY') = :monthYear
-                         OR TO_CHAR(dat_banktransdet_transdat, 'MM - YYYY') = :monthYearWithSpaces)
-         AND t.var_usermst_userid = :userId
-       ORDER BY dat_banktransdet_transdat
-    `;
+  const chart2Sql = `
+      SELECT
+        TO_CHAR(TRUNC(BT.DAT_BANKTRANSDET_TRANSDAT), 'DD/MM/YYYY') AS TRANS_DATE,
+        COUNT(DISTINCT BT.VAR_BANKTRANSDET_USERID) AS UNIQUE_FOS_COUNT
+        FROM ATBSS_CM.AOUP_ETECH_BANKTRANSDETAILS BT
+        LEFT JOIN ATBSS_CM.AOUP_ETECH_BANKINGTRANSMAST BM
+          ON BM.NUM_BANKTRANSMAST_TRANSID = BT.NUM_BANKTRANSDET_TRANSID
+        LEFT JOIN ATBSS_CM.AOUP_ETECH_BANKDATA BD
+          ON BD.VAR_BANKDATA_CONTRACTNUM = BM.VAR_BANKTRANSMAST_CONTRCTNO
+        INNER JOIN ETECH_CM.AOUP_USERMST_DEF C
+          ON C.VAR_USERMST_USERID = BT.VAR_BANKTRANSDET_USERID
+        INNER JOIN ETECH_CM.AOUP_AGENCY_FOS_MAP AF
+          ON AF.NUM_FOS_ID = BT.VAR_BANKTRANSDET_USERID
+         AND AF.VAR_STATUS = 'ACTIVE'
+        INNER JOIN ETECH_CM.AOUP_COMPANY_AGENCY_MAP CAM
+          ON CAM.NUM_TO_ENTITYID = AF.NUM_AGENCY_ID
+         AND CAM.VAR_STATUS = 'ACTIVE'
+       WHERE CAM.NUM_FROM_ENTITYID = :userId
+         AND BT.DAT_BANKTRANSDET_TRANSDAT >= TO_DATE(:p_from, 'DD-MON-YYYY')
+         AND BT.DAT_BANKTRANSDET_TRANSDAT <  TO_DATE(:p_to,   'DD-MON-YYYY') + 1
+       GROUP BY TRUNC(BT.DAT_BANKTRANSDET_TRANSDAT)
+       ORDER BY TRUNC(BT.DAT_BANKTRANSDET_TRANSDAT)
+  `;
+
+  const gridSql = `
+    SELECT
+      BT.NUM_BANKTRANSDET_TRANSID AS SRNO,
+      BT.VAR_BANKTRANSDET_TRANSIDNEW AS TRANSID,
+
+      C.NUM_USERMST_EMAIL AS MDM_ID,
+      REPLACE(BT.VAR_BANKTRANSDET_USERID, 'E', '') AS USERID,
+      C.VAR_USERMST_USERFULLNAME AS USERNAME,
+
+      BM.VAR_BANKTRANSMAST_CONTRCTNO AS CONTRACTNUM,
+
+      VS.VAR_VISITSTATUS_TYPE AS VISITSTSTS,
+      FB.VAR_FEEDBACKTYPE_MST_DESC AS FEEDBACK,
+
+      BD.VAR_BANKDATA_BRANCH,
+      BD.VAR_BANKDATA_PRODUCTCODE,
+      BD.VAR_BANKDATA_PRODUCTNM,
+      BD.VAR_BANKDATA_REGISTRNO,
+
+      CASE BT.VAR_BANKTRANSDET_PAYMODE
+        WHEN 'C' THEN 'Online'
+        WHEN 'Q' THEN 'Cheque'
+        WHEN 'R' THEN 'Online'
+        ELSE BT.VAR_BANKTRANSDET_PAYMODE
+      END AS PAYMODE,
+
+      BT.NUM_BANKTRANSDET_PAIDAMT AS PAIDAMT,
+      BT.NUM_BANKTRANSDET_CHQNO AS INSTRUMENTNO,
+      BT.DAT_BANKTRANSDET_CHQDT AS INSTRUMENTDT,
+
+      BT.VAR_BANKTRANSDET_BANKNAME AS BANKNAME,
+      BT.VAR_BANKTRANSDET_BILLDESKREFNO AS BILLDESKREFNO,
+      BT.VAR_BANKTRANSDET_AUTHCODE AS AUTHCODE,
+      BT.VAR_BANKTRANSDET_BILLDESKMSG AS BILLDESKMSG,
+
+      BT.VAR_BANKTRANSDET_ALTRPHNO1 AS MOBILENO,
+      BT.VAR_BANKTRANSDET_ALTRPHNO2 AS ALTRPHNO2,
+      BT.VAR_BANKTRANSDET_EMAIL1 AS EMAIL1,
+      BT.VAR_BANKTRANSDET_ALTRNATADD AS ADDRESS,
+
+      BM.DAT_BANKTRANSMAST_PTPDT AS PTPDATE,
+      BT.DAT_BANKTRANSDET_RESHUDT AS RESHUDT,
+
+      BT.VAR_BANKTRANSDET_VISITREMARK AS VISITREMARK,
+      BT.VAR_BANKTRANSDET_PANFORM AS PANFORM,
+      BT.VAR_BANKTRANSDET_PANDETAILS AS PANDETAILS,
+      BT.VAR_BANKTRANSDET_SETTLEFLAG AS SETTLEFLAG,
+
+      TO_CHAR(BT.DAT_BANKTRANSDET_TRANSDAT, 'DD/MM/YYYY') AS TRANS_DATE,
+      TO_CHAR(BT.DAT_BANKTRANSDET_TRANSDAT, 'HH24:MI:SS') AS TRANS_TIME,
+
+      BT.DAT_BANKTRANSDET_OFLNTRANSDATE AS OFLNTRANSDATE,
+      BT.VAR_BANKTRANSDET_GOLOCATION AS GOLOCATION,
+
+      BT.VAR_TMFL_UPLOADFLAG AS UPLOADFLAG,
+      BT.VAR_TMFL_RESPONSE AS RESPONSE,
+      BT.VAR_CREDITLIMIT_FLAG AS AUTHORISATIONFLAG,
+
+      BD.VAR_BANKDATA_COBROWSRADDRESS AS CUSTOMERADDRESS,
+      BD.VAR_BANKDATA_BRANCH AS LENDERLOCATIONNAME,
+      BD.VAR_BANKDATA_REGISTRNO AS PRODUCT_TYPE,
+      BD.VAR_BANKDATA_CUSTOMERNM AS CUSTOMERNAME,
+
+      C.VAR_USERMST_EMPCODE AS EMPLOYEECODE,
+
+      SUBSTR(
+        BT.VAR_BANKTRANSDET_GOLOCATION,
+        1,
+        INSTR(BT.VAR_BANKTRANSDET_GOLOCATION, ',') - 1
+      ) AS LATITUDE,
+
+      SUBSTR(
+        BT.VAR_BANKTRANSDET_GOLOCATION,
+        INSTR(BT.VAR_BANKTRANSDET_GOLOCATION, ',') + 1
+      ) AS LONGITUDE
+
+    FROM ATBSS_CM.AOUP_ETECH_BANKTRANSDETAILS BT
+
+    LEFT JOIN ATBSS_CM.AOUP_ETECH_BANKINGTRANSMAST BM
+      ON BM.NUM_BANKTRANSMAST_TRANSID = BT.NUM_BANKTRANSDET_TRANSID
+
+    LEFT JOIN ATBSS_CM.AOUP_ETECH_BANKDATA BD
+      ON BD.VAR_BANKDATA_CONTRACTNUM = BM.VAR_BANKTRANSMAST_CONTRCTNO
+
+    LEFT JOIN ATBSS_CM.AOUP_ETECH_VISITSTATUS_MST VS
+      ON VS.NUM_VISITSTATUS_ID = BT.VAR_BANKTRANSDET_VISITSTSTS
+
+    LEFT JOIN ATBSS_CM.AOUP_ETECH_FEEDBACKTYPE_MST FB
+      ON FB.VAR_FEEDBACKTYPE_MST_ID = BT.VAR_BANKTRANSDET_CUSTFEEDBCK
+
+    INNER JOIN ETECH_CM.AOUP_USERMST_DEF C
+      ON C.VAR_USERMST_USERID = BT.VAR_BANKTRANSDET_USERID
+
+    INNER JOIN ETECH_CM.AOUP_AGENCY_FOS_MAP AF
+      ON AF.NUM_FOS_ID = BT.VAR_BANKTRANSDET_USERID
+     AND AF.VAR_STATUS = 'ACTIVE'
+
+    INNER JOIN ETECH_CM.AOUP_COMPANY_AGENCY_MAP CAM
+      ON CAM.NUM_TO_ENTITYID = AF.NUM_AGENCY_ID
+     AND CAM.VAR_STATUS = 'ACTIVE'
+
+    WHERE CAM.NUM_FROM_ENTITYID = :userId
+      AND BT.DAT_BANKTRANSDET_TRANSDAT >= TO_DATE(:p_from, 'DD-MON-YYYY')
+      AND BT.DAT_BANKTRANSDET_TRANSDAT <  TO_DATE(:p_to,   'DD-MON-YYYY') + 1
+
+    ORDER BY BT.DAT_BANKTRANSDET_TRANSDAT
+  `;
 
   const [chart1Result, chart2Result, gridResult] = await Promise.all([
-                executeQuery(chart1Sql, isBranchCategory
-                        ? {
-                                        userId: normalizedUserId,
-                                        monthYearWithSpaces: selectedMonthYearWithSpaces,
-                                }
-                        : {
-                                        userId: normalizedUserId,
-                                        monthYear: selectedMonthYear,
-                                }),
-    executeQuery(chart2Sql, { userId: normalizedUserId, month: monthText, year: String(scope.year) }),
-                executeQuery(gridSql, {
-                        userId: normalizedUserId,
-                        monthYear: selectedMonthYear,
-                        monthYearWithSpaces: selectedMonthYearWithSpaces,
-                }),
+    executeQuery(chart1Sql, {
+      userId: normalizedUserId,
+      p_from: firstDateToken,
+      p_to: lastDateToken,
+    }),
+    executeQuery(chart2Sql, {
+      userId: normalizedUserId,
+      p_from: firstDateToken,
+      p_to: lastDateToken,
+    }),
+    executeQuery(gridSql, {
+      userId: normalizedUserId,
+      p_from: firstDateToken,
+      p_to: lastDateToken,
+    }),
   ]);
 
-        const chart1 = buildChartSeries(
-                chart1Result.rows,
-                totalDays,
-                (row) => resolveLegacyChart1Day(row.TRANS_DATE ?? row.trans_date ?? ''),
-                (row) => row.NUM_TRANSACTIONS ?? row.num_transactions ?? row.TRANSACTION_COUNT ?? row.transaction_count
-        );
+  const labels = Array.from({ length: totalDays }, (_, i) => pad2(i + 1));
 
-        const chart2 = buildChartSeries(
-                chart2Result.rows,
-                totalDays,
-                (row) => row.DAY ?? row.day,
-                (row) => row.TRANSACTION_COUNT ?? row.transaction_count ?? row.NUM_TRANSACTIONS ?? row.num_transactions
-        );
-        const grid = dedupeRowsByTransId(gridResult.rows || []);
-        const shouldMaskContractNumber = String(query?.userOf || '') === '1';
+  const buildDaySeries = (rows, countResolver) => {
+    const map = new Map();
+    for (const row of rows || []) {
+      const day = String(
+        resolveDayFromDate(row.TRANS_DATE ?? row.trans_date ?? ""),
+      ).padStart(2, "0");
+      if (!day) {
+        continue;
+      }
+      map.set(day, Number(countResolver(row) ?? 0));
+    }
+    return labels.map((day) => map.get(day) ?? 0);
+  };
 
-        if (shouldMaskContractNumber) {
-                grid.forEach((row) => {
-                        row.CONTRACTNUM = maskValue(row.CONTRACTNUM);
-                });
-        }
+  const dispositionsSeries = buildDaySeries(
+    chart1Result.rows,
+    (r) =>
+      r.TOTAL_TRANSACTIONS ??
+      r.total_transactions ??
+      r.NUM_TRANSACTIONS ??
+      r.num_transactions ??
+      0,
+  );
+
+  const uniqueAgentsSeries = buildDaySeries(
+    chart2Result.rows,
+    (r) =>
+      r.UNIQUE_FOS_COUNT ??
+      r.unique_fos_count ??
+      r.TRANSACTION_COUNT ??
+      r.transaction_count ??
+      0,
+  );
+
+  const grid = gridResult.rows || [];
 
   return {
     monthYear: selectedMonthYear,
     month: scope.month,
     year: scope.year,
-    monthLabel: new Date(scope.year, scope.month - 1, 1).toLocaleString('en-US', {
-      month: 'long',
-      year: 'numeric',
-    }),
-    chart1,
-    chart2,
+    monthLabel: new Date(scope.year, scope.month - 1, 1).toLocaleString(
+      "en-US",
+      { month: "long", year: "numeric" },
+    ),
+    chart: {
+      labels,
+      datasets: [
+        {
+          key: "uniqueAgents",
+          label: "Unique Agents adding Disposition",
+          data: uniqueAgentsSeries,
+        },
+        {
+          key: "dispositions",
+          label: "Disposition Added in a Day",
+          data: dispositionsSeries,
+        },
+      ],
+    },
     grid,
     totalRows: grid.length,
   };
